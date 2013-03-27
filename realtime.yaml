@@ -1,0 +1,10 @@
+uwsgi:
+  socket: /ns/runtime/sock/wsgi/realtime.sock
+  module: apps.hermes.source.gateway:realtime
+  chmod: 775
+  chown: appfactory
+  uid: appfactory
+  gid: runtime
+  master: on
+  gevent: 50
+  gevent-monkey-patch: on

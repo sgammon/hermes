@@ -1,0 +1,11 @@
+uwsgi:
+  socket: /ns/runtime/sock/wsgi/hermes.sock
+  module: apps.hermes.source.gateway:dispatch
+  chmod: 775
+  chown: appfactory
+  uid: appfactory
+  gid: runtime
+  master: on
+  processes: 2
+  enable-threads: on
+  threads: 40
