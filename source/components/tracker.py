@@ -144,7 +144,7 @@ class EventTracker(object):
 
         # See if the buffer needs to be flushed
         self.verbose("Checking buffer.")
-        should_flush = self.check
+        should_flush = self.check()
         if should_flush:
             self.flush()
 
