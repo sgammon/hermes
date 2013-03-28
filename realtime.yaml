@@ -11,3 +11,4 @@ uwsgi:
   gevent: 100
   gevent-monkey-patch: on
   touch-reload: /ns/runtime/trigger/hermes.uwsgi
+  pcre-jit: on

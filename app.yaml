@@ -10,3 +10,5 @@ uwsgi:
   processes: 2
   enable-threads: on
   threads: 40
+  pcre-jit: on
+  touch-reload: /ns/runtime/trigger/hermes.uwsgi
