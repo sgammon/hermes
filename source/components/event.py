@@ -8,6 +8,7 @@ from apps.hermes.source import debug
 from apps.hermes.source import verbose
 from apps.hermes.source import protocol
 from apps.hermes.source import exceptions
+from apps.hermes.source import _PARAM_SEPARATOR
 from apps.hermes.source import _DISCARD_NOSENTINEL
 
 
@@ -80,15 +81,15 @@ class TrackedEvent(object):
 
         # If it's an Ampush param, add the prefix...
         if name in AmpushParams:
-            param = _PARAM_SEPARATOR.join((TrackerPrefix.AMPUSH, name))
+            param = _PARAM_SEPARATOR.join((protocol.TrackerPrefix.AMPUSH, name))
 
         # Same if it's an Internal param...
         elif name in InternalParams:
-            param = _PARAM_SEPARATOR.join((TrackerPrefix.INTERNAL, name))
+            param = _PARAM_SEPARATOR.join((protocol.TrackerPrefix.INTERNAL, name))
 
         # Otherwise, it's custom.
         else:
-            param = _PARAM_SEPARATOR.join((TrackerPrefix.CUSTOM, name))
+            param = _PARAM_SEPARATOR.join((protocol.TrackerPrefix.CUSTOM, name))
 
         self.tracker.verbose("Transformed param '%s' to '%s'." % (name, param))
         return param

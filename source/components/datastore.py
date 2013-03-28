@@ -4,6 +4,9 @@
 import gevent
 from gevent import pool
 
+# contants
+from apps.hermes.source import _REDIS_WRITE_POOL
+
 
 ## Globals
 _writepool = pool.Pool(_REDIS_WRITE_POOL)
