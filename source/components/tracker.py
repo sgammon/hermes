@@ -153,7 +153,7 @@ class EventTracker(object):
         ''' See if we need to close out the prebuffer. '''
 
         # We should flush if we've A) overflowed our soft buffer threshold or B) passed our flush timeout...
-        timestamp = time.time()
+        timestamp = int(time.time())
         flush = ((self.prebuffer.qsize() > self.BufferConfig.threshold) or (self.lastflush + self.BufferConfig.frequency < timestamp))
         
         # Send logs
@@ -168,7 +168,9 @@ class EventTracker(object):
 
         ''' Flush the prebuffer to Redis. '''
 
-        self.log("Buffer: Flushing %s events." % self.prebuffer.qsize())
+        timestamp = int(time.time())
+        self.log("Buffer: Flushing %s events, resetting timestamp to %s." % (self.prebuffer.qsize(), timestamp))
+        self.lastflush = timestamp
         return self
 
     def begin_request(self, environ, start_response):
