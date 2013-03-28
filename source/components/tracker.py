@@ -144,9 +144,11 @@ class EventTracker(object):
 
         # See if the buffer needs to be flushed
         self.verbose("Checking buffer.")
-        if self.check(): self.flush()
+        should_flush = self.check
+        if should_flush:
+            self.flush()
 
-        return id(event)
+        return event.id, should_flush
 
     def check(self):
 
@@ -234,6 +236,7 @@ class EventTracker(object):
             import pdb; pdb.set_trace()
 
         # Spawn request + response
+        response_buffer = []
         request, response = self.begin_request(environ, start_response)
         self.log("Processing new request with ID %s." % id(request))
 
@@ -252,7 +255,6 @@ class EventTracker(object):
 
             # Handle 400-bound ClientError(s)
             response.status = 400
-            response.body = '<b>Something terrible occurred, and it was <i>your</i> fault.</b>'
             self.error("Encountered ClientError: \"%s\". Raising HTTP400." % e)
 
             body = self.send_response(response, start_response, flush=True)
@@ -263,7 +265,6 @@ class EventTracker(object):
 
             # Handle 500-bound PlatformError(s)
             response.status = 500
-            response.body = '<b>Oh noez, something broke.</b>'
             self.error("Encountered PlatformError: \"%s\". Raising HTTP500." % e)
 
             body = self.send_response(response, start_response, flush=True)
@@ -277,30 +278,25 @@ class EventTracker(object):
             self.error("Exception description: \"%s\"." % e.__doc__)
 
             response.status = 500
-            response.body = '<b>An unknown error occurred.</b>'
             body = self.send_response(response, start_response, flush=True)
             yield body
             raise  # re-raise after response
             raise StopIteration()
 
-        try:
-            self.verbose("Successfully provisioned new TrackedEvent. Starting deferred response.")
+        self.verbose("Successfully provisioned new TrackedEvent. Starting deferred response.")
 
-            # Start response with appropriate headers
-            self.send_response(response, start_response, flush=False)
+        # Start response with appropriate headers
+        self.send_response(response, start_response, flush=False)
 
-            # Buffer it and grab a simple ID to display
-            self.verbose("Buffering event to write prebuffer.")
-            buffer_id = self.buffer(event)
-
-            response_buffer = []
-                
-            # Yield status message if debug mode is enabled.
-            response_buffer.append(u"Event submitted with ID %s." % buffer_id)
-            response_buffer.append(u"<b>Prebuffer size:</b> %s" % self.prebuffer.qsize())
-
-        except Exception as e:
-            raise  # re-raise core internal exceptions
+        # Buffer it and grab a simple ID to display
+        self.verbose("Buffering event to write prebuffer.")
+        buffer_id, flushed = self.buffer(event)
+            
+        # Yield status message if debug mode is enabled.
+        response_buffer.append(u"TrackedEvent submitted with ID %s." % buffer_id)
+        if flushed:
+            response_buffer.append("<b>Flushed buffer with ID %s.</b>" % None)
+        response_buffer.append(u"<b>Prebuffer with ID %s of size:</b> %s" % (id(self.prebuffer), self.prebuffer.qsize()))
 
         # We're done processing. Flush buffer and respond.
         self.log("Tracker transaction completed. Writing body.")
