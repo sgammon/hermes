@@ -1,6 +1,16 @@
 # -*- coding: utf-8 -*-
 
 
+## TrackerMode - keeps track of modes the tracker can run in
+class TrackerMode(object):
+
+        ''' Maps tracker modes to discrete values. '''
+
+        DEBUG = 'debug'
+        DRYRUN = 'dryrun'
+        PRODUCTION = 'production'
+
+
 ## TrackerPrefix - keeps track of param group prefixes
 class TrackerPrefix(object):
 
@@ -27,4 +37,3 @@ class TrackerProtocol(object):
         CONTRACT = "c"
         SPEND = "s"
         PROVIDER = "p"
-

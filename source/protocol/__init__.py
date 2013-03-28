@@ -24,9 +24,11 @@ from .event import EventProvider
 from .param import ParamConfig
 
 # Tracker Bindings
+from .tracker import TrackerMode
 from .tracker import TrackerPrefix
 from .tracker import TrackerProtocol
 
+
 __extensions__ = [http, event, param, tracker]
-__bindings__ = [ResponseStage, EventType, EventProvider, ParamConfig, TrackerPrefix, TrackerProtocol]
+__bindings__ = [ResponseStage, EventType, EventProvider, ParamConfig, TrackerMode, TrackerPrefix, TrackerProtocol]
 

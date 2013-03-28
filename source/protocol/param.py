@@ -16,4 +16,3 @@ class ParamConfig(object):
         CONTRACT = None, basestring
         SPEND = None, float(0)
         PROVIDER = EventProvider.FACEBOOK, basestring
-
