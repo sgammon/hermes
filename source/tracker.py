@@ -49,4 +49,4 @@ if __name__ == "__main__":
     # We're running this from the command line. Start an independent gevent server.
     server = pywsgi.WSGIServer(('', 8080), EventTracker)
     server.serve_forever()
-    print "Closed debug listener."
+    print "Closed listener."
