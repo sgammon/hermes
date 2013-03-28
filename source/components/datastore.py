@@ -50,7 +50,7 @@ class DatastoreConnection(object):
 
 		''' Establish or resume an active Redis connection. '''
 
-		connection = 
+		return
 
 
 ## DatastoreEngine - manages cooperative writes to a given backend
