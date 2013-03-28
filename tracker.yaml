@@ -7,7 +7,7 @@ uwsgi:
   gid: runtime
   master: on
   processes: 2
-  gevent: 200
+  gevent: 100
   gevent-monkey-patch: on
   touch-reload: /ns/runtime/trigger/tracker.uwsgi
   pcre-jit: on
