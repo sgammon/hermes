@@ -56,9 +56,9 @@ class TrackedEvent(object):
             self.sentinel = False
             if not _DISCARD_NOSENTINEL:
                 # Just warn if we're in debug...
-                self.tracker.warn("Not using the Sentinel value can cause bad counts. (Sentinel param is currently '%s'.)" % self.param(TrackerProtocol.SENTINEL))
+                self.tracker.warn("Not using the Sentinel value can cause bad counts. (Sentinel param is currently '%s'.)" % self.param(protocol.TrackerProtocol.SENTINEL))
             else:
-                self.tracker.error("No sentinel found, running in strict sentinel mode. (Sentinel param is currently '%s'.)" % self.param(TrackerProtocol.SENTINEL))
+                self.tracker.error("No sentinel found, running in strict sentinel mode. (Sentinel param is currently '%s'.)" % self.param(protocol.TrackerProtocol.SENTINEL))
                 raise exceptions.InvalidSentinel("Sentinel key not found in tracker URL - event refused.")
         else:
             # Indicate we *do* have a sentinel
