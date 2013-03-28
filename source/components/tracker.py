@@ -295,8 +295,8 @@ class EventTracker(object):
         # Yield status message if debug mode is enabled.
         response_buffer.append(u"TrackedEvent submitted with ID %s." % buffer_id)
         if flushed:
-            response_buffer.append("<b>Flushed buffer with ID %s.</b>" % None)
-        response_buffer.append(u"<b>Prebuffer with ID %s of size:</b> %s" % (id(self.prebuffer), self.prebuffer.qsize()))
+            response_buffer.append("<b>Flushed buffer with ID %s.</b><br />" % None)
+        response_buffer.append(u"<b>Prebuffer:</b> ID \"%s\" of size: %s" % (id(self.prebuffer), self.prebuffer.qsize()))
 
         # We're done processing. Flush buffer and respond.
         self.log("Tracker transaction completed. Writing body.")
