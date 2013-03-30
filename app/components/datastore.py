@@ -170,6 +170,8 @@ class DatastoreEngine(actor.Actor):
 		## If pipelined, spawn new pipeline greenlet
 		if self.EngineConfig.pipeline:
 			writethread = gevent.spawn(self._write_batch, operations)
+			gevent.sleep(0)
+			return self
 
 		else:
 			if self.inflight:
@@ -179,9 +181,8 @@ class DatastoreEngine(actor.Actor):
 
 			self.inflight = [g for g in self.writepool.map_async(self._write_item, operations)]
 			self.verbose("Datastore: Spawned %s inflight writes." % len(self.inflight))
-
-		gevent.sleep(0)
-		return self
+			gevent.sleep(0)
+			return self
 
 	def serialize(self, deque):
 
