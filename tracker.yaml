@@ -1,4 +1,5 @@
 uwsgi:
+  chdir: /ampush/apps/hermes/app
   socket: /ns/runtime/sock/wsgi/tracker.sock
   module: apps.hermes.app.tracker:EventTracker
   chmod: 775
