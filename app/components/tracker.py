@@ -73,6 +73,7 @@ class EventTracker(object):
     session = None  # existing session cookie, if any
     lastflush = None  # holds a timestamp with the last flush
     flushqueue = None  # holds queued redis write greenlets
+    staged_flush = False  # stage to flush the superbuffer
     log_prefix = "TRACKER"  # prefix all log messages from this tracker with X
     header_prefix = _HEADER_PREFIX  # prefix all HTTP response headers with X
 
@@ -221,7 +222,7 @@ class EventTracker(object):
 
         if len(self.framebuffer) > 1:
             self.log("Buffer: Framebuffer ready to push writes. Superflush IS recommended.")
-            self.superflush()
+            self.staged_flush = True
 
         return self
 
@@ -230,15 +231,15 @@ class EventTracker(object):
         ''' Flush the frame buffer to the DatastoreEngine. '''
 
         self.log("Buffer: Flushing framebuffer to DatastoreEngine.")
+        self.log("Buffer: Switched active frame to buffer ID %s." % id(self.active))
 
         # Copy over immediate-past-frame
         if self.active:
             self.past = self.active
 
         self.active = self.framebuffer.popleft()
+        # There's a flush staged for the DatastoreEngine...
         self.engine.inbox.put_nowait(self.active)
-
-        gevent.joinall([self.engine])
 
         return self
 
@@ -251,7 +252,7 @@ class EventTracker(object):
         request, response = self.request_class(environ), self.response_class(content_type=content_type, charset=encoding)
 
         if verbose:
-            self.verbose("===== Request Environment =====")
+            self.verbose("=========== Request Environment ===========")
             self.verbose(str(environ))
             self.verbose("Provisioned WSGI request/response pair with IDs (%s, %s)." % (id(request), id(response)))
             self.verbose("Original response headers: \"%s\"." % response.headers)
@@ -375,4 +376,11 @@ class EventTracker(object):
         self.verbose('Yielding to server-side transport.')
         for chunk in response.app_iter:
             yield chunk
+
+        # Perform staged flush, if any...
+        if self.staged_flush:
+            self.staged_flush = False
+            gevent.spawn(self.superflush)
+            gevent.sleep(0)
+
         raise StopIteration()
