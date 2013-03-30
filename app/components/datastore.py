@@ -48,7 +48,7 @@ class DatastoreEngine(actor.Actor):
 
 		''' Configuration values for the `DatastoreEngine`. '''
 
-		pipeline = False
+		pipeline = True
 		transactional = False
 
 	class Operations(object):
