@@ -13,4 +13,5 @@ uwsgi:
   touch-reload: /ns/runtime/trigger/tracker.uwsgi
   pcre-jit: on
   pymodule-alias: app=/ampush/apps/hermes/app
-  pythonpath: /ampush/apps/hermes:/ampush/apps/hermes/app
+  pythonpath: /ampush/apps/hermes
+  pythonpath: /ampush/apps/hermes/app
