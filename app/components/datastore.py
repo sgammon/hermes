@@ -166,8 +166,6 @@ class DatastoreEngine(actor.Actor):
 
 		''' Perform a write operation against Redis. '''
 
-		import pdb; pdb.set_trace()
-
 		if self.EngineConfig.pipeline:
 			writethread = gevent.spawn(self._write_batch, operations)
 
