@@ -74,8 +74,8 @@ class DatastoreEngine(actor.Actor):
 
 		''' Retrieve the global writepool. '''
 
-		global _writepool
-		return _writepool
+		global _write_pool
+		return _write_pool
 
 	@property
 	def redis(self):
@@ -116,67 +116,63 @@ class DatastoreEngine(actor.Actor):
 	def _write_item(self, item):
 
 		''' Write a single item. '''
+		
+		self.verbose("Datastore: Executing operation %s." % str(item))
 
-		pass
+		try:
+			## Execute queued command, optionally with args
+			if len(item) > 1:
+				result = getattr(self.redis, item[0])(*item[1:])
+			else:
+				result = getattr(self.redis, item[0])()
+
+		except Exception as e:
+			self.error("Datastore: Encountered UNHANDLED WRITE EXCEPTION %s! Data was lost!" % e)
+			raise
+
+		return result
 
 	def _write_batch(self, batch):
 
 		''' Write a batch of items. '''
 
-		pass
+		pipeline = client.pipeline(transaction=self.EngineConfig.transactional)
+		self.log("Datastore: Opened new pipeline with ID %s (transactions are %s)." % (id(pipeline), "ON" if self.EngineConfig.transactional else "OFF"))
+
+		## Put in multi-mode
+		pipeline.multi()
+		for op in operations:
+
+			# Queue up the writes in the pipeline buffer
+			self.verbose("Datastore: Enqueueing operation %s." % str(op))
+			if len(op) > 1:
+				getattr(pipeline, op[0])(*op[1:])
+			else:
+				getattr(pipeline, op[0])()
+
+		## Execute pipeline
+		self.verbose("Datastore: Executing pipeline...")
+		start_timestamp = time.time()
+		result = pipeline.execute()
+
+		## Log result
+		finish_timestamp = time.time()
+		self.log("Datastore: Finished pipeline execution in %s seconds." % (finish_timestamp - start_timestamp))
+		self.verbose("Datastore: Pipeline result == \"%s\"." % str(result))
+
+		return result
 
 	def execute(self, operations):
 
 		''' Perform a write operation against Redis. '''
 
+		import pdb; pdb.set_trace()
+
 		if self.EngineConfig.pipeline:
-
-			## Perform writes in batch
-			pipeline = client.pipeline(transaction=self.EngineConfig.transactional)
-			self.log("Datastore: Opened new pipeline with ID %s (transactions are %s)." % (id(pipeline), "ON" if self.EngineConfig.transactional else "OFF"))
-
-			## Put in multi-mode
-			pipeline.multi()
-			for op in operations:
-
-				# Queue up the writes in the pipeline buffer
-				self.verbose("Datastore: Enqueueing operation %s." % str(op))
-				if len(op) > 1:
-					getattr(pipeline, op[0])(*op[1:])
-				else:
-					getattr(pipeline, op[0])()
-
-			## Execute pipeline
-			self.verbose("Datastore: Executing pipeline...")
-			start_timestamp = time.time()
-			result = pipeline.execute()
-
-			## Log result
-			finish_timestamp = time.time()
-			self.log("Datastore: Finished pipeline execution in %s seconds." % (finish_timestamp - start_timestamp))
-			self.verbose("Datastore: Pipeline result == \"%s\"." % str(result))
-
-			return result
+			writethread = gevent.spawn(self._write_batch, operations)
 
 		else:
-			## Perform writes in serial
-			for op in operations:
-
-				self.verbose("Datastore: Executing operation %s." % str(op))
-
-				try:
-					## Execute queued command, optionally with args
-					if len(op) > 1:
-						getattr(self.redis, op[0])(*op[1:])
-					else:
-						getattr(self.redis, op[0])()
-
-				except Exception as e:
-					self.error("Datastore: Encountered UNHANDLED WRITE EXCEPTION %s! Data was lost!" % e)
-					raise
-
-		## 'Block' to make sure all spawned greenlets begin executing
-		time.sleep(0.1)
+			self.writepool.map(self._write_item, operations)
 
 		return self
 
