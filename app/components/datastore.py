@@ -42,6 +42,7 @@ class DatastoreEngine(actor.Actor):
 
 	socket = None
 	tracker = None
+	inflight = None
 
 	class EngineConfig(object):
 
@@ -166,12 +167,21 @@ class DatastoreEngine(actor.Actor):
 
 		''' Perform a write operation against Redis. '''
 
+		## If pipelined, spawn new pipeline greenlet
 		if self.EngineConfig.pipeline:
 			writethread = gevent.spawn(self._write_batch, operations)
+			writethread.join()
 
 		else:
-			self.writepool.map(self._write_item, operations)
+			if self.inflight:
+				## Reap previous writelets
+				self.verbose("Datastore: Reaping %s previous inflight writes." % len(self.inflight))
+				gevent.joinall(self.inflight)
 
+			self.inflight = [g for g in self.writepool.map_async(self._write_item, operations)]
+			self.verbose("Datastore: Spawned %s inflight writes." % len(self.inflight))
+
+		gevent.sleep(0)
 		return self
 
 	def serialize(self, deque):
