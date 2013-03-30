@@ -6,7 +6,7 @@ uwsgi:
   uid: appfactory
   gid: runtime
   master: on
-  cheaper: 1
+  cheaper: on
   processes: 2
   enable-threads: on
   threads: 40

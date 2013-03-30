@@ -6,6 +6,7 @@ import collections
 
 # 3rd party
 import webob
+import webapp2
 
 # gevent
 import gevent
@@ -38,10 +39,6 @@ from event import AmpushParams
 from event import InternalParams
 
 
-# Buffers
-_prebuffer = pool.Group()  # prebuffer execution queue
-_framebuffer = collections.deque()  # holds full frames for datastore engine
-
 # Globals
 _TRACKER_VERSION = (0, 1)  # advertised in `AMP-Tracker` response header
 _TRACKER_RELEASE = "alpha"  # advertised in `AMP-Tracker` response header
@@ -66,6 +63,7 @@ class EventTracker(object):
 
     # Object Params
     past = None  # the immediately-past buffer
+    debug = debug  # whether the tracker runs in debug mode
     active = None  # the currently-active buffer
     params = None  # parameterset passed via the URL
     engine = None  # datastore execution engine
@@ -80,6 +78,11 @@ class EventTracker(object):
     # Engine / Event Classes
     event_class = event.TrackedEvent  # class to use as tracked event objects
     engine_class = datastore.DatastoreEngine  # class to use as delegated data controller
+
+    # Buffers
+    prebuffer = pool.Group()  # prebuffer execution queue
+    framebuffer = collections.deque()  # holds full frames for datastore engine
+
 
     # Buffer Configuration
     class BufferConfig(object):
@@ -96,35 +99,13 @@ class EventTracker(object):
         # Default `lastflush` to now...
         self.lastflush = int(time.time())
         self.engine = engine() if engine else self.engine_class(self)
-        self.log("Debug mode is %s." % ("ON" if self.debug else "OFF"))
-        self.log("Serving Tracker on port %s." % config._DEBUG_PORT)
+
+        if debug:
+            self.log("Debug mode is %s, serving on port %s." % ("ON" if self.debug else "OFF", config._DEBUG_PORT))
 
         # Allow overwriting the TrackedEvent implementation class
         if event:
             self.event_class = event
-
-    @property
-    def debug(self):
-
-        ''' Indicate whether we're in debug mode. '''
-
-        return debug
-
-    @property
-    def prebuffer(self):
-
-        ''' Grab the global prebuffer. '''
-
-        global _prebuffer
-        return _prebuffer
-
-    @property
-    def framebuffer(self):
-
-        ''' Grab the global framebuffer. '''
-
-        global _framebuffer
-        return _framebuffer
 
     def _output(self, message, prefix=None):
 
@@ -136,13 +117,45 @@ class EventTracker(object):
             print "[%s]: %s" % (self.log_prefix, message)
         return self
 
-    def log(self, message):
+    @webapp2.cached_property
+    def verbose(self):
+
+        ''' Log something only if we're in debug AND verbose mode. '''
+
+        if not (self.debug and verbose):
+            def _verbose_blackhole(message):
+
+                ''' Drop invokee data if verbose & debug aren't enabled. '''
+
+                return
+            return _verbose_blackhole
+        else:
+            def _log_verbose(message):
+
+                '''  Invoke log output function. '''
+
+                return self._output(message)
+            return _log_verbose
+
+    @webapp2.cached_property
+    def log(self):
 
         ''' Log something if we're in debug mode. '''
 
-        if self.debug:
-            self._output(message)
-        return self
+        if not self.debug:
+            def _log_blackhole(message):
+
+                ''' Drop invokee data if debug isn't enabled. '''
+
+                return
+            return _log_blackhole
+        else:
+            def _log_debug(message):
+
+                ''' Invoke log output function. '''
+
+                return self._output(message)
+            return _log_debug
 
     def warn(self, message):
 
@@ -158,23 +171,17 @@ class EventTracker(object):
         self._output(message, "ERROR")
         return self
 
-    def verbose(self, message):
-
-        ''' Log something only if we're in debug AND verbose mode. '''
-
-        if self.debug and verbose:
-            self._output(message)
-        return self
-
     def buffer(self, event):
 
         ''' Add a `TrackedEvent` to the in-memory buffer. '''
 
-        self.log("Sending event %s to prebuffer." % event.id)
+        if debug:
+            self.log("Sending event %s to prebuffer." % event.id)
+            self.log("Current prebuffer length: %s." % len(self.prebuffer))
+
         self.prebuffer.add(event)
 
         # See if the buffer needs to be flushed
-        self.verbose("Checking buffer.")
         should_flush = self.check()
         if should_flush:
             self.flush()
@@ -191,9 +198,11 @@ class EventTracker(object):
         
         # Send logs
         did_timeout = "IS" if (self.lastflush + self.BufferConfig.frequency < timestamp) else "IS NOT"
-        self.verbose("Current timestamp: %s." % timestamp)
-        self.log("Buffer: Checkin-in at size %s with lastflush %s, which %s more than interval %s." % (len(self.prebuffer), self.lastflush, did_timeout, self.BufferConfig.frequency))
-        self.log("Flush %s recommended." % ("IS" if flush else "IS NOT"))
+
+        if debug:
+            self.verbose("Current timestamp: %s." % timestamp)
+            self.log("Buffer: Checkin-in at size %s with lastflush %s, which %s more than interval %s." % (len(self.prebuffer), self.lastflush, did_timeout, self.BufferConfig.frequency))
+            self.log("Flush %s recommended." % ("IS" if flush else "IS NOT"))
         
         return flush
 
@@ -201,11 +210,10 @@ class EventTracker(object):
 
         ''' Flush the prebuffer batch to the frame buffer. '''
 
-        global _prebuffer
-
         # Take new timestamp, log what we're doing...
         timestamp = int(time.time())
-        self.log("Buffer: Flushing buffer %s of %s events, resetting timestamp to %s." % (id(self.prebuffer), len(self.prebuffer), timestamp))
+        if debug:
+            self.log("Buffer: Flushing buffer %s of %s events, resetting timestamp to %s." % (id(self.prebuffer), len(self.prebuffer), timestamp))
 
         # Grab current prebuffer, allocate next prebuffer...
         current_prebuffer = self.prebuffer
@@ -215,13 +223,15 @@ class EventTracker(object):
         self.framebuffer.append(current_prebuffer)
 
         # Replace current buffer with new one.
-        self.log("Buffer: provisioned new prebuffer batch group at ID \"%s\"." % id(next_prebuffer))
-        _prebuffer = next_prebuffer
+        if debug:
+            self.log("Buffer: provisioned new prebuffer batch group at ID \"%s\"." % id(next_prebuffer))
+        self.prebuffer = next_prebuffer
 
         self.lastflush = timestamp
 
         if len(self.framebuffer) > 1:
-            self.log("Buffer: Framebuffer ready to push writes. Superflush IS recommended.")
+            if debug:
+                self.log("Buffer: Framebuffer ready to push writes. Superflush IS recommended.")
             self.staged_flush = True
 
         return self
@@ -230,14 +240,16 @@ class EventTracker(object):
 
         ''' Flush the frame buffer to the DatastoreEngine. '''
 
-        self.log("Buffer: Flushing framebuffer to DatastoreEngine.")
-        self.log("Buffer: Switched active frame to buffer ID %s." % id(self.active))
+        if debug:
+            self.log("Buffer: Flushing framebuffer to DatastoreEngine.")
+            self.log("Buffer: Switched active frame to buffer ID %s." % id(self.active))
 
         # Copy over immediate-past-frame
         if self.active:
             self.past = self.active
 
         self.active = self.framebuffer.popleft()
+
         # There's a flush staged for the DatastoreEngine...
         self.engine.inbox.put_nowait(self.active)
 
@@ -264,35 +276,46 @@ class EventTracker(object):
                 response.headers[hkey] = hvalue
 
         if self.chunked:
+
             # Remove Content-Length for a chunked response
             self.verbose('Running in CHUNKED mode, removing Content-Length header.')
             del response.headers['Content-Length']
 
-        self.verbose("Updated response headers: \"%s\"." % response.headers)
+        if verbose:
+            self.verbose("Updated response headers: \"%s\"." % response.headers)
         return request, response
 
     def send_response(self, response, start_response, flush=False):
 
         ''' Send the WSGI start_response call, optionally flushing the response buffer and finishing the transaction. '''
 
-        self.verbose("Beginning response transmission.")
         if response.stage == protocol.ResponseStage.PENDING:
+
             # Send log messages
-            self.log("Sending %s response with status \"%s\" and %s headers." % ("immediate" if flush else "deferred", response.status, len(response.headerlist)))
-            self.verbose("Full response headers: \"%s\"." % response.headerlist)
+            if verbose:
+                self.verbose("Beginning response transmission.")
+                self.verbose("Sending %s response with status \"%s\" and %s headers." % ("immediate" if flush else "deferred", response.status, len(response.headerlist)))
+                self.verbose("Full response headers: \"%s\"." % response.headerlist)
 
             # Start response            
             start_response(response.status, response.headerlist)
             response.stage = protocol.ResponseStage.STARTED
+            return response.status, response.headerlist
 
         elif response.stage == protocol.ResponseStage.STARTED:
+
             # We've already started the response.
-            self.log("Response already started, resuming deferred transaction.")
+            self.verbose("Response already started, resuming deferred transaction.")
+
+            return response.body
 
         if flush:
-            self.verbose("Flushing response body of length %s." % len(response.body))
-            self.verbose("Full response body: \"%s\"." % response.app_iter)
+
+            if verbose:
+                self.verbose("Flushing response body of length %s." % len(response.body))
+                self.verbose("Full response body: \"%s\"." % response.app_iter)
             return response.body
+
         else:
             return response
 
