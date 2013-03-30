@@ -1,6 +1,6 @@
 uwsgi:
   socket: /ns/runtime/sock/wsgi/tracker.sock
-  module: apps.hermes.source.tracker:EventTracker
+  module: apps.hermes.app.tracker:EventTracker
   chmod: 775
   chown: appfactory
   uid: appfactory

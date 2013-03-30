@@ -10,12 +10,15 @@ class Actor(gevent.Greenlet):
 
 	''' Individual Actor with queued processing functionality. '''
 
-	def __init__(self):
+	inbox = None
+
+	def initialize(self):
 
 		''' Initialize this actor. '''
 
 		self.inbox = queue.Queue()
 		gevent.Greenlet.__init__(self)
+		return self
 
 	def fire(self, message):
 

@@ -1,6 +1,6 @@
 uwsgi:
   socket: /ns/runtime/sock/wsgi/realtime.sock
-  module: apps.hermes.source.gateway:realtime
+  module: apps.hermes.app.gateway:realtime
   chmod: 775
   chown: appfactory
   uid: appfactory

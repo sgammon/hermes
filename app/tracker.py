@@ -29,16 +29,16 @@ else:
     PLATFORM = 'uWSGI'
 
 # app-level code
-from apps.hermes.source import tools
-from apps.hermes.source import debug
-from apps.hermes.source import verbose
-from apps.hermes.source import exceptions
-from apps.hermes.source import _BLOCK_PDB
-from apps.hermes.source import _API_VERSION
+from . import tools
+from . import debug
+from . import verbose
+from . import exceptions
+from . import _BLOCK_PDB
+from . import _API_VERSION
 
 # components
-from apps.hermes.source import components
-from apps.hermes.source.components import tracker
+from . import components
+from components import tracker
 
 
 ## Spawn server singleton

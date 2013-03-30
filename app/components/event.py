@@ -4,15 +4,18 @@
 import time
 
 # hermes codebase
-from apps.hermes.source import debug
-from apps.hermes.source import verbose
-from apps.hermes.source import protocol
-from apps.hermes.source import exceptions
-from apps.hermes.source import _PARAM_SEPARATOR
-from apps.hermes.source import _DISCARD_NOSENTINEL
+import protocol
+from config import debug
+from config import verbose
+from config import _PARAM_SEPARATOR
+from config import _DISCARD_NOSENTINEL
+
+# hermes util
+import util
+from util import exceptions
 
 
-# Param sets
+## Param sets
 InternalParams = frozenset([protocol.TrackerProtocol.DEBUG, protocol.TrackerProtocol.DRYRUN, protocol.TrackerProtocol.SENTINEL])
 AmpushParams = frozenset([protocol.TrackerProtocol.REF, protocol.TrackerProtocol.TYPE, protocol.TrackerProtocol.CONTRACT, protocol.TrackerProtocol.SPEND, protocol.TrackerProtocol.PROVIDER])
 AllParams = frozenset([getattr(protocol.TrackerProtocol, i) for i in protocol.TrackerProtocol.__dict__ if not i.startswith('_')])
@@ -127,11 +130,19 @@ class TrackedEvent(object):
 
         return self.seen()
 
+    def serialize(self):
+
+        ''' Serialize this TrackedEvent into numerous Redis writes. '''
+
+        return ({
+            '-'.join(['event', str(id(self))]): (('id', id(self)), ('type', 'test'), ('timestamp', str(time.time())))
+        }, self.generate_indexes())
+
     def generate_indexes(self):
 
         ''' Generate index writes for a given `TrackedEvent`. '''
 
-        pass
+        return tuple()
 
     def seen(self):
 

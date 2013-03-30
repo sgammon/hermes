@@ -3,5 +3,3 @@
 #
 # DOCS COMING SOON :)
 #
-
-config = {}

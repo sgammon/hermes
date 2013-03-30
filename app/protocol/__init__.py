@@ -5,7 +5,7 @@
 #
 
 __doc__ = "Protocol definition suite for Ampush Tracker API."
-__version_ = (0, 1)
+__version__ = (0, 1)
 
 # Top-level protocol extensions
 from . import http

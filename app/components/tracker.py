@@ -2,34 +2,48 @@
 
 # stdlib
 import time
+import collections
 
 # 3rd party
 import webob
 
 # gevent
 import gevent
+from gevent import pool
 from gevent import queue
 
 # hermes codebase
-from apps.hermes.source import debug
-from apps.hermes.source import verbose
-from apps.hermes.source import protocol
-from apps.hermes.source import exceptions
-from apps.hermes.source import components
-from apps.hermes.source import _BLOCK_PDB
-from apps.hermes.source import _REDIS_WRITE_POOL
+import event
+import protocol
+import datastore
+import components
+
+# hermes config
+import config
+from config import debug
+from config import verbose
+from config import _BLOCK_PDB
+from config import _HEADER_PREFIX
+from config import _REDIS_WRITE_POOL
+from config import _PREBUFFER_FREQUENCY
+from config import _PREBUFFER_THRESHOLD
+
+# hermes util
+import util
+from util import exceptions
 
 # application components
-from apps.hermes.source.components.event import AllParams
-from apps.hermes.source.components.event import TrackedEvent
-from apps.hermes.source.components.event import AmpushParams
-from apps.hermes.source.components.event import InternalParams
-from apps.hermes.source.components.datastore import DatastoreEngine
+from event import AllParams
+from event import AmpushParams
+from event import InternalParams
 
+
+# Buffers
+_prebuffer = pool.Group()  # prebuffer execution queue
+_framebuffer = collections.deque()  # holds full frames for datastore engine
 
 # Globals
-_prebuffer = queue.Queue()  # prebuffer execution queue
-_TRACKER_VERSION = (0, 1)   # advertised in `AMP-Tracker` response header
+_TRACKER_VERSION = (0, 1)  # advertised in `AMP-Tracker` response header
 _TRACKER_RELEASE = "alpha"  # advertised in `AMP-Tracker` response header
 _TRACKER_MODE = protocol.TrackerMode.DEBUG  # advertised in `AMP-Mode` response header
 
@@ -45,40 +59,48 @@ class EventTracker(object):
     content_type = ('text/html', 'utf-8')
     _base_headers = {
 
-        'AMP-Mode': protocol.TrackerMode.DEBUG,
-        'AMP-Tracker': '-'.join(('.'.join(map(str, _TRACKER_VERSION)), _TRACKER_RELEASE))
+        ('%s-Mode' % _HEADER_PREFIX): protocol.TrackerMode.DEBUG,
+        ('%s-Tracker' % _HEADER_PREFIX): '-'.join(('.'.join(map(str, _TRACKER_VERSION)), _TRACKER_RELEASE))
 
     }.items()
 
     # Object Params
+    past = None  # the immediately-past buffer
+    active = None  # the currently-active buffer
     params = None  # parameterset passed via the URL
+    engine = None  # datastore execution engine
     chunked = True  # indicate server-side support for chunked encoding
     session = None  # existing session cookie, if any
-    prebuffer = None  # buffers according to the limits above
     lastflush = None  # holds a timestamp with the last flush
     flushqueue = None  # holds queued redis write greenlets
     log_prefix = "TRACKER"  # prefix all log messages from this tracker with X
+    header_prefix = _HEADER_PREFIX  # prefix all HTTP response headers with X
 
     # Engine / Event Classes
-    event_class = TrackedEvent  # class to use as tracked event objects
-    engine_class = DatastoreEngine  # class to use as delegated data controller
+    event_class = event.TrackedEvent  # class to use as tracked event objects
+    engine_class = datastore.DatastoreEngine  # class to use as delegated data controller
 
     # Buffer Configuration
     class BufferConfig(object):
 
         ''' Static config class for `EventTracker`. '''
 
-        frequency = 30  # empty the buffer every X seconds...
-        threshold = 100  # ...or every Y events, whichever comes first
+        frequency = _PREBUFFER_FREQUENCY  # empty the buffer every X seconds...
+        threshold = _PREBUFFER_THRESHOLD  # ...or every Y events, whichever comes first
 
-    def __init__(self, platform='WSGI'):
+    def __init__(self, platform='WSGI', event=None, engine=None):
 
         ''' Initialize this `EventTracker`. '''
 
         # Default `lastflush` to now...
         self.lastflush = int(time.time())
+        self.engine = engine() if engine else self.engine_class(self)
         self.log("Debug mode is %s." % ("ON" if self.debug else "OFF"))
-        self.log("Allocated writepool of size %s." % _REDIS_WRITE_POOL)
+        self.log("Serving Tracker on port %s." % config._DEBUG_PORT)
+
+        # Allow overwriting the TrackedEvent implementation class
+        if event:
+            self.event_class = event
 
     @property
     def debug(self):
@@ -94,6 +116,14 @@ class EventTracker(object):
 
         global _prebuffer
         return _prebuffer
+
+    @property
+    def framebuffer(self):
+
+        ''' Grab the global framebuffer. '''
+
+        global _framebuffer
+        return _framebuffer
 
     def _output(self, message, prefix=None):
 
@@ -140,7 +170,7 @@ class EventTracker(object):
         ''' Add a `TrackedEvent` to the in-memory buffer. '''
 
         self.log("Sending event %s to prebuffer." % event.id)
-        self.prebuffer.put_nowait(event)
+        self.prebuffer.add(event)
 
         # See if the buffer needs to be flushed
         self.verbose("Checking buffer.")
@@ -156,23 +186,60 @@ class EventTracker(object):
 
         # We should flush if we've A) overflowed our soft buffer threshold or B) passed our flush timeout...
         timestamp = int(time.time())
-        flush = ((self.prebuffer.qsize() > self.BufferConfig.threshold) or (self.lastflush + self.BufferConfig.frequency < timestamp))
+        flush = ((len(self.prebuffer) > self.BufferConfig.threshold) or (self.lastflush + self.BufferConfig.frequency < timestamp))
         
         # Send logs
         did_timeout = "IS" if (self.lastflush + self.BufferConfig.frequency < timestamp) else "IS NOT"
         self.verbose("Current timestamp: %s." % timestamp)
-        self.log("Buffer: Checkin-in at size %s with lastflush %s, which %s more than interval %s." % (self.prebuffer.qsize(), self.lastflush, did_timeout, self.BufferConfig.frequency))
+        self.log("Buffer: Checkin-in at size %s with lastflush %s, which %s more than interval %s." % (len(self.prebuffer), self.lastflush, did_timeout, self.BufferConfig.frequency))
         self.log("Flush %s recommended." % ("IS" if flush else "IS NOT"))
         
         return flush
 
     def flush(self):
 
-        ''' Flush the prebuffer to Redis. '''
+        ''' Flush the prebuffer batch to the frame buffer. '''
 
+        global _prebuffer
+
+        # Take new timestamp, log what we're doing...
         timestamp = int(time.time())
-        self.log("Buffer: Flushing %s events, resetting timestamp to %s." % (self.prebuffer.qsize(), timestamp))
+        self.log("Buffer: Flushing buffer %s of %s events, resetting timestamp to %s." % (id(self.prebuffer), len(self.prebuffer), timestamp))
+
+        # Grab current prebuffer, allocate next prebuffer...
+        current_prebuffer = self.prebuffer
+        next_prebuffer = pool.Group()
+
+        # Buffer the current frame in the framebuffer...
+        self.framebuffer.append(current_prebuffer)
+
+        # Replace current buffer with new one.
+        self.log("Buffer: provisioned new prebuffer batch group at ID \"%s\"." % id(next_prebuffer))
+        _prebuffer = next_prebuffer
+
         self.lastflush = timestamp
+
+        if len(self.framebuffer) > 1:
+            self.log("Buffer: Framebuffer ready to push writes. Superflush IS recommended.")
+            self.superflush()
+
+        return self
+
+    def superflush(self):
+
+        ''' Flush the frame buffer to the DatastoreEngine. '''
+
+        self.log("Buffer: Flushing framebuffer to DatastoreEngine.")
+
+        # Copy over immediate-past-frame
+        if self.active:
+            self.past = self.active
+
+        self.active = self.framebuffer.popleft()
+        self.engine.inbox.put_nowait(self.active)
+
+        gevent.joinall([self.engine])
+
         return self
 
     def begin_request(self, environ, start_response):
@@ -246,8 +313,8 @@ class EventTracker(object):
             self.log("Spawned new `TrackedEvent` with ID %s." % event.id)
 
             # Begin building headers.
-            response.headers['AMP-Match'] = event.match
-            response.headers['AMP-Session'] = event.session
+            response.headers['%s-Match' % self.header_prefix] = event.match
+            response.headers['%s-Session' % self.header_prefix] = event.session
 
             self.log("Encountered match value %s with session %s." % (event.match, event.session))
 
@@ -296,7 +363,7 @@ class EventTracker(object):
         response_buffer.append(u"TrackedEvent submitted with ID %s." % buffer_id)
         if flushed:
             response_buffer.append("<b>Flushed buffer with ID %s.</b><br />" % None)
-        response_buffer.append(u"<b>Prebuffer:</b> ID \"%s\" of size: %s" % (id(self.prebuffer), self.prebuffer.qsize()))
+        response_buffer.append(u"<b>Prebuffer:</b> ID \"%s\" of size: %s" % (id(self.prebuffer), len(self.prebuffer)))
 
         # We're done processing. Flush buffer and respond.
         self.log("Tracker transaction completed. Writing body.")

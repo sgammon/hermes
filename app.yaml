@@ -1,6 +1,6 @@
 uwsgi:
   socket: /ns/runtime/sock/wsgi/hermes.sock
-  module: apps.hermes.source.gateway:dispatch
+  module: apps.hermes.app.gateway:dispatch
   chmod: 775
   chown: appfactory
   uid: appfactory
