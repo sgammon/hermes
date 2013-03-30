@@ -29,10 +29,10 @@ redis.connection.socket = gevent.socket
 ## Global Pools
 _write_pool = pool.Pool(_REDIS_WRITE_POOL)
 _sock = '/'.join([_RUNTIME_SOCKROOT, _REDIS_SOCK])
-_connection_pool = redis.ConnectionPool(unix_socket_path=_sock, db=_REDIS_DB)
 
 ## Redis Client
-client = redis.StrictRedis(connection_pool=_connection_pool)
+client = redis.StrictRedis(unix_socket_path=_sock, db=_REDIS_DB)
+_connection_pool = client.connection_pool
 
 
 ## DatastoreEngine - manages cooperative writes to a given backend
