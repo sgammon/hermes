@@ -142,7 +142,7 @@ class DatastoreEngine(actor.Actor):
 
 		## Put in multi-mode
 		pipeline.multi()
-		for op in operations:
+		for op in batch:
 
 			# Queue up the writes in the pipeline buffer
 			self.verbose("Datastore: Enqueueing operation %s." % str(op))
