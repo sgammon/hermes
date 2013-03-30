@@ -170,7 +170,6 @@ class DatastoreEngine(actor.Actor):
 		## If pipelined, spawn new pipeline greenlet
 		if self.EngineConfig.pipeline:
 			writethread = gevent.spawn(self._write_batch, operations)
-			writethread.join()
 
 		else:
 			if self.inflight:
