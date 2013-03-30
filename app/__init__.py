@@ -18,7 +18,6 @@ from gevent import pywsgi
 # momentum/deps
 import webob
 import apptools
-import appfactory
 
 # uWSGI
 try:
