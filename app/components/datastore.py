@@ -43,6 +43,22 @@ class DatastoreEngine(actor.Actor):
 	socket = None
 	tracker = None
 
+	class EngineConfig(object):
+
+		''' Configuration values for the `DatastoreEngine`. '''
+
+		pipeline = False
+		transactional = False
+
+	class Operations(object):
+
+		''' Available datastore operations. '''
+
+		SET = 'set'
+		GET = 'get'
+		INCR = 'incr'
+		HSET = 'hset'
+
 	def __init__(self, tracker, redis=_sock):
 
 		''' Initialize this DatastoreEngine. '''
@@ -97,14 +113,71 @@ class DatastoreEngine(actor.Actor):
 
 		return self.tracker.error
 
+	def _write_item(self, item):
+
+		''' Write a single item. '''
+
+		pass
+
+	def _write_batch(self, batch):
+
+		''' Write a batch of items. '''
+
+		pass
+
 	def execute(self, operations):
 
 		''' Perform a write operation against Redis. '''
 
-		for op in operations:
-			print "= !! WOULD EXECUTE: %s !! ==" % str(op)
+		if self.EngineConfig.pipeline:
 
+			## Perform writes in batch
+			pipeline = client.pipeline(transaction=self.EngineConfig.transactional)
+			self.log("Datastore: Opened new pipeline with ID %s (transactions are %s)." % (id(pipeline), "ON" if self.EngineConfig.transactional else "OFF"))
+
+			## Put in multi-mode
+			pipeline.multi()
+			for op in operations:
+
+				# Queue up the writes in the pipeline buffer
+				self.verbose("Datastore: Enqueueing operation %s." % str(op))
+				if len(op) > 1:
+					getattr(pipeline, op[0])(*op[1:])
+				else:
+					getattr(pipeline, op[0])()
+
+			## Execute pipeline
+			self.verbose("Datastore: Executing pipeline...")
+			start_timestamp = time.time()
+			result = pipeline.execute()
+
+			## Log result
+			finish_timestamp = time.time()
+			self.log("Datastore: Finished pipeline execution in %s seconds." % (finish_timestamp - start_timestamp))
+			self.verbose("Datastore: Pipeline result == \"%s\"." % str(result))
+
+			return result
+
+		else:
+			## Perform writes in serial
+			for op in operations:
+
+				self.verbose("Datastore: Executing operation %s." % str(op))
+
+				try:
+					## Execute queued command, optionally with args
+					if len(op) > 1:
+						getattr(self.redis, op[0])(*op[1:])
+					else:
+						getattr(self.redis, op[0])()
+
+				except Exception as e:
+					self.error("Datastore: Encountered UNHANDLED WRITE EXCEPTION %s! Data was lost!" % e)
+					raise
+
+		## 'Block' to make sure all spawned greenlets begin executing
 		time.sleep(0.1)
+
 		return self
 
 	def serialize(self, deque):
@@ -115,7 +188,7 @@ class DatastoreEngine(actor.Actor):
 		for event in deque:
 			objects, indexes = event.serialize()
 			for key, obj in objects.items():
-				_write_queue.append((self.redis.set, key, json.dumps(obj)))
+				_write_queue.append((self.Operations.SET, key, json.dumps(obj)))
 
 		self.verbose('Datastore: Generated writequeue of length %s.' % len(_write_queue))
 		return _write_queue
