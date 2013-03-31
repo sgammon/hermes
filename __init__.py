@@ -1,8 +1,19 @@
 # -*- coding: utf-8 -*-
 
-#
-# Documentation coming soon! :)
-#
+'''
 
-from app import tracker
-EventTracker = tracker.EventTracker
+AmpushHermes: API/Tracking Platform
+
+Description coming soon.
+
+-sam (<sam.gammon@ampush.com>)
+
+'''
+
+# Imports
+from app import EventTracker, APIServer, RealtimeServer
+
+
+# Exports
+__all__ = [EventTracker, APIServer, RealtimeServer]
+__version__ = "0.2-alpha"

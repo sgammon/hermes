@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
 
-#
-# DOCS COMING SOON :)
-#
+'''
+
+AmpushHermes: Utils
+
+Description coming soon.
+
+-sam (<sam.gammon@ampush.com>)
+
+'''

@@ -1,5 +1,15 @@
 # -*- coding: utf-8 -*-
 
+'''
+
+Components: Events
+
+Description coming soon.
+
+-sam (<sam.gammon@ampush.com>)
+
+'''
+
 # stdlib
 import time
 
@@ -26,16 +36,16 @@ class TrackedEvent(object):
 
     ''' Represents a hit to a tracked event. '''
 
-    id = None         # unique ID for this event
-    path = None       # URL path being requested
-    match = None      # quickmatch result, if any
-    error = None      # records a deferred error
-    params = {}       # filtered URL query parameters
-    cookie = None     # `amp` cookie value
-    request = None    # current webob request
-    session = None    # current/established session
-    tracker = None    # reference to parent tracker
-    response = None   # current webob response
+    id = None  # unique ID for this event
+    path = None  # URL path being requested
+    match = None  # quickmatch result, if any
+    error = None  # records a deferred error
+    params = {}  # filtered URL query parameters
+    cookie = None  # `amp` cookie value
+    request = None  # current webob request
+    session = None  # current/established session
+    tracker = None  # reference to parent tracker
+    response = None  # current webob response
     sentinel = False  # sentinel compliance flag
 
     @classmethod
@@ -149,16 +159,3 @@ class TrackedEvent(object):
         ''' Read Redis to see if we know this to be a match. '''
 
         return 'NONE'
-
-    def put(self):
-
-        ''' Save this event to the Redis buffer. '''
-
-        pass
-
-    def __call__(self):
-
-        ''' Continue processing this event, once our background Greenlet/Thread picks up. '''
-
-        time.sleep(2)
-        return "cool"

@@ -1,14 +1,21 @@
 uwsgi:
+  chdir: /ampush/apps/hermes/app
   socket: /ns/runtime/sock/wsgi/realtime.sock
-  module: apps.hermes.app.gateway:realtime
+  module: apps.hermes.app:RealtimeServer
   chmod: 775
   chown: appfactory
   uid: appfactory
   gid: runtime
   master: on
-  cheaper: 1
-  processes: 2
+  cheaper: on
+  processes: 1
   gevent: 100
   gevent-monkey-patch: on
   touch-reload: /ns/runtime/trigger/realtime.uwsgi
   pcre-jit: on
+  tcp-fast-open: on
+  pymodule-alias: app=/ampush/apps/hermes/app
+  pythonpath: /ampush/apps/hermes
+  pythonpath: /ampush/apps/hermes/app
+  pythonpath: /ampush/apps/hermes/app/lib
+  pythonpath: /ampush/apps/hermes/app/lib/dist

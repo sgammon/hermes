@@ -1,5 +1,15 @@
 # -*- coding: utf-8 -*-
 
+'''
+
+Components: Tracker
+
+Description coming soon.
+
+-sam (<sam.gammon@ampush.com>)
+
+'''
+
 # stdlib
 import time
 import collections

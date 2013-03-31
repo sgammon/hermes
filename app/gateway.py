@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+## LEGACY GENERIC RUNSCRIPT
+
 #
 # DOCS COMING SOON :)
 #

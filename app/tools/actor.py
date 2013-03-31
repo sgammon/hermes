@@ -1,5 +1,15 @@
 # -*- coding: utf-8 -*-
 
+'''
+
+Tools: Actor Model
+
+Description coming soon.
+
+-sam (<sam.gammon@ampush.com>)
+
+'''
+
 # gevent
 import gevent
 from gevent import queue

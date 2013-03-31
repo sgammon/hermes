@@ -1,5 +1,15 @@
 # -*- coding: utf-8 -*-
 
+'''
+
+Components: Datastore
+
+Description coming soon.
+
+-sam (<sam.gammon@ampush.com>)
+
+'''
+
 # stdlib
 import time
 import json
@@ -17,6 +27,8 @@ import redis.connection
 from tools import actor
 
 # constants
+from config import debug
+from config import verbose
 from config import _REDIS_DB
 from config import _REDIS_SOCK
 from config import _REDIS_WRITE_POOL
@@ -65,9 +77,10 @@ class DatastoreEngine(actor.Actor):
 		''' Initialize this DatastoreEngine. '''
 
 		self.tracker, self.socket = tracker, redis
-		self.log("Datastore: Initialized datastore engine.")
-		self.verbose("Datastore: Connecting to Redis at %s." % redis)
-		self.verbose("Datastore: Connection pool limited to %s." % _REDIS_WRITE_POOL)
+		if debug:
+			self.log("Datastore: Initialized datastore engine.")
+			self.verbose("Datastore: Connecting to Redis at %s." % redis)
+			self.verbose("Datastore: Connection pool limited to %s." % _REDIS_WRITE_POOL)
 		self.initialize().start()
 
 	@property
@@ -118,7 +131,8 @@ class DatastoreEngine(actor.Actor):
 
 		''' Write a single item. '''
 		
-		self.verbose("Datastore: Executing operation %s." % str(item))
+		if verbose:
+			self.verbose("Datastore: Executing operation %s." % str(item))
 
 		try:
 			## Execute queued command, optionally with args

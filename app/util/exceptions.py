@@ -1,5 +1,16 @@
 # -*- coding: utf-8 -*-
 
+'''
+
+AmpushHermes: Exceptions
+
+Description coming soon.
+
+-sam (<sam.gammon@ampush.com>)
+
+'''
+
+
 ## Top-level Error Classes
 class Error(Exception): ''' Top-level Hermes error. '''
 class ClientError(Error): ''' Error that occurred because of a client-side slip-up. '''

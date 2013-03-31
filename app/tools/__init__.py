@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
 
-#
-# DOCS COMING SOON :)
-#
+'''
+
+AmpushHermes: Tools
+
+Description coming soon.
+
+-sam (<sam.gammon@ampush.com>)
+
+'''
 
 # Actor Model
 from . import actor

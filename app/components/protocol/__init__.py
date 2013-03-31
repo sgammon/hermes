@@ -1,13 +1,20 @@
 # -*- coding: utf-8 -*-
 
-#
-#  DOCS COMING SOON! :)
-#
+'''
+
+Components: Protocol
+
+Description coming soon.
+
+-sam (<sam.gammon@ampush.com>)
+
+'''
 
 __doc__ = "Protocol definition suite for Ampush Tracker API."
 __version__ = (0, 1)
 
 # Top-level protocol extensions
+from . import meta
 from . import http
 from . import event
 from . import param

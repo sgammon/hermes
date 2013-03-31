@@ -1,8 +1,21 @@
 # -*- coding: utf-8 -*-
 
+'''
+
+Components: Tracker Protocol
+
+Description coming soon.
+
+-sam (<sam.gammon@ampush.com>)
+
+'''
+
+# Protocol
+from . import meta
+
 
 ## TrackerMode - keeps track of modes the tracker can run in
-class TrackerMode(object):
+class TrackerMode(meta.ProtocolDefinition):
 
         ''' Maps tracker modes to discrete values. '''
 
@@ -12,7 +25,7 @@ class TrackerMode(object):
 
 
 ## TrackerPrefix - keeps track of param group prefixes
-class TrackerPrefix(object):
+class TrackerPrefix(meta.ProtocolDefinition):
 
         ''' Maps groups of params to custom prefixes. '''
 
@@ -22,7 +35,7 @@ class TrackerPrefix(object):
 
 
 ## TrackerProtocol - keeps track of param mappings
-class TrackerProtocol(object):
+class TrackerProtocol(meta.ProtocolDefinition):
 
         ''' Maps params to named keys. '''
 
