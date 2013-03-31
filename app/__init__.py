@@ -61,6 +61,16 @@ def APIServer(environ, start_response, dispatch=True):
         return _APIServer
 
 
+def RealtimeServer(environ, start_response, dispatch=True):
+
+    ''' Bootstrap and dispatch the Hermes Realtime API Server. '''
+
+    # for now, just delegate to APIServer.
+    if debug:
+        raise NotImplemented('RealtimeServer is not yet implemented.')
+    return APIServer(environ, start_response, dispatch)
+
+
 def EventTracker(environ, start_response, dispatch=True):
 
     ''' Bootstrap and dispatch the Tracker. '''
