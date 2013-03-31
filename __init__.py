@@ -2,7 +2,7 @@
 
 '''
 
-AmpushHermes: API/Tracking Platform
+Hermes: API/Tracking Platform
 
 Description coming soon.
 

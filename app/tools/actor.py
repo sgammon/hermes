@@ -26,6 +26,7 @@ class Actor(gevent.Greenlet):
 
 		''' Initialize this actor. '''
 
+		# Build a queue for an inbox of tasks
 		self.inbox = queue.Queue()
 		gevent.Greenlet.__init__(self)
 		return self
@@ -42,5 +43,7 @@ class Actor(gevent.Greenlet):
 
 		self.running = True
 		while self.running:
+
+			# Block until we have a task, execute, then grab the next task...
 			message = self.inbox.get()
 			self.fire(message)

@@ -2,11 +2,11 @@
 
 '''
 
-Project Handlers
+API: Handlers
 
-This module is where you put your project's RequestHandlers. WebHandler and MobileHandler
-are designed to be extended by your app's handlers. This gives you a chance to inject custom
-logic / request handling stuff across your entire app, by putting it here.
+This module contains the top level WebHandler, which is responsible for
+responding to regular HTTP requests in a traditional HTTP request/response
+cycle. All project handlers should inherit from this.
 
 -sam (<sam.gammon@ampush.com>)
 
@@ -34,15 +34,29 @@ class WebHandler(core.BaseHandler):
 
     ''' Handler for desktop web requests. '''
 
-    # Preloader
-    session = None
-    preload = None
-    template = None
+    # Preloader / Sessions
+    session = None  # holds loaded/constructed session object
+    preload = None  # holds preloaded template, if supported
+    template = None  # string path to associated template
 
+    # Config Paths
+    _jinja2_config_path = 'webapp2_extras.jinja2'
+    _handler_config_path = 'api.classes.WebHandler'
+    _p_output_config_path = 'apptools.project.output'
+
+    # RPC Transport Settings
     transport = {
-        'consumer': 'hermes-sandbox',
-        'endpoint': 'api.amp.sh',
-        'secure': True if not config.debug else False
+
+        'endpoint': 'api.amp.sh',  # API endpoint (passed to client)
+        'consumer': 'hermes-sandbox',  # API consumer name (logging/simple access control)
+        'secure': True if not config.debug else False,  # whether to communicate over HTTPS
+
+        'realtime': {  # realtime / websocket settings
+            'enabled': False,  # enable/disable realtime
+            'endpoint': None,  # endpoint for realtime sockets
+            'secure': False  # whether to communicate over HTTPS
+        }
+
     }
 
     ## ++ Internal Shortcuts ++ ##
@@ -76,7 +90,14 @@ class WebHandler(core.BaseHandler):
 
         ''' Cached access to this handler's config. '''
 
-        return config.config.get('api.classes.WebHandler')
+        return config.config.get(self._handler_config_path)
+
+    @webapp2.cached_property
+    def _jinjaConfig(self):
+
+        ''' Cached access to Jinja2 base config. '''
+
+        return config.config.get(self._jinja2_config_path)
 
     @webapp2.cached_property
     def _integrationConfig(self):
@@ -86,18 +107,11 @@ class WebHandler(core.BaseHandler):
         return self._webHandlerConfig.get('integrations')
 
     @webapp2.cached_property
-    def _jinjaConfig(self):
-
-        ''' Cached access to Jinja2 base config. '''
-
-        return config.config.get('webapp2_extras.jinja2')
-
-    @webapp2.cached_property
     def _outputConfig(self):
 
         ''' Cached access to base output config. '''
 
-        return config.config.get('apptools.project.output')
+        return config.config.get(self._p_output_config_path)
 
     ## Internals
     @webapp2.cached_property
@@ -115,7 +129,7 @@ class WebHandler(core.BaseHandler):
         return {
             'secure': False,
             'endpoint': self.hostname,
-            'consumer': 'hermes-sandbox',
+            'consumer': 'apptools-sandbox',
             'scope': 'readonly',
             'realtime': {
                 'enabled': False

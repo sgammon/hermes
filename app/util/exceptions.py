@@ -2,7 +2,7 @@
 
 '''
 
-AmpushHermes: Exceptions
+Hermes: Exceptions
 
 Description coming soon.
 

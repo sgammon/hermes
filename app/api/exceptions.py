@@ -1,5 +1,11 @@
 # -*- utf-8 -*-
 
-#
-# DOCS COMING SOON :)
-#
+'''
+
+API: Exceptions
+
+Description coming soon.
+
+-sam (<sam.gammon@ampush.com>)
+
+'''

@@ -2,7 +2,7 @@
 
 '''
 
-Project Middleware
+API: Templates
 
 Description coming soon.
 

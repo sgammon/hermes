@@ -1,8 +1,14 @@
 # -*- utf-8 -*-
 
-#
-# DOCS COMING SOON :)
-#
+'''
+
+API: Routes
+
+Description coming soon.
+
+-sam (<sam.gammon@ampush.com>)
+
+'''
 
 # webapp2
 from webapp2 import Route

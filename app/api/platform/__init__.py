@@ -2,7 +2,7 @@
 
 '''
 
-Project Platform
+API: Platform
 
 Description coming soon.
 

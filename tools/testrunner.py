@@ -3,7 +3,7 @@
 
 '''
 
-AmpushHermes: Testrunner
+Hermes: Testrunner
 
 Description coming soon.
 

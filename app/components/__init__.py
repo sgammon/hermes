@@ -2,7 +2,7 @@
 
 '''
 
-AmpushHermes: Components
+Hermes: Components
 
 Description coming soon.
 

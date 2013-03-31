@@ -2,7 +2,7 @@
 
 '''
 
-AmpushHermes: Utils
+Hermes: Utils
 
 Description coming soon.
 

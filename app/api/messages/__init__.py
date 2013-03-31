@@ -2,7 +2,7 @@
 
 '''
 
-Project Messages
+API: Messages
 
 Description coming soon.
 

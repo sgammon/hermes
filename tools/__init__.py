@@ -2,7 +2,7 @@
 
 '''
 
-AmpushHermes: Tools
+Hermes: Tools
 
 Description coming soon.
 
