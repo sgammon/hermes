@@ -145,10 +145,9 @@ class TrackedEvent(object):
         ''' Serialize this TrackedEvent into numerous Redis writes. '''
 
         data = {
-            '-'.join(['event', str(id(self))]): (('id', id(self)), ('type', 'test'), ('timestamp', str(time.time())))
+            '-'.join(['event', str(id(self))]): [('id', id(self)), ('type', 'test'), ('timestamp', str(time.time()))] + self.params.items()
         }
 
-        data.update(self.params)
         return (data, self.generate_indexes())
 
     def generate_indexes(self):
