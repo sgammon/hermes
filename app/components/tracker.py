@@ -394,7 +394,7 @@ class EventTracker(object):
         buffer_id, flushed = self.buffer(event)
             
         # Yield status message if debug mode is enabled.
-        response_buffer.append(u"Tracked Event submitted with ID %s." % buffer_id)
+        response_buffer.append(u"<b>TrackedEvent</b> submitted with ID %s." % buffer_id)
         if flushed:
             response_buffer.append("<b>Flushed buffer with ID %s.</b><br />" % None)
         response_buffer.append(u"<b>Prebuffer:</b> ID \"%s\" of size: %s" % (id(self.prebuffer), len(self.prebuffer)))
