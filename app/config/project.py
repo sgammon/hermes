@@ -160,8 +160,8 @@ config['apptools.model'] = {
 
     'engines': [
 
-        {'name': 'Redis', 'enabled': False, 'path': 'apptools.model.adapter.redis.Redis'},
-        {'name': 'Memcache', 'enabled': False, 'path': 'apptools.model.adapter.memcache.Memcache'}
+        {'name': 'Redis', 'enabled': True, 'path': 'apptools.model.adapter.redis.Redis'},
+        {'name': 'Memcache', 'enabled': True, 'path': 'apptools.model.adapter.memcache.Memcache'}
 
     ]
 

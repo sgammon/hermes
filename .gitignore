@@ -2,3 +2,5 @@
 .tests
 .tests/*
 lib/dist/*
+.DS_Store
+*.DS_Store
