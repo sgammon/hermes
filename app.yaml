@@ -8,9 +8,9 @@ uwsgi:
   gid: runtime
   master: on
   cheaper: on
-  processes: 1
+  processes: 2
   enable-threads: on
-  threads: 10
+  threads: 40
   pcre-jit: on
   touch-reload: /ns/runtime/trigger/hermes.uwsgi
   tcp-fast-open: on
@@ -20,3 +20,4 @@ uwsgi:
   pythonpath: /ampush/apps/hermes/app/lib
   pythonpath: /ampush/apps/hermes/app/lib/dist
   post-buffering: on
+  pep3333-input: on
