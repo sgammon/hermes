@@ -4,7 +4,8 @@
 
 Hermes: Components
 
-Description coming soon.
+This directory contains components for low-level Hermes subsystems,
+most notably the `EventTracker`.
 
 -sam (<sam.gammon@ampush.com>)
 

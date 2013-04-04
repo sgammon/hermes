@@ -1,4 +1,17 @@
 # -*- coding: utf-8 -*-
+
+'''
+
+Config: Assets
+
+This file holds config for registered static assets, such that
+HREFs to css/JS/arbitrary external assets can be formed by the
+AppTools Assets API.
+
+-sam (<sam.gammon@ampush.com>)
+
+'''
+
 """
 
     ###################################### Asset configuration. ######################################

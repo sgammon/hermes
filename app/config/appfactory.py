@@ -1,5 +1,16 @@
 # -*- coding: utf-8 -*-
 
+'''
+
+Config: AppFactory
+
+This file holds config for the `appfactory` package, which enables
+integration between AppFactory and AppTools.
+
+-sam (<sam.gammon@ampush.com>)
+
+'''
+
 """
 
     ######################################## layer9/appfactory configuration. ########################################

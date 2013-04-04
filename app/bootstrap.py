@@ -4,7 +4,10 @@
 
 AmpushHermes: Bootstrapper
 
-Description coming soon.
+This small utility file is loaded by AppTools and executed as early
+as possible in the execution flow, to facilitate the injection of
+paths onto `sys.path`, preloading, and other process-level init for
+the app.
 
 -sam (<sam.gammon@ampush.com>)
 

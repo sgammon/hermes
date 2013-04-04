@@ -1,5 +1,17 @@
 # -*- coding: utf-8 -*-
 
+'''
+
+Config: Services
+
+This file holds configuration and registration for service layer
+service classes. It also contains configuration for the service
+layer itself.
+
+-sam (<sam.gammon@ampush.com>)
+
+'''
+
 """
 
     ###################################### Services configuration. ######################################

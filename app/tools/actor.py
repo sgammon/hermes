@@ -4,7 +4,9 @@
 
 Tools: Actor Model
 
-Description coming soon.
+Allows a class to act as an `Actor`, which wakes up and processes
+a singular type of task once new tasks are added via the internal
+Gevent queue at `Actor.inbox`.
 
 -sam (<sam.gammon@ampush.com>)
 

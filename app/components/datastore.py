@@ -4,7 +4,9 @@
 
 Components: Datastore
 
-Description coming soon.
+This components holds a `DatastoreEngine` actor that wakes
+up and writes `TrackedEvent`(s) to Redis. This engine
+supports command pipelining and configurable autobatching.
 
 -sam (<sam.gammon@ampush.com>)
 

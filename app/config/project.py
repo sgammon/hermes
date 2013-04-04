@@ -1,5 +1,15 @@
 # -*- coding: utf-8 -*-
 
+'''
+
+Config: Project
+
+This file holds main project configuration.
+
+-sam (<sam.gammon@ampush.com>)
+
+'''
+
 """
 
     ######################################## AppTools Project configuration. ########################################

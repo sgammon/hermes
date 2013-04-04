@@ -1,5 +1,16 @@
 # -*- coding: utf-8 -*-
 
+'''
+
+Config: Extensions
+
+This file holds config for extensions to the AppTools Output API.
+Jinja2 extensions are also valid Output API extensions.
+
+-sam (<sam.gammon@ampush.com>)
+
+'''
+
 """
 
     ######################################## output extension configuration. ########################################

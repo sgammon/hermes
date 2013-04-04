@@ -4,7 +4,8 @@
 
 Hermes: Exceptions
 
-Description coming soon.
+Holds top-level app exception classes, including Hermes' package-level
+exception ancestor, exported as `Error`.
 
 -sam (<sam.gammon@ampush.com>)
 

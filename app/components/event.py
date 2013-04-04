@@ -4,7 +4,8 @@
 
 Components: Events
 
-Description coming soon.
+This file contains `TrackedEvent`, a class used to represent
+individual events tracked by the `EventTracker`.
 
 -sam (<sam.gammon@ampush.com>)
 

@@ -4,7 +4,7 @@
 
 Hermes: Utils
 
-Description coming soon.
+This package holds small utilities and random, miscellaneous code.
 
 -sam (<sam.gammon@ampush.com>)
 

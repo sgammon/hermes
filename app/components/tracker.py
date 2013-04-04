@@ -4,7 +4,10 @@
 
 Components: Tracker
 
-Description coming soon.
+This file contains the main `EventTracker` server, with accompanying
+low-level WSGI logic to dispatch and double-buffer tracked events
+to the `DatastoreEngine` component, for pipelined persistence to
+Redis.
 
 -sam (<sam.gammon@ampush.com>)
 
