@@ -218,10 +218,6 @@ class WebHandler(core.BaseHandler):
         ''' Initialize this handler. '''
 
         super(core.BaseHandler, self).initialize(request, response)
-        if request.method.lower() == 'post':
-            # make body seekable - buffers POST body
-            print "APPLYING POST FIX"
-            request.make_body_seekable()
         return self
 
     def dispatch(self):

@@ -19,4 +19,3 @@ uwsgi:
   pythonpath: /ampush/apps/hermes/app
   pythonpath: /ampush/apps/hermes/app/lib
   pythonpath: /ampush/apps/hermes/app/lib/dist
-  post-buffering: on
