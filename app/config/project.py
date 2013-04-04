@@ -22,9 +22,9 @@ config['apptools.project'] = {
 
     'version': {               # Change this according to your app's version
         'major': 0,
-        'minor': 2,
+        'minor': 3,
         'micro': 0,
-        'build': 20130331,
+        'build': 20130405,
         'release': 'ALPHA'
     }
 
@@ -50,18 +50,16 @@ config['apptools.project.output'] = {
         'multitrack': True,			 # whether to enable support for multiple trackers
         'anonymize': False,			 # whether to anonymize IPs before analytics
         'account_id': {
-            'yoga': 'UA-37821157-3',   # main yoga analytics tracking
-            'gatsby': 'UA-37821157-2'  # gatsby analytics tracking
-
+            'hermes': 'UA-37219177-3'   # main yoga analytics tracking
         },
         'sitespeed': {
             'enable': True,           # enable google analytics' site speed tracking
             'sample': 100            # set the sitespeed sample rate
         },
         'webclient':{
-            'dev': 'https://ssl.google-analytics.com/u/ga_debug.js',
-            'http': 'https://ssl.google-analytics.com/u/ga_debug.js',
-            'https': 'https://ssl.google-analytics.com/u/ga_debug.js'  # revert to: https://deliver.ampushyoga.io/ga.js
+            'dev': 'https://ssl.google-analytics.com/u/analytics_debug.js',
+            'http': 'https://ssl.google-analytics.com/u/analytics_debug.js',
+            'https': 'https://ssl.google-analytics.com/u/analytics_debug.js'  # revert to: https://deliver.ampushyoga.io/ga.js
         }
     },
 
@@ -84,8 +82,8 @@ config['apptools.project.output'] = {
         'XAF-Origin': 'AppHosting/Hermes/1.0',
         'Access-Control-Allow-Origin': None,
         'Access-Control-Allow-Methods': 'GET, POST',
-        'Access-Control-Allow-Headers': 'Content-Type, Content-Length, XAF-Session, XAF-Token, XAF-Channel, XAF-Socket, X-ServiceTransport, X-ServiceClient, X-Tantric-Session',
-        'Access-Control-Expose-Headers': 'Content-Type, Content-Length, XAF-Session, XAF-Token, XAF-Channel, XAF-Socket, X-ServiceTransport, X-ServiceClient, X-Tantric-Session'
+        'Access-Control-Allow-Headers': 'Content-Type, Content-Length, XAF-Session, XAF-Token, XAF-Channel, XAF-Socket, X-ServiceTransport, X-ServiceClient',
+        'Access-Control-Expose-Headers': 'Content-Type, Content-Length, XAF-Session, XAF-Token, XAF-Channel, XAF-Socket, X-ServiceTransport, X-ServiceClient'
     }
 
 }
@@ -156,11 +154,12 @@ config['apptools.project.pipelines'] = {
 # Models/Storage Configuration
 config['apptools.model'] = {
 
-    'default': 'redis',  # default storage engine
+    'default': 'Memory',  # default storage engine
 
     'engines': [
 
         {'name': 'Redis', 'enabled': True, 'path': 'apptools.model.adapter.redis.Redis'},
+        {'name': 'Memory', 'enabled': True, 'path': 'apptools.model.adapter.inmemory.InMemory'},
         {'name': 'Memcache', 'enabled': True, 'path': 'apptools.model.adapter.memcache.Memcache'}
 
     ]

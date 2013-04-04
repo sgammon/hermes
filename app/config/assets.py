@@ -65,12 +65,7 @@ config['apptools.project.assets'] = {
             },
 
             'assets': {
-                'modernizr': {'min': False, 'version': '2.0.6'},  # Modernizr - browser polyfill + compatibility testing
-                'jquery': {'min': True, 'version': '1.9.1'},      # jQuery: Write Less, Do More!
-                'jquery.ui': {'min': True, 'version': '1.9.2'},   # jQuery UI: kendo depends on this (shoot me now)
-                'underscore': {'min': True, 'version': '1.3.1'},  # Underscore: JavaScript's utility belt
                 'd3': {'min': True, 'version': 'v3'},             # D3: data driven documents, yo
-                'nvd3': {'min': True, 'version': 'v1'},           # NVD3: Pre-packaged D3 routines
                 'jacked': {'min': True, 'version': 'v1'}          # Jacked: animation engine on steroids
             }
 
@@ -90,87 +85,6 @@ config['apptools.project.assets'] = {
 
         },
 
-        ### jQuery Plugins ###
-        ('jquery', 'core/jquery'): {
-
-            'config': {
-                'version_mode': 'getvar',
-                'bundle': 'jquery.bundle.min.js',
-                'min': True
-            },
-
-            'assets': {
-                ## jquery core is included in "core" (see above)
-                'easing': {'path': 'interaction/easing.min.js'},          # Easing transitions for smoother animations
-                'mousewheel': {'path': 'interaction/mousewheel.min.js'}   # jQuery plugin for mousewheel events + interactions
-            }
-
-        },
-
-        ## KendoUI ##
-        ('kendo', 'kendo'): {
-
-            'config': {
-                'version_mode': 'getvar',
-                'bundle': 'kendo.bundle.min.js',
-                'min': True
-            },
-
-            'assets': {
-                'all': {'min': True, 'version': 0.3},
-                'fx': {'min': True, 'version': 0.4},
-                'core': {'min': True, 'version': 0.4},
-                'data': {'min': True, 'version': 0.4},
-                'grid': {'min': True, 'version': 0.4},
-                'pager': {'min': True, 'version': 0.4},
-                'dataviz': {'min': True, 'version': 0.4},
-                'mobile': {'min': True, 'version': 0.4}
-            }
-
-        },
-
-        ## Zurb Foundataion ##
-        ('zurb', 'foundation'): {
-
-            'config': {
-                'version_mode': 'getvar',
-                'bundle': 'zurb.bundle.min.js',
-                'min': True
-            },
-
-            'assets': {
-                'core': {'min': True, 'version': 0.3}  # zurb foundation
-            }
-
-        },
-
-        ### Yoga Platform ###
-        ('yoga', 'platform'): {
-
-            'config': {
-                'version_mode': 'getvar',
-                'bundle': 'platform.bundle.min.js'
-            },
-
-            'assets': {
-                'tantric': {'min': True, 'version': 1.7}
-            }
-
-        },
-
-        ## Tantric Modules ##
-        ('tantric', 'platform/tantric'): {
-            'config': {
-                'version_mode': 'getvar',
-                'min': True,
-                'bundle': 'tantric.bundle.min.js'
-            },
-            'assets': {
-                'manage': {'min': True, 'version': 1.5},
-                'mobile': {'min': True, 'version': 1.5}
-            }
-        }
-
     },
 
 
@@ -186,11 +100,7 @@ config['apptools.project.assets'] = {
             },
 
             'assets': {
-                'main': {'version': 0.9},  # reset, main, layout, forms
-                'security': {'version': 0.6},  # login / security styles
-                'mobile': {'version': 0.8},  # mobile styles + responsive
-                'print': {'version': 0.6},  # print-friendly styles
-                'ie': {'version': 0.6}  # fixes for internet explorer
+                'main': {'version': 0.9}  # reset, main, layout, forms
             }
 
         },
@@ -208,78 +118,6 @@ config['apptools.project.assets'] = {
             }
 
         },
-
-        # Content-section specific stylesheets
-        ('site', 'compiled/site'): {
-
-            'config': {
-                'min': False,
-                'version_mode': 'getvar'
-            },
-
-            'assets': {
-            }
-
-        },
-
-        # Kendo-specific stylesheets
-        ('kendo', 'embedded/kendo'): {
-
-            'config': {
-                'min': True,
-                'version_mode': 'getvar'
-            },
-
-            'assets': {
-                'mobile': {'min': True, 'version': 0.3},
-                'combined': {'min': True, 'version': 0.3}
-            }
-
-        },
-
-        # NVD3-specific stylesheets
-        ('nvd3', 'embedded/nvd3'): {
-
-            'config': {
-                'min': True,
-                'version_mode': 'getvar'
-            },
-
-            'assets': {
-                'v1': {'min': True, 'version': 1.3}
-            }
-
-        },
-
-        # Dashboard Stylesheets
-        ('manage', 'compiled/manage'): {
-
-            'config': {
-                'min': False,
-                'version_mode': 'getvar'
-            },
-
-            'assets': {
-                'main': {'min': False, 'version': 0.5}
-            }
-
-        },
-
-        # App-Specific Stylesheets
-        ('gatsby', 'compiled/app/gatsby'): {
-
-            'config': {
-                'min': False,
-                'version_mode': 'getvar'
-            },
-
-            'assets': {
-                'main': {'min': False, 'version': 0.4},  # main styles for the great gatsby
-                'mobile': {'min': False, 'version': 0.6},  # mobile styles for the great gatsby
-                'fonts': {'min': False, 'version': 0.4}  # zocial / gatsby-specific fonts
-            }
-
-        }
 
     },
 

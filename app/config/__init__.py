@@ -40,7 +40,8 @@ debug = force_debug or (not production)
 
 ## App details
 appname = 'ampush-hermes'
-appversion = '0-2-alpha'
+appversion = '0-3-alpha'
+
 
 """
 
@@ -48,6 +49,7 @@ appversion = '0-2-alpha'
    
 
 """
+
 
 # Constants
 verbose = True  # toggle verbose logging
@@ -65,6 +67,7 @@ _DISCARD_NOSENTINEL = True  # refuse all incoming events missing a sentinel key
 _RUNTIME_SOCKROOT = '/ns/runtime/sock'  # root for all unix domain sockets
 _PREBUFFER_THRESHOLD = 10  # configurable task limit per prebuffer batch
 _PREBUFFER_FREQUENCY = 60  # configurable time threshold for prebuffer flush
+
 
 """
 
@@ -89,7 +92,7 @@ _config['webapp2_extras.sessions'] = {
     'session_ttl':     172000000,
     'session_max_age': None,
     'cookie_args': {
-        'name':       'amps',
+        'name':       'aps',
         'max_age':     172000000,
         #'domain':      '*',
         'path':        '/'
