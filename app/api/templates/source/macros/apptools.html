@@ -16,6 +16,12 @@
 		'strict': false
 	},
 
+	'push': {
+		'enabled': True if channel.token else False,
+		'token': channel.token if channel.token else null,
+		'timeout': (channel._TTL.seconds / 60) if channel else null
+	} if channel else {},
+
 	'user': {
 		'email': null,
 		'is_user_admin': null,
@@ -40,7 +46,7 @@
 	}) if oauth else {},
 
 	'services': {
-		'endpoint': '://'.join([handler.force_https or handler.request.scheme, transport.services.endpoint]),
+		'endpoint': '://'.join([('https' if handler.force_https else False) or handler.request.scheme, transport.services.endpoint]),
 		'consumer': transport.services.consumer,
 		'scope': transport.services.scope,
 		'apis': transport.services.make_object(page.services)
