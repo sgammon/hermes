@@ -55,9 +55,6 @@ def APIServer(environ, start_response, dispatch=True):
 
     if dispatch:
         # Dispatch
-        print "APISERVER::: ENVIRON"
-        print str(environ)
-        print "APISERVER::: BODY"
         return _APIServer(environ, start_response)
     else:
         # Just construct
