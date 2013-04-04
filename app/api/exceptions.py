@@ -4,7 +4,8 @@
 
 API: Exceptions
 
-Description coming soon.
+Top-level exceptions are defined here, including Hermes'
+package-level catchall, defined as `Error`.
 
 -sam (<sam.gammon@ampush.com>)
 

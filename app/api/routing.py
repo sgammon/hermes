@@ -4,7 +4,8 @@
 
 API: Routes
 
-Description coming soon.
+This file contains API routing rules that pass requests
+bound to certain URLs to the mapped handler.
 
 -sam (<sam.gammon@ampush.com>)
 
