@@ -22,7 +22,8 @@ def get_rules():
 	return [
 
 		routes.HandlerPrefixRoute('api.handlers.', [
-			Route('/v1/rpc/test', name='landing', handler='test.TestHandler')
+			Route('/v1/test', name='landing', handler='test.TestHandler'),
+			Route('/v1/test/<mode>', name='landing-mode', handler='test.TestHandler')
 		])
 
 	]

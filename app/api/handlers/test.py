@@ -10,6 +10,10 @@ Handlers that test functionality in Hermes or Apptools itself.
 
 '''
 
+# stdlib
+import os
+import sys
+
 # WebHandler
 from api.handlers import WebHandler
 
@@ -19,8 +23,10 @@ class TestHandler(WebHandler):
 
 	''' Test AppTools handler functionality. '''
 
-	def get(self):
+	def get(self, mode='hello'):
 
 		''' HTTP GET '''
 
+		if mode == 'env':
+			return self.render('test/env.html', request=self.request, environ=os.environ, sysflags=sys.flags, handler=self)
 		return self.render('test/hello.html')
