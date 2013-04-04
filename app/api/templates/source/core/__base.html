@@ -168,6 +168,10 @@
         {% block outer_south_appstage %}
         __ = appstage = function () {
                 {% block south_appstage -%}
+                apptools.rpc.state.config.jsonrpc.base_uri = '/v1/rpc';
+                apptools.rpc.state.config.headers['X-ServiceClient'] = 'Hermes/0.2.0-03012013 ALPHA';
+                apptools.rpc.state.config.headers['X-ServiceTransport'] = 'Hermes/JSONRPC';
+
                 console.log('Appstage ready.');
                 {%- endblock %}
         };
