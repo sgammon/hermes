@@ -16,12 +16,6 @@
 		'strict': false
 	},
 
-	'push': {
-		'enabled': True if channel.token else False,
-		'token': channel.token if channel.token else null,
-		'timeout': (channel._TTL.seconds / 60) if channel else null
-	} if channel else {},
-
 	'user': {
 		'email': null,
 		'is_user_admin': null,
