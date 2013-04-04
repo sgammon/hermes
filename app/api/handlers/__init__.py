@@ -47,7 +47,7 @@ class WebHandler(core.BaseHandler):
     # RPC Transport Settings
     transport = {
 
-        'endpoint': 'api.amp.sh:8080',  # API endpoint (passed to client)
+        'endpoint': '127.0.0.1:8080' if config.debug else 'api.amp.sh',  # API endpoint (passed to client)
         'consumer': 'hermes-sandbox',  # API consumer name (logging/simple access control)
         'secure': True if not config.debug else False,  # whether to communicate over HTTPS
 
