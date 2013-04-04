@@ -47,7 +47,7 @@ class WebHandler(core.BaseHandler):
     # RPC Transport Settings
     transport = {
 
-        'endpoint': 'api.amp.sh',  # API endpoint (passed to client)
+        'endpoint': 'api.amp.sh:8080',  # API endpoint (passed to client)
         'consumer': 'hermes-sandbox',  # API consumer name (logging/simple access control)
         'secure': True if not config.debug else False,  # whether to communicate over HTTPS
 
@@ -196,7 +196,7 @@ class WebHandler(core.BaseHandler):
         context.update({
 
             '_meta': config.config.get('apptools.output.meta'),
-            '_opengraph': config.config.get('apptools.output.meta').get('opengraph', {}),
+            '_opengraph': config.config.get('apptools.output.meta', {}).get('opengraph', {}),
             'handler': self,
             'transport': {
                 'services': self.computedTransport,
@@ -205,7 +205,7 @@ class WebHandler(core.BaseHandler):
                 }
             },
             'security': {
-                'current_user': self.current_user
+                'current_user': None
             }
 
         })

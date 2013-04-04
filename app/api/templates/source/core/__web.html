@@ -1,0 +1,27 @@
+{% extends "core/__base.html" %}
+
+{% block title_prefix %}yoga, by ampush{% endblock title_prefix %}
+
+{% block body %}
+
+	<!-- AppTools Templates -->
+	<div id='templates' class='hidden resource'>
+		{% block jstemplates %}
+		{% endblock jstemplates %}
+	</div><!-- end #templates -->
+
+	<div id='main' class='application'>
+
+		{% block root %}
+		<div id='appstage' class='yoga light'>
+			{% block stage %}
+			{% endblock stage %}
+		</div><!-- end #appstage -->
+		{% endblock root %}
+
+	</div><!-- end #root -->
+
+{% endblock body %}
+
+{% block south_deferred %}__anfci = function () { window.main.classList.add('active'); },{% endblock %}
+{% block south_appstage %}setTimeout(__anfci, _fdtimeout);{% endblock south_appstage %}

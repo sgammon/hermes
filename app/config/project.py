@@ -217,3 +217,77 @@ config['apptools.classes.WebHandler'] = {
     }
 
 }
+
+config['apptools.output.meta'] = {
+
+    'icon': '<invalid>',
+    'logo': '<invalid>',
+    'author': 'Ampush, Inc.',
+    'publisher': 'Ampush, Inc.',
+    'copyright': 'Ampush, (c) 2013',
+    'robots': 'noindex,nofollow',  #'index,follow',
+    'revisit': '7 days',
+
+    'description': 'Hermes test harness and toolchain.',
+
+    'application-name': 'ampush hermes',
+    'viewport': 'width=device-width,initial-scale=1,user-scalable=yes,height=device-height',
+    'revisit-after': '7 days',
+
+    'keywords': [
+        'hermes',
+        'api',
+        'tools',
+        'ampush',
+        'json'
+    ],
+
+    'opengraph': {
+
+        'title': 'ampush hermes: welcome',
+        'type': 'website',
+        'determiner': 'a',
+        'locale': 'en_US',
+        'url': 'https://tools.amp.sh',
+        'site_name': 'project hermes',
+        'description': 'Hermes test harness and toolchain.',
+        'image': '',
+
+        'location': {
+            'enable': True,
+
+            'latitude': '',
+            'longitude': '',
+            'address': '450 9th Street, 2nd Floor',
+            'locality': 'San Francisco',
+            'region': 'California',
+            'zipcode': '94114',
+            'country': 'United States of America',
+            'email': 'hermes@ampush.com',
+            'phone': ''
+        },
+
+        'facebook': {
+            'app_id': '',
+            'admins': ['642005650']
+        }
+
+    },
+
+    'apple': {
+
+        'touch_icon': '',
+        'precomposed': '',
+        'startup_icon': '',
+        'status_bar_style': '',
+        'app_capable': ''
+
+    },
+
+    'google': {
+
+        'site_verification': ''
+
+    }
+
+}

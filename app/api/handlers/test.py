@@ -23,4 +23,4 @@ class TestHandler(WebHandler):
 
 		''' HTTP GET '''
 
-		return '<html><head><title>sup</title></head><body><b>sup</b></body></html>'
+		return self.render('test/hello.html')

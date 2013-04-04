@@ -1,0 +1,78 @@
+<!-- AppTools / Platform -->
+<script data-js='apptools' async defer onload="javascript:Bootstrap(this);" src="{{ asset.script('base', 'apptools') }}"></script>
+
+<!-- Deferred JS -->
+<div id='js-deferred' class='hidden resource'></div><!-- end #js-deferred -->
+
+<!-- Page Init -->
+<script id='js-init' type='text/javascript'>
+
+		// definitions
+	var $ = $ || window.$ || function () { document.getElementById(arguments[0]); },
+		_deferred = (window.deferred || []),
+
+		// init string constants
+		_jload = 'load',  // modern onload property
+		_jload_l = 'onload',  // legacy onload property
+		_jstnl = 'JavaScript',  // js ready clockpoint category
+		_jspr_ev = 'Page Ready',  // js ready clockpoint name
+		_jspr_de = 'Development',  // current code stack
+		_jsga_elid = 'analytics',  // element id for analytics injected script
+		_cfgst = 'js-config',  // id that contains page-level json config
+		_dfrst = 'js-deferred',  // id that should be the target of injected scripts
+
+		// init endpoints
+		_fca = 'api.amp.sh',  // rpc/realtime endpoint
+		_fch = 'tools.amp.sh',  // current hostname
+		_fcd = 'deliver.amp.sh',  // asset endpoint
+
+		// begin google analytics integration
+		_gacli = 'ga.js',
+		_gaid = 'UA-37219177-2',
+		_ena_ga = ['inpage_linkid'],  // required plugins
+		_gattp = 'inpage_linkid.js',
+		_ga_rn = '_require',  // require opname
+		_gaq = _gaq || [],  // queue init
+		_gat = _gat || {},  // tracker init
+		_gasr = 100,  // sample rate
+		_gany = false,  // anonymization flag
+		_gmulti = true,  // multitracking flag
+		{%- block south_declare %}{% endblock -%}
+		
+		// begin appstage settings
+		_fdtimeout = 300,
+
+		// pull injection and config elements
+		config = window.config = window._acf || $(_cfgst),
+		_fcdfrd = window[_dfrst] || _g(_dfrst),
+
+		__ = window.deferred.push({'el':
+			{
+				'id': _jsga_elid,
+				'src': [_fcd, _gacli].join('/'),
+				'data-hostname': _fch
+			},
+			'onload': function (e) {
+				var fcan = $.apptools.analytics.internal.initialize(_gaq, _gat, _gac, e);
+			}
+		}),
+		__ = window.__track_fcpr = function (e) {
+			window.__clock.clockpoint(_jstnl, _jspr_ev, window.__clock.ts[0], _jspr_de, 100);
+		},
+		__lib = window.lib = [],
+
+		__ = appstage = function () { console.log('System loaded.', apptools); };
+
+		{%- block south_preonload %}{% endblock south_preonload -%}
+
+		if (window.addEventListener) {
+			window.addEventListener(_jload, appstage, false);
+		} else if (window.attachEvent) {
+			window.attachEvent(_jload, appstage);
+		} else {
+			window[_jload_l] = appstage;
+		}
+
+		{% block south_postonload %}{%- endblock south_postonload -%}
+
+</script><!-- end #js-init -->

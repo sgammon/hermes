@@ -142,7 +142,7 @@ _config['apptools.system'] = {
 
     'include': [  # Extended configuration files to include
 
-        #('layer9', 'config.layer9'),          # Layer9 Hosting Config
+        ('layer9', 'config.appfactory'),      # Layer9 Hosting Config
         ('extensions', 'config.extensions'),  # extension config
         ('project', 'config.project'),        # Base Project config
         ('services', 'config.services'),      # Global + site services (RPC/API) config
@@ -160,7 +160,7 @@ _config['apptools.system.platform'] = {
 
         {'name': 'Generic WSGI', 'path': 'apptools.platform.generic.GenericWSGI'},
         #{'name': 'Google App Engine', 'path': 'apptools.platform.appengine.GoogleAppEngine'},
-        #{'name': 'Layer9 AppFactory', 'path': 'apptools.platform.appfactory.AppFactory'},
+        {'name': 'Layer9 AppFactory', 'path': 'apptools.platform.appfactory.AppFactory'},
         #{'name': 'AmpushHermes', 'path': 'api.platform.ampush.hermes'},
         #{'name': 'AmpushFacebook', 'path': 'yoga.platform.tantric.facebook.Facebook'}
 
@@ -207,8 +207,8 @@ def readConfig(config=_config):
             for name, configpath in config['apptools.system']['include']:
                 systemLog('Checking include "' + str(name) + '" at path "' + str(configpath) + '".')
                 try:
-                    for key, cfg in import_string('.'.join(configpath.split('.') + ['config'])).items():
-                        config[key] = cfg
+                    loaded_config = import_string('.'.join(configpath.split('.') + ['config']))
+                    config.update(loaded_config)
                 except Exception, e:
                     systemLog('Encountered exception of type "' + str(e.__class__) + '" when trying to parse config include "' + str(name) + '" at path "' + str(configpath))
                     if debug:
