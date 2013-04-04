@@ -50,7 +50,6 @@ appversion = '0-2-alpha'
 """
 
 # Constants
-debug = True  # toggle debug mode
 verbose = True  # toggle verbose logging
 _REDIS_DB = 1  # redis database number
 _REDIS_SOCK = 'redis.sock'  # redis socket location

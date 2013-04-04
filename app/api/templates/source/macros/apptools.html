@@ -46,7 +46,7 @@
 	}) if oauth else {},
 
 	'services': {
-		'endpoint': '://'.join([handler.request.scheme, transport.services.endpoint]),
+		'endpoint': '://'.join([handler.force_https or handler.request.scheme, transport.services.endpoint]),
 		'consumer': transport.services.consumer,
 		'scope': transport.services.scope,
 		'apis': transport.services.make_object(page.services)

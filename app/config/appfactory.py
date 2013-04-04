@@ -23,7 +23,7 @@ config['layer9.appfactory'] = {
 
 config['layer9.appfactory.upstream'] = {
 
-	'debug': False,
+	'debug': True,
 	'enabled': True,
 
 	'preloading': {
@@ -49,14 +49,14 @@ config['layer9.appfactory.upstream'] = {
 
 config['layer9.appfactory.frontline'] = {
 
-	'debug': False,
+	'debug': True,
 	'enabled': True
 
 }
 
 config['layer9.appfactory.controller'] = {
 
-	'debug': False,
+	'debug': True,
 	'enabled': True
 
 }
