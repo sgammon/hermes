@@ -8,9 +8,9 @@ uwsgi:
   gid: runtime
   master: on
   cheaper: on
-  processes: 2
+  processes: 1
   enable-threads: on
-  threads: 40
+  threads: 10
   pcre-jit: on
   touch-reload: /ns/runtime/trigger/hermes.uwsgi
   tcp-fast-open: on
