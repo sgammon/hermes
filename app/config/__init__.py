@@ -32,9 +32,11 @@ _config = {}
 _compiled_config = None
 
 ## Check if we're running on top of the appengine devserver
-debug = True  # toggle debug mode
+force_debug = True  # toggle debug mode
 strict = False  # toggle strict mode
 verbose = True  # toggle verbose logging
+production = (os.environ.get('APPFACTORY') == 'production') or (os.environ.get('SERVER_SOFTWARE', 'Not Google').startswith('Google'))
+debug = force_debug or (not production)
 
 ## App details
 appname = 'ampush-hermes'
