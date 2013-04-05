@@ -112,7 +112,7 @@ class TrackedEvent(object):
 
         ''' Generate a proper unique ID for this event. '''
 
-        self.id = self.request.headers.get('XAF-Hash', self.request.headers.get('XAF-Request-ID'), '-'.join([str(base), str(int(time.time()))]))
+        self.id = self.request.headers.get('XAF-Hash', self.request.headers.get('XAF-Request-ID', '-'.join([str(base), str(int(time.time()))])))
         return self
 
     def decode(self, injected=None):
