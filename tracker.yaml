@@ -7,8 +7,8 @@ uwsgi:
   uid: appfactory
   gid: runtime
   master: on
-  processes: 1
-  gevent: 150
+  processes: 2
+  gevent: 400
   gevent-monkey-patch: on
   touch-reload: /ns/runtime/trigger/tracker.uwsgi
   pcre-jit: on
