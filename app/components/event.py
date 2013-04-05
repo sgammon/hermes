@@ -145,7 +145,7 @@ class TrackedEvent(object):
 
         ''' Serialize this TrackedEvent into numerous Redis writes. '''
 
-        event_id = self.headers.get('XAF-Request-ID')
+        event_id = self.request.headers.get('XAF-Request-ID')
         if not event_id:
             event_id = id(self)
 
