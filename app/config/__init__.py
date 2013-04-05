@@ -32,7 +32,7 @@ _config = {}
 _compiled_config = None
 
 ## Check if we're running on top of the appengine devserver
-force_debug = True  # toggle debug mode
+force_debug = False  # toggle debug mode
 strict = False  # toggle strict mode
 verbose = True  # toggle verbose logging
 production = (os.environ.get('APPFACTORY') == 'production') or (os.environ.get('SERVER_SOFTWARE', 'Not Google').startswith('Google'))
@@ -52,7 +52,7 @@ appversion = '0-3-alpha'
 
 
 # Constants
-verbose = True  # toggle verbose logging
+verbose = False  # toggle verbose logging
 _REDIS_DB = 1  # redis database number
 _REDIS_SOCK = 'redis.sock'  # redis socket location
 _DEBUG_PORT = 8080  # port to bind the gevent pywsgi debug server to

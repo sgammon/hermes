@@ -282,11 +282,11 @@ class EventTracker(object):
             self.verbose("Provisioned WSGI request/response pair with IDs (%s, %s)." % (id(request), id(response)))
             self.verbose("Original response headers: \"%s\"." % response.headers)
 
-            # Fill-in response info
-            response.stage = protocol.ResponseStage.PENDING
-            response.request = request
-            for hkey, hvalue in self._base_headers:
-                response.headers[hkey] = hvalue
+        # Fill-in response info
+        response.stage = protocol.ResponseStage.PENDING
+        response.request = request
+        for hkey, hvalue in self._base_headers:
+            response.headers[hkey] = hvalue
 
         if self.chunked:
 
