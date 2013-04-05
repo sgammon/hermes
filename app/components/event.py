@@ -147,7 +147,7 @@ class TrackedEvent(object):
 
         event_id = self.request.headers.get('XAF-Hash')
         if not event_id:
-            event_id = id(self)
+            event_id = str(id(self))
 
         data = {
             '-'.join(['event', event_id]): [('id', event_id), ('type', 'test'), ('timestamp', str(time.time()))] + self.params.items()
