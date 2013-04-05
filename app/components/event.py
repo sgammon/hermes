@@ -145,6 +145,8 @@ class TrackedEvent(object):
 
         ''' Serialize this TrackedEvent into numerous Redis writes. '''
 
+        print "========+ HEADERS AT FLUSHTIME +========"
+        print str(self.request.headers)
         event_id = self.request.headers.get('XAF-Hash')
         if not event_id:
             event_id = str(id(self))
