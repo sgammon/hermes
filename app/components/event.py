@@ -150,7 +150,7 @@ class TrackedEvent(object):
             event_id = id(self)
 
         data = {
-            '-'.join(['event', event_id]): [('id', event_id, ('type', 'test'), ('timestamp', str(time.time()))] + self.params.items()
+            '-'.join(['event', event_id]): [('id', event_id), ('type', 'test'), ('timestamp', str(time.time()))] + self.params.items()
         }
 
         return (data, self.generate_indexes())
