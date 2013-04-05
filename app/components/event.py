@@ -112,7 +112,7 @@ class TrackedEvent(object):
 
         ''' Generate a proper unique ID for this event. '''
 
-        self.id = base
+        self.id = self.request.headers.get('XAF-Hash', self.request.headers.get('XAF-Request-ID'), '-'.join([str(base), str(int(time.time()))]))
         return self
 
     def decode(self, injected=None):
@@ -145,14 +145,8 @@ class TrackedEvent(object):
 
         ''' Serialize this TrackedEvent into numerous Redis writes. '''
 
-        print "========+ HEADERS AT FLUSHTIME +========"
-        print str([(i, k) for i, k in self.request.headers.items()])
-        event_id = self.request.headers.get('XAF-Hash')
-        if not event_id:
-            event_id = str(id(self))
-
         data = {
-            '-'.join(['event', event_id]): [('id', event_id), ('type', 'test'), ('timestamp', str(time.time()))] + self.params.items()
+            '-'.join(['event', self.id]): [('id', self.id), ('type', 'test'), ('timestamp', str(time.time()))] + self.params.items()
         }
 
         return (data, self.generate_indexes())
