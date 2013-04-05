@@ -16,7 +16,6 @@ import sys
 import optparse
 import unittest
 import xmlrunner
-import bootstrap
 
 USAGE = """%prog SDK_PATH TEST_PATH
 Run unit tests for AppFactory apps.
@@ -24,14 +23,19 @@ Run unit tests for AppFactory apps.
 TEST_PATH   Path to package containing test modules"""
 
 
-def main(test_path='app/', mode='text', output='./.tests'):
-
-    bootstrap.AppBootstrapper.prepareImports()
+def main(test_path='app/', mode='text', output='../.tests'):
 
     from apptools import tests
 
     loader = unittest.loader.TestLoader()
     suites, suite = [], unittest.TestSuite()
+
+    sys.path.append('.')
+    sys.path.append(test_path)
+
+    import bootstrap
+    bootstrap.AppBootstrapper.prepareImports()
+
 
     for directory in ('app/', 'app/api/', 'app/components/', 'app/tools/', 'app/util'):
 
