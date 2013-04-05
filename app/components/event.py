@@ -145,8 +145,12 @@ class TrackedEvent(object):
 
         ''' Serialize this TrackedEvent into numerous Redis writes. '''
 
+        event_id = self.headers.get('XAF-Request-ID')
+        if not event_id:
+            event_id = id(self)
+
         data = {
-            '-'.join(['event', str(id(self))]): [('id', id(self)), ('type', 'test'), ('timestamp', str(time.time()))] + self.params.items()
+            '-'.join(['event', event_id]): [('id', event_id, ('type', 'test'), ('timestamp', str(time.time()))] + self.params.items()
         }
 
         return (data, self.generate_indexes())
