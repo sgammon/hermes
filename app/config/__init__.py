@@ -62,10 +62,10 @@ _HEADER_PREFIX = "AMP"  # HTTP header prefix
 _DEVSERVER_HOST = ''  # bind to all IP's for dev server
 _DEVSERVER_PORT = 8080  # port that we should run the devserver on
 _PARAM_SEPARATOR = "_"  # seperator between prefix and param name
-_REDIS_WRITE_POOL = 500  # perform up to X writes to redis concurrently
+_REDIS_WRITE_POOL = 200  # perform up to X writes to redis concurrently
 _DISCARD_NOSENTINEL = True  # refuse all incoming events missing a sentinel key
 _RUNTIME_SOCKROOT = '/ns/runtime/sock'  # root for all unix domain sockets
-_PREBUFFER_THRESHOLD = 40  # configurable task limit per prebuffer batch
+_PREBUFFER_THRESHOLD = 60  # configurable task limit per prebuffer batch
 _PREBUFFER_FREQUENCY = 30  # configurable time threshold for prebuffer flush
 
 
