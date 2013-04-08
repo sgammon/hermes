@@ -54,6 +54,7 @@ class DatastoreEngine(actor.Actor):
 
 	''' Datastore adapter and transaction engine. '''
 
+	__version__ = (0, 1)
 	socket = None
 	tracker = None
 	inflight = None
