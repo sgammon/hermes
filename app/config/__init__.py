@@ -65,8 +65,8 @@ _PARAM_SEPARATOR = "_"  # seperator between prefix and param name
 _REDIS_WRITE_POOL = 500  # perform up to X writes to redis concurrently
 _DISCARD_NOSENTINEL = True  # refuse all incoming events missing a sentinel key
 _RUNTIME_SOCKROOT = '/ns/runtime/sock'  # root for all unix domain sockets
-_PREBUFFER_THRESHOLD = 100  # configurable task limit per prebuffer batch
-_PREBUFFER_FREQUENCY = 60  # configurable time threshold for prebuffer flush
+_PREBUFFER_THRESHOLD = 40  # configurable task limit per prebuffer batch
+_PREBUFFER_FREQUENCY = 30  # configurable time threshold for prebuffer flush
 
 
 """
