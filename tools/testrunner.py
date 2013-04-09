@@ -23,19 +23,20 @@ Run unit tests for AppFactory apps.
 TEST_PATH   Path to package containing test modules"""
 
 
-def main(test_path='app/', mode='text', output='../.tests'):
+def main(test_path='app', mode='text', output='../.tests'):
+
+    sys.path.append('.')
+    sys.path.append(test_path)
+    sys.path.append('/'.join([test_path, 'lib']))
+    sys.path.append('/'.join([test_path, 'lib', 'dist']))
+
+    import bootstrap
+    bootstrap.AppBootstrapper.prepareImports()
 
     from apptools import tests
 
     loader = unittest.loader.TestLoader()
     suites, suite = [], unittest.TestSuite()
-
-    sys.path.append('.')
-    sys.path.append(test_path)
-
-    import bootstrap
-    bootstrap.AppBootstrapper.prepareImports()
-
 
     for directory in ('app/', 'app/api/', 'app/components/', 'app/tools/', 'app/util'):
 
