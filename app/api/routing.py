@@ -18,13 +18,13 @@ from webapp2_extras import routes
 
 def get_rules():
 
-	''' Return URL routing rules. '''
+    ''' Return URL routing rules. '''
 
-	return [
+    return [
 
-		routes.HandlerPrefixRoute('api.handlers.', [
-			Route('/v1/test', name='landing', handler='test.TestHandler'),
-			Route('/v1/test/<mode>', name='landing-mode', handler='test.TestHandler')
-		])
+        routes.HandlerPrefixRoute('api.handlers.', [
+            Route('/v1/test', name='landing', handler='test.TestHandler'),
+            Route('/v1/test/<mode>', name='landing-mode', handler='test.TestHandler')
+        ])
 
-	]
+    ]
