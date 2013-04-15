@@ -5,3 +5,6 @@ lib/dist/*
 .DS_Store
 *.DS_Store
 *.pyo
+htmlcov/*
+.coverage
+coverage.xml

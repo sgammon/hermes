@@ -17,10 +17,10 @@ from apptools import model
 ## TrackedEvent - represents a single `EventTracker` URL hit.
 class TrackedEvent(model.Model):
 
-	''' A hit to the `EventTracker` server. '''
+    ''' A hit to the `EventTracker` server. '''
 
-	id = basestring, {'required': True}
-	type = basestring
-	profile = basestring, {'default': None}
-	params = dict, {'required': True}
-	timestamp = int, {'required': True}
+    id = basestring, {'required': True}
+    type = basestring
+    profile = basestring, {'default': None}
+    params = dict, {'required': True}
+    timestamp = int, {'required': True}

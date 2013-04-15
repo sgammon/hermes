@@ -21,12 +21,12 @@ from api.handlers import WebHandler
 ## TestHandler - test apptools
 class TestHandler(WebHandler):
 
-	''' Test AppTools handler functionality. '''
+    ''' Test AppTools handler functionality. '''
 
-	def get(self, mode='hello'):
+    def get(self, mode='hello'):
 
-		''' HTTP GET '''
+        ''' HTTP GET '''
 
-		if mode == 'env':
-			return self.render('test/env.html', request=self.request, environ=os.environ, sysflags=sys.flags, handler=self)
-		return self.render('test/hello.html')
+        if mode == 'env':
+            return self.render('test/env.html', request=self.request, environ=os.environ, sysflags=sys.flags, handler=self)
+        return self.render('test/hello.html')
