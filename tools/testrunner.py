@@ -38,7 +38,7 @@ def main(test_path='app', mode='text', output='../.tests'):
     loader = unittest.loader.TestLoader()
     suites, suite = [], unittest.TestSuite()
 
-    for directory in ('app/', 'app/api/', 'app/components/', 'app/tools/', 'app/util'):
+    for directory in ('app/', 'app/api/', 'app/components/', 'app/tools/', 'app/util', 'app/lib', 'app/lib/apptools', 'app/lib/apptools/tests'):
 
         # Discovery patterns
         suites.append(loader.discover(directory, pattern='tests'))
@@ -48,7 +48,7 @@ def main(test_path='app', mode='text', output='../.tests'):
         suites.append(loader.discover(directory, pattern='test_*.py'))
 
     # Add AppTools
-    suites.append(tests.AppToolsTests)
+    suites.append(tests._load_apptools_testsuite())
 
     # Add top-level discover
     suites.append(loader.discover(test_path))
