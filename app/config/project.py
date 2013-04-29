@@ -176,6 +176,7 @@ config['apptools.model'] = {
 
 }
 
+
 # Redis Adapter
 config['apptools.model.adapters.redis.Redis'] = {
 
@@ -183,10 +184,11 @@ config['apptools.model.adapters.redis.Redis'] = {
 
     'servers': {
 
-        'active': 'l9master',
+        'default': 'tracker',
 
-        # Master Redis Instance
-        'l9master': {'host': '127.0.0.1', 'port': 7777, 'unix': '/ns/runtime/sock/redis.sock', 'db': 0}
+        # Redis Instances
+        'hermes': {'unix_socket_path': '/ns/runtime/sock/redis.sock', 'db': 0},
+        'tracker': {'unix_socket_path': '/ns/runtime/sock/redis.sock', 'db': 1}
 
     }
 

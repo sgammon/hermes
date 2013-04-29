@@ -2,9 +2,10 @@
 
 '''
 
-Models: Tracker
+Tracker Models: Event
 
-Contains models used in the `EventTracker` subsystem.
+Contains models used in the `EventTracker` subsystem that are specifically related to
+expressing/persisting individual events.
 
 -sam (<sam.gammon@ampush.com>)
 

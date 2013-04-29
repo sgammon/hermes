@@ -21,3 +21,18 @@ Messages that must be custom-built live in `messages`.
 -sam (<sam.gammon@ampush.com>)
 
 '''
+
+# Base Imports
+import config
+import webapp2
+
+# apptools services
+from apptools import services
+
+
+## APIService - abstract parent for all service APIs
+class APIService(services.BaseService):
+
+    ''' Abstract parent class for all Hermes API services. '''
+
+    pass

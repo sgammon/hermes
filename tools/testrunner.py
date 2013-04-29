@@ -41,11 +41,14 @@ def main(test_path='app', mode='text', output='../.tests'):
     for directory in ('app/', 'app/api/', 'app/components/', 'app/tools/', 'app/util', 'app/lib', 'app/lib/apptools', 'app/lib/apptools/tests'):
 
         # Discovery patterns
-        suites.append(loader.discover(directory, pattern='tests'))
-        suites.append(loader.discover(directory, pattern='tests/**'))
-        suites.append(loader.discover(directory, pattern='*.py'))
-        suites.append(loader.discover(directory, pattern='**/*.py'))
-        suites.append(loader.discover(directory, pattern='test_*.py'))
+        for pattern in frozenset(['tests', 'tests/**', '*.py', '**/*.py', 'test_*.py']):
+            try:
+                suites.append(loader.discover(str(directory), pattern=pattern))
+            except TypeError as e:
+                print "Could not add directory '%s' with pattern '%s'." % (directory, pattern)
+                continue
+            else:
+                continue
 
     # Add AppTools
     suites.append(tests._load_apptools_testsuite())
