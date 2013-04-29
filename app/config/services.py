@@ -69,6 +69,31 @@ config['apptools.project.services'] = {
                 'security': 'none',
                 'recording': 'none'
             }
+        },
+
+        ## Tracker API - allows retrieval of events, either raw or fully parsed/considered
+        'tracker': {
+            'enabled': False,
+            'service': 'api.services.tracker.service.TrackerService',
+            'methods': ['raw', 'events', 'errors'],
+        
+            'config': {
+                'caching': 'none',
+                'security': 'none',
+                'recording': 'none'
+            }            
+        },
+
+        ## PubSub API - allows publishing/subscribing to the global eventstream.
+        'pubsub': {
+            'enabled': False,
+            'service': 'api.services.pubsub.service.PubSubService',
+            'methods': ['publish', 'subscribe', 'unsubscribe'],
+            'config': {
+                'caching': 'none',
+                'security': 'none',
+                'recording': 'none'
+            }            
         }
 
     }  # End services
