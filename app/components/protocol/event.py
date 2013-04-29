@@ -17,15 +17,20 @@ from . import meta
 ## EventType - keeps track of defined event types
 class EventType(meta.ProtocolDefinition):
 
-        ''' Keeps track of event types that we track. '''
+    ''' Keeps track of event types that we track. '''
 
-        IMPRESSION = "i"
-        CONVERSION = "c"
+    CLICK = "c"
+    IMPRESSION = "i"
+    CONVERSION = "v"
 
 
 ## EventProvider - keeps track of event sources
 class EventProvider(meta.ProtocolDefinition):
 
-        ''' Keeps track of sources of events we track. '''
+    ''' Keeps track of sources of events we track. '''
 
-        FACEBOOK = 'fb'
+    CLIENT = 'on'
+    OFFSITE = 'of'
+    AMAZON = 'amz'
+    FACEBOOK = 'fb'
+    HASOFFERS = 'hs'

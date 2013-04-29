@@ -29,6 +29,16 @@ else:
     # Monkey-patching is done for us in production by uWSGI
     PLATFORM = 'uWSGI'
 
+# PyPy
+try:
+    import pypycore
+except ImportError as e:
+    ## Not running in PyPy.
+    RUNTIME = 'CPython'
+else:  # pragma: no cover
+    ## Running in PyPy.
+    RUNTIME = 'PyPy'
+
 # Globals
 _patched = False
 _locals = None

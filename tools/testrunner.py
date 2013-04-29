@@ -23,31 +23,35 @@ Run unit tests for AppFactory apps.
 TEST_PATH   Path to package containing test modules"""
 
 
-def main(test_path='app/', mode='text', output='../.tests'):
+def main(test_path='app', mode='text', output='../.tests'):
+
+    sys.path.append('.')
+    sys.path.append(test_path)
+    sys.path.append('/'.join([test_path, 'lib']))
+    sys.path.append('/'.join([test_path, 'lib', 'dist']))
+
+    import bootstrap
+    bootstrap.AppBootstrapper.prepareImports()
 
     from apptools import tests
 
     loader = unittest.loader.TestLoader()
     suites, suite = [], unittest.TestSuite()
 
-    sys.path.append('.')
-    sys.path.append(test_path)
-
-    import bootstrap
-    bootstrap.AppBootstrapper.prepareImports()
-
-
-    for directory in ('app/', 'app/api/', 'app/components/', 'app/tools/', 'app/util'):
+    for directory in ('app/', 'app/api/', 'app/components/', 'app/tools/', 'app/util', 'app/lib', 'app/lib/apptools', 'app/lib/apptools/tests'):
 
         # Discovery patterns
-        suites.append(loader.discover(directory, pattern='tests'))
-        suites.append(loader.discover(directory, pattern='tests/**'))
-        suites.append(loader.discover(directory, pattern='*.py'))
-        suites.append(loader.discover(directory, pattern='**/*.py'))
-        suites.append(loader.discover(directory, pattern='test_*.py'))
+        for pattern in frozenset(['tests', 'tests/**', '*.py', '**/*.py', 'test_*.py']):
+            try:
+                suites.append(loader.discover(str(directory), pattern=pattern))
+            except TypeError as e:
+                print "Could not add directory '%s' with pattern '%s'." % (directory, pattern)
+                continue
+            else:
+                continue
 
     # Add AppTools
-    suites.append(tests.AppToolsTests)
+    suites.append(tests._load_apptools_testsuite())
 
     # Add top-level discover
     suites.append(loader.discover(test_path))

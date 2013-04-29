@@ -20,32 +20,32 @@ from gevent import queue
 ## Actor - manages an actor-model based engine
 class Actor(gevent.Greenlet):
 
-	''' Individual Actor with queued processing functionality. '''
+    ''' Individual Actor with queued processing functionality. '''
 
-	inbox = None
+    inbox = None
 
-	def initialize(self):
+    def initialize(self):
 
-		''' Initialize this actor. '''
+        ''' Initialize this actor. '''
 
-		# Build a queue for an inbox of tasks
-		self.inbox = queue.Queue()
-		gevent.Greenlet.__init__(self)
-		return self
+        # Build a queue for an inbox of tasks
+        self.inbox = queue.Queue()
+        gevent.Greenlet.__init__(self)
+        return self
 
-	def fire(self, message):
+    def fire(self, message):
 
-		''' Must be implemented by subclasses. '''
+        ''' Must be implemented by subclasses. '''
 
-		raise NotImplemented()
+        raise NotImplemented()
 
-	def _run(self):
+    def _run(self):
 
-		''' Run this ActorEngine and start processing items from the inbox. '''
+        ''' Run this ActorEngine and start processing items from the inbox. '''
 
-		self.running = True
-		while self.running:
+        self.running = True
+        while self.running:
 
-			# Block until we have a task, execute, then grab the next task...
-			message = self.inbox.get()
-			self.fire(message)
+            # Block until we have a task, execute, then grab the next task...
+            message = self.inbox.get()
+            self.fire(message)

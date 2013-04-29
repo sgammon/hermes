@@ -17,18 +17,18 @@ from .event import EventType, EventProvider
 
 class ParamPolicy(meta.ProtocolDefinition):
 
-	''' Maps policy options for a parameter to named items. '''
+    ''' Maps policy options for a parameter to named items. '''
 
-	## Options (in descending order of severity):
-	##   -- enforced: refuse requests that are missing this parameter
-	##   -- required: accept requests, but mark them as errors if they are missing this parameter
-	##   -- preferred: it is valid not to include it, but doing so boosts this request's priority in the buffer
-	##   -- optional: this parameter is completely optional and has no effect on execution decision making
+    ## Options (in descending order of severity):
+    ##   -- enforced: refuse requests that are missing this parameter
+    ##   -- required: accept requests, but mark them as errors if they are missing this parameter
+    ##   -- preferred: it is valid not to include it, but doing so boosts this request's priority in the buffer
+    ##   -- optional: this parameter is completely optional and has no effect on execution decision making
 
-	enforced = 0
-	required = 1
-	preferred = 2
-	optional = 3
+    enforced = 0
+    required = 1
+    preferred = 2
+    optional = 3
 
 
 ## ParamConfig - keeps track of types and defaults for top-level params

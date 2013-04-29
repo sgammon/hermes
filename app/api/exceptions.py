@@ -10,3 +10,7 @@ package-level catchall, defined as `Error`.
 -sam (<sam.gammon@ampush.com>)
 
 '''
+
+
+## Error - generic top-level exception for all Hermes errors.
+class Error(Exception): ''' Root, abstract Hermes error class. '''

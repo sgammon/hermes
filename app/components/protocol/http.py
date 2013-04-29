@@ -17,8 +17,8 @@ from . import meta
 ## ResponseStage - indicates the status of a request/response cycle
 class ResponseStage(meta.ProtocolDefinition):
 
-        ''' Maps request stages to discrete values. '''
+    ''' Maps request stages to discrete values. '''
 
-        PENDING = 0
-        STARTED = 1
-        COMPLETE = 2
+    PENDING = 0
+    STARTED = 1
+    COMPLETE = 2

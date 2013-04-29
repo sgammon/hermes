@@ -17,20 +17,29 @@ the app.
 import os
 import sys
 
+# Globals
+_bootstrapped = False
+
 
 ## AppBootstrapper - does basic app startup/boot tasks.
 class AppBootstrapper(object):
 
-	''' Bootstrap this app for WSGI. '''
+    ''' Bootstrap this app for WSGI. '''
 
-	injected_paths = 'app', 'app/lib', 'app/lib/dist', '/momentum'
+    injected_paths = 'lib', 'lib/dist', '/momentum'
 
-	@classmethod
-	def prepareImports(cls):
+    @classmethod
+    def prepareImports(cls):
 
-		''' Prepare Python import path. '''
+        ''' Prepare Python import path. '''
 
-		for p in cls.injected_paths:
-			if p not in sys.path:
-				sys.path.append(p)
-		return cls
+        global _bootstrapped
+
+        if not _bootstrapped:
+            for p in cls.injected_paths:
+                if p not in sys.path:
+                    sys.path.append(p)
+            _bootstrapped = True
+        return cls
+
+AppBootstrapper.prepareImports()

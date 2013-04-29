@@ -11,7 +11,7 @@ Description coming soon.
 '''
 
 __doc__ = "Protocol definition suite for Ampush Tracker API."
-__version__ = (0, 1)
+__version__ = (0, 2)
 
 # Top-level protocol extensions
 from . import meta
@@ -38,4 +38,3 @@ from .tracker import TrackerProtocol
 
 __extensions__ = [http, event, param, tracker]
 __bindings__ = [ResponseStage, EventType, EventProvider, ParamConfig, TrackerMode, TrackerPrefix, TrackerProtocol]
-
