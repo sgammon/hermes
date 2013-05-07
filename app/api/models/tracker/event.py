@@ -11,17 +11,23 @@ expressing/persisting individual events.
 
 '''
 
+# stdlib
+import time
+import datetime
+
 # apptools models
 from apptools import model
 
 
-## TrackedEvent - represents a single `EventTracker` URL hit.
+## TrackedEvent
+# Represents a single `EventTracker` URL hit.
 class TrackedEvent(model.Model):
 
     ''' A hit to the `EventTracker` server. '''
 
-    id = basestring, {'required': True}
-    type = basestring
-    profile = basestring, {'default': None}
+    id = basestring, {'required': True, 'indexed': True}
+    type = basestring, {'required': True, 'indexed': True}
     params = dict, {'required': True}
-    timestamp = int, {'required': True}
+    raw_url = basestring, {'required': True}
+    timestamp = datetime.datetime, {'required': True, 'indexed': True}
+    modified = int, {'default': lambda x: time.time(), 'indexed': True}

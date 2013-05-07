@@ -9,6 +9,7 @@ AmpushHermes
 '''
 
 # stdlib / app
+import os
 import sys
 import config
 import bootstrap
@@ -42,10 +43,12 @@ else:  # pragma: no cover
 # Globals
 _patched = False
 _locals = None
+sysconfig = config.config.get('apptools.system')
 
 ## Server singletons
 _APIServer = None
 _EventTracker = None
+
 
 
 def APIServer(environ, start_response, dispatch=True):
@@ -122,7 +125,17 @@ def devserver(app=EventTracker, port=config._DEVSERVER_PORT, host=config._DEVSER
 
     print "Starting listener for app %s on host/port %s:%s." % (app, host, port)
     server = pywsgi.WSGIServer((host, port), app)
-    server.serve_forever()
+
+    if config.debug and sysconfig.get('hooks', {}).get('profiler', {}).get('enabled', False):
+
+        import cProfile
+        p = cProfile.Profile()
+        print "Running devserver with profiler enabled..."
+        profile = cProfile.runctx('server.serve_forever()', globals(), locals(), filename='/'.join(os.path.abspath(__file__).split('/')[0:-2] + ['.profile', 'EventTracker.profile']))
+
+    else:
+        server.serve_forever()
+
     print "Closed listener."
 
 

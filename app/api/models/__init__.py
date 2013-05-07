@@ -12,3 +12,17 @@ converted to ProtoRPC messages, JSON structures, dictionaries, and more.
 -sam (<sam.gammon@ampush.com>)
 
 '''
+
+# apptools model
+from apptools import model
+
+
+## TrackerModel
+# Abstract parent for all `EventTracker` models.
+class TrackerModel(model.Model):
+
+	''' Abstract parent for all `EventTracker` models. '''
+
+	__adapter__ = "RedisAdapter"
+
+	pass

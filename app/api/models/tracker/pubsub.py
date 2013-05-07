@@ -15,7 +15,8 @@ fulfilling publish/subscribe infrastructure behind the global eventstream.
 from apptools import model
 
 
-## Subscription - represents a subscription to all/some `TrackedEvent` items.
+## Subscription
+# Represents a subscription to all/some `TrackedEvent` items.
 class Subscription(model.Model):
 
     ''' A hit to the `EventTracker` server. '''

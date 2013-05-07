@@ -164,6 +164,7 @@ config['apptools.project.pipelines'] = {
 # Models/Storage Configuration
 config['apptools.model'] = {
 
+    'debug': False,  # log messages
     'default': 'Memory',  # default storage engine
 
     'engines': [

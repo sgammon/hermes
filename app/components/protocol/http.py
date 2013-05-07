@@ -19,6 +19,6 @@ class ResponseStage(meta.ProtocolDefinition):
 
     ''' Maps request stages to discrete values. '''
 
-    PENDING = 0
-    STARTED = 1
-    COMPLETE = 2
+    PENDING = 0  # pending - the server is processing the request, no response headers yet
+    STARTED = 1  # started - response headers have been sent, waiting to yield content
+    COMPLETE = 2  # complete - response has been sent, can no longer yield content

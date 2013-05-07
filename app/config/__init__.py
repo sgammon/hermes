@@ -141,7 +141,7 @@ _config['apptools.system'] = {
     'hooks': {  # System-level Developer's Hooks
         'appstats': {'enabled': False},  # AppStats RPC optimization + analysis tool
         'apptrace': {'enabled': False},  # AppTrace memory usage optimization + analysis tool
-        'profiler': {'enabled': False}   # Python profiler for CPU cycle/efficiency optimization + analysis
+        'profiler': {'enabled': True}   # Python profiler for CPU cycle/efficiency optimization + analysis
     },
 
     'include': [  # Extended configuration files to include
