@@ -23,7 +23,7 @@ Run unit tests for AppFactory apps.
 TEST_PATH   Path to package containing test modules"""
 
 
-def main(test_path='app', mode='text', output='../.tests'):
+def main(test_path='app', mode='text', output='../.tests'):  # pragma: no cover
 
     sys.path.append('.')
     sys.path.append(test_path)
@@ -38,32 +38,42 @@ def main(test_path='app', mode='text', output='../.tests'):
     loader = unittest.loader.TestLoader()
     suites, suite = [], unittest.TestSuite()
 
-    for directory in ('app/', 'app/api/', 'app/components/', 'app/tools/', 'app/util', 'app/lib', 'app/lib/apptools', 'app/lib/apptools/tests'):
+    for directory in ('app/', 'app/api/', 'app/components/', 'app/tools/', 'app/util'):
 
         # Discovery patterns
-        for pattern in frozenset(['tests', 'tests/**', '*.py', '**/*.py', 'test_*.py']):
+        for pattern in frozenset(['tests',
+                                  'tests/**',
+                                  '*.py',
+                                  '**/*.py',
+                                  'test_*.py']):
             try:
                 suites.append(loader.discover(str(directory), pattern=pattern))
-            except TypeError as e:
+            except TypeError:
                 print "Could not add directory '%s' with pattern '%s'." % (directory, pattern)
                 continue
             else:
                 continue
 
     # Add AppTools
-    suites.append(tests._load_apptools_testsuite())
+    suites.append(tests.load_testsuite())
 
     # Add top-level discover
     suites.append(loader.discover(test_path))
     suites.append(loader.loadTestsFromTestCase(tests.AppTest))
 
+    # filter out dupes
+    alltests = []
+    for suite in suites:
+        for test in suite:
+            if test not in alltests:
+                alltests.append(test)
+
     # Compile into a suite...
-    suite.addTests(suites)
+    suite.addTests(unittest.TestSuite(alltests))
     if mode == 'text':
         unittest.TextTestRunner(verbosity=5).run(suite)
     elif mode == 'xml':
         xmlrunner.XMLTestRunner(output=output).run(suite)
-
 
 if __name__ == '__main__':
     parser = optparse.OptionParser(USAGE)

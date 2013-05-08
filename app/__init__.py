@@ -50,11 +50,10 @@ _APIServer = None
 _EventTracker = None
 
 
-
 def APIServer(environ, start_response, dispatch=True):
 
     ''' Bootstrap and dispatch the Hermes API server. '''
-    
+
     global _APIServer
 
     # apptools central dispatch
@@ -77,7 +76,7 @@ def RealtimeServer(environ, start_response, dispatch=True):
     ''' Bootstrap and dispatch the Hermes Realtime API Server. '''
 
     # for now, just delegate to APIServer.
-    if debug:
+    if config.debug:
         raise NotImplemented('RealtimeServer is not yet implemented.')
     return APIServer(environ, start_response, dispatch)
 
@@ -87,14 +86,12 @@ def EventTracker(environ, start_response, dispatch=True):
     ''' Bootstrap and dispatch the Tracker. '''
 
     # Globals
+    global _locals
     global _patched
     global _EventTracker
 
-    # gevent
-    import gevent
+    # gevent / tracker
     from gevent import local
-
-    # tracker
     from gevent import monkey
     from components import tracker
 
@@ -127,15 +124,11 @@ def devserver(app=EventTracker, port=config._DEVSERVER_PORT, host=config._DEVSER
     server = pywsgi.WSGIServer((host, port), app)
 
     if config.debug and sysconfig.get('hooks', {}).get('profiler', {}).get('enabled', False):
-
         import cProfile
-        p = cProfile.Profile()
         print "Running devserver with profiler enabled..."
-        profile = cProfile.runctx('server.serve_forever()', globals(), locals(), filename='/'.join(os.path.abspath(__file__).split('/')[0:-2] + ['.profile', 'EventTracker.profile']))
-
+        cProfile.runctx('server.serve_forever()', globals(), locals(), filename='/'.join(os.path.abspath(__file__).split('/')[0:-2] + ['.profile', 'EventTracker.profile']))
     else:
         server.serve_forever()
-
     print "Closed listener."
 
 

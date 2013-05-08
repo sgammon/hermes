@@ -181,7 +181,7 @@ config['apptools.model'] = {
 # Redis Adapter
 config['apptools.model.adapters.redis.Redis'] = {
 
-    'debug': True,  # debug messages
+    'debug': False,  # debug messages
 
     'servers': {
 
