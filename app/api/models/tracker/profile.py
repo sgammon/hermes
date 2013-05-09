@@ -12,7 +12,6 @@ expressing configuration and parameter profiles for Trackers.
 '''
 
 # stdlib
-import time
 import datetime
 
 # apptools models
@@ -20,6 +19,7 @@ from apptools import model
 
 # hermes models
 from api.models import client
+from api.models.tracker import parameter
 from api.models.tracker import integration
 from api.models.tracker import attribution
 from api.models.tracker import aggregation
@@ -28,9 +28,9 @@ from api.models.tracker import aggregation
 from components.protocol import event
 
 
-## TrackerProfile
+## Profile
 # Represents a profile that may be applied to `Tracker`(s) of events.
-class TrackerProfile(model.Model):
+class Profile(model.Model):
 
 	''' Bundle of configuration for a `Tracker`. '''
 
@@ -43,7 +43,7 @@ class TrackerProfile(model.Model):
 
 	# == Parameter Schema == #
 	inherit = model.Key, {'repeated': True, 'indexed': True}  # super-schema to inherit from when calculating compound profile
-	schema = param.Parameter, {'repeated': True, 'indexed': True}  # schema that is specific to this profile
+	schema = parameter.Parameter, {'repeated': True, 'indexed': True}  # schema that is specific to this profile
 
 	# == Integration Schema == #
 	integrations = integration.Integration, {'repeated': True, 'indexed': True}  # linked integrations that must be dispatched when an event matches this profile

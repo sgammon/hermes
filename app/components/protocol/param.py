@@ -15,41 +15,25 @@ from . import meta
 from .event import EventType, EventProvider
 
 
-class ParamPolicy(meta.ProtocolDefinition):
+## ParameterBasetype - maps basetypes available for parameters.
+class ParameterBasetype(meta.ProtocolDefinition):
+
+    ''' Binds available parameter bastypes to type classes and IDs. '''
+
+    ## == Builtin Basetypes == ##  (can be extended to introduce new types)
+    FLOAT = float  # floating-point type
+    INTEGER = int  # integer type
+    STRING = basestring  # string-type (default, usually)
+    BOOLEAN = bool  # boolean type (under HTTP: accepts 'on'/'off', '1'/'0', 'true'/'false' and is case-insensitive)
+
+
+## ParameterPolicy - specifies ways the presence of an individual param may be handled.
+class ParameterPolicy(meta.ProtocolDefinition):
 
     ''' Maps policy options for a parameter to named items. '''
 
-    ## Options (in descending order of severity):
-    ##   -- enforced: refuse requests that are missing this parameter
-    ##   -- required: accept requests, but mark them as errors if they are missing this parameter
-    ##   -- preferred: it is valid not to include it, but doing so boosts this request's priority in the buffer
-    ##   -- optional: this parameter is completely optional and has no effect on execution decision making
-
-    enforced = 0
-    required = 1
-    preferred = 2
-    optional = 3
-
-
-## ParamConfig - keeps track of types and defaults for top-level params
-class ParamConfig(meta.ProtocolDefinition):
-
-    ''' Maps params to types and defaults. '''
-
-    ## Format: <type>, {options}
-
-    ## Types:
-    ##   -- builtin basetypes (bool/int/float/basestring)
-    ##   -- datetime objects (datetime/time/date)
-    ##   -- another ProtocolDefinition class
-
-    ## Options:
-    ##   -- policy: ParamPolicy.[enforced|required|preferred|optional]
-    ##   -- default: <default_value>
-
-    DEBUG = bool
-    DRYRUN = bool
-    REF = basestring
-    CONTRACT = basestring
-    TYPE = EventType, {'default': EventType.IMPRESSION}
-    PROVIDER = EventProvider, {'default': EventProvider.FACEBOOK}
+    ## == Policy Options == #  (in descending order of severity)
+    ENFORCED = 0  # refuse requests that are missing this parameter with a 400-range error
+    REQUIRED = 1  # accept requests, but mark them as errors if they are missing this parameter
+    PREFERRED = 2  # it is valid not to include it, but doing so boosts this request's priority in the buffer
+    OPTIONAL = 3  # this parameter is completely optional and has no effect on execution decision making

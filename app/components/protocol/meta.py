@@ -11,7 +11,10 @@ Description coming soon.
 '''
 
 # stdlib
-import config
+try:
+    import config; _APPCONFIG = True
+except ImportError as e:
+    _APPCONFIG = False
 
 # apptools util
 from apptools.util import debug
@@ -25,6 +28,7 @@ class Definition(type):
     ''' Metaclass for protocol definitions. '''
 
     registry = {}
+    __lookup__ = frozenset()
 
     _config_path = 'api.components.protocol.Definition'
 
@@ -60,8 +64,6 @@ class Definition(type):
 
         # update with bindings
         mapping.update(_nonspecial_properties)
-
-        #import pdb; pdb.set_trace()
 
         # construct new `Definition` class on-the-fly
         return super(cls, cls).__new__(cls, name, bases, mapping)
@@ -104,7 +106,7 @@ class Definition(type):
 
         if name in cls.__lookup__:
             return cls.__bindings__[name]
-        return None
+        raise AttributeError("Definition object \"%s\" has no attribute \"%s\"." % (cls, name))
 
     @classmethod
     def __setattribute__(cls, name, value):
@@ -120,7 +122,9 @@ class Definition(type):
 
         ''' Named config pipe. '''
 
-        return config.config.get(cls._config_path, {'debug': True})
+        if _APPCONFIG:
+            return config.config.get(cls._config_path, {'debug': True})
+        return {'debug': True}
 
     @decorators.classproperty
     def logging(cls):

@@ -30,4 +30,4 @@ class Tracker(model.Model):
 
     scope = model.Key, {'indexed': True}  # scoped owner of this tracker: can be a client, contract, ad, etc.
     templates = dict, {'indexed': False}  # templates for each event type: CUSTOM _or_ IMPRESSION/CLICK/CONVERSION
-    profiles = profile.TrackerProfile, {'repeated': True, 'indexed': True}  # profiles linked to this tracker
+    profiles = profile.Profile, {'repeated': True, 'indexed': True}  # profiles linked to this tracker

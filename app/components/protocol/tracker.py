@@ -13,6 +13,10 @@ Description coming soon.
 # Protocol
 from . import meta
 
+# protocol components
+from components.protocol import event
+from components.protocol import param
+
 
 ## TrackerMode - keeps track of modes the tracker can run in
 class TrackerMode(meta.ProtocolDefinition):
@@ -50,3 +54,28 @@ class TrackerProtocol(meta.ProtocolDefinition):
     CONTRACT = "c"
     SPEND = "s"
     PROVIDER = "p"
+
+
+## BuiltinParameters - keeps track of types and defaults for top-level params
+class BuiltinParameters(meta.ProtocolDefinition):
+
+    ''' Maps params to types and defaults. '''
+
+    ## Format: <type>, {options}
+
+    ## Types:
+    ##   -- builtin basetypes (bool/int/float/basestring)
+    ##   -- datetime objects (datetime/time/date)
+    ##   -- another ProtocolDefinition class
+
+    ## Options:
+    ##   -- policy: ParamPolicy.[ENFORCED|REQUIRED|PREFERRED|OPTIONAL]
+    ##   -- default: <default_value>
+
+    TYPE = event.EventType, {'policy': param.ParameterPolicy.REQUIRED}
+    PROVIDER = event.EventProvider, {'policy': param.ParameterPolicy.REQUIRED}
+    REF = param.ParameterBasetype.STRING, {'policy': param.ParameterPolicy.PREFERRED}
+    SENTINEL = param.ParameterBasetype.STRING, {'policy': param.ParameterPolicy.ENFORCED}
+    CONTRACT = param.ParameterBasetype.STRING, {'policy': param.ParameterPolicy.PREFERRED}
+    DEBUG = param.ParameterBasetype.BOOLEAN, {'default': False, 'policy': param.ParameterPolicy.OPTIONAL}
+    DRYRUN = param.ParameterBasetype.BOOLEAN, {'default': False, 'policy': param.ParameterPolicy.OPTIONAL}

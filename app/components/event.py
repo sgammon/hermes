@@ -27,9 +27,9 @@ from util import exceptions
 
 
 ## Param sets
-InternalParams = frozenset([protocol.TrackerProtocol.DEBUG, protocol.TrackerProtocol.DRYRUN, protocol.TrackerProtocol.SENTINEL])
-AmpushParams = frozenset([protocol.TrackerProtocol.REF, protocol.TrackerProtocol.TYPE, protocol.TrackerProtocol.CONTRACT, protocol.TrackerProtocol.SPEND, protocol.TrackerProtocol.PROVIDER])
-AllParams = frozenset([getattr(protocol.TrackerProtocol, i) for i in protocol.TrackerProtocol.__dict__ if not i.startswith('_')])
+InternalParams = frozenset([protocol.BuiltinParameters.DEBUG, protocol.BuiltinParameters.DRYRUN, protocol.BuiltinParameters.SENTINEL])
+AmpushParams = frozenset([protocol.BuiltinParameters.REF, protocol.BuiltinParameters.TYPE])
+AllParams = frozenset([getattr(protocol.BuiltinParameters, i) for i in protocol.BuiltinParameters.__dict__ if not i.startswith('_')])
 
 
 ## TrackedEvent - a conversion, impression, etc
@@ -66,7 +66,7 @@ class TrackedEvent(object):
         self.tracker, self.request, self.path, self.params, self.response = tracker, request, request.path, params, response
 
         # Perform pre-validation
-        if self.param(protocol.TrackerProtocol.SENTINEL) not in self.params:
+        if self.param(protocol.BuiltinParameters.SENTINEL) not in self.params:
             self.sentinel = False
             if not _DISCARD_NOSENTINEL:
                 # Just warn if we're in debug...
@@ -87,7 +87,7 @@ class TrackedEvent(object):
 
         ''' Indicate whether we're in debug mode (globally or per-request). '''
 
-        return (debug or (self.param(protocol.TrackerProtocol.DEBUG) in params))
+        return (debug or (self.param(protocol.BuiltinParameters.DEBUG) in params))
 
     def param(self, name):
 
@@ -119,7 +119,7 @@ class TrackedEvent(object):
 
         ''' Decode an existing session, if any, or use `injected`. '''
 
-        return self 
+        return self
 
     def build(self, salt=None, pepper=None):
 
