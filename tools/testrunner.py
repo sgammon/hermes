@@ -55,7 +55,7 @@ def main(test_path='app', mode='text', output='../.tests'):  # pragma: no cover
                 continue
 
     # Add AppTools
-    suites.append(tests.load_testsuite())
+    suites.append(tests.load())
 
     # Add top-level discover
     suites.append(loader.discover(test_path))
