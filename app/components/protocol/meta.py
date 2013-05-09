@@ -67,7 +67,7 @@ class Definition(type):
         return super(cls, cls).__new__(cls, name, bases, mapping)
 
     def mro(cls):
-    
+
         ''' Hook for generating a definition's MRO. '''
 
         # register definition and delegate to parent [MRO format: (<cls>, <ancestor 1>, <ancestor n>...)]

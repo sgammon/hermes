@@ -51,6 +51,5 @@ class ParamConfig(meta.ProtocolDefinition):
     DRYRUN = bool
     REF = basestring
     CONTRACT = basestring
-    SPEND = float(0)    
     TYPE = EventType, {'default': EventType.IMPRESSION}
     PROVIDER = EventProvider, {'default': EventProvider.FACEBOOK}
