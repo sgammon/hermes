@@ -114,7 +114,7 @@ class EventTracker(object):
         self.engine = engine() if engine else self.engine_class(self)
 
         if debug:
-            self.log("Debug mode is %s, serving on port %s." % ("ON" if self.debug else "OFF", config._DEBUG_PORT))
+            self.log("Debug mode is %s, serving on port %s." % ("ON" if self.debug else "OFF", config._DEVSERVER_PORT))
 
         # Allow overwriting the TrackedEvent implementation class
         if event:
@@ -395,7 +395,7 @@ class EventTracker(object):
         # Buffer it and grab a simple ID to display
         self.verbose("Buffering event to write prebuffer.")
         buffer_id, flushed = self.buffer(event)
-            
+
         # Yield status message if debug mode is enabled.
         response_buffer.append(u"<b>TrackedEvent</b> submitted with ID %s." % buffer_id)
         if flushed:

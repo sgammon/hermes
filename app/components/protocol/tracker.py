@@ -56,8 +56,24 @@ class TrackerProtocol(meta.ProtocolDefinition):
     PROVIDER = "p"
 
 
-## BuiltinParameters - keeps track of types and defaults for top-level params
+## BuiltinParameters
+# Describes builtin parameter names.
 class BuiltinParameters(meta.ProtocolDefinition):
+
+    ''' Binds names to builtin parameters. '''
+
+    TYPE = 'et'
+    PROVIDER = 'pr'
+    REF = 'ref'
+    SENTINEL = 'x'
+    CONTRACT = 'c'
+    DEBUG = 'd'
+    DRYRUN = 'dry'
+    FLUSH = 'flush'
+
+
+## BuiltinParameterConfig - keeps track of types and defaults for top-level params
+class BuiltinParameterConfig(meta.ProtocolDefinition):
 
     ''' Maps params to types and defaults. '''
 

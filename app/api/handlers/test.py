@@ -27,6 +27,7 @@ class TestHandler(WebHandler):
 
         ''' HTTP GET '''
 
-        if mode == 'env':
-            return self.render('test/env.html', request=self.request, environ=os.environ, sysflags=sys.flags, handler=self)
-        return self.render('test/hello.html')
+        #if mode == 'env':
+        #    return self.render('test/env.html', request=self.request, environ=os.environ, sysflags=sys.flags, handler=self)
+        #return self.render('test/hello.html')
+        return self.response.write('<b>Hello!</b>')

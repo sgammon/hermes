@@ -40,6 +40,8 @@ from .param import ParameterBasetype
 
 # Tracker Bindings
 from .tracker import TrackerMode
+from .tracker import TrackerPrefix
+from .tracker import TrackerProtocol
 from .tracker import BuiltinParameters
 
 
@@ -56,6 +58,9 @@ __bindings__ = [
 	EventTypePriority,
 	ParameterPolicy,
 	ParameterBasetype,
+	TrackerMode,
+	TrackerPrefix,
+	TrackerProtocol,
 	BuiltinParameters
 ]
 

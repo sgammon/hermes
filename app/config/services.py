@@ -71,17 +71,17 @@ config['apptools.project.services'] = {
             }
         },
 
-        ## Tracker API - allows retrieval of events, either raw or fully parsed/considered
+        ## Tracker API - allows management and configuration of `EventTracker`.
         'tracker': {
-            'enabled': False,
+            'enabled': True,
             'service': 'api.services.tracker.service.TrackerService',
-            'methods': ['raw', 'events', 'errors'],
-        
+            'methods': ['echo'],
+
             'config': {
                 'caching': 'none',
                 'security': 'none',
                 'recording': 'none'
-            }            
+            }
         },
 
         ## PubSub API - allows publishing/subscribing to the global eventstream.
@@ -93,7 +93,31 @@ config['apptools.project.services'] = {
                 'caching': 'none',
                 'security': 'none',
                 'recording': 'none'
-            }            
+            }
+        },
+
+        ## Event Data API - allows retrieval of event data or eventseries data.
+        'event': {
+            'enabled': False,
+            'service': 'api.services.event.service.EventDataService',
+            'methods': [],
+            'config': {
+                'caching': 'none',
+                'security': 'none',
+                'recording': 'none'
+            }
+        },
+
+        ## Raw Data API - allows retrieval of raw eventstream data.
+        'raw': {
+            'enabled': False,
+            'service': 'api.services.raw.service.RawDataService',
+            'methods': [],
+            'config': {
+                'caching': 'none',
+                'security': 'none',
+                'recording': 'none'
+            }
         }
 
     }  # End services
@@ -123,8 +147,8 @@ config['apptools.services'] = {
         {'name': 'JSONRPC', 'enabled': True, 'path': 'apptools.services.mappers.JSONRPCMapper'},
 
         # Other Mappers
-        {'name': 'Protobuf', 'enabled': False, 'path': 'apptools.services.mappers.ProtobufRPCMapper'},
-        {'name': 'URLEncoded', 'enabled': False, 'path': 'apptools.services.mappers.URLEncodedRPCMapper'}
+        {'name': 'Protobuf', 'enabled': True, 'path': 'apptools.services.mappers.ProtobufRPCMapper'},
+        {'name': 'URLEncoded', 'enabled': True, 'path': 'apptools.services.mappers.URLEncodedRPCMapper'}
 
     ],
 

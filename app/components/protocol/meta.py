@@ -16,6 +16,12 @@ try:
 except ImportError as e:
     _APPCONFIG = False
 
+# protorpc
+from protorpc import messages
+
+# apptools services
+from apptools import services
+
 # apptools util
 from apptools.util import debug
 from apptools.util import decorators
@@ -133,6 +139,17 @@ class Definition(type):
 
         _psplit = cls._config_path.split('.')
         return debug.AppToolsLogger(path='.'.join(_psplit[0:-1]), name=_psplit[-1])._setcondition(cls.config.get('debug', True))
+
+    @classmethod
+    def __message__(cls, *args, **kwargs):
+
+        ''' Return a suitable implementation message field for this `Definition`. '''
+
+        if 'default' in kwargs:  # filter out types
+            if isinstance(kwargs['default'], type):  # it's a type mapping
+                kwargs['default'] = type.__name__  # use name
+
+        return services.VariantField(*args, **kwargs)
 
 
 ## ProtocolDefinition - parent class for protocol definitions
