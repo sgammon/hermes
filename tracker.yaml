@@ -16,3 +16,5 @@ uwsgi:
   pymodule-alias: app=/ampush/apps/hermes/app
   pythonpath: /ampush/apps/hermes
   pythonpath: /ampush/apps/hermes/app
+  threaded-logger: on
+  offload-threads: 20
