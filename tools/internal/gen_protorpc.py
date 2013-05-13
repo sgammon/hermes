@@ -23,7 +23,7 @@ import optparse
 import os
 import sys
 
-from tools.util import generate_python
+from tools.internal import generate_python
 from protorpc import descriptor
 from protorpc import protobuf
 from protorpc import generate

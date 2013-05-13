@@ -8,7 +8,7 @@ LIB_PATH = '/'.join([APP_PATH, 'lib'])
 DISTLIB_PATH = '/'.join([LIB_PATH, 'dist'])
 
 for x in (ROOT_PATH, APP_PATH, LIB_PATH, DISTLIB_PATH):
-	if x not in sys.path:
-		sys.path = [x] + sys.path
+    if x not in sys.path:
+        sys.path = [x] + sys.path
 
 import bootstrap

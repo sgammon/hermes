@@ -79,7 +79,7 @@ LIB_PATH = '/'.join([APP_PATH, 'lib'])
 DISTLIB_PATH = '/'.join([APP_PATH, 'lib', 'dist'])
 
 DIR_PATH = get_dir_path(os.path.join('lib', 'ipaddr'))
-SCRIPT_DIR = os.path.join(DIR_PATH, 'util')
+SCRIPT_DIR = os.path.join(DIR_PATH, 'internal')
 GOOGLE_SQL_DIR = os.path.join(
     DIR_PATH, 'google', 'storage', 'speckle', 'python', 'tool')
 
