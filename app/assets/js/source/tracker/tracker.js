@@ -31,10 +31,19 @@ var EL_DEFERRED = 'amp-deferred';
 /** @define {string} **/
 var LOG_PREFIX = '[Tracker]';
 
+/** @define {string} **/
+var BEACON_HOST = 'amp.sh';
+
 
 /* === JSON === */
-(ENABLE_LEGACY ? (function () {
+ENABLE_LEGACY ? (function () {
     if (!this.JSON) {
+
+        /**
+         * Trim both sides of an input string.
+         * @param {string} str Input string to trim.
+         * @return {{parse: function(string), stringify: function(Object)}} Trimmed string value.
+         */
         this['JSON'] = (function() {
             var re = {
                 obj: /^\{"[\w\W.]*\}$/,
@@ -68,13 +77,13 @@ var LOG_PREFIX = '[Tracker]';
         /**
          * Serialize an object into JSON.
          * @param {Object} obj Input object to serialize.
-         * @return {*} Stringified JSON object.
+         * @return {?} Stringified JSON object.
          */
         stringify = function(obj) {
             var isObj, str, len, k, v;
                 if (obj !== null && obj.toJSON && typeof obj.toJSON === 'function') return obj.toJSON();
                 if (typeof obj === 'string') return '"' + obj.replace('"', '\"') + '"';
-                if (!(typeof obj === 'object' && obj !== undefined || typeof obj === 'array')) return '' + obj;
+                if (!(typeof obj === 'object' && obj !== undefined || obj instanceof Array)) return '' + obj;
                 isObj = typeof obj == 'object' && !(obj.length && obj.push && obj.slice);
                 if (isObj) {
                     str = '{';
@@ -127,10 +136,11 @@ var LOG_PREFIX = '[Tracker]';
             stringify: stringify
         };
     })();
-}}).call(this) : null );
+}}).call(this) : (function () { return null; }).call(this);
+
 
 /* === BASE64 === */
-(ENABLE_LEGACY ? (function (context) {
+ENABLE_LEGACY ? (function (context) {
 
     var cc = String.fromCharCode, Base64 = context['Base64'] = /** @struct */ {
         map: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
@@ -201,7 +211,8 @@ var LOG_PREFIX = '[Tracker]';
         }
 
     }; return Base64;
-})(this) : null );
+})(this) : (function () { return null; }).call(this);
+
 
 (0 || (function (context) {
 
@@ -224,12 +235,13 @@ var LOG_PREFIX = '[Tracker]';
             beacon: {
                 sent: [],  // sent tracking beacons
                 pending: [],  // stack of historical beacons (for multiple)
-                current: null  // current beacon object
+                current: null,  // current beacon object
+                host: BEACON_HOST  // hostname endpoint for beacons
             }
         };
 
         // gather environment and load configuration
-        ENABLE_DEBUG ? this.log('Initializing `EventTracker`.', this.gather().load()) : this.gather().load() ;
+        ENABLE_DEBUG ? this.log('Initializing `EventTracker`.', this.gather(context).load()) : this.gather(context).load() ;
 
     }
 
@@ -285,31 +297,34 @@ var LOG_PREFIX = '[Tracker]';
     };
 
     /**
-     *  `Gather` details about the JS environment, and any persistent/ephemeral session tokens present.
-     *   @return {EventTracker} The current `EventTracker` object.
+     * `Gather` details about the JS environment, and any persistent/ephemeral session tokens present.
+     * @param {Window|Object} context The context to read and fingerprint.
+     * @return {EventTracker} The current `EventTracker` object.
      */
-    EventTracker.prototype.gather = function () {
+    EventTracker.prototype.gather = function (context) {
+
+        var nav = context.navigator;
 
         /**
          * Environment state. Keeps track of browser and client environment.
          * @type {Object}
          */
         this.state.env = /** @struct */ {  // grab local environment details
-            cookies: navigator.cookieEnabled,  // whether cookies are enabled
-            language: navigator.language,  // current browser language
-            vendor: navigator.vendor,  // browser vendor
-            ua: navigator.userAgent,  // user-agent string
-            platform: navigator.platform,  // system architecture
-            dnt: !!navigator.doNotTrack,  // whether the do-not-track header is enabled
-            java: !!navigator.javaEnabled(),  // support for Java
-            socket: !!window.WebSocket || false,  // support for WebSockets
-            worker: !!window.Worker || false,  // support for WebWorkers
-            appcache: !!window.applicationCache || false,  // support for Appcaching
-            screen: window.screen ? {
-                width: window.screen.width,  // try to detect screen width
-                height: window.screen.height,  // try to detect screen height
-                color_depth: window.screen.colorDepth,  // grab color depth
-                pixel_density: window.devicePixelRatio  // grab pixel density (retina == 2, all else == 1)
+            cookies: nav.cookieEnabled,  // whether cookies are enabled
+            language: nav.language,  // current browser language
+            vendor: nav.vendor,  // browser vendor
+            ua: nav.userAgent,  // user-agent string
+            platform: nav.platform,  // system architecture
+            java: !!nav.javaEnabled(),  // support for Java
+            socket: !!context.WebSocket || false,  // support for WebSockets
+            worker: !!context.Worker || false,  // support for WebWorkers
+            appcache: !!context.applicationCache || false,  // support for Appcaching
+            dnt: (nav.doNotTrack ? !!nav.doNotTrack : false),  // whether the do-not-track header is enabled
+            screen: context.screen ? {
+                width: context.screen.width,  // try to detect screen width
+                height: context.screen.height,  // try to detect screen height
+                color_depth: context.screen.colorDepth,  // grab color depth
+                pixel_density: context.devicePixelRatio  // grab pixel density (retina == 2, all else == 1)
             } : {}
         };
 
@@ -330,6 +345,14 @@ var LOG_PREFIX = '[Tracker]';
                 : null : null : false)  // no amp cookie, no cookies, no support for cookies (respectively)
 
         }; return this;
+
+    };
+
+    /**
+     * Collapse local environment and state into a serialized beacon.
+     * @return {EventTracker} Returns the current `EventTracker`.
+     */
+    EventTracker.prototype.collapse = function () {
 
     };
 
