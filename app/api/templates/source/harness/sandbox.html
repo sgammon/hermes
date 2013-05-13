@@ -3,18 +3,31 @@
 
 <head>
 
-
-<!-- AppTools Config -->
-<script id='js-config' type='application/json' data-role='pageconfig'>
-{"platform":{"debug":true,"origindc":"us-w1","version":"0.5-alpha","name":"Hermes","instance":"app1.us-w1.pub.amp.sh"},"session":{"blob":""},"services":{"scope":"readonly","endpoint":"http://localhost:80/","consumer":"yogadev","apis":[["tracker",["echo"],{"caching":false}]]},"push":{},"debug":{"strict":false,"logging":true,"verbose":true,"eventlog":true},"media":{"ref":"https://beta.ampushyoga.io/_fb/gatsby/mobile/canvas?media=gatsby-trailer-1","name":"gatsby-trailer-1","key":"ag1zfmFtcHVzaC15b2dhcjMLEgROb2RlIg80MDQyODAyMjI5ODY2NjIMCxIETm9kZSIQZ2F0c2J5LXRyYWlsZXItMQw"},"user":false,"transport":{"rpc":{"host":"localhost:80","base_uri":"/v1/rpc"}}}
-</script>
+	<meta charset='utf-8'>
+	<title>Sandbox Testing Page</title>
 
 </head>
 
 <body>
 
-	<b>Welcome!</b>
-	<script src="http://static.amp.sh/js/apptools/base.min.js"></script>
+	<b>Welcome! Tracking test page! Woot!</b>
+
+	<div id='amp' data-host='amp.sh' data-ref='123' data-mode='img' style='display: none !important;'>
+		<div id='amp-deferred' style='display: none !important;'></div>
+		<script type='text/javascript'>
+			(function (ctx) {
+				var _amp = ctx._amp | {}, target = (ctx.JSON && ctx.btoa) ? ['v1'] : ['v1', 'legacy'], boot_el = document.getElementById('amp'), boot = {
+					host: boot_el.getAttribute('data-host'), ref: boot_el.getAttribute('data-ref'), mode: boot_el.getAttribute('data-mode')},
+					debug = (boot.host == 'localhost' ? [true, target.push('debug')][0] : false), proto = (debug ? 'http:/' : 'https:/'),
+					injector = (boot.mode == 'img' ? [(frag = new Image()), (frag.src = [[proto, boot.host, 'v1', 't.gif'].join('/'),
+					('i_x&a_ref=' + boot.ref)].join('?'))][0] : [(frag = document.createDocumentFragment()), (script = document.createElement('script')),
+					(script.type = 'text/javascript'), (script.src = [[proto, boot.host, target.join('/'), 't.js'].join('/'),
+					'ref=' + boot.ref].join('?')), (script.id = 'amp-runtime'), (script.defer = 'defer'), (script.async = 'async'), (frag.appendChild(script))][0]);
+					__ = (function (el) { ctx.setTimeout(function () { el.appendChild(injector) }, 0); console.log('Booting EventTracker...', injector); })(boot_el);
+			})(this);
+		</script>
+		<noscript><img src='//v1/t.gif?i_x&a_ref=123' /></noscript>
+	</div><!-- end #amp -->
 
 </body>
 </html>

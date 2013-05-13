@@ -28,3 +28,15 @@ class SandboxHandler(WebHandler):
         ''' HTTP GET '''
 
         return self.render('harness/sandbox.html')
+
+
+## Landing - testing harness landing page
+class Landing(WebHandler):
+
+    ''' Testing harness landing page. '''
+
+    def get(self):
+
+        ''' HTTP GET '''
+
+        return self.render('harness/landing.html')

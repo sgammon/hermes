@@ -32,9 +32,9 @@ config['apptools.project'] = {
 
     'version': {               # Change this according to your app's version
         'major': 0,
-        'minor': 3,
+        'minor': 5,
         'micro': 0,
-        'build': 20130405,
+        'build': 20130511,
         'release': 'ALPHA'
     }
 
@@ -88,6 +88,7 @@ config['apptools.project.output'] = {
         'Vary': 'Content-Encoding',
         'Content-Language': 'en-US,en',
         'Cache-Control': 'private,max-age=3600',  # default to not caching dynamic content
+        'X-Powered-By': 'Tracker/v1',
         'X-UA-Compatible': 'IE=edge,chrome=1',  # http://code.google.com/chrome/chromeframe/
         'XAF-Origin': 'AppHosting/Hermes/1.0',
         'Access-Control-Allow-Origin': None,
@@ -273,7 +274,7 @@ config['apptools.output.meta'] = {
             'address': '450 9th Street, 2nd Floor',
             'locality': 'San Francisco',
             'region': 'California',
-            'zipcode': '94114',
+            'zipcode': '94103',
             'country': 'United States of America',
             'email': 'hermes@ampush.com',
             'phone': ''

@@ -40,7 +40,7 @@ debug = force_debug or (not production)
 
 ## App details
 appname = 'ampush-hermes'
-appversion = '0-3-alpha'
+appversion = '0-5-alpha'
 
 
 """
@@ -52,7 +52,7 @@ appversion = '0-3-alpha'
 
 
 # Constants
-verbose = False  # toggle verbose logging
+verbose = True  # toggle verbose logging
 _REDIS_DB = 1  # redis database number
 _REDIS_SOCK = 'redis.sock'  # redis socket location
 _BLOCK_PDB = False  # PDB-stop immediately on __call__ - DANGEROUS, DO NOT USE IN PRODUCTION

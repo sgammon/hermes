@@ -38,7 +38,7 @@ config['apptools.project.services'] = {
 
         'hmac_hash': hashlib.sha1,  # Hash algorithm to use for HMAC signatures
         'url_prefix': '/v1/rpc',  # Prefix for all service invocation URLs
-        'secret_key': 'vnconPIN!)*@H!028h109k0(U!@)*H)V*H(&@!G*B)VN)XcixokzcnI)H!)*@H!@*',  # Secret key for generating HMAC signings
+        'secret_key': 'vcxijoOIJ!)@(J)(!@J)(v77G(*&@G!(*H!(*&(@!*CX_A)i-x0ic-',  # Secret key for generating HMAC signings
 
     },
 
@@ -147,8 +147,8 @@ config['apptools.services'] = {
         {'name': 'JSONRPC', 'enabled': True, 'path': 'apptools.services.mappers.JSONRPCMapper'},
 
         # Other Mappers
-        {'name': 'Protobuf', 'enabled': True, 'path': 'apptools.services.mappers.ProtobufRPCMapper'},
-        {'name': 'URLEncoded', 'enabled': True, 'path': 'apptools.services.mappers.URLEncodedRPCMapper'}
+        {'name': 'Protobuf', 'enabled': False, 'path': 'apptools.services.mappers.ProtobufRPCMapper'},
+        {'name': 'URLEncoded', 'enabled': False, 'path': 'apptools.services.mappers.URLEncodedRPCMapper'}
 
     ],
 

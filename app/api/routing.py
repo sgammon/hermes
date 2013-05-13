@@ -26,9 +26,8 @@ def get_rules():
     return [
 
         routes.HandlerPrefixRoute('api.handlers.', [
-            Route('/%s/test' % _VERSION_PREFIX, name='landing', handler='test.TestHandler'),
-            Route('/%s/test/<mode>' % _VERSION_PREFIX, name='landing-mode', handler='test.TestHandler'),
-            Route('/%s/sandbox' % _VERSION_PREFIX, name='harness-sandbox', handler='harness.SandboxHandler')
+            Route('/%s/sandbox' % _VERSION_PREFIX, name='harness-sandbox', handler='harness.SandboxHandler'),
+            Route('/%s/sandbox/harness' % _VERSION_PREFIX, name='harness-landing', handler='harness.Landing')
         ])
 
     ]

@@ -208,7 +208,7 @@ class EventTracker(object):
         # We should flush if we've A) overflowed our soft buffer threshold or B) passed our flush timeout...
         timestamp = int(time.time())
         flush = ((len(self.prebuffer) > self.BufferConfig.threshold) or (self.lastflush + self.BufferConfig.frequency < timestamp))
-        
+
         # Send logs
         did_timeout = "IS" if (self.lastflush + self.BufferConfig.frequency < timestamp) else "IS NOT"
 
@@ -216,7 +216,7 @@ class EventTracker(object):
             self.verbose("Current timestamp: %s." % timestamp)
             self.log("Buffer: Checkin-in at size %s with lastflush %s, which %s more than interval %s." % (len(self.prebuffer), self.lastflush, did_timeout, self.BufferConfig.frequency))
             self.log("Flush %s recommended." % ("IS" if flush else "IS NOT"))
-        
+
         return flush
 
     def flush(self):
@@ -310,7 +310,7 @@ class EventTracker(object):
                 self.verbose("Sending %s response with status \"%s\" and %s headers." % ("immediate" if flush else "deferred", response.status, len(response.headerlist)))
                 self.verbose("Full response headers: \"%s\"." % response.headerlist)
 
-            # Start response            
+            # Start response
             start_response(response.status, response.headerlist)
             response.stage = protocol.ResponseStage.STARTED
             return response.status, response.headerlist
@@ -397,16 +397,16 @@ class EventTracker(object):
         buffer_id, flushed = self.buffer(event)
 
         # Yield status message if debug mode is enabled.
-        response_buffer.append(u"<b>TrackedEvent</b> submitted with ID %s." % buffer_id)
-        if flushed:
-            response_buffer.append("<b>Flushed buffer with ID %s.</b><br />" % None)
-        response_buffer.append(u"<b>Prebuffer:</b> ID \"%s\" of size: %s" % (id(self.prebuffer), len(self.prebuffer)))
+        #response_buffer.append(u"<b>TrackedEvent</b> submitted with ID %s." % buffer_id)
+        #if flushed:
+        #    response_buffer.append("<b>Flushed buffer with ID %s.</b><br />" % None)
+        #response_buffer.append(u"<b>Prebuffer:</b> ID \"%s\" of size: %s" % (id(self.prebuffer), len(self.prebuffer)))
 
         # We're done processing. Flush buffer and respond.
         self.log("Tracker transaction completed. Writing body.")
         self.verbose("Tracker response buffer of length %s:" % len(response_buffer))
         self.verbose(str(response_buffer))
-        response.text = u"\n".join(response_buffer)
+        #response.text = u"\n".join(response_buffer)
 
         response.stage = protocol.ResponseStage.COMPLETE
         self.verbose('Yielding to server-side transport.')

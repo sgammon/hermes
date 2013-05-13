@@ -129,7 +129,7 @@ class AppBootstrapper(object):
 
         # === API Handlers === #
         from api import handlers
-        from api.handlers import test
+        from api.handlers import harness
 
         # === API Messages === #
         from api import messages
