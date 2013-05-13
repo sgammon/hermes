@@ -21,5 +21,3 @@ uwsgi:
   pythonpath: /ampush/apps/hermes/app/lib/dist
   pythonpath: /momentum
   pythonpath: /momentum/google/appengine/lib/protorpc
-  threaded-logger: on
-  offload-threads: 20

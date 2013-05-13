@@ -1,0 +1,6 @@
+
+/* === HERMES JS v1.0 === */
+var a=null,b=!1;a;a;var c=this;function e(){this.state={j:a,k:a,p:{C:[],z:[],s:a}};this.l().load()}e.prototype.b={a:"amp-tracker",e:"amp-deferred"};e.prototype.a={key:"_amp",debug:b,g:[JSON.stringify,JSON.parse],h:window.localStorage||b,d:{f:function(d){return window.btoa(d)},i:function(d){return window.atob(d)}}};
+e.prototype.load=function(d){return{a:d?this.a=d:(cfg=document.getElementById(this.b.a))?this.a=this.a.g[1]((this.b.a=document.getElementById(this.b.a)).textContent):{},e:this.b.e=document.getElementById(this.b.e)||b,async:c.c?c.c.async||[]:[]}};
+e.prototype.l=function(){this.state.j={r:navigator.cookieEnabled,language:navigator.language,vendor:navigator.vendor,F:navigator.userAgent,platform:navigator.platform,t:!!navigator.u,w:!!navigator.javaEnabled(),D:!!window.m||b,G:!!window.n||b,o:!!window.applicationCache||b,screen:window.screen?{width:window.screen.width,height:window.screen.height,q:window.screen.colorDepth,B:window.devicePixelRatio}:{}};this.state.k={A:this.a.h?(blob=this.a.h.getItem(this.a.d.f(this.a.key)))?this.a.g[1](this.a.d.i(blob)):
+a:b,v:navigator.cookieEnabled?0<document.cookie.length?(blob=document.cookie.match(this.a.key+"=.*;"))?this.a.d.f(blob[0].substr(0,blob[0].length-1).split("=")[1]):a:a:b};return this};new (c.EventTracker=e)(c,c.c?c.c:[]);
