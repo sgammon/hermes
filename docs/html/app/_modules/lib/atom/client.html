@@ -1,0 +1,323 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.atom.client &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../index.html" />
+    <link rel="up" title="lib.atom" href="../atom.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../atom.html" accesskey="U">lib.atom</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.atom.client</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c">#</span>
+<span class="c"># Copyright (C) 2009 Google Inc.</span>
+<span class="c">#</span>
+<span class="c"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c"># you may not use this file except in compliance with the License.</span>
+<span class="c"># You may obtain a copy of the License at</span>
+<span class="c">#</span>
+<span class="c">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c"># See the License for the specific language governing permissions and</span>
+<span class="c"># limitations under the License.</span>
+
+
+<span class="sd">&quot;&quot;&quot;AtomPubClient provides CRUD ops. in line with the Atom Publishing Protocol.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;j.s@google.com (Jeff Scudder)&#39;</span>
+
+
+<span class="kn">import</span> <span class="nn">atom.http_core</span>
+
+
+<div class="viewcode-block" id="Error"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.client.Error">[docs]</a><span class="k">class</span> <span class="nc">Error</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+  <span class="k">pass</span>
+
+</div>
+<div class="viewcode-block" id="MissingHost"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.client.MissingHost">[docs]</a><span class="k">class</span> <span class="nc">MissingHost</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
+  <span class="k">pass</span>
+
+</div>
+<div class="viewcode-block" id="AtomPubClient"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.client.AtomPubClient">[docs]</a><span class="k">class</span> <span class="nc">AtomPubClient</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="n">host</span> <span class="o">=</span> <span class="bp">None</span>
+  <span class="n">auth_token</span> <span class="o">=</span> <span class="bp">None</span>
+  <span class="n">ssl</span> <span class="o">=</span> <span class="bp">False</span> <span class="c"># Whether to force all requests over https</span>
+  <span class="n">xoauth_requestor_id</span> <span class="o">=</span> <span class="bp">None</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http_client</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">auth_token</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+               <span class="n">xoauth_requestor_id</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates a new AtomPubClient instance.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      source: The name of your application.</span>
+<span class="sd">      http_client: An object capable of performing HTTP requests through a</span>
+<span class="sd">                   request method. This object is used to perform the request</span>
+<span class="sd">                   when the AtomPubClient&#39;s request method is called. Used to</span>
+<span class="sd">                   allow HTTP requests to be directed to a mock server, or use</span>
+<span class="sd">                   an alternate library instead of the default of httplib to</span>
+<span class="sd">                   make HTTP requests.</span>
+<span class="sd">      host: str The default host name to use if a host is not specified in the</span>
+<span class="sd">            requested URI.</span>
+<span class="sd">      auth_token: An object which sets the HTTP Authorization header when its</span>
+<span class="sd">                  modify_request method is called.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">http_client</span> <span class="o">=</span> <span class="n">http_client</span> <span class="ow">or</span> <span class="n">atom</span><span class="o">.</span><span class="n">http_core</span><span class="o">.</span><span class="n">ProxiedHttpClient</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">host</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">host</span>
+    <span class="k">if</span> <span class="n">auth_token</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">auth_token</span> <span class="o">=</span> <span class="n">auth_token</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">xoauth_requestor_id</span> <span class="o">=</span> <span class="n">xoauth_requestor_id</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">source</span>
+
+<div class="viewcode-block" id="AtomPubClient.request"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.client.AtomPubClient.request">[docs]</a>  <span class="k">def</span> <span class="nf">request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">uri</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">auth_token</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+              <span class="n">http_request</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Performs an HTTP request to the server indicated.</span>
+
+<span class="sd">    Uses the http_client instance to make the request.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      method: The HTTP method as a string, usually one of &#39;GET&#39;, &#39;POST&#39;,</span>
+<span class="sd">              &#39;PUT&#39;, or &#39;DELETE&#39;</span>
+<span class="sd">      uri: The URI desired as a string or atom.http_core.Uri.</span>
+<span class="sd">      http_request:</span>
+<span class="sd">      auth_token: An authorization token object whose modify_request method</span>
+<span class="sd">                  sets the HTTP Authorization header.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      The results of calling self.http_client.request. With the default</span>
+<span class="sd">      http_client, this is an HTTP response object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Modify the request based on the AtomPubClient settings and parameters</span>
+    <span class="c"># passed in to the request.</span>
+    <span class="n">http_request</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modify_request</span><span class="p">(</span><span class="n">http_request</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">unicode</span><span class="p">)):</span>
+      <span class="n">uri</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">http_core</span><span class="o">.</span><span class="n">Uri</span><span class="o">.</span><span class="n">parse_uri</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">uri</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">uri</span><span class="o">.</span><span class="n">modify_request</span><span class="p">(</span><span class="n">http_request</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">unicode</span><span class="p">)):</span>
+      <span class="n">http_request</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
+    <span class="c"># Any unrecognized arguments are assumed to be capable of modifying the</span>
+    <span class="c"># HTTP request.</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+      <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s">&#39;modify_request&#39;</span><span class="p">):</span>
+          <span class="n">value</span><span class="o">.</span><span class="n">modify_request</span><span class="p">(</span><span class="n">http_request</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">query</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="c"># Default to an http request if the protocol scheme is not set.</span>
+    <span class="k">if</span> <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">scheme</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">scheme</span> <span class="o">=</span> <span class="s">&#39;http&#39;</span>
+    <span class="c"># Override scheme. Force requests over https.</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">:</span>
+      <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">scheme</span> <span class="o">=</span> <span class="s">&#39;https&#39;</span>
+    <span class="k">if</span> <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="s">&#39;/&#39;</span>
+    <span class="c"># Add the Authorization header at the very end. The Authorization header</span>
+    <span class="c"># value may need to be calculated using information in the request.</span>
+    <span class="k">if</span> <span class="n">auth_token</span><span class="p">:</span>
+      <span class="n">auth_token</span><span class="o">.</span><span class="n">modify_request</span><span class="p">(</span><span class="n">http_request</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth_token</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">auth_token</span><span class="o">.</span><span class="n">modify_request</span><span class="p">(</span><span class="n">http_request</span><span class="p">)</span>
+    <span class="c"># Check to make sure there is a host in the http_request.</span>
+    <span class="k">if</span> <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">host</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="n">MissingHost</span><span class="p">(</span><span class="s">&#39;No host provided in request </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+          <span class="n">http_request</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="p">)))</span>
+    <span class="c"># Perform the fully specified request using the http_client instance.</span>
+    <span class="c"># Sends the request to the server and returns the server&#39;s response.</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">http_client</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">http_request</span><span class="p">)</span>
+</div>
+  <span class="n">Request</span> <span class="o">=</span> <span class="n">request</span>
+
+<div class="viewcode-block" id="AtomPubClient.get"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.client.AtomPubClient.get">[docs]</a>  <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">auth_token</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">http_request</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Performs a request using the GET method, returns an HTTP response.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="n">uri</span><span class="o">=</span><span class="n">uri</span><span class="p">,</span> <span class="n">auth_token</span><span class="o">=</span><span class="n">auth_token</span><span class="p">,</span>
+                        <span class="n">http_request</span><span class="o">=</span><span class="n">http_request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</div>
+  <span class="n">Get</span> <span class="o">=</span> <span class="n">get</span>
+
+<div class="viewcode-block" id="AtomPubClient.post"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.client.AtomPubClient.post">[docs]</a>  <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">auth_token</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">http_request</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+           <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sends data using the POST method, returns an HTTP response.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s">&#39;POST&#39;</span><span class="p">,</span> <span class="n">uri</span><span class="o">=</span><span class="n">uri</span><span class="p">,</span> <span class="n">auth_token</span><span class="o">=</span><span class="n">auth_token</span><span class="p">,</span>
+                        <span class="n">http_request</span><span class="o">=</span><span class="n">http_request</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</div>
+  <span class="n">Post</span> <span class="o">=</span> <span class="n">post</span>
+
+<div class="viewcode-block" id="AtomPubClient.put"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.client.AtomPubClient.put">[docs]</a>  <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">auth_token</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">http_request</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+          <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sends data using the PUT method, returns an HTTP response.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s">&#39;PUT&#39;</span><span class="p">,</span> <span class="n">uri</span><span class="o">=</span><span class="n">uri</span><span class="p">,</span> <span class="n">auth_token</span><span class="o">=</span><span class="n">auth_token</span><span class="p">,</span>
+                        <span class="n">http_request</span><span class="o">=</span><span class="n">http_request</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</div>
+  <span class="n">Put</span> <span class="o">=</span> <span class="n">put</span>
+
+<div class="viewcode-block" id="AtomPubClient.delete"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.client.AtomPubClient.delete">[docs]</a>  <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">auth_token</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">http_request</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Performs a request using the DELETE method, returns an HTTP response.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s">&#39;DELETE&#39;</span><span class="p">,</span> <span class="n">uri</span><span class="o">=</span><span class="n">uri</span><span class="p">,</span> <span class="n">auth_token</span><span class="o">=</span><span class="n">auth_token</span><span class="p">,</span>
+                        <span class="n">http_request</span><span class="o">=</span><span class="n">http_request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</div>
+  <span class="n">Delete</span> <span class="o">=</span> <span class="n">delete</span>
+
+<div class="viewcode-block" id="AtomPubClient.modify_request"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.client.AtomPubClient.modify_request">[docs]</a>  <span class="k">def</span> <span class="nf">modify_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http_request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Changes the HTTP request before sending it to the server.</span>
+
+<span class="sd">    Sets the User-Agent HTTP header and fills in the HTTP host portion</span>
+<span class="sd">    of the URL if one was not included in the request (for this it uses</span>
+<span class="sd">    the self.host member if one is set). This method is called in</span>
+<span class="sd">    self.request.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      http_request: An atom.http_core.HttpRequest() (optional) If one is</span>
+<span class="sd">                    not provided, a new HttpRequest is instantiated.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      An atom.http_core.HttpRequest() with the User-Agent header set and</span>
+<span class="sd">      if this client has a value in its host member, the host in the request</span>
+<span class="sd">      URL is set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">http_request</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">http_request</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">http_core</span><span class="o">.</span><span class="n">HttpRequest</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">host</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xoauth_requestor_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">query</span><span class="p">[</span><span class="s">&#39;xoauth_requestor_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xoauth_requestor_id</span>
+
+    <span class="c"># Set the user agent header for logging purposes.</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">:</span>
+      <span class="n">http_request</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">&#39;User-Agent&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> gdata-py/2.0.17&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">http_request</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">&#39;User-Agent&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;gdata-py/2.0.17&#39;</span>
+
+    <span class="k">return</span> <span class="n">http_request</span>
+</div>
+  <span class="n">ModifyRequest</span> <span class="o">=</span> <span class="n">modify_request</span>
+
+</div>
+<div class="viewcode-block" id="CustomHeaders"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.client.CustomHeaders">[docs]</a><span class="k">class</span> <span class="nc">CustomHeaders</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Add custom headers to an http_request.</span>
+
+<span class="sd">  Usage:</span>
+<span class="sd">    &gt;&gt;&gt; custom_headers = atom.client.CustomHeaders(header1=&#39;value1&#39;,</span>
+<span class="sd">            header2=&#39;value2&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; client.get(uri, custom_headers=custom_headers)</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates a CustomHeaders instance.</span>
+
+<span class="sd">    Initialize the headers dictionary with the arguments list.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="n">kwargs</span>
+
+<div class="viewcode-block" id="CustomHeaders.modify_request"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.client.CustomHeaders.modify_request">[docs]</a>  <span class="k">def</span> <span class="nf">modify_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http_request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Changes the HTTP request before sending it to the server.</span>
+
+<span class="sd">    Adds the custom headers to the HTTP request.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      http_request: An atom.http_core.HttpRequest().</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      An atom.http_core.HttpRequest() with the added custom headers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+      <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">http_request</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">http_request</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../atom.html" >lib.atom</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

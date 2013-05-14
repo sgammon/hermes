@@ -1,0 +1,216 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.atom.token_store &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../index.html" />
+    <link rel="up" title="lib.atom" href="../atom.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../atom.html" accesskey="U">lib.atom</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.atom.token_store</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/python</span>
+<span class="c">#</span>
+<span class="c"># Copyright (C) 2008 Google Inc.</span>
+<span class="c">#</span>
+<span class="c"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c"># you may not use this file except in compliance with the License.</span>
+<span class="c"># You may obtain a copy of the License at</span>
+<span class="c">#</span>
+<span class="c">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c"># See the License for the specific language governing permissions and</span>
+<span class="c"># limitations under the License.</span>
+
+<span class="sd">&quot;&quot;&quot;This module provides a TokenStore class which is designed to manage</span>
+<span class="sd">auth tokens required for different services.</span>
+
+<span class="sd">Each token is valid for a set of scopes which is the start of a URL. An HTTP</span>
+<span class="sd">client will use a token store to find a valid Authorization header to send</span>
+<span class="sd">in requests to the specified URL. If the HTTP client determines that a token</span>
+<span class="sd">has expired or been revoked, it can remove the token from the store so that</span>
+<span class="sd">it will not be used in future requests.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;api.jscudder (Jeff Scudder)&#39;</span>
+
+
+<span class="kn">import</span> <span class="nn">atom.http_interface</span>
+<span class="kn">import</span> <span class="nn">atom.url</span>
+
+
+<span class="n">SCOPE_ALL</span> <span class="o">=</span> <span class="s">&#39;http&#39;</span>
+
+
+<div class="viewcode-block" id="TokenStore"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.token_store.TokenStore">[docs]</a><span class="k">class</span> <span class="nc">TokenStore</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Manages Authorization tokens which will be sent in HTTP headers.&quot;&quot;&quot;</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scoped_tokens</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_tokens</span> <span class="o">=</span> <span class="n">scoped_tokens</span> <span class="ow">or</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="TokenStore.add_token"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.token_store.TokenStore.add_token">[docs]</a>  <span class="k">def</span> <span class="nf">add_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Adds a new token to the store (replaces tokens with the same scope).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      token: A subclass of http_interface.GenericToken. The token object is </span>
+<span class="sd">          responsible for adding the Authorization header to the HTTP request.</span>
+<span class="sd">          The scopes defined in the token are used to determine if the token</span>
+<span class="sd">          is valid for a requested scope when find_token is called.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      True if the token was added, False if the token was not added becase</span>
+<span class="sd">      no scopes were provided.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="s">&#39;scopes&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">token</span><span class="o">.</span><span class="n">scopes</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="k">for</span> <span class="n">scope</span> <span class="ow">in</span> <span class="n">token</span><span class="o">.</span><span class="n">scopes</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_tokens</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">scope</span><span class="p">)]</span> <span class="o">=</span> <span class="n">token</span>
+    <span class="k">return</span> <span class="bp">True</span>  
+</div>
+<div class="viewcode-block" id="TokenStore.find_token"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.token_store.TokenStore.find_token">[docs]</a>  <span class="k">def</span> <span class="nf">find_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Selects an Authorization header token which can be used for the URL.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      url: str or atom.url.Url or a list containing the same.</span>
+<span class="sd">          The URL which is going to be requested. All</span>
+<span class="sd">          tokens are examined to see if any scopes begin match the beginning</span>
+<span class="sd">          of the URL. The first match found is returned.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      The token object which should execute the HTTP request. If there was</span>
+<span class="sd">      no token for the url (the url did not begin with any of the token</span>
+<span class="sd">      scopes available), then the atom.http_interface.GenericToken will be </span>
+<span class="sd">      returned because the GenericToken calls through to the http client</span>
+<span class="sd">      without adding an Authorization header.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">url</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">unicode</span><span class="p">)):</span>
+      <span class="n">url</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">parse_url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">url</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokens</span><span class="p">:</span>
+      <span class="n">token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokens</span><span class="p">[</span><span class="n">url</span><span class="p">]</span>
+      <span class="k">if</span> <span class="n">token</span><span class="o">.</span><span class="n">valid_for_scope</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">token</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokens</span><span class="p">[</span><span class="n">url</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">scope</span><span class="p">,</span> <span class="n">token</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokens</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+      <span class="k">if</span> <span class="n">token</span><span class="o">.</span><span class="n">valid_for_scope</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">token</span>
+    <span class="k">return</span> <span class="n">atom</span><span class="o">.</span><span class="n">http_interface</span><span class="o">.</span><span class="n">GenericToken</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="TokenStore.remove_token"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.token_store.TokenStore.remove_token">[docs]</a>  <span class="k">def</span> <span class="nf">remove_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Removes the token from the token_store.</span>
+
+<span class="sd">    This method is used when a token is determined to be invalid. If the</span>
+<span class="sd">    token was found by find_token, but resulted in a 401 or 403 error stating</span>
+<span class="sd">    that the token was invlid, then the token should be removed to prevent</span>
+<span class="sd">    future use.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      True if a token was found and then removed from the token</span>
+<span class="sd">      store. False if the token was not in the TokenStore.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">token_found</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">scopes_to_delete</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">scope</span><span class="p">,</span> <span class="n">stored_token</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokens</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+      <span class="k">if</span> <span class="n">stored_token</span> <span class="o">==</span> <span class="n">token</span><span class="p">:</span>
+        <span class="n">scopes_to_delete</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scope</span><span class="p">)</span>
+        <span class="n">token_found</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">for</span> <span class="n">scope</span> <span class="ow">in</span> <span class="n">scopes_to_delete</span><span class="p">:</span>
+      <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokens</span><span class="p">[</span><span class="n">scope</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">token_found</span>
+</div>
+<div class="viewcode-block" id="TokenStore.remove_all_tokens"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.token_store.TokenStore.remove_all_tokens">[docs]</a>  <span class="k">def</span> <span class="nf">remove_all_tokens</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_tokens</span> <span class="o">=</span> <span class="p">{}</span> </div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../atom.html" >lib.atom</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

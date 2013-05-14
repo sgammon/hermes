@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.apptools.api.output.extensions.bytecache &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../../../',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../../../../index.html" />
+    <link rel="up" title="lib.apptools.api.output.extensions" href="../extensions.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../../../apptools.html" >lib.apptools</a> &raquo;</li>
+          <li><a href="../../../api.html" >lib.apptools.api</a> &raquo;</li>
+          <li><a href="../../output.html" >lib.apptools.api.output</a> &raquo;</li>
+          <li><a href="../extensions.html" accesskey="U">lib.apptools.api.output.extensions</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.apptools.api.output.extensions.bytecache</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="kn">import</span> <span class="nn">webapp2</span>
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">MemcachedBytecodeCache</span> <span class="k">as</span> <span class="n">BytecodeCache</span>
+
+<span class="c">## Global Cache</span>
+<span class="n">_template_bytecode</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<span class="c">## ThreadedBytecodeCache - caches and loads compiled template bytecode with thread memory</span>
+<div class="viewcode-block" id="ThreadedBytecodeCache"><a class="viewcode-back" href="../../../../../../lib.apptools.api.output.extensions.html#lib.apptools.api.output.extensions.bytecache.ThreadedBytecodeCache">[docs]</a><span class="k">class</span> <span class="nc">ThreadedBytecodeCache</span><span class="p">(</span><span class="n">BytecodeCache</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Extends Jinja2 to use thread memory for template bytecode. &#39;&#39;&#39;</span>
+
+    <span class="n">__configPath</span> <span class="o">=</span> <span class="s">&#39;apptools.output.extension.ThreadedBytecodeCache&#39;</span>
+
+    <span class="nd">@webapp2.cached_property</span>
+    <span class="k">def</span> <span class="nf">__extensionConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Cached shortcut to full extension config. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__configPath</span><span class="p">)</span>
+
+    <span class="nd">@webapp2.cached_property</span>
+    <span class="k">def</span> <span class="nf">__innerConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Cached shortcut to this extension&#39;s config block. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__outputConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;config&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Init super, but properly instantiate for AppEngine. &#39;&#39;&#39;</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">ThreadedBytecodeCache</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__innerConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;prefix&#39;</span><span class="p">),</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__innerConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;timeout&#39;</span><span class="p">))</span>
+
+<div class="viewcode-block" id="ThreadedBytecodeCache.get"><a class="viewcode-back" href="../../../../../../lib.apptools.api.output.extensions.html#lib.apptools.api.output.extensions.bytecache.ThreadedBytecodeCache.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Get bytecode from threadcache at a key. &#39;&#39;&#39;</span>
+
+        <span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="ThreadedBytecodeCache.set"><a class="viewcode-back" href="../../../../../../lib.apptools.api.output.extensions.html#lib.apptools.api.output.extensions.bytecache.ThreadedBytecodeCache.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">timeout</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Set bytecode into threadcache at a given key. &#39;&#39;&#39;</span>
+
+        <span class="k">pass</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../../../index.html">
+              <img class="logo" src="../../../../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../../../apptools.html" >lib.apptools</a> &raquo;</li>
+          <li><a href="../../../api.html" >lib.apptools.api</a> &raquo;</li>
+          <li><a href="../../output.html" >lib.apptools.api.output</a> &raquo;</li>
+          <li><a href="../extensions.html" >lib.apptools.api.output.extensions</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

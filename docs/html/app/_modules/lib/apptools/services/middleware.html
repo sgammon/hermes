@@ -1,0 +1,277 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.apptools.services.middleware &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../../index.html" />
+    <link rel="up" title="lib.apptools.services" href="../services.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../apptools.html" >lib.apptools</a> &raquo;</li>
+          <li><a href="../services.html" accesskey="U">lib.apptools.services</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.apptools.services.middleware</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">Services: Middleware</span>
+
+<span class="sd">Holds service middleware, that can hook into the pre- or post- remote method execution</span>
+<span class="sd">sequence.</span>
+
+<span class="sd">-sam (&lt;sam@momentum.io&gt;)</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c"># Base Imports</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+
+<span class="c"># Util Imports</span>
+<span class="kn">from</span> <span class="nn">apptools.util.debug</span> <span class="kn">import</span> <span class="n">AppToolsLogger</span>
+
+<span class="n">logging</span> <span class="o">=</span> <span class="n">AppToolsLogger</span><span class="p">(</span><span class="s">&#39;apptools.servicelayer&#39;</span><span class="p">,</span> <span class="s">&#39;Middleware&#39;</span><span class="p">)</span>
+
+
+<span class="c">## ServiceGatewayMiddleware</span>
+<span class="c"># This base class is for middleware that must be executed before or after a remote service method.</span>
+<div class="viewcode-block" id="ServiceGatewayMiddleware"><a class="viewcode-back" href="../../../../lib.apptools.services.html#lib.apptools.services.middleware.ServiceGatewayMiddleware">[docs]</a><span class="k">class</span> <span class="nc">ServiceGatewayMiddleware</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot; Abstract class representing a piece of middleware that can hook into the service RPC request flow. &quot;&quot;&quot;</span>
+
+    <span class="n">debug</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">opts</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="p">{},</span> <span class="n">opts</span><span class="o">=</span><span class="p">{}):</span>
+
+        <span class="sd">&quot;&quot;&quot; Take in config, whether we&#39;re in debug mode or not, and &#39;opts&#39; (runtime config overrides). &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opts</span> <span class="o">=</span> <span class="n">opts</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">reponse</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot; Default to NotImplemented. &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="bp">NotImplemented</span>
+
+
+<span class="c">## MonitoringMiddleware</span>
+<span class="c"># Middleware for monitoring individual and aggregate request statistics</span></div>
+<div class="viewcode-block" id="MonitoringMiddleware"><a class="viewcode-back" href="../../../../lib.apptools.services.html#lib.apptools.services.middleware.MonitoringMiddleware">[docs]</a><span class="k">class</span> <span class="nc">MonitoringMiddleware</span><span class="p">(</span><span class="n">ServiceGatewayMiddleware</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot; Middleware for monitoring and reporting errors or auth failures. &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MonitoringMiddleware.before_request"><a class="viewcode-back" href="../../../../lib.apptools.services.html#lib.apptools.services.middleware.MonitoringMiddleware.before_request">[docs]</a>    <span class="k">def</span> <span class="nf">before_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Not Implemented &#39;&#39;&#39;</span>
+
+        <span class="c">## @TODO (Implement Service Monitoring Middleware)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MonitoringMiddleware.after_request"><a class="viewcode-back" href="../../../../lib.apptools.services.html#lib.apptools.services.middleware.MonitoringMiddleware.after_request">[docs]</a>    <span class="k">def</span> <span class="nf">after_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Not Implemented &#39;&#39;&#39;</span>
+
+        <span class="c">## @TODO (Implement Service Monitoring Middleware)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+
+
+<span class="c">## AsyncPushMiddleware</span>
+<span class="c"># Async Middleware for intercepting responses and returning them via Channel API</span></div></div>
+<div class="viewcode-block" id="AsyncPushMiddleware"><a class="viewcode-back" href="../../../../lib.apptools.services.html#lib.apptools.services.middleware.AsyncPushMiddleware">[docs]</a><span class="k">class</span> <span class="nc">AsyncPushMiddleware</span><span class="p">(</span><span class="n">ServiceGatewayMiddleware</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot; Middleware for intercepting an asynchronous response from an API method. &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AsyncPushMiddleware.after_request"><a class="viewcode-back" href="../../../../lib.apptools.services.html#lib.apptools.services.middleware.AsyncPushMiddleware.after_request">[docs]</a>    <span class="k">def</span> <span class="nf">after_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Not Implemented &#39;&#39;&#39;</span>
+
+        <span class="c">## @TODO (Implement Service AsyncPush Middleware)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+
+
+<span class="c">## RecordingMiddleware</span>
+<span class="c"># Middleware for recording monitored data to datastore or memcache</span></div></div>
+<div class="viewcode-block" id="RecordingMiddleware"><a class="viewcode-back" href="../../../../lib.apptools.services.html#lib.apptools.services.middleware.RecordingMiddleware">[docs]</a><span class="k">class</span> <span class="nc">RecordingMiddleware</span><span class="p">(</span><span class="n">ServiceGatewayMiddleware</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot; Middleware for recording individual or aggregate information about remote service request load. &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="RecordingMiddleware.before_request"><a class="viewcode-back" href="../../../../lib.apptools.services.html#lib.apptools.services.middleware.RecordingMiddleware.before_request">[docs]</a>    <span class="k">def</span> <span class="nf">before_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Not Implemented &#39;&#39;&#39;</span>
+
+        <span class="c">## @TODO (Implement Service Recording Middleware)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+
+
+<span class="c">## CachingMiddleware</span>
+<span class="c"># Middleware for caching response messages &amp; raw JSON responses</span></div></div>
+<div class="viewcode-block" id="CachingMiddleware"><a class="viewcode-back" href="../../../../lib.apptools.services.html#lib.apptools.services.middleware.CachingMiddleware">[docs]</a><span class="k">class</span> <span class="nc">CachingMiddleware</span><span class="p">(</span><span class="n">ServiceGatewayMiddleware</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot; Middleware for holding onto data so it can be retrieved faster. &quot;&quot;&quot;</span>
+
+    <span class="n">key</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">ttl</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">profile</span> <span class="o">=</span> <span class="bp">None</span>
+
+<div class="viewcode-block" id="CachingMiddleware.generateKey"><a class="viewcode-back" href="../../../../lib.apptools.services.html#lib.apptools.services.middleware.CachingMiddleware.generateKey">[docs]</a>    <span class="k">def</span> <span class="nf">generateKey</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">localize</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot; Generate a hash representing the current request, suitable for use as a cache key. &quot;&quot;&quot;</span>
+
+        <span class="c"># Add service class, request URI, method and body</span>
+        <span class="n">request_descriptor</span> <span class="o">=</span> <span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">__repr__</span><span class="p">(),</span> <span class="n">request</span><span class="o">.</span><span class="n">uri</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">]</span>
+
+        <span class="c"># Add GET and POST vars if they exist</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">request_descriptor</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">))</span>  <span class="c"># Add getvars</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">request_descriptor</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">))</span>  <span class="c"># Add postvars</span>
+
+        <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="s">&#39;:::&#39;</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="n">request_descriptor</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="CachingMiddleware.before_request"><a class="viewcode-back" href="../../../../lib.apptools.services.html#lib.apptools.services.middleware.CachingMiddleware.before_request">[docs]</a>    <span class="k">def</span> <span class="nf">before_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot; Generate a key before the request is fulfilled, check for existence in the cache, and return if available. &quot;&quot;&quot;</span>
+
+        <span class="c"># @TODO: Clean up this file&#39;s logging...</span>
+        <span class="k">if</span> <span class="s">&#39;caching&#39;</span> <span class="ow">in</span> <span class="n">service</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;service&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;config&#39;</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">profile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;middleware_config&#39;</span><span class="p">][</span><span class="s">&#39;caching&#39;</span><span class="p">][</span><span class="s">&#39;profiles&#39;</span><span class="p">][</span><span class="n">service</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;service&#39;</span><span class="p">][</span><span class="s">&#39;config&#39;</span><span class="p">][</span><span class="s">&#39;caching&#39;</span><span class="p">]]</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="s">&#39;activate&#39;</span><span class="p">][</span><span class="s">&#39;internal&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generateKey</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;localize&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">))</span>
+                <span class="n">service</span><span class="o">.</span><span class="n">_setstate</span><span class="p">(</span><span class="s">&#39;cache_key&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="CachingMiddleware.after_request"><a class="viewcode-back" href="../../../../lib.apptools.services.html#lib.apptools.services.middleware.CachingMiddleware.after_request">[docs]</a>    <span class="k">def</span> <span class="nf">after_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot; Store the request in the cache for later return. &quot;&quot;&quot;</span>
+
+        <span class="c">## @TODO (Implement Service Authentication Middleware)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+
+
+<span class="c">## AuthenticationMiddleware</span>
+<span class="c"># Middleware for authenticating a remote client</span></div></div>
+<div class="viewcode-block" id="AuthenticationMiddleware"><a class="viewcode-back" href="../../../../lib.apptools.services.html#lib.apptools.services.middleware.AuthenticationMiddleware">[docs]</a><span class="k">class</span> <span class="nc">AuthenticationMiddleware</span><span class="p">(</span><span class="n">ServiceGatewayMiddleware</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot; Middleware for enforcing the policy that a user (maybe only admins) must be authenticated. &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AuthenticationMiddleware.before_request"><a class="viewcode-back" href="../../../../lib.apptools.services.html#lib.apptools.services.middleware.AuthenticationMiddleware.before_request">[docs]</a>    <span class="k">def</span> <span class="nf">before_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Not Implemented &#39;&#39;&#39;</span>
+
+        <span class="c">## @TODO (Implement Service Authentication Middleware)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+
+
+<span class="c">## AuthorizationMiddleware</span>
+<span class="c"># Middleware for authorizing a remote client</span></div></div>
+<div class="viewcode-block" id="AuthorizationMiddleware"><a class="viewcode-back" href="../../../../lib.apptools.services.html#lib.apptools.services.middleware.AuthorizationMiddleware">[docs]</a><span class="k">class</span> <span class="nc">AuthorizationMiddleware</span><span class="p">(</span><span class="n">ServiceGatewayMiddleware</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot; Middleware for enforcing the policy that a user must be part of a group or have a certain privilege. &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AuthorizationMiddleware.before_request"><a class="viewcode-back" href="../../../../lib.apptools.services.html#lib.apptools.services.middleware.AuthorizationMiddleware.before_request">[docs]</a>    <span class="k">def</span> <span class="nf">before_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Not Implemented &#39;&#39;&#39;</span>
+
+        <span class="c">## @TODO (Implement Service Authorization Middleware)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../index.html">
+              <img class="logo" src="../../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../apptools.html" >lib.apptools</a> &raquo;</li>
+          <li><a href="../services.html" >lib.apptools.services</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

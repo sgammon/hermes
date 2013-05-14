@@ -369,6 +369,7 @@ def registry_command(options,
 
   file_set = reg.get_file_set(names=service_names).file_set
 
+  import pdb; pdb.set_trace()
   for file_descriptor in file_set.files:
     generate_file_descriptor(dest_dir, file_descriptor=file_descriptor,
                              force_overwrite=options.force)

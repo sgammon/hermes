@@ -1,0 +1,193 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.apptools.api &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../index.html" />
+    <link rel="up" title="lib.apptools" href="../apptools.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../apptools.html" accesskey="U">lib.apptools</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.apptools.api</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">AppTools APIs</span>
+
+<span class="sd">Holds Core APIs and abstract API/Mixin classes to enable the creation of plugins,</span>
+<span class="sd">extensions, mixins, and all sorts of other integration points.</span>
+
+<span class="sd">-sam (&lt;sam@momentum.io&gt;)</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+
+<span class="c">## Core API</span>
+<span class="c"># Core APIs are large chunks of functionality that AppTools can optionally perform for your application.</span>
+<span class="c"># The Assets API &amp; Output API are Core APIs, along with any other major pieces of code.</span>
+<div class="viewcode-block" id="CoreAPI"><a class="viewcode-back" href="../../../lib.apptools.api.html#lib.apptools.api.CoreAPI">[docs]</a><span class="k">class</span> <span class="nc">CoreAPI</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Used as a controller for a core feature of the AppTools framework. &#39;&#39;&#39;</span>
+
+    <span class="k">pass</span>
+
+
+<span class="c">## BaseObject API</span>
+<span class="c"># This is the parent class to all AppTools-exposed Base* classes (think: BaseHandler, BaseModel, BasePipeline, etc.)</span></div>
+<div class="viewcode-block" id="BaseObject"><a class="viewcode-back" href="../../../lib.apptools.api.html#lib.apptools.api.BaseObject">[docs]</a><span class="k">class</span> <span class="nc">BaseObject</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Provides AppTools and platform-specific features to Base object classes. &#39;&#39;&#39;</span>
+
+    <span class="k">pass</span>
+
+
+<span class="c">## Mixin Framework</span>
+<span class="c"># Mixin classes add functionality in AppTools to other classes.</span></div>
+<div class="viewcode-block" id="APIMixin"><a class="viewcode-back" href="../../../lib.apptools.api.html#lib.apptools.api.APIMixin">[docs]</a><span class="k">class</span> <span class="nc">APIMixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Used to bridge between a Core API and any other class. &#39;&#39;&#39;</span>
+
+    <span class="k">pass</span>
+
+
+<span class="c">## HandlerMixin</span>
+<span class="c"># Bridges a Core API to a BaseHandler.</span></div>
+<div class="viewcode-block" id="HandlerMixin"><a class="viewcode-back" href="../../../lib.apptools.api.html#lib.apptools.api.HandlerMixin">[docs]</a><span class="k">class</span> <span class="nc">HandlerMixin</span><span class="p">(</span><span class="n">APIMixin</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Used to bridge between a Core API and a Handler, via Python&#39;s awesome support for multi-inheritance. &#39;&#39;&#39;</span>
+
+    <span class="k">pass</span>
+
+
+<span class="c">## PipelineMixin</span>
+<span class="c"># Bridges a Core API to a BasePipeline.</span></div>
+<div class="viewcode-block" id="PipelineMixin"><a class="viewcode-back" href="../../../lib.apptools.api.html#lib.apptools.api.PipelineMixin">[docs]</a><span class="k">class</span> <span class="nc">PipelineMixin</span><span class="p">(</span><span class="n">APIMixin</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Used to bridge between a Core API and a Handler, via Python&#39;s awesome support for multi-inheritance. &#39;&#39;&#39;</span>
+
+    <span class="k">pass</span>
+
+
+<span class="c">## ModelMixin</span>
+<span class="c"># Bridges a Core API to a BaseModel.</span></div>
+<span class="k">class</span> <span class="nc">ModelMixin</span><span class="p">(</span><span class="n">APIMixin</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Used to bridge between a Core API and a Handler, via Python&#39;s awesome support for multi-inheritance. &#39;&#39;&#39;</span>
+
+    <span class="k">pass</span>
+
+
+<span class="c">## ServiceMixin</span>
+<span class="c"># Bridges a Core API to a BaseService.</span>
+<div class="viewcode-block" id="ServiceMixin"><a class="viewcode-back" href="../../../lib.apptools.api.html#lib.apptools.api.ServiceMixin">[docs]</a><span class="k">class</span> <span class="nc">ServiceMixin</span><span class="p">(</span><span class="n">APIMixin</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Used to bridge between a Core API and a Handler, via Python&#39;s awesome support for multi-inheritance. &#39;&#39;&#39;</span>
+
+    <span class="k">pass</span>
+
+
+<span class="c">## ModelMixin</span>
+<span class="c"># Bridges a Core API to a BaseModel.</span></div>
+<div class="viewcode-block" id="ModelMixin"><a class="viewcode-back" href="../../../lib.apptools.api.html#lib.apptools.api.ModelMixin">[docs]</a><span class="k">class</span> <span class="nc">ModelMixin</span><span class="p">(</span><span class="n">APIMixin</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Used to bridge between a Core API and a Model, via Python&#39;s awesome support for multi-inheritance. &#39;&#39;&#39;</span>
+
+    <span class="k">pass</span>
+
+
+<span class="c">## PluginMixin</span>
+<span class="c"># Bridges a Core API to a BasePlugin.</span></div>
+<div class="viewcode-block" id="PluginMixin"><a class="viewcode-back" href="../../../lib.apptools.api.html#lib.apptools.api.PluginMixin">[docs]</a><span class="k">class</span> <span class="nc">PluginMixin</span><span class="p">(</span><span class="n">APIMixin</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Used to bridge between a Core API and a Plugin, via Python&#39;s awesome support for multi-inheritance. &#39;&#39;&#39;</span>
+
+    <span class="k">pass</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../apptools.html" >lib.apptools</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

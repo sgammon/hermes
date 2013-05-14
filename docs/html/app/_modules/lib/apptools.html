@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.apptools &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.apptools</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">AppTools for Python</span>
+
+<span class="sd">ALL RIGHTS RESERVED</span>
+<span class="sd">Copyright 2012, momentum labs (http://www.momentum.io)</span>
+<span class="sd">-sam (&lt;sam@momentum.io&gt;)</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c">## Base Imports</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="c">## Try the app bootstrapper, if it&#39;s around</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">bootstrap</span>
+    <span class="n">bootstrap</span><span class="o">.</span><span class="n">AppBootstrapper</span><span class="o">.</span><span class="n">prepareImports</span><span class="p">()</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="c"># No bootstrapper found.</span>
+    <span class="k">pass</span>
+
+<span class="c">## AppTools Util</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">debug</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">appconfig</span>
+
+<span class="n">wallclock</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">config</span>
+
+<span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">appconfig</span><span class="o">.</span><span class="n">ConfigProxy</span><span class="p">(</span><span class="n">appconfig</span><span class="o">.</span><span class="n">_DEFAULT_CONFIG</span><span class="p">)</span>
+
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">appconfig</span><span class="o">.</span><span class="n">ConfigProxy</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">cfg</span>
+
+
+<div class="viewcode-block" id="clockpoint"><a class="viewcode-back" href="../../lib.apptools.html#lib.apptools.clockpoint">[docs]</a><span class="k">def</span> <span class="nf">clockpoint</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Adds a clockpoint to the wallclock dict above, for easy walltime tracking. &#39;&#39;&#39;</span>
+
+    <span class="k">global</span> <span class="n">wallclock</span>
+    <span class="n">timepoint</span> <span class="o">=</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
+    <span class="n">wallclock</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">timepoint</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">timepoint</span>
+
+
+<span class="c">## WSGI Gateway</span></div>
+<div class="viewcode-block" id="gateway"><a class="viewcode-back" href="../../lib.apptools.html#lib.apptools.gateway">[docs]</a><span class="k">def</span> <span class="nf">gateway</span><span class="p">(</span><span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Central gateway into AppTools&#39; WSGI dispatch. &#39;&#39;&#39;</span>
+
+    <span class="kn">from</span> <span class="nn">apptools</span> <span class="kn">import</span> <span class="n">dispatch</span>
+
+    <span class="c">## Pass off to dispatch</span>
+    <span class="k">return</span> <span class="n">dispatch</span><span class="o">.</span><span class="n">gateway</span><span class="p">(</span><span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">)</span>
+
+
+<span class="c">## Expose base classes</span>
+<span class="c">#_apptools_servicelayer = [messages, fields, middleware, decorators]</span>
+<span class="c">#_apptools_base_classes = [BaseHandler, BaseModel, BaseService, BasePipeline, AppException]</span>
+<span class="c">#__all__ = [str(i.__class__.__name__) for i in _apptools_base_classes] + _apptools_servicelayer</span>
+
+
+<span class="c">## For direct/CGI...</span></div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">gateway</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

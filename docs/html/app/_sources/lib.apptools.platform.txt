@@ -1,0 +1,35 @@
+platform Package
+================
+
+:mod:`platform` Package
+-----------------------
+
+.. automodule:: lib.apptools.platform
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`appengine` Module
+-----------------------
+
+.. automodule:: lib.apptools.platform.appengine
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`appfactory` Module
+------------------------
+
+.. automodule:: lib.apptools.platform.appfactory
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`generic` Module
+---------------------
+
+.. automodule:: lib.apptools.platform.generic
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

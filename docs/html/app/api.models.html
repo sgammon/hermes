@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>models Package &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="index.html" />
+    <link rel="up" title="api Package" href="api.html" />
+    <link rel="next" title="harness Package" href="api.models.harness.html" />
+    <link rel="prev" title="middleware Package" href="api.middleware.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.models.harness.html" title="harness Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="api.middleware.html" title="middleware Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="api.html" accesskey="U">api Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="models-package">
+<h1>models Package<a class="headerlink" href="#models-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">models</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-api.models"></span><p>API: Models</p>
+<p>This package holds classes that describe data structures. Expressing a data
+structure as a model allows use of hot-pluggable persistence and caching
+backends, among other handy bridges. apptools models can quickly be
+converted to ProtoRPC messages, JSON structures, dictionaries, and more.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+<dl class="class">
+<dt id="api.models.TrackerModel">
+<em class="property">class </em><tt class="descclassname">api.models.</tt><tt class="descname">TrackerModel</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/api/models.html#TrackerModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.models.TrackerModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-api.models.client">
+<span id="client-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">client</span></tt> Module<a class="headerlink" href="#module-api.models.client" title="Permalink to this headline">¶</a></h2>
+<p>Models: Client</p>
+<p>This package holds model classes related to Ampush clients,
+and modelling relationships between them, contracts, and
+ad/aggregation models.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+<dl class="class">
+<dt id="api.models.client.Client">
+<em class="property">class </em><tt class="descclassname">api.models.client.</tt><tt class="descname">Client</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/api/models/client.html#Client"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.models.client.Client" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#api.models.TrackerModel" title="api.models.TrackerModel"><tt class="xref py py-class docutils literal"><span class="pre">api.models.TrackerModel</span></tt></a></p>
+<dl class="attribute">
+<dt id="api.models.client.Client.label">
+<tt class="descname">label</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.client.Client.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.client.Client.name">
+<tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.client.Client.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.models.client.Contract">
+<em class="property">class </em><tt class="descclassname">api.models.client.</tt><tt class="descname">Contract</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/api/models/client.html#Contract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.models.client.Contract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#api.models.TrackerModel" title="api.models.TrackerModel"><tt class="xref py py-class docutils literal"><span class="pre">api.models.TrackerModel</span></tt></a></p>
+<dl class="attribute">
+<dt id="api.models.client.Contract.active">
+<tt class="descname">active</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.client.Contract.active" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.client.Contract.client">
+<tt class="descname">client</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.client.Contract.client" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.models.harness.html">harness Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api.models.harness.html#id1"><tt class="docutils literal"><span class="pre">harness</span></tt> Package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.models.tracker.html">tracker Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api.models.tracker.html#id1"><tt class="docutils literal"><span class="pre">tracker</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.aggregation"><tt class="docutils literal"><span class="pre">aggregation</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.attribution"><tt class="docutils literal"><span class="pre">attribution</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.event"><tt class="docutils literal"><span class="pre">event</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.integration"><tt class="docutils literal"><span class="pre">integration</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.parameter"><tt class="docutils literal"><span class="pre">parameter</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.profile"><tt class="docutils literal"><span class="pre">profile</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.pubsub"><tt class="docutils literal"><span class="pre">pubsub</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.raw"><tt class="docutils literal"><span class="pre">raw</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.tracker"><tt class="docutils literal"><span class="pre">tracker</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">models Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">models</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-api.models.client"><tt class="docutils literal"><span class="pre">client</span></tt> Module</a></li>
+<li><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="api.middleware.html"
+                        title="previous chapter">middleware Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="api.models.harness.html"
+                        title="next chapter">harness Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/api.models.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.models.harness.html" title="harness Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="api.middleware.html" title="middleware Package"
+             >previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="api.html" >api Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

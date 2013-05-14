@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>util.exceptions &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for util.exceptions</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">Hermes: Exceptions</span>
+
+<span class="sd">Holds top-level app exception classes, including Hermes&#39; package-level</span>
+<span class="sd">exception ancestor, exported as `Error`.</span>
+
+<span class="sd">-sam (&lt;sam.gammon@ampush.com&gt;)</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+
+<span class="c">## Top-level Error Classes</span>
+<div class="viewcode-block" id="Error"><a class="viewcode-back" href="../../util.html#util.exceptions.Error">[docs]</a><span class="k">class</span> <span class="nc">Error</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span> <span class="s">&#39;&#39;&#39; Top-level Hermes error. &#39;&#39;&#39;</span></div>
+<div class="viewcode-block" id="ClientError"><a class="viewcode-back" href="../../util.html#util.exceptions.ClientError">[docs]</a><span class="k">class</span> <span class="nc">ClientError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span> <span class="s">&#39;&#39;&#39; Error that occurred because of a client-side slip-up. &#39;&#39;&#39;</span></div>
+<div class="viewcode-block" id="PlatformError"><a class="viewcode-back" href="../../util.html#util.exceptions.PlatformError">[docs]</a><span class="k">class</span> <span class="nc">PlatformError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span> <span class="s">&#39;&#39;&#39; Platform (server-side)-related errors that occur in APIs or handlers. &#39;&#39;&#39;</span>
+
+<span class="c">## Tracker Errors</span></div>
+<div class="viewcode-block" id="TrackerError"><a class="viewcode-back" href="../../util.html#util.exceptions.TrackerError">[docs]</a><span class="k">class</span> <span class="nc">TrackerError</span><span class="p">(</span><span class="n">PlatformError</span><span class="p">):</span> <span class="s">&#39;&#39;&#39; Error that occurred within the Tracker subsystem. &#39;&#39;&#39;</span></div>
+<div class="viewcode-block" id="EventError"><a class="viewcode-back" href="../../util.html#util.exceptions.EventError">[docs]</a><span class="k">class</span> <span class="nc">EventError</span><span class="p">(</span><span class="n">ClientError</span><span class="p">):</span> <span class="s">&#39;&#39;&#39; Error that occurred because of improper event structure. &#39;&#39;&#39;</span></div>
+<div class="viewcode-block" id="InvalidSentinel"><a class="viewcode-back" href="../../util.html#util.exceptions.InvalidSentinel">[docs]</a><span class="k">class</span> <span class="nc">InvalidSentinel</span><span class="p">(</span><span class="n">EventError</span><span class="p">):</span> <span class="s">&#39;&#39;&#39; Indicates that a URL came through in non-debug mode without a sentinel key. &#39;&#39;&#39;</span>
+
+<span class="c">## API Errors</span></div>
+<div class="viewcode-block" id="APIError"><a class="viewcode-back" href="../../util.html#util.exceptions.APIError">[docs]</a><span class="k">class</span> <span class="nc">APIError</span><span class="p">(</span><span class="n">PlatformError</span><span class="p">):</span> <span class="s">&#39;&#39;&#39; Error that occurred within ProtoRPC-backed RPC subsystems. &#39;&#39;&#39;</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

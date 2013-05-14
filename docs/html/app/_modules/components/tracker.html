@@ -1,0 +1,519 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>components.tracker &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for components.tracker</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">Components: Tracker</span>
+
+<span class="sd">This file contains the main `EventTracker` server, with accompanying</span>
+<span class="sd">low-level WSGI logic to dispatch and double-buffer tracked events</span>
+<span class="sd">to the `DatastoreEngine` component, for pipelined persistence to</span>
+<span class="sd">Redis.</span>
+
+<span class="sd">-sam (&lt;sam.gammon@ampush.com&gt;)</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c"># stdlib</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+
+<span class="c"># 3rd party</span>
+<span class="kn">import</span> <span class="nn">webob</span>
+<span class="kn">import</span> <span class="nn">webapp2</span>
+
+<span class="c"># gevent</span>
+<span class="kn">import</span> <span class="nn">gevent</span>
+<span class="kn">from</span> <span class="nn">gevent</span> <span class="kn">import</span> <span class="n">pool</span>
+<span class="kn">from</span> <span class="nn">gevent</span> <span class="kn">import</span> <span class="n">queue</span>
+
+<span class="c"># hermes codebase</span>
+<span class="kn">import</span> <span class="nn">event</span>
+<span class="kn">import</span> <span class="nn">protocol</span>
+<span class="kn">import</span> <span class="nn">datastore</span>
+<span class="kn">import</span> <span class="nn">components</span>
+
+<span class="c"># hermes config</span>
+<span class="kn">import</span> <span class="nn">config</span>
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">debug</span>
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">verbose</span>
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">_BLOCK_PDB</span>
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">_HEADER_PREFIX</span>
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">_REDIS_WRITE_POOL</span>
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">_PREBUFFER_FREQUENCY</span>
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">_PREBUFFER_THRESHOLD</span>
+
+<span class="c"># hermes util</span>
+<span class="kn">import</span> <span class="nn">util</span>
+<span class="kn">from</span> <span class="nn">util</span> <span class="kn">import</span> <span class="n">exceptions</span>
+
+<span class="c"># application components</span>
+<span class="kn">from</span> <span class="nn">event</span> <span class="kn">import</span> <span class="n">AllParams</span>
+<span class="kn">from</span> <span class="nn">event</span> <span class="kn">import</span> <span class="n">AmpushParams</span>
+<span class="kn">from</span> <span class="nn">event</span> <span class="kn">import</span> <span class="n">InternalParams</span>
+
+
+<span class="c"># Globals</span>
+<span class="n">_TRACKER_VERSION</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c"># advertised in `AMP-Tracker` response header</span>
+<span class="n">_TRACKER_RELEASE</span> <span class="o">=</span> <span class="s">&quot;alpha&quot;</span>  <span class="c"># advertised in `AMP-Tracker` response header</span>
+<span class="n">_TRACKER_MODE</span> <span class="o">=</span> <span class="n">protocol</span><span class="o">.</span><span class="n">TrackerMode</span><span class="o">.</span><span class="n">DEBUG</span>  <span class="c"># advertised in `AMP-Mode` response header</span>
+
+
+<span class="c">## EventTracker - server that tracks events, triggered via special URLs</span>
+<div class="viewcode-block" id="EventTracker"><a class="viewcode-back" href="../../components.html#components.tracker.EventTracker">[docs]</a><span class="k">class</span> <span class="nc">EventTracker</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; WSGI-compliant application that tracks URL-dispatched events. &#39;&#39;&#39;</span>
+
+    <span class="c"># Base HTTP Template</span>
+    <span class="n">request_class</span> <span class="o">=</span> <span class="n">webob</span><span class="o">.</span><span class="n">Request</span>
+    <span class="n">response_class</span> <span class="o">=</span> <span class="n">webob</span><span class="o">.</span><span class="n">Response</span>
+    <span class="n">content_type</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;text/html&#39;</span><span class="p">,</span> <span class="s">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="n">_base_headers</span> <span class="o">=</span> <span class="p">{</span>
+
+        <span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">-Mode&#39;</span> <span class="o">%</span> <span class="n">_HEADER_PREFIX</span><span class="p">):</span> <span class="n">protocol</span><span class="o">.</span><span class="n">TrackerMode</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span>
+        <span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">-Tracker&#39;</span> <span class="o">%</span> <span class="n">_HEADER_PREFIX</span><span class="p">):</span> <span class="s">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">_TRACKER_VERSION</span><span class="p">)),</span> <span class="n">_TRACKER_RELEASE</span><span class="p">))</span>
+
+    <span class="p">}</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+
+    <span class="c"># Object Params</span>
+    <span class="n">past</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># the immediately-past buffer</span>
+    <span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>  <span class="c"># whether the tracker runs in debug mode</span>
+    <span class="n">active</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># the currently-active buffer</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># parameterset passed via the URL</span>
+    <span class="n">engine</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># datastore execution engine</span>
+    <span class="n">chunked</span> <span class="o">=</span> <span class="bp">True</span>  <span class="c"># indicate server-side support for chunked encoding</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># existing session cookie, if any</span>
+    <span class="n">lastflush</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># holds a timestamp with the last flush</span>
+    <span class="n">flushqueue</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># holds queued redis write greenlets</span>
+    <span class="n">staged_flush</span> <span class="o">=</span> <span class="bp">False</span>  <span class="c"># stage to flush the superbuffer</span>
+    <span class="n">log_prefix</span> <span class="o">=</span> <span class="s">&quot;TRACKER&quot;</span>  <span class="c"># prefix all log messages from this tracker with X</span>
+    <span class="n">header_prefix</span> <span class="o">=</span> <span class="n">_HEADER_PREFIX</span>  <span class="c"># prefix all HTTP response headers with X</span>
+
+    <span class="c"># Engine / Event Classes</span>
+    <span class="n">event_class</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">TrackedEvent</span>  <span class="c"># class to use as tracked event objects</span>
+    <span class="n">engine_class</span> <span class="o">=</span> <span class="n">datastore</span><span class="o">.</span><span class="n">DatastoreEngine</span>  <span class="c"># class to use as delegated data controller</span>
+
+    <span class="c"># Buffers</span>
+    <span class="n">prebuffer</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">Group</span><span class="p">()</span>  <span class="c"># prebuffer execution queue</span>
+    <span class="n">framebuffer</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">deque</span><span class="p">()</span>  <span class="c"># holds full frames for datastore engine</span>
+
+
+    <span class="c"># Buffer Configuration</span>
+<div class="viewcode-block" id="EventTracker.BufferConfig"><a class="viewcode-back" href="../../components.html#components.tracker.EventTracker.BufferConfig">[docs]</a>    <span class="k">class</span> <span class="nc">BufferConfig</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Static config class for `EventTracker`. &#39;&#39;&#39;</span>
+
+        <span class="n">frequency</span> <span class="o">=</span> <span class="n">_PREBUFFER_FREQUENCY</span>  <span class="c"># empty the buffer every X seconds...</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="n">_PREBUFFER_THRESHOLD</span>  <span class="c"># ...or every Y events, whichever comes first</span>
+</div>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="o">=</span><span class="s">&#39;WSGI&#39;</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Initialize this `EventTracker`. &#39;&#39;&#39;</span>
+
+        <span class="c"># Default `lastflush` to now...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lastflush</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">engine</span> <span class="o">=</span> <span class="n">engine</span><span class="p">()</span> <span class="k">if</span> <span class="n">engine</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine_class</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s">&quot;Debug mode is </span><span class="si">%s</span><span class="s">, serving on port </span><span class="si">%s</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s">&quot;ON&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="k">else</span> <span class="s">&quot;OFF&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">_DEVSERVER_PORT</span><span class="p">))</span>
+
+        <span class="c"># Allow overwriting the TrackedEvent implementation class</span>
+        <span class="k">if</span> <span class="n">event</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">event_class</span> <span class="o">=</span> <span class="n">event</span>
+
+    <span class="k">def</span> <span class="nf">_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Low-level output pipe. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">prefix</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;[</span><span class="si">%s</span><span class="s">] </span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_prefix</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;[</span><span class="si">%s</span><span class="s">]: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_prefix</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="EventTracker.verbose"><a class="viewcode-back" href="../../components.html#components.tracker.EventTracker.verbose">[docs]</a>    <span class="k">def</span> <span class="nf">verbose</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Log something only if we&#39;re in debug AND verbose mode. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="ow">and</span> <span class="n">verbose</span><span class="p">):</span>
+            <span class="k">def</span> <span class="nf">_verbose_blackhole</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+
+                <span class="sd">&#39;&#39;&#39; Drop invokee data if verbose &amp; debug aren&#39;t enabled. &#39;&#39;&#39;</span>
+
+                <span class="k">return</span>
+            <span class="k">return</span> <span class="n">_verbose_blackhole</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">_log_verbose</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+
+                <span class="sd">&#39;&#39;&#39;  Invoke log output function. &#39;&#39;&#39;</span>
+
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">_log_verbose</span>
+</div>
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="EventTracker.log"><a class="viewcode-back" href="../../components.html#components.tracker.EventTracker.log">[docs]</a>    <span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Log something if we&#39;re in debug mode. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">_log_blackhole</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+
+                <span class="sd">&#39;&#39;&#39; Drop invokee data if debug isn&#39;t enabled. &#39;&#39;&#39;</span>
+
+                <span class="k">return</span>
+            <span class="k">return</span> <span class="n">_log_blackhole</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">_log_debug</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+
+                <span class="sd">&#39;&#39;&#39; Invoke log output function. &#39;&#39;&#39;</span>
+
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">_log_debug</span>
+</div>
+<div class="viewcode-block" id="EventTracker.warn"><a class="viewcode-back" href="../../components.html#components.tracker.EventTracker.warn">[docs]</a>    <span class="k">def</span> <span class="nf">warn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Log a warning. &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_output</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="s">&quot;WARN&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</div>
+<div class="viewcode-block" id="EventTracker.error"><a class="viewcode-back" href="../../components.html#components.tracker.EventTracker.error">[docs]</a>    <span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Log an error. &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_output</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="s">&quot;ERROR&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</div>
+<div class="viewcode-block" id="EventTracker.buffer"><a class="viewcode-back" href="../../components.html#components.tracker.EventTracker.buffer">[docs]</a>    <span class="k">def</span> <span class="nf">buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Add a `TrackedEvent` to the in-memory buffer. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s">&quot;Sending event </span><span class="si">%s</span><span class="s"> to prebuffer.&quot;</span> <span class="o">%</span> <span class="n">event</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s">&quot;Current prebuffer length: </span><span class="si">%s</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prebuffer</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">prebuffer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+        <span class="c"># See if the buffer needs to be flushed</span>
+        <span class="n">should_flush</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">should_flush</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">event</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">should_flush</span>
+</div>
+<div class="viewcode-block" id="EventTracker.check"><a class="viewcode-back" href="../../components.html#components.tracker.EventTracker.check">[docs]</a>    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; See if we need to close out the prebuffer. &#39;&#39;&#39;</span>
+
+        <span class="c"># We should flush if we&#39;ve A) overflowed our soft buffer threshold or B) passed our flush timeout...</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
+        <span class="n">flush</span> <span class="o">=</span> <span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prebuffer</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">BufferConfig</span><span class="o">.</span><span class="n">threshold</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lastflush</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">BufferConfig</span><span class="o">.</span><span class="n">frequency</span> <span class="o">&lt;</span> <span class="n">timestamp</span><span class="p">))</span>
+
+        <span class="c"># Send logs</span>
+        <span class="n">did_timeout</span> <span class="o">=</span> <span class="s">&quot;IS&quot;</span> <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lastflush</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">BufferConfig</span><span class="o">.</span><span class="n">frequency</span> <span class="o">&lt;</span> <span class="n">timestamp</span><span class="p">)</span> <span class="k">else</span> <span class="s">&quot;IS NOT&quot;</span>
+
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s">&quot;Current timestamp: </span><span class="si">%s</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="n">timestamp</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s">&quot;Buffer: Checkin-in at size </span><span class="si">%s</span><span class="s"> with lastflush </span><span class="si">%s</span><span class="s">, which </span><span class="si">%s</span><span class="s"> more than interval </span><span class="si">%s</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prebuffer</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">lastflush</span><span class="p">,</span> <span class="n">did_timeout</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">BufferConfig</span><span class="o">.</span><span class="n">frequency</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s">&quot;Flush </span><span class="si">%s</span><span class="s"> recommended.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s">&quot;IS&quot;</span> <span class="k">if</span> <span class="n">flush</span> <span class="k">else</span> <span class="s">&quot;IS NOT&quot;</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">flush</span>
+</div>
+<div class="viewcode-block" id="EventTracker.flush"><a class="viewcode-back" href="../../components.html#components.tracker.EventTracker.flush">[docs]</a>    <span class="k">def</span> <span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Flush the prebuffer batch to the frame buffer. &#39;&#39;&#39;</span>
+
+        <span class="c"># Take new timestamp, log what we&#39;re doing...</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s">&quot;Buffer: Flushing buffer </span><span class="si">%s</span><span class="s"> of </span><span class="si">%s</span><span class="s"> events, resetting timestamp to </span><span class="si">%s</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prebuffer</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prebuffer</span><span class="p">),</span> <span class="n">timestamp</span><span class="p">))</span>
+
+        <span class="c"># Grab current prebuffer, allocate next prebuffer...</span>
+        <span class="n">current_prebuffer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prebuffer</span>
+        <span class="n">next_prebuffer</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">Group</span><span class="p">()</span>
+
+        <span class="c"># Buffer the current frame in the framebuffer...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">framebuffer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_prebuffer</span><span class="p">)</span>
+
+        <span class="c"># Replace current buffer with new one.</span>
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s">&quot;Buffer: provisioned new prebuffer batch group at ID </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="nb">id</span><span class="p">(</span><span class="n">next_prebuffer</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prebuffer</span> <span class="o">=</span> <span class="n">next_prebuffer</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lastflush</span> <span class="o">=</span> <span class="n">timestamp</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">framebuffer</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s">&quot;Buffer: Framebuffer ready to push writes. Superflush IS recommended.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">staged_flush</span> <span class="o">=</span> <span class="bp">True</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+</div>
+<div class="viewcode-block" id="EventTracker.superflush"><a class="viewcode-back" href="../../components.html#components.tracker.EventTracker.superflush">[docs]</a>    <span class="k">def</span> <span class="nf">superflush</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Flush the frame buffer to the DatastoreEngine. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s">&quot;Buffer: Flushing framebuffer to DatastoreEngine.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s">&quot;Buffer: Switched active frame to buffer ID </span><span class="si">%s</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active</span><span class="p">))</span>
+
+        <span class="c"># Copy over immediate-past-frame</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">active</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">past</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">active</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">framebuffer</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
+
+        <span class="c"># There&#39;s a flush staged for the DatastoreEngine...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">inbox</span><span class="o">.</span><span class="n">put_nowait</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+</div>
+<div class="viewcode-block" id="EventTracker.begin_request"><a class="viewcode-back" href="../../components.html#components.tracker.EventTracker.begin_request">[docs]</a>    <span class="k">def</span> <span class="nf">begin_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Factory a new `webob.Request`/`webob.Response` pair, representing a new HTTP transaction cycle. &#39;&#39;&#39;</span>
+
+        <span class="c"># Spawn request + response</span>
+        <span class="n">content_type</span><span class="p">,</span> <span class="n">encoding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content_type</span>
+        <span class="n">request</span><span class="p">,</span> <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_class</span><span class="p">(</span><span class="n">environ</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">response_class</span><span class="p">(</span><span class="n">content_type</span><span class="o">=</span><span class="n">content_type</span><span class="p">,</span> <span class="n">charset</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s">&quot;=========== Request Environment ===========&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">environ</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s">&quot;Provisioned WSGI request/response pair with IDs (</span><span class="si">%s</span><span class="s">, </span><span class="si">%s</span><span class="s">).&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="n">request</span><span class="p">),</span> <span class="nb">id</span><span class="p">(</span><span class="n">response</span><span class="p">)))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s">&quot;Original response headers: </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">)</span>
+
+        <span class="c"># Fill-in response info</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="n">protocol</span><span class="o">.</span><span class="n">ResponseStage</span><span class="o">.</span><span class="n">PENDING</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">request</span> <span class="o">=</span> <span class="n">request</span>
+        <span class="k">for</span> <span class="n">hkey</span><span class="p">,</span> <span class="n">hvalue</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_headers</span><span class="p">:</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="n">hkey</span><span class="p">]</span> <span class="o">=</span> <span class="n">hvalue</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chunked</span><span class="p">:</span>
+
+            <span class="c"># Remove Content-Length for a chunked response</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s">&#39;Running in CHUNKED mode, removing Content-Length header.&#39;</span><span class="p">)</span>
+            <span class="k">del</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">&#39;Content-Length&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s">&quot;Updated response headers: </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span>
+</div>
+<div class="viewcode-block" id="EventTracker.send_response"><a class="viewcode-back" href="../../components.html#components.tracker.EventTracker.send_response">[docs]</a>    <span class="k">def</span> <span class="nf">send_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">start_response</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Send the WSGI start_response call, optionally flushing the response buffer and finishing the transaction. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">stage</span> <span class="o">==</span> <span class="n">protocol</span><span class="o">.</span><span class="n">ResponseStage</span><span class="o">.</span><span class="n">PENDING</span><span class="p">:</span>
+
+            <span class="c"># Send log messages</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s">&quot;Beginning response transmission.&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s">&quot;Sending </span><span class="si">%s</span><span class="s"> response with status </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s"> and </span><span class="si">%s</span><span class="s"> headers.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s">&quot;immediate&quot;</span> <span class="k">if</span> <span class="n">flush</span> <span class="k">else</span> <span class="s">&quot;deferred&quot;</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">headerlist</span><span class="p">)))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s">&quot;Full response headers: </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="n">response</span><span class="o">.</span><span class="n">headerlist</span><span class="p">)</span>
+
+            <span class="c"># Start response</span>
+            <span class="n">start_response</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">headerlist</span><span class="p">)</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="n">protocol</span><span class="o">.</span><span class="n">ResponseStage</span><span class="o">.</span><span class="n">STARTED</span>
+            <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">headerlist</span>
+
+        <span class="k">elif</span> <span class="n">response</span><span class="o">.</span><span class="n">stage</span> <span class="o">==</span> <span class="n">protocol</span><span class="o">.</span><span class="n">ResponseStage</span><span class="o">.</span><span class="n">STARTED</span><span class="p">:</span>
+
+            <span class="c"># We&#39;ve already started the response.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s">&quot;Response already started, resuming deferred transaction.&quot;</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">body</span>
+
+        <span class="k">if</span> <span class="n">flush</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s">&quot;Flushing response body of length </span><span class="si">%s</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">body</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s">&quot;Full response body: </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="n">response</span><span class="o">.</span><span class="n">app_iter</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">body</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">response</span>
+</div>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Handle a hit to a tracker URL. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">debug</span> <span class="ow">and</span> <span class="n">verbose</span> <span class="ow">and</span> <span class="n">_BLOCK_PDB</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">pdb</span><span class="p">;</span> <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+
+        <span class="c"># Spawn request + response</span>
+        <span class="n">response_buffer</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">request</span><span class="p">,</span> <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">begin_request</span><span class="p">(</span><span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s">&quot;Processing new request with ID </span><span class="si">%s</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="nb">id</span><span class="p">(</span><span class="n">request</span><span class="p">))</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c"># Factory new `TrackedEvent`.</span>
+            <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_class</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s">&quot;Spawned new `TrackedEvent` with ID </span><span class="si">%s</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="n">event</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+            <span class="c"># Begin building headers.</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">-Match&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">header_prefix</span><span class="p">]</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">match</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">-Session&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">header_prefix</span><span class="p">]</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">session</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s">&quot;Encountered match value </span><span class="si">%s</span><span class="s"> with session </span><span class="si">%s</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">match</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">session</span><span class="p">))</span>
+
+        <span class="k">except</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+
+            <span class="c"># Handle 400-bound ClientError(s)</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="mi">400</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;Encountered ClientError: </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">. Raising HTTP400.&quot;</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span>
+
+            <span class="n">body</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_response</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">start_response</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">body</span>
+            <span class="k">raise</span> <span class="ne">StopIteration</span><span class="p">()</span>
+
+        <span class="k">except</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PlatformError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+
+            <span class="c"># Handle 500-bound PlatformError(s)</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="mi">500</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;Encountered PlatformError: </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">. Raising HTTP500.&quot;</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span>
+
+            <span class="n">body</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_response</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">start_response</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">body</span>
+            <span class="k">raise</span> <span class="ne">StopIteration</span><span class="p">()</span>
+
+        <span class="k">except</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+
+            <span class="c"># Handle 500-bound critical errors.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;Encountered known (but unhandled) exception: </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;Exception description: </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="n">e</span><span class="o">.</span><span class="n">__doc__</span><span class="p">)</span>
+
+            <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="mi">500</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_response</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">start_response</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">body</span>
+            <span class="k">raise</span>  <span class="c"># re-raise after response</span>
+            <span class="k">raise</span> <span class="ne">StopIteration</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s">&quot;Successfully provisioned new TrackedEvent. Starting deferred response.&quot;</span><span class="p">)</span>
+
+        <span class="c"># Start response with appropriate headers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send_response</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">start_response</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+        <span class="c"># Buffer it and grab a simple ID to display</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s">&quot;Buffering event to write prebuffer.&quot;</span><span class="p">)</span>
+        <span class="n">buffer_id</span><span class="p">,</span> <span class="n">flushed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+        <span class="c"># Yield status message if debug mode is enabled.</span>
+        <span class="c">#response_buffer.append(u&quot;&lt;b&gt;TrackedEvent&lt;/b&gt; submitted with ID %s.&quot; % buffer_id)</span>
+        <span class="c">#if flushed:</span>
+        <span class="c">#    response_buffer.append(&quot;&lt;b&gt;Flushed buffer with ID %s.&lt;/b&gt;&lt;br /&gt;&quot; % None)</span>
+        <span class="c">#response_buffer.append(u&quot;&lt;b&gt;Prebuffer:&lt;/b&gt; ID \&quot;%s\&quot; of size: %s&quot; % (id(self.prebuffer), len(self.prebuffer)))</span>
+
+        <span class="c"># We&#39;re done processing. Flush buffer and respond.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s">&quot;Tracker transaction completed. Writing body.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s">&quot;Tracker response buffer of length </span><span class="si">%s</span><span class="s">:&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">response_buffer</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">response_buffer</span><span class="p">))</span>
+        <span class="c">#response.text = u&quot;\n&quot;.join(response_buffer)</span>
+
+        <span class="n">response</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="n">protocol</span><span class="o">.</span><span class="n">ResponseStage</span><span class="o">.</span><span class="n">COMPLETE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s">&#39;Yielding to server-side transport.&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">app_iter</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">chunk</span>
+
+        <span class="c"># Perform staged flush, if any...</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">staged_flush</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">staged_flush</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">superflush</span><span class="p">)</span>
+            <span class="n">gevent</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">raise</span> <span class="ne">StopIteration</span><span class="p">()</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

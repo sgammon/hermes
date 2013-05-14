@@ -1,0 +1,324 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>config &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">Hermes</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for config</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">App Config</span>
+
+<span class="sd">This directory holds all of your apps&#39; configuration info. AppTools can stitch together multiple config</span>
+<span class="sd">files, as long as they export a `config` dictionary (add config files below in `apptools.system.include`...).</span>
+
+<span class="sd">AppTools ships with a few other config files in this folder.</span>
+
+<span class="sd">-sam (&lt;sam.gammon@ampush.com&gt;)</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">bootstrap</span>
+
+    <span class="k">if</span> <span class="s">&#39;lib&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span> <span class="ow">or</span> <span class="s">&#39;lib/distlib&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+        <span class="n">bootstrap</span><span class="o">.</span><span class="n">AppBootstrapper</span><span class="o">.</span><span class="n">prepareImports</span><span class="p">()</span>
+
+<span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="k">pass</span>  <span class="c"># we don&#39;t care if the bootstrapper can&#39;t be found/can&#39;t run</span>
+
+
+<span class="c">## Globals</span>
+<span class="n">_config</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">_compiled_config</span> <span class="o">=</span> <span class="bp">None</span>
+
+<span class="c">## Check if we&#39;re running on top of the appengine devserver</span>
+<span class="n">force_debug</span> <span class="o">=</span> <span class="bp">False</span>  <span class="c"># toggle debug mode</span>
+<span class="n">strict</span> <span class="o">=</span> <span class="bp">False</span>  <span class="c"># toggle strict mode</span>
+<span class="n">verbose</span> <span class="o">=</span> <span class="bp">True</span>  <span class="c"># toggle verbose logging</span>
+<span class="n">production</span> <span class="o">=</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;APPFACTORY&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;production&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;SERVER_SOFTWARE&#39;</span><span class="p">,</span> <span class="s">&#39;Not Google&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;Google&#39;</span><span class="p">))</span>
+<span class="n">debug</span> <span class="o">=</span> <span class="n">force_debug</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">production</span><span class="p">)</span>
+
+<span class="c">## App details</span>
+<span class="n">appname</span> <span class="o">=</span> <span class="s">&#39;ampush-hermes&#39;</span>
+<span class="n">appversion</span> <span class="o">=</span> <span class="s">&#39;0-5-alpha&#39;</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    ######################################## Hermes configuration. ########################################</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="c"># Constants</span>
+<span class="n">verbose</span> <span class="o">=</span> <span class="bp">True</span>  <span class="c"># toggle verbose logging</span>
+<span class="n">_REDIS_DB</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c"># redis database number</span>
+<span class="n">_REDIS_SOCK</span> <span class="o">=</span> <span class="s">&#39;redis.sock&#39;</span>  <span class="c"># redis socket location</span>
+<span class="n">_BLOCK_PDB</span> <span class="o">=</span> <span class="bp">False</span>  <span class="c"># PDB-stop immediately on __call__ - DANGEROUS, DO NOT USE IN PRODUCTION</span>
+<span class="n">_API_VERSION</span> <span class="o">=</span> <span class="s">&quot;v1&quot;</span>  <span class="c"># prefix for tracking / API URLs</span>
+<span class="n">_HEADER_PREFIX</span> <span class="o">=</span> <span class="s">&quot;AMP&quot;</span>  <span class="c"># HTTP header prefix</span>
+<span class="n">_DEVSERVER_HOST</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>  <span class="c"># bind to all IP&#39;s for dev server</span>
+<span class="n">_DEVSERVER_PORT</span> <span class="o">=</span> <span class="mi">8080</span>  <span class="c"># port that we should run the devserver on</span>
+<span class="n">_PARAM_SEPARATOR</span> <span class="o">=</span> <span class="s">&quot;_&quot;</span>  <span class="c"># seperator between prefix and param name</span>
+<span class="n">_REDIS_WRITE_POOL</span> <span class="o">=</span> <span class="mi">200</span>  <span class="c"># perform up to X writes to redis concurrently</span>
+<span class="n">_DISCARD_NOSENTINEL</span> <span class="o">=</span> <span class="bp">True</span>  <span class="c"># refuse all incoming events missing a sentinel key</span>
+<span class="n">_RUNTIME_SOCKROOT</span> <span class="o">=</span> <span class="s">&#39;/ns/runtime/sock&#39;</span>  <span class="c"># root for all unix domain sockets</span>
+<span class="n">_PREBUFFER_THRESHOLD</span> <span class="o">=</span> <span class="mi">60</span>  <span class="c"># configurable task limit per prebuffer batch</span>
+<span class="n">_PREBUFFER_FREQUENCY</span> <span class="o">=</span> <span class="mi">30</span>  <span class="c"># configurable time threshold for prebuffer flush</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    ######################################## Webapp2 configuration. ########################################</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">_config</span><span class="p">[</span><span class="s">&#39;webapp2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+
+    <span class="s">&#39;apps_installed&#39;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s">&#39;api&#39;</span>  <span class="c"># Installed projects</span>
+    <span class="p">],</span>
+
+<span class="p">}</span>
+
+<span class="n">_config</span><span class="p">[</span><span class="s">&#39;webapp2_extras.sessions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+
+    <span class="s">&#39;secret_key&#39;</span><span class="p">:</span> <span class="s">&#39;cvxovccvJ)(J@)928)!(*)@(Jiucxohnzoimn0a9MK)(@!)!(@)()CJU09ficu09ei0(!@#)(N)*J)(XJK_()KJ!_)(K&#39;</span><span class="p">,</span>
+    <span class="s">&#39;default_backend&#39;</span><span class="p">:</span> <span class="s">&#39;securecookie&#39;</span><span class="p">,</span>
+    <span class="s">&#39;cookie_name&#39;</span><span class="p">:</span>     <span class="s">&#39;amps&#39;</span><span class="p">,</span>
+    <span class="s">&#39;session_ttl&#39;</span><span class="p">:</span>     <span class="mi">172000000</span><span class="p">,</span>
+    <span class="s">&#39;session_max_age&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+    <span class="s">&#39;cookie_args&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;name&#39;</span><span class="p">:</span>       <span class="s">&#39;aps&#39;</span><span class="p">,</span>
+        <span class="s">&#39;max_age&#39;</span><span class="p">:</span>     <span class="mi">172000000</span><span class="p">,</span>
+        <span class="c">#&#39;domain&#39;:      &#39;*&#39;,</span>
+        <span class="s">&#39;path&#39;</span><span class="p">:</span>        <span class="s">&#39;/&#39;</span>
+        <span class="c">#&#39;secure&#39;:      False,</span>
+        <span class="c">#&#39;httponly&#39;:    False</span>
+    <span class="p">},</span>
+    <span class="s">&#39;require_valid&#39;</span><span class="p">:</span> <span class="bp">True</span>
+
+<span class="p">}</span>
+
+<span class="n">_config</span><span class="p">[</span><span class="s">&#39;webapp2_extras.jinja2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+
+    <span class="s">&#39;template_path&#39;</span><span class="p">:</span> <span class="s">&#39;api/templates/source&#39;</span><span class="p">,</span>  <span class="c"># Root directory for template storage</span>
+    <span class="s">&#39;compiled_path&#39;</span><span class="p">:</span> <span class="s">&#39;api.templates.compiled&#39;</span><span class="p">,</span>  <span class="c"># Compiled templates directory</span>
+    <span class="s">&#39;force_compiled&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>  <span class="c"># Force Jinja to use compiled templates, even on the Dev server</span>
+
+    <span class="s">&#39;environment_args&#39;</span><span class="p">:</span> <span class="p">{</span>  <span class="c"># Jinja constructor arguments</span>
+        <span class="s">&#39;optimized&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>   <span class="c"># enable jinja2&#39;s builtin optimizer (recommended)</span>
+        <span class="s">&#39;autoescape&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>  <span class="c"># Global Autoescape. BE CAREFUL WITH THIS.</span>
+        <span class="s">&#39;trim_blocks&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>  <span class="c"># Trim trailing \n&#39;s from blocks.</span>
+        <span class="s">&#39;auto_reload&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>  <span class="c"># Auto-reload templates every time.</span>
+        <span class="s">&#39;extensions&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;jinja2.ext.autoescape&#39;</span><span class="p">,</span> <span class="s">&#39;jinja2.ext.with_&#39;</span><span class="p">,</span> <span class="s">&#39;jinja2.ext.loopcontrols&#39;</span><span class="p">],</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    ######################################## Core configuration. ########################################</span>
+
+<span class="sd">    Core system configuration, including settings for the WSGI app, config files, and installed Platforms.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c">## System Config</span>
+<span class="n">_config</span><span class="p">[</span><span class="s">&#39;apptools&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">_config</span><span class="p">[</span><span class="s">&#39;apptools.system&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+
+    <span class="s">&#39;debug&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>  <span class="c"># System-level debug messages</span>
+
+    <span class="s">&#39;config&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;debug&#39;</span><span class="p">:</span> <span class="bp">False</span>  <span class="c"># configuration debug</span>
+    <span class="p">},</span>
+
+    <span class="s">&#39;hooks&#39;</span><span class="p">:</span> <span class="p">{</span>  <span class="c"># System-level Developer&#39;s Hooks</span>
+        <span class="s">&#39;appstats&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">},</span>  <span class="c"># AppStats RPC optimization + analysis tool</span>
+        <span class="s">&#39;apptrace&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">},</span>  <span class="c"># AppTrace memory usage optimization + analysis tool</span>
+        <span class="s">&#39;callgraph&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">},</span>  <span class="c"># Use `pycallgraph` to generate an image callgraph of the WSGI app</span>
+        <span class="s">&#39;profiler&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">}</span>   <span class="c"># Python profiler for CPU cycle/efficiency optimization + analysis</span>
+    <span class="p">},</span>
+
+    <span class="s">&#39;include&#39;</span><span class="p">:</span> <span class="p">[</span>  <span class="c"># Extended configuration files to include</span>
+
+        <span class="p">(</span><span class="s">&#39;layer9&#39;</span><span class="p">,</span> <span class="s">&#39;config.appfactory&#39;</span><span class="p">),</span>      <span class="c"># Layer9 Hosting Config</span>
+        <span class="p">(</span><span class="s">&#39;extensions&#39;</span><span class="p">,</span> <span class="s">&#39;config.extensions&#39;</span><span class="p">),</span>  <span class="c"># extension config</span>
+        <span class="p">(</span><span class="s">&#39;project&#39;</span><span class="p">,</span> <span class="s">&#39;config.project&#39;</span><span class="p">),</span>        <span class="c"># Base Project config</span>
+        <span class="p">(</span><span class="s">&#39;services&#39;</span><span class="p">,</span> <span class="s">&#39;config.services&#39;</span><span class="p">),</span>      <span class="c"># Global + site services (RPC/API) config</span>
+        <span class="p">(</span><span class="s">&#39;assets&#39;</span><span class="p">,</span> <span class="s">&#39;config.assets&#39;</span><span class="p">),</span>          <span class="c"># Asset manangement layer config</span>
+        <span class="p">(</span><span class="s">&#39;middleware&#39;</span><span class="p">,</span> <span class="s">&#39;config.middleware&#39;</span><span class="p">),</span>  <span class="c"># Config for service and handler middleware.</span>
+
+    <span class="p">]</span>
+
+<span class="p">}</span>
+
+<span class="c">## Platform Config</span>
+<span class="n">_config</span><span class="p">[</span><span class="s">&#39;apptools.system.platform&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+
+    <span class="s">&#39;installed_platforms&#39;</span><span class="p">:</span> <span class="p">[</span>
+
+        <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;Generic WSGI&#39;</span><span class="p">,</span> <span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="s">&#39;apptools.platform.generic.GenericWSGI&#39;</span><span class="p">},</span>
+        <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;Layer9 AppFactory&#39;</span><span class="p">,</span> <span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="s">&#39;apptools.platform.appfactory.AppFactory&#39;</span><span class="p">},</span>
+        <span class="c">#{&#39;name&#39;: &#39;AmpushHermes&#39;, &#39;path&#39;: &#39;api.platform.ampush.hermes&#39;},</span>
+        <span class="c">#{&#39;name&#39;: &#39;EventTracker&#39;, &#39;path&#39;: &#39;api.platform.ampush.tracker&#39;},</span>
+
+    <span class="p">]</span>
+
+<span class="p">}</span>
+
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">###    === Don&#39;t modify below this line... ===</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="systemLog"><a class="viewcode-back" href="../config.html#config.systemLog">[docs]</a><span class="k">def</span> <span class="nf">systemLog</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">_type</span><span class="o">=</span><span class="s">&#39;debug&#39;</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Logging shortcut. &#39;&#39;&#39;</span>
+
+    <span class="k">global</span> <span class="n">debug</span>
+    <span class="k">global</span> <span class="n">_config</span>
+    <span class="k">if</span> <span class="n">_config</span><span class="p">[</span><span class="s">&#39;apptools.system&#39;</span><span class="p">][</span><span class="s">&#39;debug&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">True</span> <span class="ow">or</span> <span class="n">_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;error&#39;</span><span class="p">,</span> <span class="s">&#39;critical&#39;</span><span class="p">):</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="s">&#39;[CORE_SYSTEM]: &#39;</span>
+        <span class="k">if</span> <span class="n">_type</span> <span class="o">==</span> <span class="s">&#39;debug&#39;</span> <span class="ow">or</span> <span class="n">debug</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">prefix</span> <span class="o">+</span> <span class="n">message</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">_type</span> <span class="o">==</span> <span class="s">&#39;info&#39;</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">prefix</span> <span class="o">+</span> <span class="n">message</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">_type</span> <span class="o">==</span> <span class="s">&#39;error&#39;</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">prefix</span> <span class="o">+</span> <span class="n">message</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">_type</span> <span class="o">==</span> <span class="s">&#39;critical&#39;</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="n">prefix</span> <span class="o">+</span> <span class="n">message</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="readConfig"><a class="viewcode-back" href="../config.html#config.readConfig">[docs]</a><span class="k">def</span> <span class="nf">readConfig</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">_config</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Parses extra config files and combines into one global config. &#39;&#39;&#39;</span>
+
+    <span class="k">global</span> <span class="n">_compiled_config</span>
+    <span class="kn">from</span> <span class="nn">webapp2</span> <span class="kn">import</span> <span class="n">import_string</span>
+    <span class="k">if</span> <span class="n">_compiled_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_compiled_config</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s">&#39;apptools.system&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;include&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">False</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;apptools.system&#39;</span><span class="p">][</span><span class="s">&#39;include&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">systemLog</span><span class="p">(</span><span class="s">&#39;Considering system config includes...&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">configpath</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s">&#39;apptools.system&#39;</span><span class="p">][</span><span class="s">&#39;include&#39;</span><span class="p">]:</span>
+                <span class="n">systemLog</span><span class="p">(</span><span class="s">&#39;Checking include &quot;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;&quot; at path &quot;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">configpath</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;&quot;.&#39;</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">loaded_config</span> <span class="o">=</span> <span class="n">import_string</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">configpath</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="s">&#39;config&#39;</span><span class="p">]))</span>
+                    <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">loaded_config</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">systemLog</span><span class="p">(</span><span class="s">&#39;Encountered exception of type &quot;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">__class__</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;&quot; when trying to parse config include &quot;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;&quot; at path &quot;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">configpath</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+                        <span class="k">raise</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">continue</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">config</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">_compiled_config</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">_compiled_config</span> <span class="o">=</span> <span class="n">config</span>
+
+        <span class="k">return</span> <span class="n">config</span>
+
+<span class="c">## Export compiled app config</span></div>
+<span class="n">config</span> <span class="o">=</span> <span class="n">readConfig</span><span class="p">(</span><span class="n">_config</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">Hermes</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

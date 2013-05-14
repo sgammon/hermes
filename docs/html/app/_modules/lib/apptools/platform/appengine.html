@@ -1,0 +1,263 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.apptools.platform.appengine &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../../index.html" />
+    <link rel="up" title="lib.apptools.platform" href="../platform.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../apptools.html" >lib.apptools</a> &raquo;</li>
+          <li><a href="../platform.html" accesskey="U">lib.apptools.platform</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.apptools.platform.appengine</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">Platform: Google App Engine</span>
+
+<span class="sd">Enables shortcuts, libraries and other utilities that are specific to App Engine.</span>
+<span class="sd">Also provides a template context injector for GAE-specific request info/environment.</span>
+
+<span class="sd">-sam (&lt;sam@momentum.io&gt;)</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">webapp2</span>
+
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">datastructures</span>
+
+<span class="kn">from</span> <span class="nn">apptools.platform</span> <span class="kn">import</span> <span class="n">Platform</span>
+<span class="kn">from</span> <span class="nn">apptools.platform</span> <span class="kn">import</span> <span class="n">PlatformBridge</span>
+
+
+<span class="c">## GAELibBridge</span>
+<span class="c"># Offers shortcutted access to common/useful GAE libs.</span>
+<div class="viewcode-block" id="GAELibBridge"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.appengine.GAELibBridge">[docs]</a><span class="k">class</span> <span class="nc">GAELibBridge</span><span class="p">(</span><span class="n">PlatformBridge</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Offers shortcuts to common App Engine libraries. &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
+
+        <span class="c"># Return a CallbackProxy to lazy-load the requested module</span>
+        <span class="k">return</span> <span class="n">datastructures</span><span class="o">.</span><span class="n">CallbackProxy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lazyload</span><span class="p">,</span> <span class="p">{</span>
+
+            <span class="s">&#39;protorpc&#39;</span><span class="p">:</span> <span class="s">&#39;protorpc&#39;</span><span class="p">,</span>
+            <span class="s">&#39;pipelines&#39;</span><span class="p">:</span> <span class="s">&#39;pipeline&#39;</span><span class="p">,</span>
+            <span class="s">&#39;mapreduce&#39;</span><span class="p">:</span> <span class="s">&#39;mapreduce&#39;</span>
+
+        <span class="p">})</span>
+
+
+<span class="c">## GAEAPIBridge</span>
+<span class="c"># Offers shortcutted and unified access to all GAE APIs.</span></div>
+<div class="viewcode-block" id="GAEAPIBridge"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.appengine.GAEAPIBridge">[docs]</a><span class="k">class</span> <span class="nc">GAEAPIBridge</span><span class="p">(</span><span class="n">PlatformBridge</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Offers shortcuts to App Engine APIs. &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
+
+        <span class="c">## Return a CallbackProxy to lazy-load the requested module</span>
+        <span class="k">return</span> <span class="n">datastructures</span><span class="o">.</span><span class="n">CallbackProxy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lazyload</span><span class="p">,</span> <span class="p">{</span>
+
+            <span class="c"># Database APIs</span>
+            <span class="s">&#39;db&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.ext&#39;</span><span class="p">,</span> <span class="s">&#39;db&#39;</span><span class="p">),</span>
+            <span class="s">&#39;ndb&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.ext&#39;</span><span class="p">,</span> <span class="s">&#39;ndb&#39;</span><span class="p">),</span>
+            <span class="s">&#39;sql&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.api&#39;</span><span class="p">,</span> <span class="s">&#39;rdbms&#39;</span><span class="p">),</span>
+            <span class="s">&#39;rdbms&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.api&#39;</span><span class="p">,</span> <span class="s">&#39;rdbms&#39;</span><span class="p">),</span>
+
+            <span class="c"># Storage APIs</span>
+            <span class="s">&#39;blob&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.ext&#39;</span><span class="p">,</span> <span class="s">&#39;blobstore&#39;</span><span class="p">),</span>
+            <span class="s">&#39;files&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.api&#39;</span><span class="p">,</span> <span class="s">&#39;files&#39;</span><span class="p">),</span>
+            <span class="s">&#39;blobstore&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.ext&#39;</span><span class="p">,</span> <span class="s">&#39;blobstore&#39;</span><span class="p">),</span>
+
+            <span class="c"># Communication APIs</span>
+            <span class="s">&#39;xmpp&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.api&#39;</span><span class="p">,</span> <span class="s">&#39;xmpp&#39;</span><span class="p">),</span>
+            <span class="s">&#39;mail&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.api&#39;</span><span class="p">,</span> <span class="s">&#39;mail&#39;</span><span class="p">),</span>
+            <span class="s">&#39;channel&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.api&#39;</span><span class="p">,</span> <span class="s">&#39;channel&#39;</span><span class="p">),</span>
+
+            <span class="c"># Low-Level APIs</span>
+            <span class="s">&#39;quota&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.api&#39;</span><span class="p">,</span> <span class="s">&#39;quota&#39;</span><span class="p">),</span>
+            <span class="s">&#39;capabilities&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.api&#39;</span><span class="p">,</span> <span class="s">&#39;capabilities&#39;</span><span class="p">),</span>
+
+            <span class="c"># Auth APIs</span>
+            <span class="s">&#39;oauth&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.api&#39;</span><span class="p">,</span> <span class="s">&#39;oauth&#39;</span><span class="p">),</span>
+            <span class="s">&#39;users&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.api&#39;</span><span class="p">,</span> <span class="s">&#39;users&#39;</span><span class="p">),</span>
+
+            <span class="c"># Search/Indexing APIs</span>
+            <span class="s">&#39;search&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.api&#39;</span><span class="p">,</span> <span class="s">&#39;search&#39;</span><span class="p">),</span>
+            <span class="s">&#39;matcher&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.api&#39;</span><span class="p">,</span> <span class="s">&#39;prospective_search&#39;</span><span class="p">),</span>
+            <span class="s">&#39;prospective_search&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.api&#39;</span><span class="p">,</span> <span class="s">&#39;prospective_search&#39;</span><span class="p">),</span>
+
+            <span class="c"># Media APIs</span>
+            <span class="s">&#39;images&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.api&#39;</span><span class="p">,</span> <span class="s">&#39;images&#39;</span><span class="p">),</span>
+            <span class="s">&#39;conversion&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.api&#39;</span><span class="p">,</span> <span class="s">&#39;conversion&#39;</span><span class="p">),</span>
+
+            <span class="c"># Infrastructure APIs</span>
+            <span class="s">&#39;backends&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.api&#39;</span><span class="p">,</span> <span class="s">&#39;backends&#39;</span><span class="p">),</span>
+            <span class="s">&#39;memcache&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.api&#39;</span><span class="p">,</span> <span class="s">&#39;memcache&#39;</span><span class="p">),</span>
+            <span class="s">&#39;urlfetch&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.api&#39;</span><span class="p">,</span> <span class="s">&#39;urlfetch&#39;</span><span class="p">),</span>
+            <span class="s">&#39;identity&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.api&#39;</span><span class="p">,</span> <span class="s">&#39;app_identity&#39;</span><span class="p">),</span>
+            <span class="s">&#39;taskqueue&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.api&#39;</span><span class="p">,</span> <span class="s">&#39;taskqueue&#39;</span><span class="p">),</span>
+            <span class="s">&#39;logservice&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.api&#39;</span><span class="p">,</span> <span class="s">&#39;logservice&#39;</span><span class="p">),</span>
+            <span class="s">&#39;app_identity&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.api&#39;</span><span class="p">,</span> <span class="s">&#39;app_identity&#39;</span><span class="p">),</span>
+            <span class="s">&#39;multitenancy&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.api&#39;</span><span class="p">,</span> <span class="s">&#39;namespace_manager&#39;</span><span class="p">),</span>
+
+            <span class="c"># Other APIs</span>
+            <span class="s">&#39;zipserve&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.ext&#39;</span><span class="p">,</span> <span class="s">&#39;zipserve&#39;</span><span class="p">),</span>
+            <span class="s">&#39;deferred&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.ext&#39;</span><span class="p">,</span> <span class="s">&#39;deferred&#39;</span><span class="p">),</span>
+            <span class="s">&#39;mapreduce&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;google.appengine.ext&#39;</span><span class="p">,</span> <span class="s">&#39;mapreduce&#39;</span><span class="p">)</span>
+
+        <span class="p">})</span>
+
+
+<span class="c">## GoogleAppEngine</span>
+<span class="c"># Ties together features, libraries, shortcuts and config access for operating AppTools on Google App Engine.</span></div>
+<div class="viewcode-block" id="GoogleAppEngine"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.appengine.GoogleAppEngine">[docs]</a><span class="k">class</span> <span class="nc">GoogleAppEngine</span><span class="p">(</span><span class="n">Platform</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Platform-specific features and exports for Google App Engine. &#39;&#39;&#39;</span>
+
+    <span class="n">api</span> <span class="o">=</span> <span class="n">GAEAPIBridge</span><span class="p">()</span>
+    <span class="n">lib</span> <span class="o">=</span> <span class="n">GAELibBridge</span><span class="p">()</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="GoogleAppEngine.check_environment"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.appengine.GoogleAppEngine.check_environment">[docs]</a>    <span class="k">def</span> <span class="nf">check_environment</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">environ</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Check the environment and see if we&#39;re running on GAE. &#39;&#39;&#39;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">google.appengine.ext</span> <span class="kn">import</span> <span class="n">ndb</span>
+        <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="bp">True</span>
+</div>
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="GoogleAppEngine.shortcut_exports"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.appengine.GoogleAppEngine.shortcut_exports">[docs]</a>    <span class="k">def</span> <span class="nf">shortcut_exports</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Return shortcuts. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="p">[(</span><span class="s">&#39;api&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;lib&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lib</span><span class="p">)]</span>
+</div>
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="GoogleAppEngine.template_context"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.appengine.GoogleAppEngine.template_context">[docs]</a>    <span class="k">def</span> <span class="nf">template_context</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Inject GAE-specific tools into the template context. &#39;&#39;&#39;</span>
+
+        <span class="k">def</span> <span class="nf">inject</span><span class="p">(</span><span class="n">handler</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+            <span class="c">## Util</span>
+            <span class="n">context</span><span class="p">[</span><span class="s">&#39;util&#39;</span><span class="p">][</span><span class="s">&#39;request&#39;</span><span class="p">][</span><span class="s">&#39;geo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>  <span class="c"># Geo Information</span>
+
+              <span class="s">&#39;latlong&#39;</span><span class="p">:</span> <span class="n">handler</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;HTTP_X_APPENGINE_CITYLATLONG&#39;</span><span class="p">),</span>
+              <span class="s">&#39;country&#39;</span><span class="p">:</span> <span class="n">handler</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;HTTP_X_APPENGINE_COUNTRY&#39;</span><span class="p">),</span>
+              <span class="s">&#39;region&#39;</span><span class="p">:</span> <span class="n">handler</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;HTTP_X_APPENGINE_REGION&#39;</span><span class="p">),</span>
+              <span class="s">&#39;city&#39;</span><span class="p">:</span> <span class="n">handler</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;HTTP_X_APPENGINE_CITY&#39;</span><span class="p">)</span>
+
+            <span class="p">}</span>
+
+            <span class="n">context</span><span class="p">[</span><span class="s">&#39;util&#39;</span><span class="p">][</span><span class="s">&#39;appengine&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>  <span class="c"># App Information</span>
+
+                <span class="s">&#39;instance&#39;</span><span class="p">:</span> <span class="n">handler</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;INSTANCE_ID&#39;</span><span class="p">),</span>
+                <span class="s">&#39;current_version&#39;</span><span class="p">:</span> <span class="n">handler</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;CURRENT_VERSION_ID&#39;</span><span class="p">),</span>
+                <span class="s">&#39;datacenter&#39;</span><span class="p">:</span> <span class="n">handler</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;DATACENTER&#39;</span><span class="p">),</span>
+                <span class="s">&#39;software&#39;</span><span class="p">:</span> <span class="n">handler</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;SERVER_SOFTWARE&#39;</span><span class="p">),</span>
+                <span class="s">&#39;backend&#39;</span><span class="p">:</span> <span class="n">handler</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">get_backend</span><span class="p">()</span>
+
+            <span class="p">}</span>
+
+            <span class="n">context</span><span class="p">[</span><span class="s">&#39;api&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">handler</span><span class="o">.</span><span class="n">api</span>
+            <span class="n">context</span><span class="p">[</span><span class="s">&#39;util&#39;</span><span class="p">][</span><span class="s">&#39;api&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">handler</span><span class="o">.</span><span class="n">api</span>
+            <span class="n">context</span><span class="p">[</span><span class="s">&#39;util&#39;</span><span class="p">][</span><span class="s">&#39;request&#39;</span><span class="p">][</span><span class="s">&#39;hash&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">handler</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;REQUEST_ID_HASH&#39;</span><span class="p">)</span>  <span class="c"># request hash (from Google)</span>
+            <span class="n">context</span><span class="p">[</span><span class="s">&#39;util&#39;</span><span class="p">][</span><span class="s">&#39;request&#39;</span><span class="p">][</span><span class="s">&#39;namespace&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">handler</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">multitenancy</span><span class="o">.</span><span class="n">get_namespace</span><span class="p">()</span>  <span class="c"># current namespace</span>
+
+            <span class="k">return</span> <span class="n">context</span>
+
+        <span class="k">return</span> <span class="n">inject</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../index.html">
+              <img class="logo" src="../../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../apptools.html" >lib.apptools</a> &raquo;</li>
+          <li><a href="../platform.html" >lib.apptools.platform</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

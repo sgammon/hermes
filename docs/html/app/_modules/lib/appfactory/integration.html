@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.appfactory.integration &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.appfactory.integration</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="c"># AppTools Util</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">debug</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">datastructures</span>
+
+<span class="c"># Layer9 Command Busses</span>
+<span class="kn">from</span> <span class="nn">appfactory.integration.abstract</span> <span class="kn">import</span> <span class="n">CommandBus</span> <span class="k">as</span> <span class="n">CoreCommandBus</span>
+<span class="kn">from</span> <span class="nn">appfactory.integration.upstream</span> <span class="kn">import</span> <span class="n">IntegrationBridge</span> <span class="k">as</span> <span class="n">UpstreamIntegrationBus</span>
+<span class="kn">from</span> <span class="nn">appfactory.integration.frontline</span> <span class="kn">import</span> <span class="n">IntegrationBridge</span> <span class="k">as</span> <span class="n">FrontlineIntegrationBus</span>
+<span class="kn">from</span> <span class="nn">appfactory.integration.controller</span> <span class="kn">import</span> <span class="n">IntegrationBridge</span> <span class="k">as</span> <span class="n">ControllerIntegrationBus</span>
+
+
+<span class="c">## AppFactoryMixin</span>
+<span class="c"># Introduces properties and methods for integration with the Layer9/AppFactory Platform.</span>
+<div class="viewcode-block" id="AppFactoryMixin"><a class="viewcode-back" href="../../../lib.appfactory.integration.html#lib.appfactory.integration.AppFactoryMixin">[docs]</a><span class="k">class</span> <span class="nc">AppFactoryMixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Mixes in AppFactory properties and functionality. &#39;&#39;&#39;</span>
+
+    <span class="n">_appfactory_version</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c"># This library&#39;s version.</span>
+
+    <span class="c"># AppFactory Integration</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="n">datastructures</span><span class="o">.</span><span class="n">DictProxy</span><span class="p">(</span><span class="nb">dict</span><span class="p">([(</span><span class="n">i</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">CoreCommandBus</span><span class="o">.</span><span class="n">flags</span><span class="p">]))</span>
+
+    <span class="n">broker</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># Address of the frontline instance brokering this request/response cycle.</span>
+    <span class="n">frontline</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># The frontline cluster string ID brokering this request/response cycle.</span>
+    <span class="n">entrypoint</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># The VHost entrypoint string ID that Layer9 resolved during routing.</span>
+    <span class="n">force_https</span> <span class="o">=</span> <span class="bp">False</span>  <span class="c"># Whether to force HTTPS mode, given the appropriate signal from Layer9.</span>
+    <span class="n">request_hash</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># Unique hash for this request, generated by Layer9, and kept for logging and audit purposes.</span>
+    <span class="n">push_channel</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># Inter-platform communication channel, for pushing a response through Layer9&#39;s socket infrastructure.</span>
+    <span class="n">force_remoteip</span> <span class="o">=</span> <span class="bp">False</span>  <span class="c"># The client&#39;s true remote IP, as reported by the Layer9 frontline.</span>
+    <span class="n">force_hostname</span> <span class="o">=</span> <span class="bp">False</span>  <span class="c"># The proxied hostname that should be used for redirects, assets, cookies, etc.</span>
+    <span class="n">force_https_assets</span> <span class="o">=</span> <span class="bp">False</span>  <span class="c"># Whether to force HTTPS assets. This should be `True` in HTTPS mode to avoid browser warnings.</span>
+    <span class="n">force_absolute_assets</span> <span class="o">=</span> <span class="bp">False</span>  <span class="c"># Whether to force absolute assets. Always `True` in HTTPS mode.</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

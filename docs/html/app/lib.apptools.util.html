@@ -1,0 +1,1277 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>util Package &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="index.html" />
+    <link rel="up" title="apptools Package" href="lib.apptools.html" />
+    <link rel="next" title="atom Package" href="lib.atom.html" />
+    <link rel="prev" title="test_adapters Package" href="lib.apptools.tests.test_model.test_adapters.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lib.atom.html" title="atom Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="lib.apptools.tests.test_model.test_adapters.html" title="test_adapters Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="lib.html" >lib Package</a> &raquo;</li>
+          <li><a href="lib.apptools.html" accesskey="U">apptools Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="util-package">
+<h1>util Package<a class="headerlink" href="#util-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><a class="reference internal" href="util.html#module-util" title="util"><tt class="xref py py-mod docutils literal"><span class="pre">util</span></tt></a> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-lib.apptools.util"></span><p>AppTools Util</p>
+<p>Holds small utilities and useful pieces of code/functionality that don&#8217;t
+belong anywhere more-specific in AppTools.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>&gt;)</p>
+</div>
+<div class="section" id="module-lib.apptools.util.appconfig">
+<span id="appconfig-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">appconfig</span></tt> Module<a class="headerlink" href="#module-lib.apptools.util.appconfig" title="Permalink to this headline">¶</a></h2>
+<p>Util: Config</p>
+<p>Holds utilities for dealing with application config, and the default config set.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>&gt;)</p>
+<dl class="class">
+<dt id="lib.apptools.util.appconfig.ConfigProxy">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.appconfig.</tt><tt class="descname">ConfigProxy</tt><big>(</big><em>config</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/appconfig.html#ConfigProxy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.appconfig.ConfigProxy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Wraps app configuration to enable debug features.</p>
+<dl class="attribute">
+<dt id="lib.apptools.util.appconfig.ConfigProxy.debug">
+<tt class="descname">debug</tt><em class="property"> = False</em><a class="headerlink" href="#lib.apptools.util.appconfig.ConfigProxy.debug" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.appconfig.ConfigProxy.get">
+<tt class="descname">get</tt><big>(</big><em>name</em>, <em>default=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/appconfig.html#ConfigProxy.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.appconfig.ConfigProxy.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve an item from config without raising an AttributeError.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.appconfig.ConfigProxy.items">
+<tt class="descname">items</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/appconfig.html#ConfigProxy.items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.appconfig.ConfigProxy.items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve a set of (key, value) tuples.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.appconfig.ConfigProxy.iteritems">
+<tt class="descname">iteritems</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/appconfig.html#ConfigProxy.iteritems"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.appconfig.ConfigProxy.iteritems" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a set of (key, value) tuples.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.appconfig.ConfigProxy.iterkeys">
+<tt class="descname">iterkeys</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/appconfig.html#ConfigProxy.iterkeys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.appconfig.ConfigProxy.iterkeys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a set of this config&#8217;s keys.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.appconfig.ConfigProxy.itervalues">
+<tt class="descname">itervalues</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/appconfig.html#ConfigProxy.itervalues"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.appconfig.ConfigProxy.itervalues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a set of this config&#8217;s values.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.appconfig.ConfigProxy.keys">
+<tt class="descname">keys</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/appconfig.html#ConfigProxy.keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.appconfig.ConfigProxy.keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve a set of this config&#8217;s keys.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.appconfig.ConfigProxy.logging">
+<tt class="descname">logging</tt><a class="reference internal" href="_modules/lib/apptools/util/appconfig.html#ConfigProxy.logging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.appconfig.ConfigProxy.logging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Named logging pipe.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.appconfig.ConfigProxy.next">
+<tt class="descname">next</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/appconfig.html#ConfigProxy.next"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.appconfig.ConfigProxy.next" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the next item in this iteration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.appconfig.ConfigProxy.overlay">
+<tt class="descname">overlay</tt><big>(</big><em>mapping</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/appconfig.html#ConfigProxy.overlay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.appconfig.ConfigProxy.overlay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exported method for recursively updating config.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.appconfig.ConfigProxy.strict">
+<tt class="descname">strict</tt><em class="property"> = False</em><a class="headerlink" href="#lib.apptools.util.appconfig.ConfigProxy.strict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.appconfig.ConfigProxy.values">
+<tt class="descname">values</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/appconfig.html#ConfigProxy.values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.appconfig.ConfigProxy.values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve a set of this config&#8217;s values.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.apptools.util.byteconvert">
+<span id="byteconvert-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">byteconvert</span></tt> Module<a class="headerlink" href="#module-lib.apptools.util.byteconvert" title="Permalink to this headline">¶</a></h2>
+<p>Util: Byteconvert</p>
+<p>Return a humanized string representation of a number of bytes.</p>
+<p>Assumes <cite>from __future__ import division</cite>.
+Recipe available at: [<a class="reference external" href="http://code.activestate.com/recipes/577081/](http://code.activestate.com/recipes/577081/">http://code.activestate.com/recipes/577081/](http://code.activestate.com/recipes/577081/</a>)</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">humanize_bytes</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">&#39;1 byte&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">humanize_bytes</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+<span class="go">&#39;1.0 kB&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">humanize_bytes</span><span class="p">(</span><span class="mi">1024</span><span class="o">*</span><span class="mi">123</span><span class="p">)</span>
+<span class="go">&#39;123.0 kB&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">humanize_bytes</span><span class="p">(</span><span class="mi">1024</span><span class="o">*</span><span class="mi">12342</span><span class="p">)</span>
+<span class="go">&#39;12.1 MB&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">humanize_bytes</span><span class="p">(</span><span class="mi">1024</span><span class="o">*</span><span class="mi">12342</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">&#39;12.05 MB&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">humanize_bytes</span><span class="p">(</span><span class="mi">1024</span><span class="o">*</span><span class="mi">1234</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">&#39;1.21 MB&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">humanize_bytes</span><span class="p">(</span><span class="mi">1024</span><span class="o">*</span><span class="mi">1234</span><span class="o">*</span><span class="mi">1111</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">&#39;1.31 GB&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">humanize_bytes</span><span class="p">(</span><span class="mi">1024</span><span class="o">*</span><span class="mi">1234</span><span class="o">*</span><span class="mi">1111</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">&#39;1.3 GB&#39;</span>
+</pre></div>
+</div>
+<dl class="function">
+<dt id="lib.apptools.util.byteconvert.humanize_bytes">
+<tt class="descclassname">lib.apptools.util.byteconvert.</tt><tt class="descname">humanize_bytes</tt><big>(</big><em>bytes</em>, <em>precision=1</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/byteconvert.html#humanize_bytes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.byteconvert.humanize_bytes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output a count of bytes as a human-readable value.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.apptools.util.datastructures">
+<span id="datastructures-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">datastructures</span></tt> Module<a class="headerlink" href="#module-lib.apptools.util.datastructures" title="Permalink to this headline">¶</a></h2>
+<p>Util: Datastructures</p>
+<p>Holds useful classes and code for managing/manipulating/using specialized datastructures.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>&gt;)</p>
+<dl class="class">
+<dt id="lib.apptools.util.datastructures.BidirectionalEnum">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.datastructures.</tt><tt class="descname">BidirectionalEnum</tt><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#BidirectionalEnum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.BidirectionalEnum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Small and simple datastructure for mapping static flags to smaller values.</p>
+<dl class="classmethod">
+<dt id="lib.apptools.util.datastructures.BidirectionalEnum.forward_resolve">
+<em class="property">classmethod </em><tt class="descname">forward_resolve</tt><big>(</big><em>flag</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#BidirectionalEnum.forward_resolve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.BidirectionalEnum.forward_resolve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resolve a mapping, by it&#8217;s string property name.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="lib.apptools.util.datastructures.BidirectionalEnum.resolve">
+<em class="property">classmethod </em><tt class="descname">resolve</tt><big>(</big><em>flag</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#BidirectionalEnum.resolve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.BidirectionalEnum.resolve" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="lib.apptools.util.datastructures.BidirectionalEnum.reverse_resolve">
+<em class="property">classmethod </em><tt class="descname">reverse_resolve</tt><big>(</big><em>code</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#BidirectionalEnum.reverse_resolve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.BidirectionalEnum.reverse_resolve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resolve a mapping, by it&#8217;s integer/string code.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.datastructures.CallbackProxy">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.datastructures.</tt><tt class="descname">CallbackProxy</tt><big>(</big><em>callback</em>, <em>struct={}</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#CallbackProxy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.CallbackProxy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.datastructures.ObjectProxy" title="lib.apptools.util.datastructures.ObjectProxy"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.datastructures.ObjectProxy</span></tt></a></p>
+<p>Handy little object that takes a dict and makes it accessible via var[item], but returns the result of an invoked callback(item).</p>
+<dl class="attribute">
+<dt id="lib.apptools.util.datastructures.CallbackProxy.callback">
+<tt class="descname">callback</tt><em class="property"> = None</em><a class="headerlink" href="#lib.apptools.util.datastructures.CallbackProxy.callback" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.datastructures.DictProxy">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.datastructures.</tt><tt class="descname">DictProxy</tt><big>(</big><em>struct=None</em>, <em>case_sensitive=True</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#DictProxy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.DictProxy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.datastructures.UtilStruct" title="lib.apptools.util.datastructures.UtilStruct"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.datastructures.UtilStruct</span></tt></a></p>
+<p>Handy little object that takes a dict and makes it accessible via var[item] and var.item formats. Also handy for caching.</p>
+<dl class="method">
+<dt id="lib.apptools.util.datastructures.DictProxy.extend">
+<tt class="descname">extend</tt><big>(</big><em>obj</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#DictProxy.extend"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.DictProxy.extend" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.datastructures.DictProxy.fillStructure">
+<tt class="descname">fillStructure</tt><big>(</big><em>struct=None</em>, <em>case_sensitive=True</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#DictProxy.fillStructure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.DictProxy.fillStructure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set it as an object directly instead of storing in _entries.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.datastructures.DictProxy.get">
+<tt class="descname">get</tt><big>(</big><em>name</em>, <em>default_value=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#DictProxy.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.DictProxy.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the named item, returning default_value if it cannot be found.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.datastructures.DictProxy.items">
+<tt class="descname">items</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#DictProxy.items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.DictProxy.items" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.datastructures.DictProxy.keys">
+<tt class="descname">keys</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#DictProxy.keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.DictProxy.keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.datastructures.DictProxy.values">
+<tt class="descname">values</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#DictProxy.values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.DictProxy.values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.datastructures.ObjectDictBridge">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.datastructures.</tt><tt class="descname">ObjectDictBridge</tt><big>(</big><em>target_object=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#ObjectDictBridge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.ObjectDictBridge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.datastructures.UtilStruct" title="lib.apptools.util.datastructures.UtilStruct"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.datastructures.UtilStruct</span></tt></a></p>
+<p>Treat an object like a dict, or an object! Assign an object with <cite>ObjectDictBridge(&lt;object&gt;)</cite>. Then access properties with <cite>bridge[item]</cite> or <cite>bridge.item</cite>.</p>
+<dl class="method">
+<dt id="lib.apptools.util.datastructures.ObjectDictBridge.get">
+<tt class="descname">get</tt><big>(</big><em>name</em>, <em>default_value=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#ObjectDictBridge.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.ObjectDictBridge.get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.datastructures.ObjectDictBridge.target">
+<tt class="descname">target</tt><em class="property"> = None</em><a class="headerlink" href="#lib.apptools.util.datastructures.ObjectDictBridge.target" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.datastructures.ObjectProxy">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.datastructures.</tt><tt class="descname">ObjectProxy</tt><big>(</big><em>struct=None</em>, <em>case_sensitive=True</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#ObjectProxy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.ObjectProxy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.datastructures.UtilStruct" title="lib.apptools.util.datastructures.UtilStruct"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.datastructures.UtilStruct</span></tt></a></p>
+<p>Same handy object as above, but stores the entries in an _entries attribute rather than the class dict.</p>
+<dl class="method">
+<dt id="lib.apptools.util.datastructures.ObjectProxy.fillStructure">
+<tt class="descname">fillStructure</tt><big>(</big><em>fill</em>, <em>case_sensitive=True</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#ObjectProxy.fillStructure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.ObjectProxy.fillStructure" title="Permalink to this definition">¶</a></dt>
+<dd><p>If handed a dictionary or kwargs, fill _entries with e[k] = v. A list will do the same and be interpreted as a list of tuples in (k, v) format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.datastructures.ObjectProxy.i_filter">
+<tt class="descname">i_filter</tt><big>(</big><em>_</em>, <em>k</em><big>)</big><a class="headerlink" href="#lib.apptools.util.datastructures.ObjectProxy.i_filter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.datastructures.ObjectProxy.items">
+<tt class="descname">items</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#ObjectProxy.items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.ObjectProxy.items" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.datastructures.ObjectProxy.keys">
+<tt class="descname">keys</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#ObjectProxy.keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.ObjectProxy.keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.datastructures.ObjectProxy.values">
+<tt class="descname">values</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#ObjectProxy.values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.ObjectProxy.values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.datastructures.PropertyDescriptor">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.datastructures.</tt><tt class="descname">PropertyDescriptor</tt><big>(</big><em>name</em>, <em>proptype</em>, <em>options</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#PropertyDescriptor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.PropertyDescriptor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Utility class used to encapsulate a name, type, and set of options for a property on a data model.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.datastructures.ProxiedStructure">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.datastructures.</tt><tt class="descname">ProxiedStructure</tt><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#ProxiedStructure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.ProxiedStructure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">type</span></tt></p>
+<p>Metaclass for property-gather-enabled classes.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.datastructures.Sentinel">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.datastructures.</tt><tt class="descname">Sentinel</tt><big>(</big><em>name</em>, <em>falsy=False</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#Sentinel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.Sentinel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Create a named sentinel object.</p>
+<dl class="attribute">
+<dt id="lib.apptools.util.datastructures.Sentinel.name">
+<tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#lib.apptools.util.datastructures.Sentinel.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.datastructures.StateManager">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.datastructures.</tt><tt class="descname">StateManager</tt><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#StateManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.StateManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Addon class for managing a self.state property.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.datastructures.TrackedDictionary">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.datastructures.</tt><tt class="descname">TrackedDictionary</tt><big>(</big><em>initial={}</em>, <em>target=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#TrackedDictionary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.TrackedDictionary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Keeps track of modifications and modified state for a dictionary.</p>
+<dl class="method">
+<dt id="lib.apptools.util.datastructures.TrackedDictionary.dirty">
+<tt class="descname">dirty</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#TrackedDictionary.dirty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.TrackedDictionary.dirty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return this object&#8217;s <cite>dirty</cite> status.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.datastructures.TrackedDictionary.get">
+<tt class="descname">get</tt><big>(</big><em>key</em>, <em>default=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#TrackedDictionary.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.TrackedDictionary.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve an item, safely, optionally returning <cite>default</cite> if no item could be found.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.datastructures.TrackedDictionary.items">
+<tt class="descname">items</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#TrackedDictionary.items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.TrackedDictionary.items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of (keys, values).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.datastructures.TrackedDictionary.iteritems">
+<tt class="descname">iteritems</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#TrackedDictionary.iteritems"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.TrackedDictionary.iteritems" title="Permalink to this definition">¶</a></dt>
+<dd><p>Yield (keys, values) one at a time.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.datastructures.TrackedDictionary.iterkeys">
+<tt class="descname">iterkeys</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#TrackedDictionary.iterkeys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.TrackedDictionary.iterkeys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Yield keys one at a time.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.datastructures.TrackedDictionary.itervalues">
+<tt class="descname">itervalues</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#TrackedDictionary.itervalues"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.TrackedDictionary.itervalues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Yield values one at a time.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.datastructures.TrackedDictionary.keys">
+<tt class="descname">keys</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#TrackedDictionary.keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.TrackedDictionary.keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of all available keys.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.datastructures.TrackedDictionary.mutations">
+<tt class="descname">mutations</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#TrackedDictionary.mutations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.TrackedDictionary.mutations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return this object&#8217;s mutation pool.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.datastructures.TrackedDictionary.reconcile">
+<tt class="descname">reconcile</tt><big>(</big><em>target=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#TrackedDictionary.reconcile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.TrackedDictionary.reconcile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flatten this object&#8217;s mutation pool onto the target object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.datastructures.TrackedDictionary.update">
+<tt class="descname">update</tt><big>(</big><em>mapping</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#TrackedDictionary.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.TrackedDictionary.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update internal values.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.datastructures.TrackedDictionary.values">
+<tt class="descname">values</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#TrackedDictionary.values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.TrackedDictionary.values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of all available values.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.datastructures.UtilStruct">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.datastructures.</tt><tt class="descname">UtilStruct</tt><big>(</big><em>struct=None</em>, <em>case_sensitive=True</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#UtilStruct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.UtilStruct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Abstract class for a utility object.</p>
+<dl class="classmethod">
+<dt id="lib.apptools.util.datastructures.UtilStruct.deserialize">
+<em class="property">classmethod </em><tt class="descname">deserialize</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#UtilStruct.deserialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.UtilStruct.deserialize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.datastructures.UtilStruct.serialize">
+<tt class="descname">serialize</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#UtilStruct.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.UtilStruct.serialize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.datastructures.WritableObjectProxy">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.datastructures.</tt><tt class="descname">WritableObjectProxy</tt><big>(</big><em>struct=None</em>, <em>case_sensitive=True</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/datastructures.html#WritableObjectProxy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.datastructures.WritableObjectProxy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.datastructures.ObjectProxy" title="lib.apptools.util.datastructures.ObjectProxy"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.datastructures.ObjectProxy</span></tt></a></p>
+<p>Same handy object as <cite>ObjectProxy</cite>, but allows appending things at runtime.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.apptools.util.debug">
+<span id="debug-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">debug</span></tt> Module<a class="headerlink" href="#module-lib.apptools.util.debug" title="Permalink to this headline">¶</a></h2>
+<p>Util: Debug</p>
+<p>Holds service middleware, that can hook into the pre- or post- remote method execution
+sequence.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>&gt;)</p>
+<dl class="attribute">
+<dt id="lib.apptools.util.debug.AppToolsLogController">
+<tt class="descclassname">lib.apptools.util.debug.</tt><tt class="descname">AppToolsLogController</tt><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogController" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#lib.apptools.util.debug.AppToolsLogger" title="lib.apptools.util.debug.AppToolsLogger"><tt class="xref py py-class docutils literal"><span class="pre">AppToolsLogger</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.debug.AppToolsLogger">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.debug.</tt><tt class="descname">AppToolsLogger</tt><big>(</big><em>path='apptools.default'</em>, <em>name='_default_'</em>, <em>parent_channel=None</em>, <em>bubble=False</em>, <em>ctx=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/debug.html#AppToolsLogger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.debug.AppToolsLoggingEngine" title="lib.apptools.util.debug.AppToolsLoggingEngine"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.debug.AppToolsLoggingEngine</span></tt></a></p>
+<p>Logging controller for outputting debug information from different levels of AppTools.</p>
+<dl class="attribute">
+<dt id="lib.apptools.util.debug.AppToolsLogger.bubble">
+<tt class="descname">bubble</tt><em class="property"> = False</em><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogger.bubble" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.debug.AppToolsLogger.channel_name">
+<tt class="descname">channel_name</tt><em class="property"> = '_root_'</em><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogger.channel_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.debug.AppToolsLogger.channel_parent">
+<tt class="descname">channel_parent</tt><em class="property"> = None</em><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogger.channel_parent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.debug.AppToolsLogger.channel_path">
+<tt class="descname">channel_path</tt><em class="property"> = 'apptools'</em><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogger.channel_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.debug.AppToolsLogger.conditional">
+<tt class="descname">conditional</tt><em class="property"> = True</em><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogger.conditional" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.debug.AppToolsLogger.context_fn">
+<tt class="descname">context_fn</tt><em class="property"> = None</em><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogger.context_fn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.debug.AppToolsLogger.critical">
+<tt class="descname">critical</tt><big>(</big><em>message</em>, <em>module=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/debug.html#AppToolsLogger.critical"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogger.critical" title="Permalink to this definition">¶</a></dt>
+<dd><p><cite>Critical</cite> severity.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.debug.AppToolsLogger.debug">
+<tt class="descname">debug</tt><big>(</big><em>message</em>, <em>module=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/debug.html#AppToolsLogger.debug"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogger.debug" title="Permalink to this definition">¶</a></dt>
+<dd><p><cite>Debug</cite> severity.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.debug.AppToolsLogger.dev">
+<tt class="descname">dev</tt><big>(</big><em>message</em>, <em>module=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/debug.html#AppToolsLogger.dev"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogger.dev" title="Permalink to this definition">¶</a></dt>
+<dd><p><cite>Development</cite> severity.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.debug.AppToolsLogger.disabled">
+<tt class="descname">disabled</tt><em class="property"> = False</em><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogger.disabled" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="lib.apptools.util.debug.AppToolsLogger.echo">
+<em class="property">static </em><tt class="descname">echo</tt><big>(</big><em>*args</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/debug.html#AppToolsLogger.echo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogger.echo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simply print the given arguments. Used for debugging.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.debug.AppToolsLogger.error">
+<tt class="descname">error</tt><big>(</big><em>message</em>, <em>module=None</em>, <em>exc_info=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/debug.html#AppToolsLogger.error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogger.error" title="Permalink to this definition">¶</a></dt>
+<dd><p><cite>Error</cite> severity.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.debug.AppToolsLogger.exception">
+<tt class="descname">exception</tt><big>(</big><em>message</em>, <em>exc_info=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/debug.html#AppToolsLogger.exception"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogger.exception" title="Permalink to this definition">¶</a></dt>
+<dd><p><cite>Exception</cite> severity.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.debug.AppToolsLogger.extend">
+<tt class="descname">extend</tt><big>(</big><em>path=None</em>, <em>name=None</em>, <em>bubble=False</em>, <em>ctx=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/debug.html#AppToolsLogger.extend"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogger.extend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extend an existing LogChannel into a new one.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.debug.AppToolsLogger.filters">
+<tt class="descname">filters</tt><em class="property"> = []</em><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogger.filters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.debug.AppToolsLogger.handlers">
+<tt class="descname">handlers</tt><em class="property"> = [&lt;logging.StreamHandler object at 0x108fe0dd0&gt;]</em><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogger.handlers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.debug.AppToolsLogger.info">
+<tt class="descname">info</tt><big>(</big><em>message</em>, <em>module=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/debug.html#AppToolsLogger.info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogger.info" title="Permalink to this definition">¶</a></dt>
+<dd><p><cite>Info</cite> severity.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.debug.AppToolsLogger.logbook_support">
+<tt class="descname">logbook_support</tt><em class="property"> = False</em><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogger.logbook_support" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.debug.AppToolsLogger.name">
+<tt class="descname">name</tt><em class="property"> = 'apptools'</em><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogger.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.debug.AppToolsLogger.propagate">
+<tt class="descname">propagate</tt><em class="property"> = False</em><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogger.propagate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.debug.AppToolsLogger.provider">
+<tt class="descname">provider</tt><em class="property"> = None</em><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogger.provider" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.debug.AppToolsLogger.verbose">
+<tt class="descname">verbose</tt><big>(</big><em>message</em>, <em>module=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/debug.html#AppToolsLogger.verbose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogger.verbose" title="Permalink to this definition">¶</a></dt>
+<dd><p><cite>Verbose</cite> severity.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.debug.AppToolsLogger.warning">
+<tt class="descname">warning</tt><big>(</big><em>message</em>, <em>module=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/debug.html#AppToolsLogger.warning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogger.warning" title="Permalink to this definition">¶</a></dt>
+<dd><p><cite>Warning</cite> severity.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.debug.AppToolsLoggingEngine">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.debug.</tt><tt class="descname">AppToolsLoggingEngine</tt><big>(</big><em>name=None</em>, <em>level=0</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/debug.html#AppToolsLoggingEngine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLoggingEngine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">logbook.base.Logger</span></tt></p>
+<p>Logbook-powered AppTools logging backend.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.apptools.util.debug.LoggingException">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.util.debug.</tt><tt class="descname">LoggingException</tt><a class="reference internal" href="_modules/lib/apptools/util/debug.html#LoggingException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.debug.LoggingException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.exceptions.AppException</span></tt></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.apptools.util.decorators">
+<span id="decorators-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">decorators</span></tt> Module<a class="headerlink" href="#module-lib.apptools.util.decorators" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="lib.apptools.util.decorators.classproperty">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.decorators.</tt><tt class="descname">classproperty</tt><a class="reference internal" href="_modules/lib/apptools/util/decorators.html#classproperty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.decorators.classproperty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">property</span></tt></p>
+<p>Custom decorator for class-level property getters.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.apptools.util.httpagentparser">
+<span id="httpagentparser-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">httpagentparser</span></tt> Module<a class="headerlink" href="#module-lib.apptools.util.httpagentparser" title="Permalink to this headline">¶</a></h2>
+<p>Util: HTTPAgentParser</p>
+<p>Parse and extract client platform information from the Uagent.</p>
+<dl class="class">
+<dt id="lib.apptools.util.httpagentparser.Android">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">Android</tt><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#Android"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.Android" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.httpagentparser.Dist" title="lib.apptools.util.httpagentparser.Dist"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.httpagentparser.Dist</span></tt></a></p>
+<dl class="method">
+<dt id="lib.apptools.util.httpagentparser.Android.getVersion">
+<tt class="descname">getVersion</tt><big>(</big><em>agent</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#Android.getVersion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.Android.getVersion" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Android.look_for">
+<tt class="descname">look_for</tt><em class="property"> = 'Android'</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Android.look_for" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.httpagentparser.Browser">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">Browser</tt><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#Browser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.Browser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.httpagentparser.DetectorBase" title="lib.apptools.util.httpagentparser.DetectorBase"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.httpagentparser.DetectorBase</span></tt></a></p>
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Browser.can_register">
+<tt class="descname">can_register</tt><em class="property"> = False</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Browser.can_register" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Browser.info_type">
+<tt class="descname">info_type</tt><em class="property"> = 'browser'</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Browser.info_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.httpagentparser.Chrome">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">Chrome</tt><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#Chrome"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.Chrome" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.httpagentparser.Browser" title="lib.apptools.util.httpagentparser.Browser"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.httpagentparser.Browser</span></tt></a></p>
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Chrome.look_for">
+<tt class="descname">look_for</tt><em class="property"> = 'Chrome'</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Chrome.look_for" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Chrome.version_splitters">
+<tt class="descname">version_splitters</tt><em class="property"> = ['/', ' ']</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Chrome.version_splitters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.httpagentparser.ChromeOS">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">ChromeOS</tt><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#ChromeOS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.ChromeOS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.httpagentparser.OS" title="lib.apptools.util.httpagentparser.OS"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.httpagentparser.OS</span></tt></a></p>
+<dl class="method">
+<dt id="lib.apptools.util.httpagentparser.ChromeOS.getVersion">
+<tt class="descname">getVersion</tt><big>(</big><em>agent</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#ChromeOS.getVersion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.ChromeOS.getVersion" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.ChromeOS.look_for">
+<tt class="descname">look_for</tt><em class="property"> = 'CrOS'</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.ChromeOS.look_for" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.ChromeOS.prefs">
+<tt class="descname">prefs</tt><em class="property"> = {'browser': ['Chrome']}</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.ChromeOS.prefs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.ChromeOS.version_splitters">
+<tt class="descname">version_splitters</tt><em class="property"> = [' ', ' ']</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.ChromeOS.version_splitters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.httpagentparser.Debian">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">Debian</tt><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#Debian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.Debian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.httpagentparser.Dist" title="lib.apptools.util.httpagentparser.Dist"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.httpagentparser.Dist</span></tt></a></p>
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Debian.look_for">
+<tt class="descname">look_for</tt><em class="property"> = 'Debian'</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Debian.look_for" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Debian.prefs">
+<tt class="descname">prefs</tt><em class="property"> = {'browser': ['Firefox']}</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Debian.prefs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Debian.version_splitters">
+<tt class="descname">version_splitters</tt><em class="property"> = ['/', ' ']</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Debian.version_splitters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.httpagentparser.DetectorBase">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">DetectorBase</tt><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#DetectorBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.DetectorBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.DetectorBase.can_register">
+<tt class="descname">can_register</tt><em class="property"> = False</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.DetectorBase.can_register" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.httpagentparser.DetectorBase.checkWords">
+<tt class="descname">checkWords</tt><big>(</big><em>agent</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#DetectorBase.checkWords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.DetectorBase.checkWords" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.httpagentparser.DetectorBase.detect">
+<tt class="descname">detect</tt><big>(</big><em>agent</em>, <em>result</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#DetectorBase.detect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.DetectorBase.detect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.httpagentparser.DetectorBase.getVersion">
+<tt class="descname">getVersion</tt><big>(</big><em>agent</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#DetectorBase.getVersion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.DetectorBase.getVersion" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.DetectorBase.info_type">
+<tt class="descname">info_type</tt><em class="property"> = 'override me'</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.DetectorBase.info_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.DetectorBase.look_for">
+<tt class="descname">look_for</tt><em class="property"> = 'string to look for'</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.DetectorBase.look_for" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.DetectorBase.name">
+<tt class="descname">name</tt><em class="property"> = ''</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.DetectorBase.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.DetectorBase.order">
+<tt class="descname">order</tt><em class="property"> = 10</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.DetectorBase.order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.DetectorBase.prefs">
+<tt class="descname">prefs</tt><em class="property"> = {}</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.DetectorBase.prefs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.DetectorBase.result_key">
+<tt class="descname">result_key</tt><em class="property"> = 'override me'</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.DetectorBase.result_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.DetectorBase.skip_if_found">
+<tt class="descname">skip_if_found</tt><em class="property"> = []</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.DetectorBase.skip_if_found" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.DetectorBase.version_splitters">
+<tt class="descname">version_splitters</tt><em class="property"> = ['/', ' ']</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.DetectorBase.version_splitters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.httpagentparser.DetectorsHub">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">DetectorsHub</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#DetectorsHub"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.DetectorsHub" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt></p>
+<dl class="method">
+<dt id="lib.apptools.util.httpagentparser.DetectorsHub.register">
+<tt class="descname">register</tt><big>(</big><em>detector</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#DetectorsHub.register"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.DetectorsHub.register" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.httpagentparser.DetectorsHub.registerDetectors">
+<tt class="descname">registerDetectors</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#DetectorsHub.registerDetectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.DetectorsHub.registerDetectors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.httpagentparser.DetectorsHub.reorderByPrefs">
+<tt class="descname">reorderByPrefs</tt><big>(</big><em>detectors</em>, <em>prefs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#DetectorsHub.reorderByPrefs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.DetectorsHub.reorderByPrefs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.httpagentparser.Dist">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">Dist</tt><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#Dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.Dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.httpagentparser.DetectorBase" title="lib.apptools.util.httpagentparser.DetectorBase"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.httpagentparser.DetectorBase</span></tt></a></p>
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Dist.can_register">
+<tt class="descname">can_register</tt><em class="property"> = False</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Dist.can_register" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Dist.info_type">
+<tt class="descname">info_type</tt><em class="property"> = 'dist'</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Dist.info_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.httpagentparser.Firefox">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">Firefox</tt><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#Firefox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.Firefox" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.httpagentparser.Browser" title="lib.apptools.util.httpagentparser.Browser"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.httpagentparser.Browser</span></tt></a></p>
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Firefox.look_for">
+<tt class="descname">look_for</tt><em class="property"> = 'Firefox'</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Firefox.look_for" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.httpagentparser.Flavor">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">Flavor</tt><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#Flavor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.Flavor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.httpagentparser.DetectorBase" title="lib.apptools.util.httpagentparser.DetectorBase"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.httpagentparser.DetectorBase</span></tt></a></p>
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Flavor.can_register">
+<tt class="descname">can_register</tt><em class="property"> = False</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Flavor.can_register" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Flavor.info_type">
+<tt class="descname">info_type</tt><em class="property"> = 'flavor'</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Flavor.info_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.httpagentparser.Galeon">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">Galeon</tt><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#Galeon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.Galeon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.httpagentparser.Browser" title="lib.apptools.util.httpagentparser.Browser"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.httpagentparser.Browser</span></tt></a></p>
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Galeon.look_for">
+<tt class="descname">look_for</tt><em class="property"> = 'Galeon'</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Galeon.look_for" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.httpagentparser.IPhone">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">IPhone</tt><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#IPhone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.IPhone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.httpagentparser.Dist" title="lib.apptools.util.httpagentparser.Dist"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.httpagentparser.Dist</span></tt></a></p>
+<dl class="method">
+<dt id="lib.apptools.util.httpagentparser.IPhone.getVersion">
+<tt class="descname">getVersion</tt><big>(</big><em>agent</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#IPhone.getVersion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.IPhone.getVersion" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.IPhone.look_for">
+<tt class="descname">look_for</tt><em class="property"> = 'iPhone'</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.IPhone.look_for" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.httpagentparser.Konqueror">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">Konqueror</tt><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#Konqueror"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.Konqueror" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.httpagentparser.Browser" title="lib.apptools.util.httpagentparser.Browser"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.httpagentparser.Browser</span></tt></a></p>
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Konqueror.look_for">
+<tt class="descname">look_for</tt><em class="property"> = 'Konqueror'</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Konqueror.look_for" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Konqueror.version_splitters">
+<tt class="descname">version_splitters</tt><em class="property"> = ['/', ';']</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Konqueror.version_splitters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.httpagentparser.Linux">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">Linux</tt><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#Linux"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.Linux" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.httpagentparser.OS" title="lib.apptools.util.httpagentparser.OS"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.httpagentparser.OS</span></tt></a></p>
+<dl class="method">
+<dt id="lib.apptools.util.httpagentparser.Linux.getVersion">
+<tt class="descname">getVersion</tt><big>(</big><em>agent</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#Linux.getVersion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.Linux.getVersion" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Linux.look_for">
+<tt class="descname">look_for</tt><em class="property"> = 'Linux'</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Linux.look_for" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Linux.prefs">
+<tt class="descname">prefs</tt><em class="property"> = {'flavor': None, 'dist': ['Ubuntu', 'Android'], 'browser': ['Firefox']}</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Linux.prefs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.httpagentparser.MSIE">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">MSIE</tt><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#MSIE"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.MSIE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.httpagentparser.Browser" title="lib.apptools.util.httpagentparser.Browser"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.httpagentparser.Browser</span></tt></a></p>
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.MSIE.look_for">
+<tt class="descname">look_for</tt><em class="property"> = 'MSIE'</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.MSIE.look_for" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.MSIE.name">
+<tt class="descname">name</tt><em class="property"> = 'Microsoft Internet Explorer'</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.MSIE.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.MSIE.skip_if_found">
+<tt class="descname">skip_if_found</tt><em class="property"> = ['Opera']</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.MSIE.skip_if_found" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.MSIE.version_splitters">
+<tt class="descname">version_splitters</tt><em class="property"> = [' ', ';']</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.MSIE.version_splitters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.httpagentparser.MacOS">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">MacOS</tt><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#MacOS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.MacOS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.httpagentparser.Flavor" title="lib.apptools.util.httpagentparser.Flavor"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.httpagentparser.Flavor</span></tt></a></p>
+<dl class="method">
+<dt id="lib.apptools.util.httpagentparser.MacOS.getVersion">
+<tt class="descname">getVersion</tt><big>(</big><em>agent</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#MacOS.getVersion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.MacOS.getVersion" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.MacOS.look_for">
+<tt class="descname">look_for</tt><em class="property"> = 'Mac OS'</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.MacOS.look_for" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.MacOS.prefs">
+<tt class="descname">prefs</tt><em class="property"> = {'browser': ['Firefox', 'Opera', 'Microsoft Internet Explorer']}</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.MacOS.prefs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.httpagentparser.Macintosh">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">Macintosh</tt><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#Macintosh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.Macintosh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.httpagentparser.OS" title="lib.apptools.util.httpagentparser.OS"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.httpagentparser.OS</span></tt></a></p>
+<dl class="method">
+<dt id="lib.apptools.util.httpagentparser.Macintosh.getVersion">
+<tt class="descname">getVersion</tt><big>(</big><em>agent</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#Macintosh.getVersion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.Macintosh.getVersion" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Macintosh.look_for">
+<tt class="descname">look_for</tt><em class="property"> = 'Macintosh'</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Macintosh.look_for" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Macintosh.prefs">
+<tt class="descname">prefs</tt><em class="property"> = {'flavor': ['MacOS'], 'dist': None}</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Macintosh.prefs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.httpagentparser.Netscape">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">Netscape</tt><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#Netscape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.Netscape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.httpagentparser.Browser" title="lib.apptools.util.httpagentparser.Browser"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.httpagentparser.Browser</span></tt></a></p>
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Netscape.look_for">
+<tt class="descname">look_for</tt><em class="property"> = 'Netscape'</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Netscape.look_for" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.httpagentparser.OS">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">OS</tt><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#OS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.OS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.httpagentparser.DetectorBase" title="lib.apptools.util.httpagentparser.DetectorBase"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.httpagentparser.DetectorBase</span></tt></a></p>
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.OS.can_register">
+<tt class="descname">can_register</tt><em class="property"> = False</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.OS.can_register" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.OS.info_type">
+<tt class="descname">info_type</tt><em class="property"> = 'os'</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.OS.info_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.OS.version_splitters">
+<tt class="descname">version_splitters</tt><em class="property"> = [';', ' ']</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.OS.version_splitters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.httpagentparser.Opera">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">Opera</tt><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#Opera"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.Opera" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.httpagentparser.Browser" title="lib.apptools.util.httpagentparser.Browser"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.httpagentparser.Browser</span></tt></a></p>
+<dl class="method">
+<dt id="lib.apptools.util.httpagentparser.Opera.getVersion">
+<tt class="descname">getVersion</tt><big>(</big><em>agent</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#Opera.getVersion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.Opera.getVersion" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Opera.look_for">
+<tt class="descname">look_for</tt><em class="property"> = 'Opera'</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Opera.look_for" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.httpagentparser.Result">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">Result</tt><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#Result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.Result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.httpagentparser.Safari">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">Safari</tt><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#Safari"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.Safari" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.httpagentparser.Browser" title="lib.apptools.util.httpagentparser.Browser"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.httpagentparser.Browser</span></tt></a></p>
+<dl class="method">
+<dt id="lib.apptools.util.httpagentparser.Safari.checkWords">
+<tt class="descname">checkWords</tt><big>(</big><em>agent</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#Safari.checkWords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.Safari.checkWords" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.util.httpagentparser.Safari.getVersion">
+<tt class="descname">getVersion</tt><big>(</big><em>agent</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#Safari.getVersion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.Safari.getVersion" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Safari.look_for">
+<tt class="descname">look_for</tt><em class="property"> = 'Safari'</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Safari.look_for" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.httpagentparser.Ubuntu">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">Ubuntu</tt><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#Ubuntu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.Ubuntu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.httpagentparser.Dist" title="lib.apptools.util.httpagentparser.Dist"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.httpagentparser.Dist</span></tt></a></p>
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Ubuntu.look_for">
+<tt class="descname">look_for</tt><em class="property"> = 'Ubuntu'</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Ubuntu.look_for" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Ubuntu.prefs">
+<tt class="descname">prefs</tt><em class="property"> = {'browser': ['Firefox']}</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Ubuntu.prefs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Ubuntu.version_splitters">
+<tt class="descname">version_splitters</tt><em class="property"> = ['/', ' ']</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Ubuntu.version_splitters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.httpagentparser.Windows">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">Windows</tt><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#Windows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.Windows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.httpagentparser.OS" title="lib.apptools.util.httpagentparser.OS"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.httpagentparser.OS</span></tt></a></p>
+<dl class="method">
+<dt id="lib.apptools.util.httpagentparser.Windows.getVersion">
+<tt class="descname">getVersion</tt><big>(</big><em>agent</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#Windows.getVersion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.Windows.getVersion" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Windows.look_for">
+<tt class="descname">look_for</tt><em class="property"> = 'Windows'</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Windows.look_for" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.httpagentparser.Windows.prefs">
+<tt class="descname">prefs</tt><em class="property"> = {'flavor': None, 'dict': None, 'browser': ['Microsoft Internet Explorer', 'Firefox']}</em><a class="headerlink" href="#lib.apptools.util.httpagentparser.Windows.prefs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.apptools.util.httpagentparser.detect">
+<tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">detect</tt><big>(</big><em>agent</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#detect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.detect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="lib.apptools.util.httpagentparser.detect_legacy">
+<tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">detect_legacy</tt><big>(</big><em>agent</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#detect_legacy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.detect_legacy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="lib.apptools.util.httpagentparser.simple_detect">
+<tt class="descclassname">lib.apptools.util.httpagentparser.</tt><tt class="descname">simple_detect</tt><big>(</big><em>agent</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/httpagentparser.html#simple_detect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.httpagentparser.simple_detect" title="Permalink to this definition">¶</a></dt>
+<dd><p>-&gt; (os, browser) # tuple of strings</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.apptools.util.platform">
+<span id="platform-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">platform</span></tt> Module<a class="headerlink" href="#module-lib.apptools.util.platform" title="Permalink to this headline">¶</a></h2>
+<p>Util: Platform</p>
+<p>Resolves supported/installed Platforms and provides PlatformInjector, which can be used
+to install dependencies into provided classes at runtime.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>&gt;)</p>
+<dl class="class">
+<dt id="lib.apptools.util.platform.DatamodelInjector">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.platform.</tt><tt class="descname">DatamodelInjector</tt><a class="reference internal" href="_modules/lib/apptools/util/platform.html#DatamodelInjector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.platform.DatamodelInjector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.util.platform.PlatformInjector" title="lib.apptools.util.platform.PlatformInjector"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.util.platform.PlatformInjector</span></tt></a></p>
+<p>Platform injector for AppTools models, with added support for storage engine management.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.util.platform.PlatformInjector">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.platform.</tt><tt class="descname">PlatformInjector</tt><a class="reference internal" href="_modules/lib/apptools/util/platform.html#PlatformInjector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.platform.PlatformInjector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Resolves platforms supported by the current environment, and injects them into AppTools Core.</p>
+<dl class="attribute">
+<dt id="lib.apptools.util.platform.PlatformInjector.adapters">
+<tt class="descname">adapters</tt><em class="property"> = {}</em><a class="headerlink" href="#lib.apptools.util.platform.PlatformInjector.adapters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="lib.apptools.util.platform.PlatformInjector.discover">
+<em class="property">classmethod </em><tt class="descname">discover</tt><big>(</big><em>storage=False</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/platform.html#PlatformInjector.discover"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.platform.PlatformInjector.discover" title="Permalink to this definition">¶</a></dt>
+<dd><p>Discover installed platforms, cache them globally.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="lib.apptools.util.platform.PlatformInjector.inject">
+<em class="property">classmethod </em><tt class="descname">inject</tt><big>(</big><em>target</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/platform.html#PlatformInjector.inject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.platform.PlatformInjector.inject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take the target class and inject properties according to enabled platforms + features.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.util.platform.PlatformInjector.platforms">
+<tt class="descname">platforms</tt><em class="property"> = []</em><a class="headerlink" href="#lib.apptools.util.platform.PlatformInjector.platforms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.apptools.util.runtools">
+<span id="runtools-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">runtools</span></tt> Module<a class="headerlink" href="#module-lib.apptools.util.runtools" title="Permalink to this headline">¶</a></h2>
+<p>Util: Runtools</p>
+<p>Small utilities used during WSGI app init/other low level areas of AppTools.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>&gt;)</p>
+<dl class="function">
+<dt id="lib.apptools.util.runtools.enable_appstats">
+<tt class="descclassname">lib.apptools.util.runtools.</tt><tt class="descname">enable_appstats</tt><big>(</big><em>app</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/runtools.html#enable_appstats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.runtools.enable_appstats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility function that enables appstats middleware.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.apptools.util.runtools.enable_apptrace">
+<tt class="descclassname">lib.apptools.util.runtools.</tt><tt class="descname">enable_apptrace</tt><big>(</big><em>app</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/runtools.html#enable_apptrace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.runtools.enable_apptrace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility function that enables apptrace middleware.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.apptools.util.runtools.enable_jinja2_debugging">
+<tt class="descclassname">lib.apptools.util.runtools.</tt><tt class="descname">enable_jinja2_debugging</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/runtools.html#enable_jinja2_debugging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.runtools.enable_jinja2_debugging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enables blacklisted modules that help Jinja2 debugging.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.apptools.util.timesince">
+<span id="timesince-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">timesince</span></tt> Module<a class="headerlink" href="#module-lib.apptools.util.timesince" title="Permalink to this headline">¶</a></h2>
+<p>Util: Timesince</p>
+<p>Takes two datetime objects and returns the time between d and now
+as a nicely formatted string, e.g. &#8220;10 minutes&#8221;.  If d occurs after now,
+then &#8220;0 minutes&#8221; is returned.</p>
+<p>Units used are years, months, weeks, days, hours, and minutes.
+Seconds and microseconds are ignored.  Up to two adjacent units will be
+displayed.  For example, &#8220;2 weeks, 3 days&#8221; and &#8220;1 year, 3 months&#8221; are
+possible outputs, but &#8220;2 weeks, 3 hours&#8221; and &#8220;1 year, 5 days&#8221; are not.</p>
+<p>Adapted from [<a class="reference external" href="http://blog.natbat.co.uk/archive/2003/Jun/14/time_since](http://blog.natbat.co.uk/archive/2003/Jun/14/time_since">http://blog.natbat.co.uk/archive/2003/Jun/14/time_since](http://blog.natbat.co.uk/archive/2003/Jun/14/time_since</a>)</p>
+<dl class="function">
+<dt id="lib.apptools.util.timesince.getword">
+<tt class="descclassname">lib.apptools.util.timesince.</tt><tt class="descname">getword</tt><big>(</big><em>singular</em>, <em>plural</em>, <em>n</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/timesince.html#getword"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.timesince.getword" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="lib.apptools.util.timesince.timesince">
+<tt class="descclassname">lib.apptools.util.timesince.</tt><tt class="descname">timesince</tt><big>(</big><em>d</em>, <em>now=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/util/timesince.html#timesince"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.timesince.timesince" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">util Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">util</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.util.appconfig"><tt class="docutils literal"><span class="pre">appconfig</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.util.byteconvert"><tt class="docutils literal"><span class="pre">byteconvert</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.util.datastructures"><tt class="docutils literal"><span class="pre">datastructures</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.util.debug"><tt class="docutils literal"><span class="pre">debug</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.util.decorators"><tt class="docutils literal"><span class="pre">decorators</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.util.httpagentparser"><tt class="docutils literal"><span class="pre">httpagentparser</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.util.platform"><tt class="docutils literal"><span class="pre">platform</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.util.runtools"><tt class="docutils literal"><span class="pre">runtools</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.util.timesince"><tt class="docutils literal"><span class="pre">timesince</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="lib.apptools.tests.test_model.test_adapters.html"
+                        title="previous chapter">test_adapters Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="lib.atom.html"
+                        title="next chapter">atom Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/lib.apptools.util.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lib.atom.html" title="atom Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="lib.apptools.tests.test_model.test_adapters.html" title="test_adapters Package"
+             >previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="lib.html" >lib Package</a> &raquo;</li>
+          <li><a href="lib.apptools.html" >apptools Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

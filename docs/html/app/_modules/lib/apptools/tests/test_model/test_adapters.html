@@ -1,0 +1,237 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.apptools.tests.test_model.test_adapters &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../../',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../../../index.html" />
+    <link rel="up" title="lib.apptools.tests.test_model" href="../test_model.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../../apptools.html" >lib.apptools</a> &raquo;</li>
+          <li><a href="../../tests.html" >lib.apptools.tests</a> &raquo;</li>
+          <li><a href="../test_model.html" accesskey="U">lib.apptools.tests.test_model</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.apptools.tests.test_model.test_adapters</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">    apptools2: model adapter tests</span>
+<span class="sd">    -------------------------------------------------</span>
+<span class="sd">    |                                               |</span>
+<span class="sd">    |   `apptools.tests.model.adapter`              |</span>
+<span class="sd">    |                                               |</span>
+<span class="sd">    |   this package contains test cases and utils  |</span>
+<span class="sd">    |   for testing the apptools model adapter API. |</span>
+<span class="sd">    |                                               |</span>
+<span class="sd">    -------------------------------------------------</span>
+<span class="sd">    |   authors:                                    |</span>
+<span class="sd">    |       -- sam gammon (sam@momentum.io)         |</span>
+<span class="sd">    -------------------------------------------------</span>
+<span class="sd">    |   changelog:                                  |</span>
+<span class="sd">    |       -- apr 1, 2013: initial draft           |</span>
+<span class="sd">    -------------------------------------------------</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c"># stdlib</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c"># apptools test</span>
+<span class="kn">from</span> <span class="nn">apptools.tests</span> <span class="kn">import</span> <span class="n">AppToolsTest</span>
+
+<span class="c"># apptools model API</span>
+<span class="kn">from</span> <span class="nn">apptools</span> <span class="kn">import</span> <span class="n">model</span>
+
+
+<span class="c">## AdapterExportTests</span>
+<span class="c"># Tests that things exported by the model adapter package are there.</span>
+<div class="viewcode-block" id="AdapterExportTests"><a class="viewcode-back" href="../../../../../lib.apptools.tests.test_model.test_adapters.html#lib.apptools.tests.test_model.test_adapters.AdapterExportTests">[docs]</a><span class="k">class</span> <span class="nc">AdapterExportTests</span><span class="p">(</span><span class="n">AppToolsTest</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Tests objects exported by `model.adapter`. &#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="AdapterExportTests.test_top_level_adapter_exports"><a class="viewcode-back" href="../../../../../lib.apptools.tests.test_model.test_adapters.html#lib.apptools.tests.test_model.test_adapters.AdapterExportTests.test_top_level_adapter_exports">[docs]</a>    <span class="k">def</span> <span class="nf">test_top_level_adapter_exports</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Test that we can import concrete classes. &#39;&#39;&#39;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">apptools</span> <span class="kn">import</span> <span class="n">model</span>
+            <span class="kn">from</span> <span class="nn">apptools.model</span> <span class="kn">import</span> <span class="n">adapter</span>
+
+        <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c"># pragma: no cover</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="s">&quot;Failed to import model adapter package.&quot;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">adapter</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">os</span><span class="p">))</span>  <span class="c"># `adapter` module</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">adapter</span><span class="o">.</span><span class="n">abstract</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">os</span><span class="p">))</span>  <span class="c"># `adapter.abstract` export</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">adapter</span><span class="o">.</span><span class="n">ModelAdapter</span><span class="p">)</span>  <span class="c"># `ModelAdapter` parent class</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">adapter</span><span class="o">.</span><span class="n">abstract_adapters</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>  <span class="c"># abstract adapter list</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">adapter</span><span class="o">.</span><span class="n">IndexedModelAdapter</span><span class="p">)</span>  <span class="c"># `IndexedModelAdapter` subclass</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">adapter</span><span class="o">.</span><span class="n">sql</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">os</span><span class="p">))</span>  <span class="c"># `sql` adapter</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">adapter</span><span class="o">.</span><span class="n">redis</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">os</span><span class="p">))</span>  <span class="c"># `redis` adapter</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">adapter</span><span class="o">.</span><span class="n">mongo</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">os</span><span class="p">))</span>  <span class="c"># `mongo` adapter</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">adapter</span><span class="o">.</span><span class="n">protorpc</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">os</span><span class="p">))</span>  <span class="c"># `protorpc` adapter</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">adapter</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">os</span><span class="p">))</span>  <span class="c"># `pipeline` adapter</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">adapter</span><span class="o">.</span><span class="n">memcache</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">os</span><span class="p">))</span>  <span class="c"># `memcache` adapter</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">adapter</span><span class="o">.</span><span class="n">inmemory</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">os</span><span class="p">))</span>  <span class="c"># `inmemory` adapter</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">adapter</span><span class="o">.</span><span class="n">modules</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>  <span class="c"># full modules tuple</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">issubclass</span><span class="p">(</span><span class="n">adapter</span><span class="o">.</span><span class="n">SQLAdapter</span><span class="p">,</span> <span class="n">adapter</span><span class="o">.</span><span class="n">ModelAdapter</span><span class="p">))</span>  <span class="c"># SQL adapter</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">issubclass</span><span class="p">(</span><span class="n">adapter</span><span class="o">.</span><span class="n">RedisAdapter</span><span class="p">,</span> <span class="n">adapter</span><span class="o">.</span><span class="n">ModelAdapter</span><span class="p">))</span>  <span class="c"># Redis adapter</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">issubclass</span><span class="p">(</span><span class="n">adapter</span><span class="o">.</span><span class="n">MongoAdapter</span><span class="p">,</span> <span class="n">adapter</span><span class="o">.</span><span class="n">ModelAdapter</span><span class="p">))</span>  <span class="c"># Mongo adapter</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">issubclass</span><span class="p">(</span><span class="n">adapter</span><span class="o">.</span><span class="n">MemcacheAdapter</span><span class="p">,</span> <span class="n">adapter</span><span class="o">.</span><span class="n">ModelAdapter</span><span class="p">))</span>  <span class="c"># Memcache adapter</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">issubclass</span><span class="p">(</span><span class="n">adapter</span><span class="o">.</span><span class="n">InMemoryAdapter</span><span class="p">,</span> <span class="n">adapter</span><span class="o">.</span><span class="n">ModelAdapter</span><span class="p">))</span>  <span class="c"># InMemory adapter</span>
+
+
+<span class="c">## ModelAdapterTests</span>
+<span class="c"># Test `ModelAdapter`, the abstract parent class to all model adapters.</span></div></div>
+<div class="viewcode-block" id="ModelAdapterTests"><a class="viewcode-back" href="../../../../../lib.apptools.tests.test_model.test_adapters.html#lib.apptools.tests.test_model.test_adapters.ModelAdapterTests">[docs]</a><span class="k">class</span> <span class="nc">ModelAdapterTests</span><span class="p">(</span><span class="n">AppToolsTest</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Test `adapter.abstract.ModelAdapter`. &#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="ModelAdapterTests.test_adapter_registry"><a class="viewcode-back" href="../../../../../lib.apptools.tests.test_model.test_adapters.html#lib.apptools.tests.test_model.test_adapters.ModelAdapterTests.test_adapter_registry">[docs]</a>    <span class="k">def</span> <span class="nf">test_adapter_registry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Test `adapter.abstract.ModelAdapter.registry`. &#39;&#39;&#39;</span>
+
+        <span class="kn">from</span> <span class="nn">apptools.model.adapter</span> <span class="kn">import</span> <span class="n">abstract</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">abstract</span><span class="o">.</span><span class="n">ModelAdapter</span><span class="p">,</span> <span class="s">&#39;registry&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">abstract</span><span class="o">.</span><span class="n">ModelAdapter</span><span class="o">.</span><span class="n">registry</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+
+        <span class="c">## SampleModel</span>
+        <span class="c"># Quick sample model to make sure class registration happens properly.</span>
+        <span class="k">class</span> <span class="nc">Sample</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+
+            <span class="sd">&#39;&#39;&#39; Quick sample model. &#39;&#39;&#39;</span>
+
+            <span class="k">pass</span>
+
+        <span class="c"># test that our class was registered</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">((</span><span class="s">&#39;Sample&#39;</span> <span class="ow">in</span> <span class="n">abstract</span><span class="o">.</span><span class="n">ModelAdapter</span><span class="o">.</span><span class="n">registry</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">abstract</span><span class="o">.</span><span class="n">ModelAdapter</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;Sample&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">Sample</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ModelAdapterTests.test_default_adapter"><a class="viewcode-back" href="../../../../../lib.apptools.tests.test_model.test_adapters.html#lib.apptools.tests.test_model.test_adapters.ModelAdapterTests.test_default_adapter">[docs]</a>    <span class="k">def</span> <span class="nf">test_default_adapter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Test that the default adapter is assigned properly. &#39;&#39;&#39;</span>
+
+        <span class="kn">from</span> <span class="nn">apptools.model</span> <span class="kn">import</span> <span class="n">adapter</span>
+        <span class="kn">from</span> <span class="nn">apptools.model.adapter</span> <span class="kn">import</span> <span class="n">abstract</span>
+
+        <span class="c">## TestDefault</span>
+        <span class="c"># Quick sample model to test default adapter injection.</span>
+        <span class="k">class</span> <span class="nc">TestDefault</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+
+            <span class="sd">&#39;&#39;&#39; Quick sample model. &#39;&#39;&#39;</span>
+
+            <span class="k">pass</span>
+
+        <span class="c"># test attribute + default injector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">TestDefault</span><span class="p">,</span> <span class="s">&#39;__adapter__&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">TestDefault</span><span class="o">.</span><span class="n">__adapter__</span><span class="p">,</span> <span class="n">adapter</span><span class="o">.</span><span class="n">InMemoryAdapter</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ModelAdapterTests.test_explicit_adapter"><a class="viewcode-back" href="../../../../../lib.apptools.tests.test_model.test_adapters.html#lib.apptools.tests.test_model.test_adapters.ModelAdapterTests.test_explicit_adapter">[docs]</a>    <span class="k">def</span> <span class="nf">test_explicit_adapter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Test that an adapter can be set explcitly. &#39;&#39;&#39;</span>
+
+        <span class="kn">from</span> <span class="nn">apptools.model</span> <span class="kn">import</span> <span class="n">adapter</span>
+        <span class="kn">from</span> <span class="nn">apptools.model.adapter</span> <span class="kn">import</span> <span class="n">abstract</span>
+
+        <span class="c">## TestExplicit</span>
+        <span class="c"># Quick sample model to test explicit adapter injection.</span>
+        <span class="k">class</span> <span class="nc">TestExplicit</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+
+            <span class="sd">&#39;&#39;&#39; Quick sample model. &#39;&#39;&#39;</span>
+
+            <span class="n">__adapter__</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="n">RedisAdapter</span>
+
+        <span class="c"># test attribute + explicit injector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">TestExplicit</span><span class="p">,</span> <span class="s">&#39;__adapter__&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">TestExplicit</span><span class="o">.</span><span class="n">__adapter__</span><span class="p">,</span> <span class="n">adapter</span><span class="o">.</span><span class="n">RedisAdapter</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../../index.html">
+              <img class="logo" src="../../../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../../apptools.html" >lib.apptools</a> &raquo;</li>
+          <li><a href="../../tests.html" >lib.apptools.tests</a> &raquo;</li>
+          <li><a href="../test_model.html" >lib.apptools.tests.test_model</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

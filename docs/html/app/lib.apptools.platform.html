@@ -1,0 +1,457 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>platform Package &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="index.html" />
+    <link rel="up" title="apptools Package" href="lib.apptools.html" />
+    <link rel="next" title="services Package" href="lib.apptools.services.html" />
+    <link rel="prev" title="pipelines Package" href="lib.apptools.pipelines.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lib.apptools.services.html" title="services Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="lib.apptools.pipelines.html" title="pipelines Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="lib.html" >lib Package</a> &raquo;</li>
+          <li><a href="lib.apptools.html" accesskey="U">apptools Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="platform-package">
+<h1>platform Package<a class="headerlink" href="#platform-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">platform</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-lib.apptools.platform"></span><p>AppTools Platform</p>
+<p>Enables AppTools to run on any platform supporting WSGI, with specific enhancements
+for each one that can be identified in the environment.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>&gt;)</p>
+<dl class="class">
+<dt id="lib.apptools.platform.Platform">
+<em class="property">class </em><tt class="descclassname">lib.apptools.platform.</tt><tt class="descname">Platform</tt><a class="reference internal" href="_modules/lib/apptools/platform.html#Platform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.Platform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Specifies a platform that AppTools can sit upon.</p>
+<dl class="method">
+<dt id="lib.apptools.platform.Platform.lazyload">
+<tt class="descname">lazyload</tt><big>(</big><em>module</em><big>)</big><a class="headerlink" href="#lib.apptools.platform.Platform.lazyload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lazy load a module, or return False if it cannot be found/imported.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.platform.Platform.logging">
+<tt class="descname">logging</tt><a class="reference internal" href="_modules/lib/apptools/platform.html#Platform.logging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.Platform.logging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Named log pipe.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.platform.PlatformBridge">
+<em class="property">class </em><tt class="descclassname">lib.apptools.platform.</tt><tt class="descname">PlatformBridge</tt><a class="reference internal" href="_modules/lib/apptools/platform.html#PlatformBridge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.PlatformBridge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Specifies a bridge between components of AppTools and a Platform feature.</p>
+<dl class="method">
+<dt id="lib.apptools.platform.PlatformBridge.lazyload">
+<tt class="descname">lazyload</tt><big>(</big><em>module</em><big>)</big><a class="headerlink" href="#lib.apptools.platform.PlatformBridge.lazyload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lazy load a module, or return False if it cannot be found/imported.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.platform.PlatformBridge.logging">
+<tt class="descname">logging</tt><a class="reference internal" href="_modules/lib/apptools/platform.html#PlatformBridge.logging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.PlatformBridge.logging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Named log pipe.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.apptools.platform.appengine">
+<span id="appengine-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">appengine</span></tt> Module<a class="headerlink" href="#module-lib.apptools.platform.appengine" title="Permalink to this headline">¶</a></h2>
+<p>Platform: Google App Engine</p>
+<p>Enables shortcuts, libraries and other utilities that are specific to App Engine.
+Also provides a template context injector for GAE-specific request info/environment.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>&gt;)</p>
+<dl class="class">
+<dt id="lib.apptools.platform.appengine.GAEAPIBridge">
+<em class="property">class </em><tt class="descclassname">lib.apptools.platform.appengine.</tt><tt class="descname">GAEAPIBridge</tt><a class="reference internal" href="_modules/lib/apptools/platform/appengine.html#GAEAPIBridge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.appengine.GAEAPIBridge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.platform.PlatformBridge</span></tt></p>
+<p>Offers shortcuts to App Engine APIs.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.platform.appengine.GAELibBridge">
+<em class="property">class </em><tt class="descclassname">lib.apptools.platform.appengine.</tt><tt class="descname">GAELibBridge</tt><a class="reference internal" href="_modules/lib/apptools/platform/appengine.html#GAELibBridge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.appengine.GAELibBridge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.platform.PlatformBridge</span></tt></p>
+<p>Offers shortcuts to common App Engine libraries.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.platform.appengine.GoogleAppEngine">
+<em class="property">class </em><tt class="descclassname">lib.apptools.platform.appengine.</tt><tt class="descname">GoogleAppEngine</tt><a class="reference internal" href="_modules/lib/apptools/platform/appengine.html#GoogleAppEngine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.appengine.GoogleAppEngine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.platform.Platform</span></tt></p>
+<p>Platform-specific features and exports for Google App Engine.</p>
+<dl class="attribute">
+<dt id="lib.apptools.platform.appengine.GoogleAppEngine.api">
+<tt class="descname">api</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x109b7e7d0&gt;</em><a class="headerlink" href="#lib.apptools.platform.appengine.GoogleAppEngine.api" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="lib.apptools.platform.appengine.GoogleAppEngine.check_environment">
+<em class="property">classmethod </em><tt class="descname">check_environment</tt><big>(</big><em>environ</em>, <em>config</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/platform/appengine.html#GoogleAppEngine.check_environment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.appengine.GoogleAppEngine.check_environment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check the environment and see if we&#8217;re running on GAE.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.platform.appengine.GoogleAppEngine.lib">
+<tt class="descname">lib</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x109b7e850&gt;</em><a class="headerlink" href="#lib.apptools.platform.appengine.GoogleAppEngine.lib" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.platform.appengine.GoogleAppEngine.shortcut_exports">
+<tt class="descname">shortcut_exports</tt><a class="reference internal" href="_modules/lib/apptools/platform/appengine.html#GoogleAppEngine.shortcut_exports"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.appengine.GoogleAppEngine.shortcut_exports" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return shortcuts.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.platform.appengine.GoogleAppEngine.template_context">
+<tt class="descname">template_context</tt><a class="reference internal" href="_modules/lib/apptools/platform/appengine.html#GoogleAppEngine.template_context"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.appengine.GoogleAppEngine.template_context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inject GAE-specific tools into the template context.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.apptools.platform.appfactory">
+<span id="appfactory-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">appfactory</span></tt> Module<a class="headerlink" href="#module-lib.apptools.platform.appfactory" title="Permalink to this headline">¶</a></h2>
+<p>Platform: AppFactory</p>
+<p>Deep integration with momentum labs&#8217; Layer9 AppFactory platform. Exposes
+and injects shortcuts to code that controls, parses, and mediates signals
+between AppEngine and the individual AppFactory components: the Frontline,
+Upstream and Controller layers.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>&gt;)</p>
+<dl class="class">
+<dt id="lib.apptools.platform.appfactory.AppFactory">
+<em class="property">class </em><tt class="descclassname">lib.apptools.platform.appfactory.</tt><tt class="descname">AppFactory</tt><a class="reference internal" href="_modules/lib/apptools/platform/appfactory.html#AppFactory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.appfactory.AppFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.platform.Platform</span></tt></p>
+<p>Provider for integration with momentum&#8217;s Layer9 AppFactory platform.</p>
+<dl class="classmethod">
+<dt id="lib.apptools.platform.appfactory.AppFactory.check_environment">
+<em class="property">classmethod </em><tt class="descname">check_environment</tt><big>(</big><em>environ</em>, <em>config</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/platform/appfactory.html#AppFactory.check_environment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.appfactory.AppFactory.check_environment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check config to see if AppFactory integration is enabled.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.platform.appfactory.AppFactory.config_shortcuts">
+<tt class="descname">config_shortcuts</tt><a class="reference internal" href="_modules/lib/apptools/platform/appfactory.html#AppFactory.config_shortcuts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.appfactory.AppFactory.config_shortcuts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.platform.appfactory.AppFactory.controller_config_key">
+<tt class="descname">controller_config_key</tt><em class="property"> = 'controller'</em><a class="headerlink" href="#lib.apptools.platform.appfactory.AppFactory.controller_config_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.platform.appfactory.AppFactory.frontline_config_key">
+<tt class="descname">frontline_config_key</tt><em class="property"> = 'frontline'</em><a class="headerlink" href="#lib.apptools.platform.appfactory.AppFactory.frontline_config_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.platform.appfactory.AppFactory.l9_config_path">
+<tt class="descname">l9_config_path</tt><em class="property"> = 'layer9.appfactory'</em><a class="headerlink" href="#lib.apptools.platform.appfactory.AppFactory.l9_config_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.platform.appfactory.AppFactory.l9_header_prefix">
+<tt class="descname">l9_header_prefix</tt><em class="property"> = 'X-AppFactory'</em><a class="headerlink" href="#lib.apptools.platform.appfactory.AppFactory.l9_header_prefix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.platform.appfactory.AppFactory.logging">
+<tt class="descname">logging</tt><a class="reference internal" href="_modules/lib/apptools/platform/appfactory.html#AppFactory.logging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.appfactory.AppFactory.logging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Named logging pipe.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.platform.appfactory.AppFactory.post_dispatch">
+<tt class="descname">post_dispatch</tt><big>(</big><em>handler</em>, <em>result</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/platform/appfactory.html#AppFactory.post_dispatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.appfactory.AppFactory.post_dispatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook into apptools after dispatch has run, and read stats from the response to dump to memcache.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.platform.appfactory.AppFactory.pre_dispatch">
+<tt class="descname">pre_dispatch</tt><big>(</big><em>handler</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/platform/appfactory.html#AppFactory.pre_dispatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.appfactory.AppFactory.pre_dispatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook into apptools before dispatch is run, and modify the request if Frontline-added HTTP headers are present.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.platform.appfactory.AppFactory.shortcut_exports">
+<tt class="descname">shortcut_exports</tt><a class="reference internal" href="_modules/lib/apptools/platform/appfactory.html#AppFactory.shortcut_exports"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.appfactory.AppFactory.shortcut_exports" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return shortcuts to AppFactory functionality.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.platform.appfactory.AppFactory.template_context">
+<tt class="descname">template_context</tt><a class="reference internal" href="_modules/lib/apptools/platform/appfactory.html#AppFactory.template_context"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.appfactory.AppFactory.template_context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inject AppFactory-specific tools.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.platform.appfactory.AppFactory.upstream_config_key">
+<tt class="descname">upstream_config_key</tt><em class="property"> = 'upstream'</em><a class="headerlink" href="#lib.apptools.platform.appfactory.AppFactory.upstream_config_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.platform.appfactory.AppFactory.version">
+<tt class="descname">version</tt><a class="headerlink" href="#lib.apptools.platform.appfactory.AppFactory.version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.platform.appfactory.ControllerBridge">
+<em class="property">class </em><tt class="descclassname">lib.apptools.platform.appfactory.</tt><tt class="descname">ControllerBridge</tt><big>(</big><em>bus</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/platform/appfactory.html#ControllerBridge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.appfactory.ControllerBridge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.platform.PlatformBridge</span></tt>, <a class="reference internal" href="#lib.apptools.platform.appfactory.TransportBusManager" title="lib.apptools.platform.appfactory.TransportBusManager"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.platform.appfactory.TransportBusManager</span></tt></a></p>
+<p>Bridge to controller-specific features.</p>
+<dl class="attribute">
+<dt id="lib.apptools.platform.appfactory.ControllerBridge.config">
+<tt class="descname">config</tt><a class="reference internal" href="_modules/lib/apptools/platform/appfactory.html#ControllerBridge.config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.appfactory.ControllerBridge.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Named config pipe to controller L9AF config.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.platform.appfactory.ControllerBridge.logging">
+<tt class="descname">logging</tt><a class="reference internal" href="_modules/lib/apptools/platform/appfactory.html#ControllerBridge.logging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.appfactory.ControllerBridge.logging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Named logging pipe.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.platform.appfactory.FrontlineBridge">
+<em class="property">class </em><tt class="descclassname">lib.apptools.platform.appfactory.</tt><tt class="descname">FrontlineBridge</tt><big>(</big><em>bus</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/platform/appfactory.html#FrontlineBridge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.appfactory.FrontlineBridge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.platform.PlatformBridge</span></tt>, <a class="reference internal" href="#lib.apptools.platform.appfactory.TransportBusManager" title="lib.apptools.platform.appfactory.TransportBusManager"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.platform.appfactory.TransportBusManager</span></tt></a></p>
+<p>Bridge to frontline-specific features.</p>
+<dl class="attribute">
+<dt id="lib.apptools.platform.appfactory.FrontlineBridge.config">
+<tt class="descname">config</tt><a class="reference internal" href="_modules/lib/apptools/platform/appfactory.html#FrontlineBridge.config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.appfactory.FrontlineBridge.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Named config pipe to frontline L9AF config.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.platform.appfactory.FrontlineBridge.logging">
+<tt class="descname">logging</tt><a class="reference internal" href="_modules/lib/apptools/platform/appfactory.html#FrontlineBridge.logging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.appfactory.FrontlineBridge.logging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Named logging pipe.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.platform.appfactory.TransportBusManager">
+<em class="property">class </em><tt class="descclassname">lib.apptools.platform.appfactory.</tt><tt class="descname">TransportBusManager</tt><big>(</big><em>bus</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/platform/appfactory.html#TransportBusManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.appfactory.TransportBusManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Mixes in bus management features to L9 bridge classes.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.platform.appfactory.UpstreamBridge">
+<em class="property">class </em><tt class="descclassname">lib.apptools.platform.appfactory.</tt><tt class="descname">UpstreamBridge</tt><big>(</big><em>bus</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/platform/appfactory.html#UpstreamBridge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.appfactory.UpstreamBridge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.platform.PlatformBridge</span></tt>, <a class="reference internal" href="#lib.apptools.platform.appfactory.TransportBusManager" title="lib.apptools.platform.appfactory.TransportBusManager"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.platform.appfactory.TransportBusManager</span></tt></a></p>
+<p>Bridge to upstream-specific features.</p>
+<dl class="attribute">
+<dt id="lib.apptools.platform.appfactory.UpstreamBridge.config">
+<tt class="descname">config</tt><a class="reference internal" href="_modules/lib/apptools/platform/appfactory.html#UpstreamBridge.config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.appfactory.UpstreamBridge.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Named config pipe to upstream L9AF config.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.platform.appfactory.UpstreamBridge.logging">
+<tt class="descname">logging</tt><a class="reference internal" href="_modules/lib/apptools/platform/appfactory.html#UpstreamBridge.logging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.appfactory.UpstreamBridge.logging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Named logging pipe.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.apptools.platform.generic">
+<span id="generic-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">generic</span></tt> Module<a class="headerlink" href="#module-lib.apptools.platform.generic" title="Permalink to this headline">¶</a></h2>
+<p>Platform: Generic WSGI</p>
+<p>Base platform functionality that is enabled in every supported environment.
+Provides utils and shortcuts that should always be available in AppTools.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>&gt;)</p>
+<dl class="class">
+<dt id="lib.apptools.platform.generic.AppToolsExtBridge">
+<em class="property">class </em><tt class="descclassname">lib.apptools.platform.generic.</tt><tt class="descname">AppToolsExtBridge</tt><a class="reference internal" href="_modules/lib/apptools/platform/generic.html#AppToolsExtBridge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.generic.AppToolsExtBridge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.platform.PlatformBridge</span></tt></p>
+<p>Bridge to AppTools APIs and extensions.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.platform.generic.AppToolsUtilBridge">
+<em class="property">class </em><tt class="descclassname">lib.apptools.platform.generic.</tt><tt class="descname">AppToolsUtilBridge</tt><a class="reference internal" href="_modules/lib/apptools/platform/generic.html#AppToolsUtilBridge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.generic.AppToolsUtilBridge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.platform.PlatformBridge</span></tt></p>
+<p>Offers shortcuts to installed third-party libraries.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.platform.generic.GenericWSGI">
+<em class="property">class </em><tt class="descclassname">lib.apptools.platform.generic.</tt><tt class="descname">GenericWSGI</tt><a class="reference internal" href="_modules/lib/apptools/platform/generic.html#GenericWSGI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.generic.GenericWSGI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.platform.Platform</span></tt></p>
+<p>Platform-specific features and exports for Google App Engine.</p>
+<dl class="classmethod">
+<dt id="lib.apptools.platform.generic.GenericWSGI.check_environment">
+<em class="property">classmethod </em><tt class="descname">check_environment</tt><big>(</big><em>environ</em>, <em>config</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/platform/generic.html#GenericWSGI.check_environment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.generic.GenericWSGI.check_environment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Always enable generic environment.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.platform.generic.GenericWSGI.config">
+<tt class="descname">config</tt><a class="reference internal" href="_modules/lib/apptools/platform/generic.html#GenericWSGI.config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.generic.GenericWSGI.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cached shortcut to global config.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.platform.generic.GenericWSGI.config_shortcuts">
+<tt class="descname">config_shortcuts</tt><a class="reference internal" href="_modules/lib/apptools/platform/generic.html#GenericWSGI.config_shortcuts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.generic.GenericWSGI.config_shortcuts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return config shortcuts only.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.platform.generic.GenericWSGI.ext">
+<tt class="descname">ext</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x107b95090&gt;</em><a class="headerlink" href="#lib.apptools.platform.generic.GenericWSGI.ext" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.platform.generic.GenericWSGI.shortcut_exports">
+<tt class="descname">shortcut_exports</tt><a class="reference internal" href="_modules/lib/apptools/platform/generic.html#GenericWSGI.shortcut_exports"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.generic.GenericWSGI.shortcut_exports" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return shortcuts.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.platform.generic.GenericWSGI.template_context">
+<tt class="descname">template_context</tt><a class="reference internal" href="_modules/lib/apptools/platform/generic.html#GenericWSGI.template_context"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.platform.generic.GenericWSGI.template_context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inject generic + apptools stuff into the template context.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.platform.generic.GenericWSGI.util">
+<tt class="descname">util</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x107b95350&gt;</em><a class="headerlink" href="#lib.apptools.platform.generic.GenericWSGI.util" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">platform Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">platform</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.platform.appengine"><tt class="docutils literal"><span class="pre">appengine</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.platform.appfactory"><tt class="docutils literal"><span class="pre">appfactory</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.platform.generic"><tt class="docutils literal"><span class="pre">generic</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="lib.apptools.pipelines.html"
+                        title="previous chapter">pipelines Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="lib.apptools.services.html"
+                        title="next chapter">services Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/lib.apptools.platform.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lib.apptools.services.html" title="services Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="lib.apptools.pipelines.html" title="pipelines Package"
+             >previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="lib.html" >lib Package</a> &raquo;</li>
+          <li><a href="lib.apptools.html" >apptools Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

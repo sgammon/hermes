@@ -1,0 +1,278 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>handlers Package &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="index.html" />
+    <link rel="up" title="api Package" href="api.html" />
+    <link rel="next" title="messages Package" href="api.messages.html" />
+    <link rel="prev" title="api Package" href="api.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.messages.html" title="messages Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="api Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="api.html" accesskey="U">api Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="handlers-package">
+<h1>handlers Package<a class="headerlink" href="#handlers-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">handlers</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-api.handlers"></span><p>API: Handlers</p>
+<p>This module contains the top level WebHandler, which is responsible for
+responding to regular HTTP requests in a traditional HTTP request/response
+cycle. All project handlers should inherit from this.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+<dl class="class">
+<dt id="api.handlers.WebHandler">
+<em class="property">class </em><tt class="descclassname">api.handlers.</tt><tt class="descname">WebHandler</tt><big>(</big><em>request=None</em>, <em>response=None</em><big>)</big><a class="reference internal" href="_modules/api/handlers.html#WebHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.WebHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.core.BaseHandler</span></tt></p>
+<p>Handler for desktop web requests.</p>
+<dl class="attribute">
+<dt id="api.handlers.WebHandler.baseTransport">
+<tt class="descname">baseTransport</tt><a class="reference internal" href="_modules/api/handlers.html#WebHandler.baseTransport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.WebHandler.baseTransport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a clean set of transport base settings.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.handlers.WebHandler.computedTransport">
+<tt class="descname">computedTransport</tt><a class="reference internal" href="_modules/api/handlers.html#WebHandler.computedTransport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.WebHandler.computedTransport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overlay this handler&#8217;s transport settings on the app&#8217;s base settings and return.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.handlers.WebHandler.config">
+<tt class="descname">config</tt><a class="reference internal" href="_modules/api/handlers.html#WebHandler.config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.WebHandler.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cached access to main config for this handler.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.handlers.WebHandler.debug">
+<tt class="descname">debug</tt><a class="reference internal" href="_modules/api/handlers.html#WebHandler.debug"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.WebHandler.debug" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shortcut to AppTools debugging utilities.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.handlers.WebHandler.dispatch">
+<tt class="descname">dispatch</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/api/handlers.html#WebHandler.dispatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.WebHandler.dispatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dispatch a response for a given request using this handler.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.handlers.WebHandler.head">
+<tt class="descname">head</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/api/handlers.html#WebHandler.head"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.WebHandler.head" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run GET, if defined, and return the headers only.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.handlers.WebHandler.hostname">
+<tt class="descname">hostname</tt><a class="reference internal" href="_modules/api/handlers.html#WebHandler.hostname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.WebHandler.hostname" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return proxied or request hostname.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.handlers.WebHandler.initialize">
+<tt class="descname">initialize</tt><big>(</big><em>request</em>, <em>response</em><big>)</big><a class="reference internal" href="_modules/api/handlers.html#WebHandler.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.WebHandler.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize this handler.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.handlers.WebHandler.jinja2">
+<tt class="descname">jinja2</tt><a class="reference internal" href="_modules/api/handlers.html#WebHandler.jinja2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.WebHandler.jinja2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cached access to Jinja2.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.handlers.WebHandler.logging">
+<tt class="descname">logging</tt><a class="reference internal" href="_modules/api/handlers.html#WebHandler.logging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.WebHandler.logging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Named logging pipe / shortcut.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.handlers.WebHandler.options">
+<tt class="descname">options</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/api/handlers.html#WebHandler.options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.WebHandler.options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run GET, clear response, return headers only.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.handlers.WebHandler.preload">
+<tt class="descname">preload</tt><em class="property"> = None</em><a class="headerlink" href="#api.handlers.WebHandler.preload" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="api.handlers.WebHandler.render">
+<tt class="descname">render</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/api/handlers.html#WebHandler.render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.WebHandler.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>If supported, pass off to dynamic render, which rolls-in support for editable content blocks.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.handlers.WebHandler.session">
+<tt class="descname">session</tt><em class="property"> = None</em><a class="headerlink" href="#api.handlers.WebHandler.session" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.handlers.WebHandler.template">
+<tt class="descname">template</tt><em class="property"> = None</em><a class="headerlink" href="#api.handlers.WebHandler.template" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.handlers.WebHandler.template_environment">
+<tt class="descname">template_environment</tt><a class="reference internal" href="_modules/api/handlers.html#WebHandler.template_environment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.WebHandler.template_environment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new environment, because if we&#8217;re already here it&#8217;s not cached.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.handlers.WebHandler.transport">
+<tt class="descname">transport</tt><em class="property"> = {'endpoint': '127.0.0.1:8080', 'consumer': 'hermes-sandbox', 'secure': False, 'realtime': {'endpoint': None, 'enabled': False, 'secure': False}}</em><a class="headerlink" href="#api.handlers.WebHandler.transport" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-api.handlers.harness">
+<span id="harness-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">harness</span></tt> Module<a class="headerlink" href="#module-api.handlers.harness" title="Permalink to this headline">¶</a></h2>
+<p>API Handlers: Harness</p>
+<p>Handlers for the API test harness.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+<dl class="class">
+<dt id="api.handlers.harness.Landing">
+<em class="property">class </em><tt class="descclassname">api.handlers.harness.</tt><tt class="descname">Landing</tt><big>(</big><em>request=None</em>, <em>response=None</em><big>)</big><a class="reference internal" href="_modules/api/handlers/harness.html#Landing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.harness.Landing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#api.handlers.WebHandler" title="api.handlers.WebHandler"><tt class="xref py py-class docutils literal"><span class="pre">api.handlers.WebHandler</span></tt></a></p>
+<p>Testing harness landing page.</p>
+<dl class="method">
+<dt id="api.handlers.harness.Landing.get">
+<tt class="descname">get</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/api/handlers/harness.html#Landing.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.harness.Landing.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>HTTP GET</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.handlers.harness.SandboxHandler">
+<em class="property">class </em><tt class="descclassname">api.handlers.harness.</tt><tt class="descname">SandboxHandler</tt><big>(</big><em>request=None</em>, <em>response=None</em><big>)</big><a class="reference internal" href="_modules/api/handlers/harness.html#SandboxHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.harness.SandboxHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#api.handlers.WebHandler" title="api.handlers.WebHandler"><tt class="xref py py-class docutils literal"><span class="pre">api.handlers.WebHandler</span></tt></a></p>
+<p>Playground for apptools JS.</p>
+<dl class="method">
+<dt id="api.handlers.harness.SandboxHandler.get">
+<tt class="descname">get</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/api/handlers/harness.html#SandboxHandler.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.harness.SandboxHandler.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>HTTP GET</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">handlers Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">handlers</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-api.handlers.harness"><tt class="docutils literal"><span class="pre">harness</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="api.html"
+                        title="previous chapter">api Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="api.messages.html"
+                        title="next chapter">messages Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/api.handlers.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.messages.html" title="messages Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="api Package"
+             >previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="api.html" >api Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

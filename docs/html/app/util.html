@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>util Package &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="index.html" />
+    <link rel="prev" title="tools Package" href="tools.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tools.html" title="tools Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="util-package">
+<h1>util Package<a class="headerlink" href="#util-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><a class="reference internal" href="#module-util" title="util"><tt class="xref py py-mod docutils literal"><span class="pre">util</span></tt></a> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-util"></span><p>Hermes: Utils</p>
+<p>This package holds small utilities and random, miscellaneous code.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+</div>
+<div class="section" id="module-util.exceptions">
+<span id="exceptions-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">exceptions</span></tt> Module<a class="headerlink" href="#module-util.exceptions" title="Permalink to this headline">¶</a></h2>
+<p>Hermes: Exceptions</p>
+<p>Holds top-level app exception classes, including Hermes&#8217; package-level
+exception ancestor, exported as <cite>Error</cite>.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+<dl class="exception">
+<dt id="util.exceptions.APIError">
+<em class="property">exception </em><tt class="descclassname">util.exceptions.</tt><tt class="descname">APIError</tt><a class="reference internal" href="_modules/util/exceptions.html#APIError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.exceptions.APIError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#util.exceptions.PlatformError" title="util.exceptions.PlatformError"><tt class="xref py py-class docutils literal"><span class="pre">util.exceptions.PlatformError</span></tt></a></p>
+<p>Error that occurred within ProtoRPC-backed RPC subsystems.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="util.exceptions.ClientError">
+<em class="property">exception </em><tt class="descclassname">util.exceptions.</tt><tt class="descname">ClientError</tt><a class="reference internal" href="_modules/util/exceptions.html#ClientError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.exceptions.ClientError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#util.exceptions.Error" title="util.exceptions.Error"><tt class="xref py py-class docutils literal"><span class="pre">util.exceptions.Error</span></tt></a></p>
+<p>Error that occurred because of a client-side slip-up.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="util.exceptions.Error">
+<em class="property">exception </em><tt class="descclassname">util.exceptions.</tt><tt class="descname">Error</tt><a class="reference internal" href="_modules/util/exceptions.html#Error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.exceptions.Error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>Top-level Hermes error.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="util.exceptions.EventError">
+<em class="property">exception </em><tt class="descclassname">util.exceptions.</tt><tt class="descname">EventError</tt><a class="reference internal" href="_modules/util/exceptions.html#EventError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.exceptions.EventError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#util.exceptions.ClientError" title="util.exceptions.ClientError"><tt class="xref py py-class docutils literal"><span class="pre">util.exceptions.ClientError</span></tt></a></p>
+<p>Error that occurred because of improper event structure.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="util.exceptions.InvalidSentinel">
+<em class="property">exception </em><tt class="descclassname">util.exceptions.</tt><tt class="descname">InvalidSentinel</tt><a class="reference internal" href="_modules/util/exceptions.html#InvalidSentinel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.exceptions.InvalidSentinel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#util.exceptions.EventError" title="util.exceptions.EventError"><tt class="xref py py-class docutils literal"><span class="pre">util.exceptions.EventError</span></tt></a></p>
+<p>Indicates that a URL came through in non-debug mode without a sentinel key.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="util.exceptions.PlatformError">
+<em class="property">exception </em><tt class="descclassname">util.exceptions.</tt><tt class="descname">PlatformError</tt><a class="reference internal" href="_modules/util/exceptions.html#PlatformError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.exceptions.PlatformError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#util.exceptions.Error" title="util.exceptions.Error"><tt class="xref py py-class docutils literal"><span class="pre">util.exceptions.Error</span></tt></a></p>
+<p>Platform (server-side)-related errors that occur in APIs or handlers.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="util.exceptions.TrackerError">
+<em class="property">exception </em><tt class="descclassname">util.exceptions.</tt><tt class="descname">TrackerError</tt><a class="reference internal" href="_modules/util/exceptions.html#TrackerError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.exceptions.TrackerError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#util.exceptions.PlatformError" title="util.exceptions.PlatformError"><tt class="xref py py-class docutils literal"><span class="pre">util.exceptions.PlatformError</span></tt></a></p>
+<p>Error that occurred within the Tracker subsystem.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">util Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">util</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-util.exceptions"><tt class="docutils literal"><span class="pre">exceptions</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tools.html"
+                        title="previous chapter">tools Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/util.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tools.html" title="tools Package"
+             >previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

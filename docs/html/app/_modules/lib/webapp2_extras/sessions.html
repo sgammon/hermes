@@ -1,0 +1,573 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.webapp2_extras.sessions &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.webapp2_extras.sessions</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    webapp2_extras.sessions</span>
+<span class="sd">    =======================</span>
+
+<span class="sd">    Lightweight but flexible session support for webapp2.</span>
+
+<span class="sd">    :copyright: 2011 by tipfy.org.</span>
+<span class="sd">    :license: Apache Sotware License, see LICENSE for details.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">import</span> <span class="nn">webapp2</span>
+
+<span class="kn">from</span> <span class="nn">webapp2_extras</span> <span class="kn">import</span> <span class="n">securecookie</span>
+<span class="kn">from</span> <span class="nn">webapp2_extras</span> <span class="kn">import</span> <span class="n">security</span>
+
+<span class="c">#: Default configuration values for this module. Keys are:</span>
+<span class="c">#:</span>
+<span class="c">#: secret_key</span>
+<span class="c">#:     Secret key to generate session cookies. Set this to something random</span>
+<span class="c">#:     and unguessable. This is the only required configuration key:</span>
+<span class="c">#:     an exception is raised if it is not defined.</span>
+<span class="c">#:</span>
+<span class="c">#: cookie_name</span>
+<span class="c">#:     Name of the cookie to save a session or session id. Default is</span>
+<span class="c">#:     `session`.</span>
+<span class="c">#:</span>
+<span class="c">#: session_max_age:</span>
+<span class="c">#:     Default session expiration time in seconds. Limits the duration of the</span>
+<span class="c">#:     contents of a cookie, even if a session cookie exists. If None, the</span>
+<span class="c">#:     contents lasts as long as the cookie is valid. Default is None.</span>
+<span class="c">#:</span>
+<span class="c">#: cookie_args</span>
+<span class="c">#:     Default keyword arguments used to set a cookie. Keys are:</span>
+<span class="c">#:</span>
+<span class="c">#:     - max_age: Cookie max age in seconds. Limits the duration</span>
+<span class="c">#:       of a session cookie. If None, the cookie lasts until the client</span>
+<span class="c">#:       is closed. Default is None.</span>
+<span class="c">#:</span>
+<span class="c">#:     - domain: Domain of the cookie. To work accross subdomains the</span>
+<span class="c">#:       domain must be set to the main domain with a preceding dot, e.g.,</span>
+<span class="c">#:       cookies set for `.mydomain.org` will work in `foo.mydomain.org` and</span>
+<span class="c">#:       `bar.mydomain.org`. Default is None, which means that cookies will</span>
+<span class="c">#:       only work for the current subdomain.</span>
+<span class="c">#:</span>
+<span class="c">#:     - path: Path in which the authentication cookie is valid.</span>
+<span class="c">#:       Default is `/`.</span>
+<span class="c">#:</span>
+<span class="c">#:     - secure: Make the cookie only available via HTTPS.</span>
+<span class="c">#:</span>
+<span class="c">#:     - httponly: Disallow JavaScript to access the cookie.</span>
+<span class="c">#:</span>
+<span class="c">#: backends</span>
+<span class="c">#:     A dictionary of available session backend classes used by</span>
+<span class="c">#:     :meth:`SessionStore.get_session`.</span>
+<span class="n">default_config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;secret_key&#39;</span><span class="p">:</span>      <span class="bp">None</span><span class="p">,</span>
+    <span class="s">&#39;cookie_name&#39;</span><span class="p">:</span>     <span class="s">&#39;session&#39;</span><span class="p">,</span>
+    <span class="s">&#39;session_max_age&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+    <span class="s">&#39;cookie_args&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;max_age&#39;</span><span class="p">:</span>     <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;domain&#39;</span><span class="p">:</span>      <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;path&#39;</span><span class="p">:</span>        <span class="s">&#39;/&#39;</span><span class="p">,</span>
+        <span class="s">&#39;secure&#39;</span><span class="p">:</span>      <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;httponly&#39;</span><span class="p">:</span>    <span class="bp">False</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s">&#39;backends&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;securecookie&#39;</span><span class="p">:</span> <span class="s">&#39;webapp2_extras.sessions.SecureCookieSessionFactory&#39;</span><span class="p">,</span>
+        <span class="s">&#39;datastore&#39;</span><span class="p">:</span>    <span class="s">&#39;webapp2_extras.appengine.sessions_ndb.&#39;</span> \
+                        <span class="s">&#39;DatastoreSessionFactory&#39;</span><span class="p">,</span>
+        <span class="s">&#39;memcache&#39;</span><span class="p">:</span>     <span class="s">&#39;webapp2_extras.appengine.sessions_memcache.&#39;</span> \
+                        <span class="s">&#39;MemcacheSessionFactory&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="n">_default_value</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">_UpdateDictMixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Makes dicts call `self.on_update` on modifications.</span>
+
+<span class="sd">    From werkzeug.datastructures.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">on_update</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">calls_update</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">oncall</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+            <span class="n">rv</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="nb">super</span><span class="p">(</span><span class="n">_UpdateDictMixin</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span> <span class="n">name</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_update</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">on_update</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">rv</span>
+        <span class="n">oncall</span><span class="o">.</span><span class="n">__name__</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="k">return</span> <span class="n">oncall</span>
+
+    <span class="n">__setitem__</span> <span class="o">=</span> <span class="n">calls_update</span><span class="p">(</span><span class="s">&#39;__setitem__&#39;</span><span class="p">)</span>
+    <span class="n">__delitem__</span> <span class="o">=</span> <span class="n">calls_update</span><span class="p">(</span><span class="s">&#39;__delitem__&#39;</span><span class="p">)</span>
+    <span class="n">clear</span> <span class="o">=</span> <span class="n">calls_update</span><span class="p">(</span><span class="s">&#39;clear&#39;</span><span class="p">)</span>
+    <span class="n">pop</span> <span class="o">=</span> <span class="n">calls_update</span><span class="p">(</span><span class="s">&#39;pop&#39;</span><span class="p">)</span>
+    <span class="n">popitem</span> <span class="o">=</span> <span class="n">calls_update</span><span class="p">(</span><span class="s">&#39;popitem&#39;</span><span class="p">)</span>
+    <span class="n">setdefault</span> <span class="o">=</span> <span class="n">calls_update</span><span class="p">(</span><span class="s">&#39;setdefault&#39;</span><span class="p">)</span>
+    <span class="n">update</span> <span class="o">=</span> <span class="n">calls_update</span><span class="p">(</span><span class="s">&#39;update&#39;</span><span class="p">)</span>
+    <span class="k">del</span> <span class="n">calls_update</span>
+
+
+<div class="viewcode-block" id="SessionDict"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.sessions.SessionDict">[docs]</a><span class="k">class</span> <span class="nc">SessionDict</span><span class="p">(</span><span class="n">_UpdateDictMixin</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A dictionary for session data.&quot;&quot;&quot;</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;container&#39;</span><span class="p">,</span> <span class="s">&#39;new&#39;</span><span class="p">,</span> <span class="s">&#39;modified&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">container</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">new</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">container</span> <span class="o">=</span> <span class="n">container</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">new</span> <span class="o">=</span> <span class="n">new</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modified</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="nb">dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span> <span class="ow">or</span> <span class="p">())</span>
+
+<div class="viewcode-block" id="SessionDict.pop"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.sessions.SessionDict.pop">[docs]</a>    <span class="k">def</span> <span class="nf">pop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="c"># Only pop if key doesn&#39;t exist, do not alter the dictionary.</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">SessionDict</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SessionDict.on_update"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.sessions.SessionDict.on_update">[docs]</a>    <span class="k">def</span> <span class="nf">on_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modified</span> <span class="o">=</span> <span class="bp">True</span>
+</div>
+<div class="viewcode-block" id="SessionDict.get_flashes"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.sessions.SessionDict.get_flashes">[docs]</a>    <span class="k">def</span> <span class="nf">get_flashes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s">&#39;_flash&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a flash message. Flash messages are deleted when first read.</span>
+
+<span class="sd">        :param key:</span>
+<span class="sd">            Name of the flash key stored in the session. Default is &#39;_flash&#39;.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            The data stored in the flash, or an empty list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">[])</span>
+</div>
+<div class="viewcode-block" id="SessionDict.add_flash"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.sessions.SessionDict.add_flash">[docs]</a>    <span class="k">def</span> <span class="nf">add_flash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s">&#39;_flash&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Adds a flash message. Flash messages are deleted when first read.</span>
+
+<span class="sd">        :param value:</span>
+<span class="sd">            Value to be saved in the flash message.</span>
+<span class="sd">        :param level:</span>
+<span class="sd">            An optional level to set with the message. Default is `None`.</span>
+<span class="sd">        :param key:</span>
+<span class="sd">            Name of the flash key stored in the session. Default is &#39;_flash&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">value</span><span class="p">,</span> <span class="n">level</span><span class="p">))</span>
+
+</div></div>
+<div class="viewcode-block" id="BaseSessionFactory"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.sessions.BaseSessionFactory">[docs]</a><span class="k">class</span> <span class="nc">BaseSessionFactory</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for all session factories.&quot;&quot;&quot;</span>
+
+    <span class="c">#: Name of the session.</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="c">#: A reference to :class:`SessionStore`.</span>
+    <span class="n">session_store</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="c">#: Keyword arguments to save the session.</span>
+    <span class="n">session_args</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="c">#: The session data, a :class:`SessionDict` instance.</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">session_store</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session_store</span> <span class="o">=</span> <span class="n">session_store</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session_args</span> <span class="o">=</span> <span class="n">session_store</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;cookie_args&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="bp">None</span>
+
+<div class="viewcode-block" id="BaseSessionFactory.get_session"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.sessions.BaseSessionFactory.get_session">[docs]</a>    <span class="k">def</span> <span class="nf">get_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_age</span><span class="o">=</span><span class="n">_default_value</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="BaseSessionFactory.save_session"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.sessions.BaseSessionFactory.save_session">[docs]</a>    <span class="k">def</span> <span class="nf">save_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+</div></div>
+<div class="viewcode-block" id="SecureCookieSessionFactory"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.sessions.SecureCookieSessionFactory">[docs]</a><span class="k">class</span> <span class="nc">SecureCookieSessionFactory</span><span class="p">(</span><span class="n">BaseSessionFactory</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A session factory that stores data serialized in a signed cookie.</span>
+
+<span class="sd">    Signed cookies can&#39;t be forged because the HMAC signature won&#39;t match.</span>
+
+<span class="sd">    This is the default factory passed as the `factory` keyword to</span>
+<span class="sd">    :meth:`SessionStore.get_session`.</span>
+
+<span class="sd">    .. warning::</span>
+<span class="sd">       The values stored in a signed cookie will be visible in the cookie,</span>
+<span class="sd">       so do not use secure cookie sessions if you need to store data that</span>
+<span class="sd">       can&#39;t be visible to users. For this, use datastore or memcache sessions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SecureCookieSessionFactory.get_session"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.sessions.SecureCookieSessionFactory.get_session">[docs]</a>    <span class="k">def</span> <span class="nf">get_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_age</span><span class="o">=</span><span class="n">_default_value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_store</span><span class="o">.</span><span class="n">get_secure_cookie</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                                        <span class="n">max_age</span><span class="o">=</span><span class="n">max_age</span><span class="p">)</span>
+            <span class="n">new</span> <span class="o">=</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">SessionDict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">new</span><span class="o">=</span><span class="n">new</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span>
+</div>
+<div class="viewcode-block" id="SecureCookieSessionFactory.save_session"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.sessions.SecureCookieSessionFactory.save_session">[docs]</a>    <span class="k">def</span> <span class="nf">save_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">modified</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">session_store</span><span class="o">.</span><span class="n">save_secure_cookie</span><span class="p">(</span>
+            <span class="n">response</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">),</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">session_args</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="CustomBackendSessionFactory"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.sessions.CustomBackendSessionFactory">[docs]</a><span class="k">class</span> <span class="nc">CustomBackendSessionFactory</span><span class="p">(</span><span class="n">BaseSessionFactory</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for sessions that use custom backends, e.g., memcache.&quot;&quot;&quot;</span>
+
+    <span class="c">#: The session unique id.</span>
+    <span class="n">sid</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="c">#: Used to validate session ids.</span>
+    <span class="n">_sid_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;^\w{22}$&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CustomBackendSessionFactory.get_session"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.sessions.CustomBackendSessionFactory.get_session">[docs]</a>    <span class="k">def</span> <span class="nf">get_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_age</span><span class="o">=</span><span class="n">_default_value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_store</span><span class="o">.</span><span class="n">get_secure_cookie</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                                        <span class="n">max_age</span><span class="o">=</span><span class="n">max_age</span><span class="p">)</span>
+            <span class="n">sid</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;_sid&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">data</span> <span class="k">else</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_by_sid</span><span class="p">(</span><span class="n">sid</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span>
+</div>
+    <span class="k">def</span> <span class="nf">_get_by_sid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sid</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_is_valid_sid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sid</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if a session id has the correct format.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">sid</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sid_re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">sid</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">_get_new_sid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">security</span><span class="o">.</span><span class="n">generate_random_string</span><span class="p">(</span><span class="n">entropy</span><span class="o">=</span><span class="mi">128</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="SessionStore"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.sessions.SessionStore">[docs]</a><span class="k">class</span> <span class="nc">SessionStore</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A session provider for a single request.</span>
+
+<span class="sd">    The session store can provide multiple sessions using different keys,</span>
+<span class="sd">    even using different backends in the same request, through the method</span>
+<span class="sd">    :meth:`get_session`. By default it returns a session using the default key.</span>
+
+<span class="sd">    To use, define a base handler that extends the dispatch() method to start</span>
+<span class="sd">    the session store and save all sessions at the end of a request::</span>
+
+<span class="sd">        import webapp2</span>
+
+<span class="sd">        from webapp2_extras import sessions</span>
+
+<span class="sd">        class BaseHandler(webapp2.RequestHandler):</span>
+<span class="sd">            def dispatch(self):</span>
+<span class="sd">                # Get a session store for this request.</span>
+<span class="sd">                self.session_store = sessions.get_store(request=self.request)</span>
+
+<span class="sd">                try:</span>
+<span class="sd">                    # Dispatch the request.</span>
+<span class="sd">                    webapp2.RequestHandler.dispatch(self)</span>
+<span class="sd">                finally:</span>
+<span class="sd">                    # Save all sessions.</span>
+<span class="sd">                    self.session_store.save_sessions(self.response)</span>
+
+<span class="sd">            @webapp2.cached_property</span>
+<span class="sd">            def session(self):</span>
+<span class="sd">                # Returns a session using the default cookie key.</span>
+<span class="sd">                return self.session_store.get_session()</span>
+
+<span class="sd">    Then just use the session as a dictionary inside a handler::</span>
+
+<span class="sd">        # To set a value:</span>
+<span class="sd">        self.session[&#39;foo&#39;] = &#39;bar&#39;</span>
+
+<span class="sd">        # To get a value:</span>
+<span class="sd">        foo = self.session.get(&#39;foo&#39;)</span>
+
+<span class="sd">    A configuration dict can be passed to :meth:`__init__`, or the application</span>
+<span class="sd">    must be initialized with the ``secret_key`` configuration defined. The</span>
+<span class="sd">    configuration is a simple dictionary::</span>
+
+<span class="sd">        config = {}</span>
+<span class="sd">        config[&#39;webapp2_extras.sessions&#39;] = {</span>
+<span class="sd">            &#39;secret_key&#39;: &#39;my-super-secret-key&#39;,</span>
+<span class="sd">        }</span>
+
+<span class="sd">        app = webapp2.WSGIApplication([</span>
+<span class="sd">            (&#39;/&#39;, HomeHandler),</span>
+<span class="sd">        ], config=config)</span>
+
+<span class="sd">    Other configuration keys are optional.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c">#: Configuration key.</span>
+    <span class="n">config_key</span> <span class="o">=</span> <span class="n">__name__</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the session store.</span>
+
+<span class="sd">        :param request:</span>
+<span class="sd">            A :class:`webapp2.Request` instance.</span>
+<span class="sd">        :param config:</span>
+<span class="sd">            A dictionary of configuration values to be overridden. See</span>
+<span class="sd">            the available keys in :data:`default_config`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">request</span> <span class="o">=</span> <span class="n">request</span>
+        <span class="c"># Base configuration.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">load_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_key</span><span class="p">,</span>
+            <span class="n">default_values</span><span class="o">=</span><span class="n">default_config</span><span class="p">,</span> <span class="n">user_values</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">required_keys</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;secret_key&#39;</span><span class="p">,))</span>
+        <span class="c"># Tracked sessions.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="SessionStore.serializer"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.sessions.SessionStore.serializer">[docs]</a>    <span class="k">def</span> <span class="nf">serializer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># Serializer and deserializer for signed cookies.</span>
+        <span class="k">return</span> <span class="n">securecookie</span><span class="o">.</span><span class="n">SecureCookieSerializer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;secret_key&#39;</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="SessionStore.get_backend"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.sessions.SessionStore.get_backend">[docs]</a>    <span class="k">def</span> <span class="nf">get_backend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a configured session backend, importing it if needed.</span>
+
+<span class="sd">        :param name:</span>
+<span class="sd">            The backend keyword.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            A :class:`BaseSessionFactory` subclass.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">backends</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;backends&#39;</span><span class="p">]</span>
+        <span class="n">backend</span> <span class="o">=</span> <span class="n">backends</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+            <span class="n">backend</span> <span class="o">=</span> <span class="n">backends</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">import_string</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">backend</span>
+
+    <span class="c"># Backend based sessions --------------------------------------------------</span>
+</div>
+    <span class="k">def</span> <span class="nf">_get_session_container</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">factory</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">factory</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+
+<div class="viewcode-block" id="SessionStore.get_session"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.sessions.SessionStore.get_session">[docs]</a>    <span class="k">def</span> <span class="nf">get_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">max_age</span><span class="o">=</span><span class="n">_default_value</span><span class="p">,</span> <span class="n">factory</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                    <span class="n">backend</span><span class="o">=</span><span class="s">&#39;securecookie&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a session for a given name. If the session doesn&#39;t exist, a</span>
+<span class="sd">        new session is returned.</span>
+
+<span class="sd">        :param name:</span>
+<span class="sd">            Cookie name. If not provided, uses the ``cookie_name``</span>
+<span class="sd">            value configured for this module.</span>
+<span class="sd">        :param max_age:</span>
+<span class="sd">            A maximum age in seconds for the session to be valid. Sessions</span>
+<span class="sd">            store a timestamp to invalidate them if needed. If `max_age` is</span>
+<span class="sd">            None, the timestamp won&#39;t be checked.</span>
+<span class="sd">        :param factory:</span>
+<span class="sd">            A session factory that creates the session using the preferred</span>
+<span class="sd">            backend. For convenience, use the `backend` argument instead,</span>
+<span class="sd">            which defines a backend keyword based on the configured ones.</span>
+<span class="sd">        :param backend:</span>
+<span class="sd">            A configured backend keyword. Available ones are:</span>
+
+<span class="sd">            - ``securecookie``: uses secure cookies. This is the default</span>
+<span class="sd">              backend.</span>
+<span class="sd">            - ``datastore``: uses App Engine&#39;s datastore.</span>
+<span class="sd">            - ``memcache``:  uses App Engine&#39;s memcache.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            A dictionary-like session object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">factory</span> <span class="o">=</span> <span class="n">factory</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;cookie_name&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">max_age</span> <span class="ow">is</span> <span class="n">_default_value</span><span class="p">:</span>
+            <span class="n">max_age</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;session_max_age&#39;</span><span class="p">]</span>
+
+        <span class="n">container</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_session_container</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">factory</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">container</span><span class="o">.</span><span class="n">get_session</span><span class="p">(</span><span class="n">max_age</span><span class="o">=</span><span class="n">max_age</span><span class="p">)</span>
+
+    <span class="c"># Signed cookies ----------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="SessionStore.get_secure_cookie"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.sessions.SessionStore.get_secure_cookie">[docs]</a>    <span class="k">def</span> <span class="nf">get_secure_cookie</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">max_age</span><span class="o">=</span><span class="n">_default_value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a deserialized secure cookie value.</span>
+
+<span class="sd">        :param name:</span>
+<span class="sd">            Cookie name.</span>
+<span class="sd">        :param max_age:</span>
+<span class="sd">            Maximum age in seconds for a valid cookie. If the cookie is older</span>
+<span class="sd">            than this, returns None.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            A secure cookie value or None if it is not set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">max_age</span> <span class="ow">is</span> <span class="n">_default_value</span><span class="p">:</span>
+            <span class="n">max_age</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;session_max_age&#39;</span><span class="p">]</span>
+
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">cookies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">max_age</span><span class="o">=</span><span class="n">max_age</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SessionStore.set_secure_cookie"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.sessions.SessionStore.set_secure_cookie">[docs]</a>    <span class="k">def</span> <span class="nf">set_secure_cookie</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets a secure cookie to be saved.</span>
+
+<span class="sd">        :param name:</span>
+<span class="sd">            Cookie name.</span>
+<span class="sd">        :param value:</span>
+<span class="sd">            Cookie value. Must be a dictionary.</span>
+<span class="sd">        :param kwargs:</span>
+<span class="sd">            Options to save the cookie. See :meth:`get_session`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="s">&#39;Secure cookie values must be a dict.&#39;</span>
+        <span class="n">container</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_session_container</span><span class="p">(</span><span class="n">name</span><span class="p">,</span>
+                                                <span class="n">SecureCookieSessionFactory</span><span class="p">)</span>
+        <span class="n">container</span><span class="o">.</span><span class="n">get_session</span><span class="p">()</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">container</span><span class="o">.</span><span class="n">session_args</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="c"># Saving to a response object ---------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="SessionStore.save_sessions"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.sessions.SessionStore.save_sessions">[docs]</a>    <span class="k">def</span> <span class="nf">save_sessions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Saves all sessions in a response object.</span>
+
+<span class="sd">        :param response:</span>
+<span class="sd">            A :class:`webapp.Response` object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">session</span><span class="o">.</span><span class="n">save_session</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SessionStore.save_secure_cookie"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.sessions.SessionStore.save_secure_cookie">[docs]</a>    <span class="k">def</span> <span class="nf">save_secure_cookie</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">set_cookie</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<span class="c"># Factories -------------------------------------------------------------------</span>
+
+
+<span class="c">#: Key used to store :class:`SessionStore` in the request registry.</span></div></div>
+<span class="n">_registry_key</span> <span class="o">=</span> <span class="s">&#39;webapp2_extras.sessions.SessionStore&#39;</span>
+
+
+<div class="viewcode-block" id="get_store"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.sessions.get_store">[docs]</a><span class="k">def</span> <span class="nf">get_store</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="n">SessionStore</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">_registry_key</span><span class="p">,</span> <span class="n">request</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns an instance of :class:`SessionStore` from the request registry.</span>
+
+<span class="sd">    It&#39;ll try to get it from the current request registry, and if it is not</span>
+<span class="sd">    registered it&#39;ll be instantiated and registered. A second call to this</span>
+<span class="sd">    function will return the same instance.</span>
+
+<span class="sd">    :param factory:</span>
+<span class="sd">        The callable used to build and register the instance if it is not yet</span>
+<span class="sd">        registered. The default is the class :class:`SessionStore` itself.</span>
+<span class="sd">    :param key:</span>
+<span class="sd">        The key used to store the instance in the registry. A default is used</span>
+<span class="sd">        if it is not set.</span>
+<span class="sd">    :param request:</span>
+<span class="sd">        A :class:`webapp2.Request` instance used to store the instance. The</span>
+<span class="sd">        active request is used if it is not set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="n">request</span> <span class="ow">or</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">get_request</span><span class="p">()</span>
+    <span class="n">store</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">store</span><span class="p">:</span>
+        <span class="n">store</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">factory</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">store</span>
+
+</div>
+<div class="viewcode-block" id="set_store"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.sessions.set_store">[docs]</a><span class="k">def</span> <span class="nf">set_store</span><span class="p">(</span><span class="n">store</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">_registry_key</span><span class="p">,</span> <span class="n">request</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sets an instance of :class:`SessionStore` in the request registry.</span>
+
+<span class="sd">    :param store:</span>
+<span class="sd">        An instance of :class:`SessionStore`.</span>
+<span class="sd">    :param key:</span>
+<span class="sd">        The key used to retrieve the instance from the registry. A default</span>
+<span class="sd">        is used if it is not set.</span>
+<span class="sd">    :param request:</span>
+<span class="sd">        A :class:`webapp2.Request` instance used to retrieve the instance. The</span>
+<span class="sd">        active request is used if it is not set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="n">request</span> <span class="ow">or</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">get_request</span><span class="p">()</span>
+    <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">store</span>
+
+
+<span class="c"># Don&#39;t need to import it. :)</span></div>
+<span class="n">default_config</span><span class="p">[</span><span class="s">&#39;backends&#39;</span><span class="p">][</span><span class="s">&#39;securecookie&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SecureCookieSessionFactory</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

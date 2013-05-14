@@ -1,0 +1,520 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>tracker Package &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="index.html" />
+    <link rel="up" title="models Package" href="api.models.html" />
+    <link rel="next" title="platform Package" href="api.platform.html" />
+    <link rel="prev" title="harness Package" href="api.models.harness.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.platform.html" title="platform Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="api.models.harness.html" title="harness Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="api.html" >api Package</a> &raquo;</li>
+          <li><a href="api.models.html" accesskey="U">models Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="tracker-package">
+<h1>tracker Package<a class="headerlink" href="#tracker-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">tracker</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-api.models.tracker"></span><p>Models: Tracker</p>
+<p>Contains models used in the <cite>EventTracker</cite> subsystem.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+</div>
+<div class="section" id="module-api.models.tracker.aggregation">
+<span id="aggregation-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">aggregation</span></tt> Module<a class="headerlink" href="#module-api.models.tracker.aggregation" title="Permalink to this headline">¶</a></h2>
+<p>Tracker Models: Aggregation</p>
+<p>Holds model classes designed to express aggregation groups and aggregations
+linked to <a href="#id2"><span class="problematic" id="id3">`</span></a>TrackedEvent`(s).</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+<dl class="class">
+<dt id="api.models.tracker.aggregation.Aggregation">
+<em class="property">class </em><tt class="descclassname">api.models.tracker.aggregation.</tt><tt class="descname">Aggregation</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/api/models/tracker/aggregation.html#Aggregation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.models.tracker.aggregation.Aggregation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="api.models.tracker.aggregation.AggregationGroup">
+<em class="property">class </em><tt class="descclassname">api.models.tracker.aggregation.</tt><tt class="descname">AggregationGroup</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/api/models/tracker/aggregation.html#AggregationGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.models.tracker.aggregation.AggregationGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-api.models.tracker.attribution">
+<span id="attribution-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">attribution</span></tt> Module<a class="headerlink" href="#module-api.models.tracker.attribution" title="Permalink to this headline">¶</a></h2>
+<p>Tracker Models: Attribution</p>
+<p>Holds model classes designed to express calculated ad attributions.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+<dl class="class">
+<dt id="api.models.tracker.attribution.Attribution">
+<em class="property">class </em><tt class="descclassname">api.models.tracker.attribution.</tt><tt class="descname">Attribution</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/api/models/tracker/attribution.html#Attribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.models.tracker.attribution.Attribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="api.models.tracker.attribution.AttributionGroup">
+<em class="property">class </em><tt class="descclassname">api.models.tracker.attribution.</tt><tt class="descname">AttributionGroup</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/api/models/tracker/attribution.html#AttributionGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.models.tracker.attribution.AttributionGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-api.models.tracker.event">
+<span id="event-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">event</span></tt> Module<a class="headerlink" href="#module-api.models.tracker.event" title="Permalink to this headline">¶</a></h2>
+<p>Tracker Models: Event</p>
+<p>Contains models used in the <cite>EventTracker</cite> subsystem that are specifically related to
+expressing/persisting individual events.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+<dl class="class">
+<dt id="api.models.tracker.event.EventAction">
+<em class="property">class </em><tt class="descclassname">api.models.tracker.event.</tt><tt class="descname">EventAction</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/api/models/tracker/event.html#EventAction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.models.tracker.event.EventAction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
+<dl class="attribute">
+<dt id="api.models.tracker.event.EventAction.routine">
+<tt class="descname">routine</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.event.EventAction.routine" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.event.EventAction.started">
+<tt class="descname">started</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.event.EventAction.started" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.event.EventAction.success">
+<tt class="descname">success</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.event.EventAction.success" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.models.tracker.event.TrackedEvent">
+<em class="property">class </em><tt class="descclassname">api.models.tracker.event.</tt><tt class="descname">TrackedEvent</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/api/models/tracker/event.html#TrackedEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.models.tracker.event.TrackedEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
+<dl class="attribute">
+<dt id="api.models.tracker.event.TrackedEvent.aggregations">
+<tt class="descname">aggregations</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.event.TrackedEvent.aggregations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.event.TrackedEvent.attributions">
+<tt class="descname">attributions</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.event.TrackedEvent.attributions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.event.TrackedEvent.created">
+<tt class="descname">created</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.event.TrackedEvent.created" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.event.TrackedEvent.modified">
+<tt class="descname">modified</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.event.TrackedEvent.modified" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.event.TrackedEvent.params">
+<tt class="descname">params</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.event.TrackedEvent.params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.event.TrackedEvent.provider">
+<tt class="descname">provider</tt><em class="property"> = 'cli'</em><a class="headerlink" href="#api.models.tracker.event.TrackedEvent.provider" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.event.TrackedEvent.raw">
+<tt class="descname">raw</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.event.TrackedEvent.raw" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.event.TrackedEvent.tracker">
+<tt class="descname">tracker</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.event.TrackedEvent.tracker" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.event.TrackedEvent.type">
+<tt class="descname">type</tt><em class="property"> = 'x'</em><a class="headerlink" href="#api.models.tracker.event.TrackedEvent.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-api.models.tracker.integration">
+<span id="integration-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">integration</span></tt> Module<a class="headerlink" href="#module-api.models.tracker.integration" title="Permalink to this headline">¶</a></h2>
+<p>Tracker Models: Integration</p>
+<p>Contains models used in the <cite>EventTracker</cite> subsystem that are related to
+expressing configuration and audit for integrated systems.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+<dl class="class">
+<dt id="api.models.tracker.integration.Integration">
+<em class="property">class </em><tt class="descclassname">api.models.tracker.integration.</tt><tt class="descname">Integration</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/api/models/tracker/integration.html#Integration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.models.tracker.integration.Integration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
+<dl class="attribute">
+<dt id="api.models.tracker.integration.Integration.label">
+<tt class="descname">label</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.integration.Integration.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.integration.Integration.name">
+<tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.integration.Integration.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.models.tracker.integration.Routine">
+<em class="property">class </em><tt class="descclassname">api.models.tracker.integration.</tt><tt class="descname">Routine</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/api/models/tracker/integration.html#Routine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.models.tracker.integration.Routine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
+<dl class="attribute">
+<dt id="api.models.tracker.integration.Routine.codepath">
+<tt class="descname">codepath</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.integration.Routine.codepath" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.integration.Routine.external">
+<tt class="descname">external</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.integration.Routine.external" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.integration.Routine.integration">
+<tt class="descname">integration</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.integration.Routine.integration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.integration.Routine.label">
+<tt class="descname">label</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.integration.Routine.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.integration.Routine.name">
+<tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.integration.Routine.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-api.models.tracker.parameter">
+<span id="parameter-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">parameter</span></tt> Module<a class="headerlink" href="#module-api.models.tracker.parameter" title="Permalink to this headline">¶</a></h2>
+<p>Tracker Models: Parameters</p>
+<p>Contains models used to model and express parameters/args linked
+to <cite>TrackedEvent</cite> or <cite>Profile</cite>/<cite>Tracker</cite> objects.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+<dl class="class">
+<dt id="api.models.tracker.parameter.Parameter">
+<em class="property">class </em><tt class="descclassname">api.models.tracker.parameter.</tt><tt class="descname">Parameter</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/api/models/tracker/parameter.html#Parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.models.tracker.parameter.Parameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
+<dl class="attribute">
+<dt id="api.models.tracker.parameter.Parameter.basetype">
+<tt class="descname">basetype</tt><a class="headerlink" href="#api.models.tracker.parameter.Parameter.basetype" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">basestring</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.parameter.Parameter.label">
+<tt class="descname">label</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.parameter.Parameter.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.parameter.Parameter.name">
+<tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.parameter.Parameter.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.parameter.Parameter.policy">
+<tt class="descname">policy</tt><em class="property"> = 3</em><a class="headerlink" href="#api.models.tracker.parameter.Parameter.policy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-api.models.tracker.profile">
+<span id="profile-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">profile</span></tt> Module<a class="headerlink" href="#module-api.models.tracker.profile" title="Permalink to this headline">¶</a></h2>
+<p>Tracker Models: Profiles</p>
+<p>Contains models used in the <cite>EventTracker</cite> subsystem that are related to
+expressing configuration and parameter profiles for Trackers.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+<dl class="class">
+<dt id="api.models.tracker.profile.Profile">
+<em class="property">class </em><tt class="descclassname">api.models.tracker.profile.</tt><tt class="descname">Profile</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/api/models/tracker/profile.html#Profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.models.tracker.profile.Profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
+<dl class="attribute">
+<dt id="api.models.tracker.profile.Profile.aggregations">
+<tt class="descname">aggregations</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.profile.Profile.aggregations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.profile.Profile.attributions">
+<tt class="descname">attributions</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.profile.Profile.attributions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.profile.Profile.inherit">
+<tt class="descname">inherit</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.profile.Profile.inherit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.profile.Profile.integrations">
+<tt class="descname">integrations</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.profile.Profile.integrations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.profile.Profile.label">
+<tt class="descname">label</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.profile.Profile.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.profile.Profile.name">
+<tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.profile.Profile.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.profile.Profile.provider">
+<tt class="descname">provider</tt><em class="property"> = 'cli'</em><a class="headerlink" href="#api.models.tracker.profile.Profile.provider" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.profile.Profile.schema">
+<tt class="descname">schema</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.profile.Profile.schema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.profile.Profile.scope">
+<tt class="descname">scope</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.profile.Profile.scope" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.profile.Profile.type">
+<tt class="descname">type</tt><em class="property"> = 'x'</em><a class="headerlink" href="#api.models.tracker.profile.Profile.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-api.models.tracker.pubsub">
+<span id="pubsub-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">pubsub</span></tt> Module<a class="headerlink" href="#module-api.models.tracker.pubsub" title="Permalink to this headline">¶</a></h2>
+<p>Tracker Models: PubSub</p>
+<p>Contains models used in the <cite>EventTracker</cite> subsystem that are specifically related to
+fulfilling publish/subscribe infrastructure behind the global eventstream.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+<dl class="class">
+<dt id="api.models.tracker.pubsub.Subscription">
+<em class="property">class </em><tt class="descclassname">api.models.tracker.pubsub.</tt><tt class="descname">Subscription</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/api/models/tracker/pubsub.html#Subscription"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.models.tracker.pubsub.Subscription" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
+<dl class="attribute">
+<dt id="api.models.tracker.pubsub.Subscription.channel">
+<tt class="descname">channel</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.pubsub.Subscription.channel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.pubsub.Subscription.expiration">
+<tt class="descname">expiration</tt><em class="property"> = -86400</em><a class="headerlink" href="#api.models.tracker.pubsub.Subscription.expiration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.pubsub.Subscription.pattern">
+<tt class="descname">pattern</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.pubsub.Subscription.pattern" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-api.models.tracker.raw">
+<span id="raw-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">raw</span></tt> Module<a class="headerlink" href="#module-api.models.tracker.raw" title="Permalink to this headline">¶</a></h2>
+<p>Tracker Models: Raw</p>
+<p>These models are used to express raw tracker events, before they are processed
+into full <cite>TrackedEvent</cite> entities.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+<dl class="class">
+<dt id="api.models.tracker.raw.RawEvent">
+<em class="property">class </em><tt class="descclassname">api.models.tracker.raw.</tt><tt class="descname">RawEvent</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/api/models/tracker/raw.html#RawEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.models.tracker.raw.RawEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
+<dl class="attribute">
+<dt id="api.models.tracker.raw.RawEvent.cookie">
+<tt class="descname">cookie</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.raw.RawEvent.cookie" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.raw.RawEvent.id">
+<tt class="descname">id</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.raw.RawEvent.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.raw.RawEvent.modified">
+<tt class="descname">modified</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.raw.RawEvent.modified" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.raw.RawEvent.processed">
+<tt class="descname">processed</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.raw.RawEvent.processed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.raw.RawEvent.session">
+<tt class="descname">session</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.raw.RawEvent.session" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.raw.RawEvent.timestamp">
+<tt class="descname">timestamp</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.raw.RawEvent.timestamp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.raw.RawEvent.url">
+<tt class="descname">url</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.raw.RawEvent.url" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-api.models.tracker.tracker">
+<span id="tracker-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">tracker</span></tt> Module<a class="headerlink" href="#module-api.models.tracker.tracker" title="Permalink to this headline">¶</a></h2>
+<p>Tracker Models: Trackers</p>
+<p>Contains models that express <cite>Tracker</cite> schema, which is a discrete
+endpoint for tracking events of a certain profile or type.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+<dl class="class">
+<dt id="api.models.tracker.tracker.Tracker">
+<em class="property">class </em><tt class="descclassname">api.models.tracker.tracker.</tt><tt class="descname">Tracker</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/api/models/tracker/tracker.html#Tracker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.models.tracker.tracker.Tracker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
+<dl class="attribute">
+<dt id="api.models.tracker.tracker.Tracker.profiles">
+<tt class="descname">profiles</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.tracker.Tracker.profiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.tracker.Tracker.scope">
+<tt class="descname">scope</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.tracker.Tracker.scope" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.tracker.Tracker.templates">
+<tt class="descname">templates</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.tracker.Tracker.templates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">tracker Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">tracker</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-api.models.tracker.aggregation"><tt class="docutils literal"><span class="pre">aggregation</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-api.models.tracker.attribution"><tt class="docutils literal"><span class="pre">attribution</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-api.models.tracker.event"><tt class="docutils literal"><span class="pre">event</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-api.models.tracker.integration"><tt class="docutils literal"><span class="pre">integration</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-api.models.tracker.parameter"><tt class="docutils literal"><span class="pre">parameter</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-api.models.tracker.profile"><tt class="docutils literal"><span class="pre">profile</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-api.models.tracker.pubsub"><tt class="docutils literal"><span class="pre">pubsub</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-api.models.tracker.raw"><tt class="docutils literal"><span class="pre">raw</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-api.models.tracker.tracker"><tt class="docutils literal"><span class="pre">tracker</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="api.models.harness.html"
+                        title="previous chapter">harness Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="api.platform.html"
+                        title="next chapter">platform Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/api.models.tracker.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.platform.html" title="platform Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="api.models.harness.html" title="harness Package"
+             >previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="api.html" >api Package</a> &raquo;</li>
+          <li><a href="api.models.html" >models Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,661 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.apptools.model.adapter.abstract &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../../',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../../../index.html" />
+    <link rel="up" title="lib.apptools" href="../../../apptools.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../../apptools.html" accesskey="U">lib.apptools</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.apptools.model.adapter.abstract</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">    apptools2: abstract model adapters</span>
+<span class="sd">    -------------------------------------------------</span>
+<span class="sd">    |                                               |</span>
+<span class="sd">    |   `apptools.model.adapter.abstract`           |</span>
+<span class="sd">    |                                               |</span>
+<span class="sd">    |   specifies interface classes that plug-in    |</span>
+<span class="sd">    |   to models to allow agnostic storage.        |</span>
+<span class="sd">    |                                               |</span>
+<span class="sd">    -------------------------------------------------</span>
+<span class="sd">    |   authors:                                    |</span>
+<span class="sd">    |       -- sam gammon (sam@momentum.io)         |</span>
+<span class="sd">    -------------------------------------------------</span>
+<span class="sd">    |   changelog:                                  |</span>
+<span class="sd">    |       -- apr 1, 2013: initial draft           |</span>
+<span class="sd">    -------------------------------------------------</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c"># stdlib</span>
+<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">import</span> <span class="nn">zlib</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+
+<span class="c"># apptools utils</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">json</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">debug</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">decorators</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">datastructures</span>
+
+<span class="c"># appconfig</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">config</span>
+<span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c"># pragma: no cover</span>
+    <span class="n">_APPCONFIG</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">_APPCONFIG</span> <span class="o">=</span> <span class="bp">True</span>
+
+
+<span class="c"># Globals</span>
+<span class="n">_adapters</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">_adapters_by_model</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">_encoder</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span>  <span class="c"># encoder for key names and special strings, if enabled</span>
+<span class="n">_compressor</span> <span class="o">=</span> <span class="n">zlib</span><span class="o">.</span><span class="n">compress</span>  <span class="c"># compressor for data values, if enabled</span>
+
+<span class="c"># Computed Classes</span>
+<span class="n">CompoundKey</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="n">CompoundModel</span> <span class="o">=</span> <span class="bp">None</span>
+
+
+<span class="c">## ModelAdapter</span>
+<span class="c"># Adapt apptools models to a storage backend.</span>
+<div class="viewcode-block" id="ModelAdapter"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.ModelAdapter">[docs]</a><span class="k">class</span> <span class="nc">ModelAdapter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Abstract base class for classes that adapt apptools models to a particular storage backend. &#39;&#39;&#39;</span>
+
+    <span class="n">registry</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span>
+
+    <span class="n">_config_path</span> <span class="o">=</span> <span class="s">&#39;apptools.model&#39;</span>
+
+    <span class="nd">@decorators.classproperty</span>
+<div class="viewcode-block" id="ModelAdapter.config"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.ModelAdapter.config">[docs]</a>    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>  <span class="c"># pragma: no cover</span>
+
+        <span class="sd">&#39;&#39;&#39; Cached config shortcut. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">_APPCONFIG</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">_config_path</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;debug&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">})</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s">&#39;debug&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>  <span class="c"># default to `debug`: True with no available appconfig</span>
+</div>
+    <span class="nd">@decorators.classproperty</span>
+<div class="viewcode-block" id="ModelAdapter.logging"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.ModelAdapter.logging">[docs]</a>    <span class="k">def</span> <span class="nf">logging</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Named logging pipe. &#39;&#39;&#39;</span>
+
+        <span class="n">psplit</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">_config_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">debug</span><span class="o">.</span><span class="n">AppToolsLogger</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">psplit</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">name</span><span class="o">=</span><span class="n">psplit</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">_setcondition</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;debug&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">))</span>
+</div>
+    <span class="nd">@decorators.classproperty</span>
+<div class="viewcode-block" id="ModelAdapter.serializer"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.ModelAdapter.serializer">[docs]</a>    <span class="k">def</span> <span class="nf">serializer</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Load and return the appropriate serialization codec. &#39;&#39;&#39;</span>
+
+        <span class="c"># default to JSON</span>
+        <span class="k">return</span> <span class="n">json</span>
+</div>
+    <span class="nd">@decorators.classproperty</span>
+<div class="viewcode-block" id="ModelAdapter.encoder"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.ModelAdapter.encoder">[docs]</a>    <span class="k">def</span> <span class="nf">encoder</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>  <span class="c"># pragma: no cover</span>
+
+        <span class="sd">&#39;&#39;&#39; Encode a stringified blob for storage. &#39;&#39;&#39;</span>
+
+        <span class="c"># use local encoder</span>
+        <span class="k">return</span> <span class="n">_encoder</span>
+</div>
+    <span class="nd">@decorators.classproperty</span>
+<div class="viewcode-block" id="ModelAdapter.compressor"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.ModelAdapter.compressor">[docs]</a>    <span class="k">def</span> <span class="nf">compressor</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>  <span class="c"># pragma: no cover</span>
+
+        <span class="sd">&#39;&#39;&#39; Load and return the appropriate compression codec. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">_compressor</span>
+
+    <span class="c">## == Internal Methods == ##</span></div>
+    <span class="k">def</span> <span class="nf">_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Internal method for retrieving an entity by Key. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;debug&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>  <span class="c"># pragma: no cover</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Retrieving entity with Key: </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="n">key</span><span class="p">)</span>
+
+        <span class="c"># immediately fail with no overriden `get`</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="s">&#39;get&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span> <span class="o">!=</span> <span class="n">ModelAdapter</span><span class="p">:</span>  <span class="c"># pragma: no cover</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;ModelAdapter `</span><span class="si">%s</span><span class="s">` does not implement `get`, and thus cannot be used for reads.&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># grab getter method</span>
+            <span class="n">getter</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="s">&#39;get&#39;</span><span class="p">)</span>
+
+        <span class="c"># flatten key into stringified repr</span>
+        <span class="n">joined</span><span class="p">,</span> <span class="n">flattened</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">parent</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="nb">id</span> <span class="o">=</span> <span class="n">flattened</span>
+
+        <span class="c"># optionally allow adapter to encode key</span>
+        <span class="n">encoded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encode_key</span><span class="p">(</span><span class="n">joined</span><span class="p">,</span> <span class="n">flattened</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">encoded</span><span class="p">:</span>
+            <span class="c"># otherwise, use regular base64 via `AbstractKey`</span>
+            <span class="n">encoded</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">urlsafe</span><span class="p">(</span><span class="n">joined</span><span class="p">)</span>
+
+        <span class="c"># pass off to delegated `get`</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">entity</span> <span class="o">=</span> <span class="n">getter</span><span class="p">((</span><span class="n">encoded</span><span class="p">,</span> <span class="n">flattened</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c"># pragma: no cover</span>
+            <span class="k">raise</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">entity</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">return</span>  <span class="c"># not found</span>
+
+            <span class="c"># inflate key + model and return</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">registry</span><span class="p">[</span><span class="n">kind</span><span class="p">](</span><span class="n">key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">registry</span><span class="p">[</span><span class="n">kind</span><span class="p">]</span><span class="o">.</span><span class="n">__keyclass__</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">flattened</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">),</span> <span class="n">_persisted</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span> <span class="n">_persisted</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">**</span><span class="n">entity</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Internal method for persisting an Entity. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;debug&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>  <span class="c"># pragma: no cover</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Saving entity: </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="n">entity</span><span class="p">)</span>
+
+        <span class="c"># resolve model class</span>
+        <span class="n">_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">entity</span><span class="o">.</span><span class="n">kind</span><span class="p">())</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_model</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Could not resolve model class &quot;</span><span class="si">%s</span><span class="s">&quot;.&#39;</span> <span class="o">%</span> <span class="n">model</span><span class="o">.</span><span class="n">kind</span><span class="p">())</span>
+
+        <span class="k">with</span> <span class="n">entity</span><span class="p">:</span>  <span class="c"># enter explicit mode</span>
+
+            <span class="c"># validate entity, will raise validation exceptions</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">entity</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">_all</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">_model</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">valid</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+
+            <span class="c"># resolve key if we have a zero-y key or key class</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">entity</span><span class="o">.</span><span class="n">key</span> <span class="ow">or</span> <span class="n">entity</span><span class="o">.</span><span class="n">key</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">entity</span><span class="o">.</span><span class="n">_set_key</span><span class="p">(</span><span class="n">_model</span><span class="o">.</span><span class="n">__keyclass__</span><span class="p">(</span><span class="n">entity</span><span class="o">.</span><span class="n">kind</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">allocate_ids</span><span class="p">(</span><span class="n">_model</span><span class="o">.</span><span class="n">__keyclass__</span><span class="p">,</span> <span class="n">entity</span><span class="o">.</span><span class="n">kind</span><span class="p">())))</span>  <span class="c"># build an ID-based key</span>
+
+            <span class="c"># flatten key/entity</span>
+            <span class="n">joined</span><span class="p">,</span> <span class="n">flattened</span> <span class="o">=</span> <span class="n">entity</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="c"># delegate</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">encode_key</span><span class="p">(</span><span class="n">joined</span><span class="p">,</span> <span class="n">flattened</span><span class="p">)</span> <span class="ow">or</span> <span class="n">entity</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">urlsafe</span><span class="p">(</span><span class="n">joined</span><span class="p">),</span> <span class="n">flattened</span><span class="p">),</span> <span class="n">entity</span><span class="o">.</span><span class="n">_set_persisted</span><span class="p">(</span><span class="bp">True</span><span class="p">),</span> <span class="n">_model</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Internal method for deleting an entity by Key. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;debug&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>  <span class="c"># pragma: no cover</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Deleting Key: </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="n">key</span><span class="p">)</span>
+
+        <span class="n">joined</span><span class="p">,</span> <span class="n">flattened</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">delete</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">encode_key</span><span class="p">(</span><span class="n">joined</span><span class="p">,</span> <span class="n">flattened</span><span class="p">)</span> <span class="ow">or</span> <span class="n">key</span><span class="o">.</span><span class="n">urlsafe</span><span class="p">(</span><span class="n">joined</span><span class="p">),</span> <span class="n">flattened</span><span class="p">))</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_register</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Internal method for registering a Model class with this adapter&#39;s registry. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">cls</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;debug&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
+            <span class="n">cls</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Registered Model class: </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="n">model</span><span class="p">)</span>
+
+        <span class="n">cls</span><span class="o">.</span><span class="n">registry</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">kind</span><span class="p">()]</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="k">return</span> <span class="n">model</span>
+
+    <span class="c">## == Class Methods == ##</span>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ModelAdapter.acquire"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.ModelAdapter.acquire">[docs]</a>    <span class="k">def</span> <span class="nf">acquire</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">properties</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Acquire a new/existing copy of this adapter. &#39;&#39;&#39;</span>
+
+        <span class="k">global</span> <span class="n">_adapters</span>
+        <span class="k">global</span> <span class="n">_adapters_by_model</span>
+
+        <span class="c"># if we don&#39;t have one yet, spawn a singleton</span>
+        <span class="k">if</span> <span class="n">cls</span><span class="o">.</span><span class="n">__name__</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_adapters</span><span class="p">:</span>
+            <span class="n">_adapters</span><span class="p">[</span><span class="n">cls</span><span class="o">.</span><span class="n">__name__</span><span class="p">]</span> <span class="o">=</span> <span class="n">cls</span><span class="p">()</span>
+        <span class="n">_adapters_by_model</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_adapters</span><span class="p">[</span><span class="n">cls</span><span class="o">.</span><span class="n">__name__</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">_adapters</span><span class="p">[</span><span class="n">cls</span><span class="o">.</span><span class="n">__name__</span><span class="p">]</span>
+
+    <span class="c">## == Abstract Methods == ##</span></div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="ModelAdapter.get"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.ModelAdapter.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>  <span class="c"># pragma: no cover</span>
+
+        <span class="sd">&#39;&#39;&#39; Retrieve an entity by Key. Must accept a tuple in the format `(&lt;joined Key repr&gt;, &lt;flattened key&gt;)`. &#39;&#39;&#39;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="ModelAdapter.put"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.ModelAdapter.put">[docs]</a>    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">entity</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>  <span class="c"># pragma: no cover</span>
+
+        <span class="sd">&#39;&#39;&#39; Persist an Entity in storage. &#39;&#39;&#39;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="ModelAdapter.delete"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.ModelAdapter.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>  <span class="c"># pragma: no cover</span>
+
+        <span class="sd">&#39;&#39;&#39; Delete an entity by Key. &#39;&#39;&#39;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="ModelAdapter.allocate_ids"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.ModelAdapter.allocate_ids">[docs]</a>    <span class="k">def</span> <span class="nf">allocate_ids</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">key_class</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>  <span class="c"># pragma: no cover</span>
+
+        <span class="sd">&#39;&#39;&#39; Allocate new Key IDs for `kind` up to `count`. &#39;&#39;&#39;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ModelAdapter.encode_key"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.ModelAdapter.encode_key">[docs]</a>    <span class="k">def</span> <span class="nf">encode_key</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">joined</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flattened</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>  <span class="c"># pragma: no cover</span>
+
+        <span class="sd">&#39;&#39;&#39; Encode a Key for storage. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">False</span>  <span class="c"># by default, yield to key b64 builtin encoding</span>
+
+
+<span class="c">## IndexedModelAdapter</span>
+<span class="c"># Adapt apptools models to a storage backend that supports indexing.</span></div></div>
+<div class="viewcode-block" id="IndexedModelAdapter"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.IndexedModelAdapter">[docs]</a><span class="k">class</span> <span class="nc">IndexedModelAdapter</span><span class="p">(</span><span class="n">ModelAdapter</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Abstract base class for model adapters that support additional indexing APIs. &#39;&#39;&#39;</span>
+
+    <span class="c"># magic prefixes</span>
+    <span class="n">_key_prefix</span> <span class="o">=</span> <span class="s">&#39;__key__&#39;</span>
+    <span class="n">_kind_prefix</span> <span class="o">=</span> <span class="s">&#39;__kind__&#39;</span>
+    <span class="n">_group_prefix</span> <span class="o">=</span> <span class="s">&#39;__group__&#39;</span>
+    <span class="n">_index_prefix</span> <span class="o">=</span> <span class="s">&#39;__index__&#39;</span>
+    <span class="n">_reverse_prefix</span> <span class="o">=</span> <span class="s">&#39;__reverse__&#39;</span>
+
+    <span class="c">## Indexer</span>
+    <span class="c"># Holds routines and data type tools for indexing apptools models in Redis.</span>
+<div class="viewcode-block" id="IndexedModelAdapter.Indexer"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.IndexedModelAdapter.Indexer">[docs]</a>    <span class="k">class</span> <span class="nc">Indexer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Holds methods for indexing and handling index data types. &#39;&#39;&#39;</span>
+
+        <span class="n">_magic</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="mh">0x1</span><span class="p">,</span>  <span class="c"># magic ID for `model.Key` references</span>
+            <span class="s">&#39;date&#39;</span><span class="p">:</span> <span class="mh">0x2</span><span class="p">,</span>  <span class="c"># magic ID for `datetime.date` instances</span>
+            <span class="s">&#39;time&#39;</span><span class="p">:</span> <span class="mh">0x3</span><span class="p">,</span>  <span class="c"># magic ID for `datetime.time` instances</span>
+            <span class="s">&#39;datetime&#39;</span><span class="p">:</span> <span class="mh">0x4</span>  <span class="c"># magic ID for `datetime.datetime` instances</span>
+        <span class="p">}</span>
+
+        <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="IndexedModelAdapter.Indexer.convert_key"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.IndexedModelAdapter.Indexer.convert_key">[docs]</a>        <span class="k">def</span> <span class="nf">convert_key</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+
+            <span class="sd">&#39;&#39;&#39; Convert a `Key` to an indexable value. &#39;&#39;&#39;</span>
+
+            <span class="c"># flatten and return key structure with magic</span>
+            <span class="n">joined</span><span class="p">,</span> <span class="n">flattened</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">_magic</span><span class="p">[</span><span class="s">&#39;key&#39;</span><span class="p">],</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="n">flatten</span><span class="p">))</span>
+</div>
+        <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="IndexedModelAdapter.Indexer.convert_date"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.IndexedModelAdapter.Indexer.convert_date">[docs]</a>        <span class="k">def</span> <span class="nf">convert_date</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+
+            <span class="sd">&#39;&#39;&#39; Convert a `date` to an indexable value. &#39;&#39;&#39;</span>
+
+            <span class="c"># convert to ISO format, return date with magic</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">_magic</span><span class="p">[</span><span class="s">&#39;date&#39;</span><span class="p">],</span> <span class="n">date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">())</span>
+</div>
+        <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="IndexedModelAdapter.Indexer.convert_time"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.IndexedModelAdapter.Indexer.convert_time">[docs]</a>        <span class="k">def</span> <span class="nf">convert_time</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">_time</span><span class="p">):</span>
+
+            <span class="sd">&#39;&#39;&#39; Convert a `time` to an indexable value. &#39;&#39;&#39;</span>
+
+            <span class="c"># convert to ISO format, return time with magic</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">_magic</span><span class="p">[</span><span class="s">&#39;time&#39;</span><span class="p">],</span> <span class="n">date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">())</span>
+</div>
+        <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="IndexedModelAdapter.Indexer.convert_datetime"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.IndexedModelAdapter.Indexer.convert_datetime">[docs]</a>        <span class="k">def</span> <span class="nf">convert_datetime</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">_datetime</span><span class="p">):</span>
+
+            <span class="sd">&#39;&#39;&#39; Convert a `datetime` to an indexable value. &#39;&#39;&#39;</span>
+
+            <span class="c"># convert to integer, return datetime with magic</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">_magic</span><span class="p">[</span><span class="s">&#39;datetime&#39;</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">mktime</span><span class="p">(</span><span class="n">_datetime</span><span class="o">.</span><span class="n">timetuple</span><span class="p">())))</span>
+</div></div>
+    <span class="nd">@decorators.classproperty</span>
+    <span class="k">def</span> <span class="nf">_index_basetypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Map basetypes to indexer routines. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+
+            <span class="nb">int</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">dumps</span><span class="p">,</span>
+            <span class="nb">bool</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">dumps</span><span class="p">,</span>
+            <span class="nb">float</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">dumps</span><span class="p">,</span>
+            <span class="nb">basestring</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">dumps</span><span class="p">,</span>
+            <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">Indexer</span><span class="o">.</span><span class="n">convert_date</span><span class="p">,</span>
+            <span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">Indexer</span><span class="o">.</span><span class="n">convert_time</span><span class="p">,</span>
+            <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">Indexer</span><span class="o">.</span><span class="n">convert_datetime</span>
+
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">_put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Hook to trigger index writes for a given entity. &#39;&#39;&#39;</span>
+
+        <span class="c"># small optimization - with a determined key, we can parrellelize index writes (assuming async is supported in the underlying driver)</span>
+        <span class="k">if</span> <span class="n">entity</span><span class="o">.</span><span class="n">key</span><span class="p">:</span>
+
+            <span class="c"># proxy to `generate_indexes` and write indexes</span>
+            <span class="n">indexes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_indexes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_indexes</span><span class="p">(</span><span class="n">entity</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pluck_indexed</span><span class="p">(</span><span class="n">entity</span><span class="p">)))</span>
+
+            <span class="c"># delegate up the chain for entity write</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">IndexedModelAdapter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_put</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+
+        <span class="c"># delegate write up the chain</span>
+        <span class="n">written_key</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">IndexedModelAdapter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_put</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+
+        <span class="c"># proxy to `generate_indexes` and write</span>
+        <span class="n">indexes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_indexes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_indexes</span><span class="p">(</span><span class="n">written_key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pluck_indexed</span><span class="p">(</span><span class="n">entity</span><span class="p">)))</span>
+
+        <span class="k">return</span> <span class="n">written_key</span>
+
+    <span class="k">def</span> <span class="nf">_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Hook to trigger index cleanup for a given key. &#39;&#39;&#39;</span>
+
+        <span class="c"># generate meta indexes only, then clean</span>
+        <span class="n">indexes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clean_indexes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_indexes</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+
+        <span class="c"># delegate delete up the chain</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">IndexedModelAdapter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_delete</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_pluck_indexed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Zip and pluck only properties that should be indexed. &#39;&#39;&#39;</span>
+
+        <span class="n">_map</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c"># grab only properties enabled for indexing</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">entity</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">_indexed</span><span class="p">,</span> <span class="n">entity</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="n">_map</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">entity</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">v</span><span class="p">)</span>  <span class="c"># attach property name, property class, value</span>
+
+        <span class="k">return</span> <span class="n">_map</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="IndexedModelAdapter.generate_indexes"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.IndexedModelAdapter.generate_indexes">[docs]</a>    <span class="k">def</span> <span class="nf">generate_indexes</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Generate a set of indexes that should be written to, with associated values. &#39;&#39;&#39;</span>
+
+        <span class="c"># provision vars, generate meta indexes</span>
+        <span class="n">encoded_key</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">encode_key</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="ow">or</span> <span class="n">key</span><span class="o">.</span><span class="n">urlsafe</span><span class="p">()</span>
+
+        <span class="n">_property_indexes</span><span class="p">,</span> <span class="n">_meta_indexes</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">_key_prefix</span><span class="p">,),</span>  <span class="c"># add key to universal key index</span>
+            <span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">_kind_prefix</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">kind</span><span class="p">)</span>  <span class="c"># map kind to encoded key</span>
+        <span class="p">]</span>
+
+        <span class="c"># consider ancestry</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
+
+            <span class="c"># generate group indexes in the case of a nonvoid parent</span>
+            <span class="n">_meta_indexes</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">cls</span><span class="o">.</span><span class="n">_group_prefix</span><span class="p">,))</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="c"># append keyparent-based group prefix</span>
+            <span class="n">root_key</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">key</span><span class="o">.</span><span class="n">ancestry</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c"># encode root key</span>
+            <span class="n">encoded_root_key</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">encode_key</span><span class="p">(</span><span class="n">root_key</span><span class="p">)</span> <span class="ow">or</span> <span class="n">root_key</span><span class="o">.</span><span class="n">urlsafe</span><span class="p">()</span>
+
+            <span class="n">_meta_indexes</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">cls</span><span class="o">.</span><span class="n">_group_prefix</span><span class="p">,</span> <span class="n">root_key</span><span class="p">))</span>
+
+        <span class="c"># add property index entries</span>
+        <span class="k">if</span> <span class="n">properties</span><span class="p">:</span>
+
+            <span class="c"># we&#39;re applying writes</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">properties</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+                <span class="c"># extract property class and value</span>
+                <span class="n">prop</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">v</span>
+
+                <span class="c"># consider repeated properties</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">prop</span><span class="o">.</span><span class="n">_repeated</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span>
+
+                <span class="c"># iterate through property values</span>
+                <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                    <span class="n">_property_indexes</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">cls</span><span class="o">.</span><span class="n">_index_basetypes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">prop</span><span class="o">.</span><span class="n">_basetype</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">),</span> <span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">_index_prefix</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)))</span>
+
+                <span class="k">continue</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">cls</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;debug&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>  <span class="c"># pragma: no cover</span>
+                <span class="n">cls</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Generated indexes for clean: </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s"> under key </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">_meta_indexes</span><span class="p">,</span> <span class="n">encoded_key</span><span class="p">))</span>
+
+            <span class="c"># we&#39;re cleaning indexes</span>
+            <span class="k">return</span> <span class="n">encoded_key</span><span class="p">,</span> <span class="n">_meta_indexes</span>
+
+        <span class="k">if</span> <span class="n">cls</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;debug&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>  <span class="c"># pragma: no cover</span>
+            <span class="n">cls</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Generated indexes for write: META(</span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">), VALUE(</span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">) under key </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">_meta_indexes</span><span class="p">,</span> <span class="n">_property_indexes</span><span class="p">,</span> <span class="n">encoded_key</span><span class="p">))</span>
+
+        <span class="c"># we&#39;re writing indexes</span>
+        <span class="k">return</span> <span class="n">encoded_key</span><span class="p">,</span> <span class="n">_meta_indexes</span><span class="p">,</span> <span class="n">_property_indexes</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IndexedModelAdapter.write_indexes"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.IndexedModelAdapter.write_indexes">[docs]</a>    <span class="k">def</span> <span class="nf">write_indexes</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">writes</span><span class="p">):</span>  <span class="c"># pragma: no cover</span>
+
+        <span class="sd">&#39;&#39;&#39; Write a batch of index updates generated earlier via the method above. &#39;&#39;&#39;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IndexedModelAdapter.clean_indexes"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.IndexedModelAdapter.clean_indexes">[docs]</a>    <span class="k">def</span> <span class="nf">clean_indexes</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>  <span class="c"># pragma: no cover</span>
+
+        <span class="sd">&#39;&#39;&#39; Clean indexes and index entries matching a key. &#39;&#39;&#39;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IndexedModelAdapter.execute_query"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.IndexedModelAdapter.execute_query">[docs]</a>    <span class="k">def</span> <span class="nf">execute_query</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>  <span class="c"># pragma: no cover</span>
+
+        <span class="sd">&#39;&#39;&#39; Execute a query across one (or multiple) indexed properties. &#39;&#39;&#39;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+
+<span class="c">## Mixin</span>
+<span class="c"># Metaclass for registering mixins and applying them later.</span></div></div>
+<div class="viewcode-block" id="Mixin"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.Mixin">[docs]</a><span class="k">class</span> <span class="nc">Mixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Abstract parent for detecting and registering `Mixin` classes. &#39;&#39;&#39;</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">()</span>
+
+    <span class="k">class</span> <span class="nc">__metaclass__</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Local `Mixin` metaclass for registering encountered `Mixin`(s). &#39;&#39;&#39;</span>
+
+        <span class="c">## == Mixin Registry == ##</span>
+        <span class="n">_compound</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">_mixin_lookup</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">_key_mixin_registry</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">_model_mixin_registry</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">properties</span><span class="p">):</span>
+
+            <span class="sd">&#39;&#39;&#39; Factory a new registered `Mixin`. &#39;&#39;&#39;</span>
+
+            <span class="c"># apply local metaclass to factoried concrete children</span>
+            <span class="n">klass</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">cls</span><span class="p">)</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">properties</span><span class="p">)</span>
+
+            <span class="c"># register mixin if it&#39;s not a concrete parent and is unregistered</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">frozenset</span><span class="p">((</span><span class="s">&#39;Mixin&#39;</span><span class="p">,</span> <span class="s">&#39;KeyMixin&#39;</span><span class="p">,</span> <span class="s">&#39;ModelMixin&#39;</span><span class="p">,</span> <span class="s">&#39;CompoundKey&#39;</span><span class="p">,</span> <span class="s">&#39;CompoundModel&#39;</span><span class="p">))</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">_mixin_lookup</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">KeyMixin</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bases</span> <span class="ow">and</span> <span class="n">ModelMixin</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bases</span><span class="p">:</span>
+                    <span class="c">## we can only directly extend `Mixin` from `KeyMixin` and `ModelMixin`</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;Cannot directly extend `Mixin` - you must extend `KeyMixin` or `ModelMixin`.&quot;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">bases</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="n">bases</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">base</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">frozenset</span><span class="p">((</span><span class="n">KeyMixin</span><span class="p">,</span> <span class="n">ModelMixin</span><span class="p">)):</span>
+                            <span class="c">## mixins are only allowed to _directly_ extend `KeyMixin` or `ModelMixin` - no midway classes.</span>
+                            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;Cannot inject classes for inheritance in between `KeyMixin` or `ModelMixin` and a concrete mixin class.&quot;</span><span class="p">)</span>
+
+                <span class="c"># add to each registry that the mixin supports</span>
+                <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="n">bases</span><span class="p">:</span>
+
+                    <span class="c">## add mixin to parent registry</span>
+                    <span class="n">base</span><span class="o">.</span><span class="n">__registry__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">klass</span>
+
+                <span class="c"># add to global mixin lookup to prevent double loading</span>
+                <span class="n">cls</span><span class="o">.</span><span class="n">_mixin_lookup</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+                <span class="c"># see if we already have a compound class (mixins loaded after models)</span>
+                <span class="k">if</span> <span class="n">Mixin</span><span class="o">.</span><span class="n">_compound</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+
+                    <span class="c">## extend class dict if we already have one</span>
+                    <span class="n">Mixin</span><span class="o">.</span><span class="n">_compound</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+
+            <span class="k">return</span> <span class="n">klass</span>
+
+        <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+
+            <span class="sd">&#39;&#39;&#39; Generate a string representation of a `Mixin` subclass. &#39;&#39;&#39;</span>
+
+            <span class="k">return</span> <span class="s">&quot;&lt;Mixin &#39;</span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s">&#39;&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span> <span class="n">cls</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+
+    <span class="n">internals</span> <span class="o">=</span> <span class="n">__metaclass__</span>
+
+    <span class="nd">@decorators.classproperty</span>
+<div class="viewcode-block" id="Mixin.methods"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.Mixin.methods">[docs]</a>    <span class="k">def</span> <span class="nf">methods</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Recursively return all available `Mixin` methods. &#39;&#39;&#39;</span>
+
+        <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">components</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">method</span><span class="p">,</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">yield</span> <span class="n">method</span><span class="p">,</span> <span class="n">func</span>
+</div>
+    <span class="nd">@decorators.classproperty</span>
+    <span class="k">def</span> <span class="nf">compound</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Generate a compound mixin class. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">__compound__</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+
+            <span class="c"># if we&#39;ve never generated a `CompoundModel` or if it&#39;s been changed, regenerate...</span>
+            <span class="n">cls</span><span class="o">.</span><span class="n">__compound__</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()[</span><span class="n">cls</span><span class="o">.</span><span class="n">__compound__</span><span class="o">.</span><span class="n">__name__</span><span class="p">]</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">internals</span><span class="o">.</span><span class="n">_compound</span><span class="p">[</span><span class="n">cls</span><span class="p">]</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="o">*</span><span class="p">(</span>
+                <span class="n">cls</span><span class="o">.</span><span class="n">__compound__</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="nb">object</span><span class="p">),</span>
+                <span class="nb">dict</span><span class="p">([</span>
+                    <span class="p">(</span><span class="s">&#39;__origin__&#39;</span><span class="p">,</span> <span class="n">cls</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s">&#39;__slots__&#39;</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">()),</span>
+                <span class="p">]</span> <span class="o">+</span> <span class="p">[(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">methods</span><span class="p">])</span>
+            <span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">cls</span><span class="o">.</span><span class="n">__compound__</span>
+
+    <span class="nd">@decorators.classproperty</span>
+<div class="viewcode-block" id="Mixin.components"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.Mixin.components">[docs]</a>    <span class="k">def</span> <span class="nf">components</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Return the individual components of a composed `KeyMixin`. &#39;&#39;&#39;</span>
+
+        <span class="k">for</span> <span class="n">mixin</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">__registry__</span><span class="o">.</span><span class="n">itervalues</span><span class="p">():</span> <span class="k">yield</span> <span class="n">mixin</span>
+
+
+<span class="c">## KeyMixin</span>
+<span class="c"># Extendable, registered class that mixes in attributes to `Key`.</span></div></div>
+<div class="viewcode-block" id="KeyMixin"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.KeyMixin">[docs]</a><span class="k">class</span> <span class="nc">KeyMixin</span><span class="p">(</span><span class="n">Mixin</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Allows injection of attributes into `Key`. &#39;&#39;&#39;</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">()</span>
+    <span class="n">__compound__</span> <span class="o">=</span> <span class="s">&#39;CompoundKey&#39;</span>
+    <span class="n">__registry__</span> <span class="o">=</span> <span class="n">Mixin</span><span class="o">.</span><span class="n">_key_mixin_registry</span>
+
+
+<span class="c">## ModelMixin</span>
+<span class="c"># Extendable, registered class that mixes in attributes to `Model`.</span></div>
+<div class="viewcode-block" id="ModelMixin"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.abstract.ModelMixin">[docs]</a><span class="k">class</span> <span class="nc">ModelMixin</span><span class="p">(</span><span class="n">Mixin</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Allows injection of attributes into `Model`. &#39;&#39;&#39;</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">()</span>
+    <span class="n">__compound__</span> <span class="o">=</span> <span class="s">&#39;CompoundModel&#39;</span>
+    <span class="n">__registry__</span> <span class="o">=</span> <span class="n">Mixin</span><span class="o">.</span><span class="n">_model_mixin_registry</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../../index.html">
+              <img class="logo" src="../../../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../../apptools.html" >lib.apptools</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

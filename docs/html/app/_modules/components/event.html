@@ -1,0 +1,261 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>components.event &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for components.event</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">Components: Events</span>
+
+<span class="sd">This file contains `TrackedEvent`, a class used to represent</span>
+<span class="sd">individual events tracked by the `EventTracker`.</span>
+
+<span class="sd">-sam (&lt;sam.gammon@ampush.com&gt;)</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c"># stdlib</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="c"># hermes codebase</span>
+<span class="kn">import</span> <span class="nn">protocol</span>
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">debug</span>
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">verbose</span>
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">_PARAM_SEPARATOR</span>
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">_DISCARD_NOSENTINEL</span>
+
+<span class="c"># hermes util</span>
+<span class="kn">import</span> <span class="nn">util</span>
+<span class="kn">from</span> <span class="nn">util</span> <span class="kn">import</span> <span class="n">exceptions</span>
+
+
+<span class="c">## Param sets</span>
+<span class="n">InternalParams</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">([</span><span class="n">protocol</span><span class="o">.</span><span class="n">BuiltinParameters</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">protocol</span><span class="o">.</span><span class="n">BuiltinParameters</span><span class="o">.</span><span class="n">DRYRUN</span><span class="p">,</span> <span class="n">protocol</span><span class="o">.</span><span class="n">BuiltinParameters</span><span class="o">.</span><span class="n">SENTINEL</span><span class="p">])</span>
+<span class="n">AmpushParams</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">([</span><span class="n">protocol</span><span class="o">.</span><span class="n">BuiltinParameters</span><span class="o">.</span><span class="n">REF</span><span class="p">,</span> <span class="n">protocol</span><span class="o">.</span><span class="n">BuiltinParameters</span><span class="o">.</span><span class="n">TYPE</span><span class="p">])</span>
+<span class="n">AllParams</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">([</span><span class="nb">getattr</span><span class="p">(</span><span class="n">protocol</span><span class="o">.</span><span class="n">BuiltinParameters</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">protocol</span><span class="o">.</span><span class="n">BuiltinParameters</span><span class="o">.</span><span class="n">__dict__</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">i</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;_&#39;</span><span class="p">)])</span>
+
+
+<span class="c">## TrackedEvent - a conversion, impression, etc</span>
+<div class="viewcode-block" id="TrackedEvent"><a class="viewcode-back" href="../../components.html#components.event.TrackedEvent">[docs]</a><span class="k">class</span> <span class="nc">TrackedEvent</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Represents a hit to a tracked event. &#39;&#39;&#39;</span>
+
+    <span class="nb">id</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># unique ID for this event</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># URL path being requested</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># quickmatch result, if any</span>
+    <span class="n">error</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># records a deferred error</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c"># filtered URL query parameters</span>
+    <span class="n">cookie</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># `amp` cookie value</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># current webob request</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># current/established session</span>
+    <span class="n">tracker</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># reference to parent tracker</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># current webob response</span>
+    <span class="n">sentinel</span> <span class="o">=</span> <span class="bp">False</span>  <span class="c"># sentinel compliance flag</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="TrackedEvent.new"><a class="viewcode-back" href="../../components.html#components.event.TrackedEvent.new">[docs]</a>    <span class="k">def</span> <span class="nf">new</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">tracker</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Factory for a `TrackedEvent`. &#39;&#39;&#39;</span>
+
+        <span class="c"># Copy in request, path and params</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">tracker</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tracker</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Initialize this `TrackedEvent`. &#39;&#39;&#39;</span>
+
+        <span class="c"># Initialize WSGI request/response properties</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tracker</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">tracker</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">response</span>
+
+        <span class="c"># Perform pre-validation</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="n">protocol</span><span class="o">.</span><span class="n">BuiltinParameters</span><span class="o">.</span><span class="n">SENTINEL</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sentinel</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">_DISCARD_NOSENTINEL</span><span class="p">:</span>
+                <span class="c"># Just warn if we&#39;re in debug...</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tracker</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Not using the Sentinel value can cause bad counts. (Sentinel param is currently &#39;</span><span class="si">%s</span><span class="s">&#39;.)&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="n">protocol</span><span class="o">.</span><span class="n">TrackerProtocol</span><span class="o">.</span><span class="n">SENTINEL</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tracker</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;No sentinel found, running in strict sentinel mode. (Sentinel param is currently &#39;</span><span class="si">%s</span><span class="s">&#39;.)&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="n">protocol</span><span class="o">.</span><span class="n">TrackerProtocol</span><span class="o">.</span><span class="n">SENTINEL</span><span class="p">))</span>
+                <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">InvalidSentinel</span><span class="p">(</span><span class="s">&quot;Sentinel key not found in tracker URL - event refused.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># Indicate we *do* have a sentinel</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tracker</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s">&quot;Sentinel value found.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sentinel</span> <span class="o">=</span> <span class="bp">True</span>
+
+        <span class="c"># Generate computed properties</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="o">.</span><span class="n">generate_id</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="TrackedEvent.debug"><a class="viewcode-back" href="../../components.html#components.event.TrackedEvent.debug">[docs]</a>    <span class="k">def</span> <span class="nf">debug</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Indicate whether we&#39;re in debug mode (globally or per-request). &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">debug</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="n">protocol</span><span class="o">.</span><span class="n">BuiltinParameters</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span> <span class="ow">in</span> <span class="n">params</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="TrackedEvent.param"><a class="viewcode-back" href="../../components.html#components.event.TrackedEvent.param">[docs]</a>    <span class="k">def</span> <span class="nf">param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Get or set the value of a URL param. &#39;&#39;&#39;</span>
+
+        <span class="c"># If it&#39;s an Ampush param, add the prefix...</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">AmpushParams</span><span class="p">:</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="n">_PARAM_SEPARATOR</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">protocol</span><span class="o">.</span><span class="n">TrackerPrefix</span><span class="o">.</span><span class="n">AMPUSH</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+
+        <span class="c"># Same if it&#39;s an Internal param...</span>
+        <span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">InternalParams</span><span class="p">:</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="n">_PARAM_SEPARATOR</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">protocol</span><span class="o">.</span><span class="n">TrackerPrefix</span><span class="o">.</span><span class="n">INTERNAL</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+
+        <span class="c"># Otherwise, it&#39;s custom.</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="n">_PARAM_SEPARATOR</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">protocol</span><span class="o">.</span><span class="n">TrackerPrefix</span><span class="o">.</span><span class="n">CUSTOM</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tracker</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s">&quot;Transformed param &#39;</span><span class="si">%s</span><span class="s">&#39; to &#39;</span><span class="si">%s</span><span class="s">&#39;.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">param</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">param</span>
+</div>
+<div class="viewcode-block" id="TrackedEvent.generate_id"><a class="viewcode-back" href="../../components.html#components.event.TrackedEvent.generate_id">[docs]</a>    <span class="k">def</span> <span class="nf">generate_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Generate a proper unique ID for this event. &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;XAF-Hash&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;XAF-Request-ID&#39;</span><span class="p">,</span> <span class="s">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">base</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()))])))</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</div>
+<div class="viewcode-block" id="TrackedEvent.decode"><a class="viewcode-back" href="../../components.html#components.event.TrackedEvent.decode">[docs]</a>    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">injected</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Decode an existing session, if any, or use `injected`. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+</div>
+<div class="viewcode-block" id="TrackedEvent.build"><a class="viewcode-back" href="../../components.html#components.event.TrackedEvent.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">salt</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">pepper</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Build a new local session, and return the new session ID. &#39;&#39;&#39;</span>
+
+        <span class="k">pass</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="TrackedEvent.session"><a class="viewcode-back" href="../../components.html#components.event.TrackedEvent.session">[docs]</a>    <span class="k">def</span> <span class="nf">session</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Retrieve the current session object, or if there isn&#39;t one, build it anew. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="s">&quot;_SESSION_&quot;</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="TrackedEvent.match"><a class="viewcode-back" href="../../components.html#components.event.TrackedEvent.match">[docs]</a>    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Retrieve any identified session matches. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">seen</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="TrackedEvent.serialize"><a class="viewcode-back" href="../../components.html#components.event.TrackedEvent.serialize">[docs]</a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Serialize this TrackedEvent into numerous Redis writes. &#39;&#39;&#39;</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&#39;event&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">]):</span> <span class="p">[(</span><span class="s">&#39;id&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;type&#39;</span><span class="p">,</span> <span class="s">&#39;test&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;timestamp&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()))]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_indexes</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="TrackedEvent.generate_indexes"><a class="viewcode-back" href="../../components.html#components.event.TrackedEvent.generate_indexes">[docs]</a>    <span class="k">def</span> <span class="nf">generate_indexes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Generate index writes for a given `TrackedEvent`. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="TrackedEvent.seen"><a class="viewcode-back" href="../../components.html#components.event.TrackedEvent.seen">[docs]</a>    <span class="k">def</span> <span class="nf">seen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Read Redis to see if we know this to be a match. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="s">&#39;NONE&#39;</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

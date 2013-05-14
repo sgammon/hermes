@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>components.protocol.param &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for components.protocol.param</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">Components: Parameter Protocol</span>
+
+<span class="sd">Description coming soon.</span>
+
+<span class="sd">-sam (&lt;sam.gammon@ampush.com&gt;)</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c"># Protocol</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">meta</span>
+<span class="kn">from</span> <span class="nn">.event</span> <span class="kn">import</span> <span class="n">EventType</span><span class="p">,</span> <span class="n">EventProvider</span>
+
+
+<span class="c">## ParameterBasetype - maps basetypes available for parameters.</span>
+<div class="viewcode-block" id="ParameterBasetype"><a class="viewcode-back" href="../../../components.protocol.html#components.protocol.param.ParameterBasetype">[docs]</a><span class="k">class</span> <span class="nc">ParameterBasetype</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">ProtocolDefinition</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Binds available parameter bastypes to type classes and IDs. &#39;&#39;&#39;</span>
+
+    <span class="c">## == Builtin Basetypes == ##  (can be extended to introduce new types)</span>
+    <span class="n">FLOAT</span> <span class="o">=</span> <span class="nb">float</span>  <span class="c"># floating-point type</span>
+    <span class="n">INTEGER</span> <span class="o">=</span> <span class="nb">int</span>  <span class="c"># integer type</span>
+    <span class="n">STRING</span> <span class="o">=</span> <span class="nb">basestring</span>  <span class="c"># string-type (default, usually)</span>
+    <span class="n">BOOLEAN</span> <span class="o">=</span> <span class="nb">bool</span>  <span class="c"># boolean type (under HTTP: accepts &#39;on&#39;/&#39;off&#39;, &#39;1&#39;/&#39;0&#39;, &#39;true&#39;/&#39;false&#39; and is case-insensitive)</span>
+
+
+<span class="c">## ParameterPolicy - specifies ways the presence of an individual param may be handled.</span></div>
+<div class="viewcode-block" id="ParameterPolicy"><a class="viewcode-back" href="../../../components.protocol.html#components.protocol.param.ParameterPolicy">[docs]</a><span class="k">class</span> <span class="nc">ParameterPolicy</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">ProtocolDefinition</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Maps policy options for a parameter to named items. &#39;&#39;&#39;</span>
+
+    <span class="c">## == Policy Options == #  (in descending order of severity)</span>
+    <span class="n">ENFORCED</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c"># refuse requests that are missing this parameter with a 400-range error</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c"># accept requests, but mark them as errors if they are missing this parameter</span>
+    <span class="n">PREFERRED</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c"># it is valid not to include it, but doing so boosts this request&#39;s priority in the buffer</span>
+    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c"># this parameter is completely optional and has no effect on execution decision making</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

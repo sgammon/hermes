@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.slimmer.js_function_slimmer &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.slimmer.js_function_slimmer</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">re</span>
+
+
+
+<span class="n">function_start_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;(function[ \w+\s*]\(([^\)]*)\)\s*{)&#39;</span><span class="p">)</span>
+<span class="n">function_start_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;(function(\s+\w+|)\s*\(([^\)]*)\)\s*{)&#39;</span><span class="p">)</span>
+
+<span class="n">function_name_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;(function (\w+)\()&#39;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_findFunctions</span><span class="p">(</span><span class="n">whole</span><span class="p">):</span>
+    <span class="n">functions</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">function_start_regex</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">whole</span><span class="p">):</span>
+        <span class="n">function_start</span><span class="p">,</span> <span class="n">function_name</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="n">res</span>
+        <span class="n">params_split</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)]</span>
+        <span class="n">stack</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="n">function_start</span>
+        <span class="n">core_code</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">whole</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">function_start</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">stack</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c">#start += 1</span>
+            <span class="n">next_char</span> <span class="o">=</span> <span class="n">whole</span><span class="p">[</span><span class="n">start</span><span class="p">]</span>
+            <span class="n">core_code</span> <span class="o">+=</span> <span class="n">next_char</span>
+            <span class="k">if</span> <span class="n">next_char</span> <span class="o">==</span> <span class="s">&#39;{&#39;</span><span class="p">:</span>
+                <span class="n">stack</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">next_char</span> <span class="o">==</span> <span class="s">&#39;}&#39;</span><span class="p">:</span>
+                <span class="n">stack</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="n">start</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">yield</span> <span class="p">(</span><span class="n">params</span><span class="p">,</span>
+               <span class="n">params_split</span><span class="p">,</span>
+               <span class="n">core_code</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+               <span class="n">function_start</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="slim_params"><a class="viewcode-back" href="../../../lib.slimmer.html#lib.slimmer.js_function_slimmer.slim_params">[docs]</a><span class="k">def</span> <span class="nf">slim_params</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>
+    <span class="n">new_functions</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">old_functions</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">new_code</span> <span class="o">=</span> <span class="n">code</span>
+    <span class="k">for</span> <span class="n">params</span><span class="p">,</span> <span class="n">params_split</span><span class="p">,</span> <span class="n">core</span><span class="p">,</span> <span class="n">function_start</span> <span class="ow">in</span> <span class="n">_findFunctions</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>
+        <span class="n">params_split_use</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">params_split</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">_param_regex</span> <span class="o">=</span> <span class="s">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">r&#39;\b</span><span class="si">%s</span><span class="s">\b&#39;</span> <span class="o">%</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">params_split_use</span><span class="p">])</span>
+        <span class="n">param_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">_param_regex</span><span class="p">)</span>
+        <span class="n">new_params</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">params_split_use</span><span class="p">)):</span>
+            <span class="n">new_params</span><span class="p">[</span><span class="n">params_split</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="s">&#39;_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">i</span>
+
+        <span class="k">def</span> <span class="nf">replacer</span><span class="p">(</span><span class="n">match</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">new_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">())</span>
+
+        <span class="n">new_core</span> <span class="o">=</span> <span class="n">param_regex</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">replacer</span><span class="p">,</span> <span class="n">core</span><span class="p">)</span>
+
+        <span class="n">_params</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params_split</span><span class="p">:</span>
+            <span class="n">_params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="n">p</span><span class="p">))</span>
+
+
+        <span class="n">new_function</span> <span class="o">=</span> <span class="n">function_start</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_params</span><span class="p">))</span><span class="o">+</span>\
+                       <span class="n">new_core</span> <span class="o">+</span> <span class="s">&#39;}&#39;</span>
+
+        <span class="n">old_function</span> <span class="o">=</span> <span class="n">function_start</span><span class="o">+</span><span class="n">core</span><span class="o">+</span><span class="s">&#39;}&#39;</span>
+        <span class="n">old_functions</span><span class="p">[</span><span class="n">old_function</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_function</span>
+
+    <span class="c"># killer regex</span>
+    <span class="n">regex</span> <span class="o">=</span> <span class="s">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">old_functions</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
+    <span class="k">def</span> <span class="nf">replacer</span><span class="p">(</span><span class="n">match</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">old_functions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">replacer</span><span class="p">,</span> <span class="n">new_code</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="NamesGenerator"><a class="viewcode-back" href="../../../lib.slimmer.html#lib.slimmer.js_function_slimmer.NamesGenerator">[docs]</a><span class="k">class</span> <span class="nc">NamesGenerator</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pool</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="s">&#39;ABCDEFGHIJKLMNOPQRSTUVWXYZ&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NamesGenerator.next"><a class="viewcode-back" href="../../../lib.slimmer.html#lib.slimmer.js_function_slimmer.NamesGenerator.next">[docs]</a>    <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;j&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">])</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">)]</span> <span class="o">+</span>\
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">j</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="s">&#39;_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">e</span>
+</div></div>
+<div class="viewcode-block" id="slim_func_names"><a class="viewcode-back" href="../../../lib.slimmer.html#lib.slimmer.js_function_slimmer.slim_func_names">[docs]</a><span class="k">def</span> <span class="nf">slim_func_names</span><span class="p">(</span><span class="n">js</span><span class="p">):</span>
+    <span class="n">relabel_functions</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">functions</span> <span class="o">=</span> <span class="n">function_name_regex</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">js</span><span class="p">)</span>
+    <span class="n">new_names_generator</span> <span class="o">=</span> <span class="n">NamesGenerator</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">whole_func</span><span class="p">,</span> <span class="n">func_name</span> <span class="ow">in</span> <span class="n">functions</span><span class="p">:</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="n">js</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">func_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">func_name</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c">#print func_name, count,</span>
+            <span class="c">#len(re.findall(r&#39;\b%s\b&#39;% re.escape(func_name), js))</span>
+            <span class="n">new_name</span> <span class="o">=</span> <span class="n">new_names_generator</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r&#39;\b</span><span class="si">%s</span><span class="s">\b&#39;</span> <span class="o">%</span> <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">new_name</span><span class="p">),</span> <span class="n">js</span><span class="p">):</span>
+                <span class="c">#print  &quot;new_name:%r\n\n%s&quot; % (new_name, js)</span>
+                <span class="k">continue</span>
+            <span class="n">js</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r&#39;\b</span><span class="si">%s</span><span class="s">\b&#39;</span><span class="o">%</span> <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">func_name</span><span class="p">),</span> <span class="n">new_name</span><span class="p">,</span> <span class="n">js</span><span class="p">)</span>
+            <span class="n">relabel_functions</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">func_name</span><span class="p">,</span> <span class="n">new_name</span><span class="p">))</span>
+    <span class="n">add_codes</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;var </span><span class="si">%s</span><span class="s">=</span><span class="si">%s</span><span class="s">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">relabel_functions</span><span class="p">]</span>
+    <span class="n">add_code</span> <span class="o">=</span> <span class="s">&#39;;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">add_codes</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">js</span> <span class="o">+</span> <span class="n">add_code</span>
+</div>
+<div class="viewcode-block" id="slim"><a class="viewcode-back" href="../../../lib.slimmer.html#lib.slimmer.js_function_slimmer.slim">[docs]</a><span class="k">def</span> <span class="nf">slim</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">slim_func_names</span><span class="p">(</span><span class="n">slim_params</span><span class="p">(</span><span class="n">code</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="test"><a class="viewcode-back" href="../../../lib.slimmer.html#lib.slimmer.js_function_slimmer.test">[docs]</a><span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">inputbuffer</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+
+    <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+
+    <span class="n">js1</span> <span class="o">=</span> <span class="n">inputbuffer</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">slim</span><span class="p">(</span><span class="n">js1</span><span class="p">)</span>
+    <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="k">print</span> <span class="n">t1</span><span class="o">-</span><span class="n">t0</span>
+    <span class="k">return</span> <span class="n">res</span>
+</div>
+<span class="k">if</span> <span class="n">__name__</span><span class="o">==</span><span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">sys</span>
+    <span class="n">argv</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="k">if</span> <span class="n">argv</span><span class="p">:</span>
+        <span class="k">print</span> <span class="n">test</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">test</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

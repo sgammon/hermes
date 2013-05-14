@@ -221,7 +221,7 @@ ENABLE_LEGACY ? (function (context) {
      * @constructor
      * @struct
      * @param {Window|Object} context An object to export `EventTracker` to.
-     * @param {?Object} async Async queue variable passed in from the page (usually `_amp`).
+     * @param {?Array} async Async queue variable passed in from the page (usually `_amp`).
      */
     function EventTracker(context, async) {
 
@@ -230,12 +230,12 @@ ENABLE_LEGACY ? (function (context) {
          * @type {Object}
          */
         this.state = /** @struct */ {  // `state: {}`: Runtime State
-            env: null,  // gathered details about the current browser environment
-            fingerprint: null,  // persistent or cookie-based identifier
+            env: {},  // gathered details about the current browser environment
+            fingerprint: {},  // persistent or cookie-based identifier
             beacon: {
                 sent: [],  // sent tracking beacons
                 pending: [],  // stack of historical beacons (for multiple)
-                current: null,  // current beacon object
+                current: {},  // current beacon object
                 host: BEACON_HOST  // hostname endpoint for beacons
             }
         };
@@ -303,7 +303,7 @@ ENABLE_LEGACY ? (function (context) {
      */
     EventTracker.prototype.gather = function (context) {
 
-        var nav = context.navigator;
+        var nav = context.navigator, scr = context.screen;
 
         /**
          * Environment state. Keeps track of browser and client environment.
@@ -320,10 +320,10 @@ ENABLE_LEGACY ? (function (context) {
             worker: !!context.Worker || false,  // support for WebWorkers
             appcache: !!context.applicationCache || false,  // support for Appcaching
             dnt: (nav.doNotTrack ? !!nav.doNotTrack : false),  // whether the do-not-track header is enabled
-            screen: context.screen ? {
-                width: context.screen.width,  // try to detect screen width
-                height: context.screen.height,  // try to detect screen height
-                color_depth: context.screen.colorDepth,  // grab color depth
+            screen: scr ? {
+                width: scr.width,  // try to detect screen width
+                height: scr.height,  // try to detect screen height
+                color_depth: scr.colorDepth,  // grab color depth
                 pixel_density: context.devicePixelRatio  // grab pixel density (retina == 2, all else == 1)
             } : {}
         };

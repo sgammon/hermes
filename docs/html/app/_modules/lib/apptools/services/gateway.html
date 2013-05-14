@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.apptools.services.gateway &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../../index.html" />
+    <link rel="up" title="lib.apptools.services" href="../services.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../apptools.html" >lib.apptools</a> &raquo;</li>
+          <li><a href="../services.html" accesskey="U">lib.apptools.services</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.apptools.services.gateway</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">Services Dispatch</span>
+
+<span class="sd">Used for dispatching URLs that are part of AppTools/ProtoRPC-based remote</span>
+<span class="sd">API services.</span>
+
+<span class="sd">-sam (&lt;sam@momentum.io&gt;)</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c"># Basic Imports</span>
+<span class="kn">import</span> <span class="nn">config</span>
+<span class="kn">import</span> <span class="nn">webapp2</span>
+
+<span class="c"># ProtoRPC Imports</span>
+<span class="kn">from</span> <span class="nn">protorpc</span> <span class="kn">import</span> <span class="n">registry</span>
+<span class="kn">from</span> <span class="nn">protorpc.webapp</span> <span class="kn">import</span> <span class="n">forms</span>
+<span class="kn">from</span> <span class="nn">protorpc.webapp</span> <span class="kn">import</span> <span class="n">service_handlers</span>
+
+<span class="c"># AppTools Imports</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">_loadModule</span>
+<span class="kn">from</span> <span class="nn">apptools</span> <span class="kn">import</span> <span class="n">services</span> <span class="k">as</span> <span class="n">servicelayer</span>
+<span class="kn">from</span> <span class="nn">apptools.services</span> <span class="kn">import</span> <span class="n">RemoteServiceHandlerFactory</span>
+
+
+<span class="k">def</span> <span class="nf">_normalize_services</span><span class="p">(</span><span class="n">mixed_services</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; _normalize_services - borrowed from webapp2. &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mixed_services</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">mixed_services</span> <span class="o">=</span> <span class="n">mixed_services</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span>
+
+    <span class="n">services</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">service_item</span> <span class="ow">in</span> <span class="n">mixed_services</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">service_item</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="n">path</span><span class="p">,</span> <span class="n">service</span> <span class="o">=</span> <span class="n">service_item</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="n">service</span> <span class="o">=</span> <span class="n">service_item</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+            <span class="c"># Lazily import the service class.</span>
+            <span class="n">service</span> <span class="o">=</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">import_string</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+
+        <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">path</span><span class="p">,</span> <span class="n">service</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">services</span>
+
+
+<div class="viewcode-block" id="resolveServices"><a class="viewcode-back" href="../../../../lib.apptools.services.html#lib.apptools.services.gateway.resolveServices">[docs]</a><span class="k">def</span> <span class="nf">resolveServices</span><span class="p">(</span><span class="n">svcs</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apptools.project.services&#39;</span><span class="p">),</span> <span class="n">load</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Resolve installed service classes, optionally importing them as we go. &#39;&#39;&#39;</span>
+
+    <span class="n">services</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">service</span><span class="p">,</span> <span class="n">cfg</span> <span class="ow">in</span> <span class="n">svcs</span><span class="p">[</span><span class="s">&#39;services&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;enabled&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">):</span>
+            <span class="n">urlpath</span> <span class="o">=</span> <span class="s">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">svcs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;config&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;url_prefix&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">service</span><span class="p">])</span>
+            <span class="n">servicepath</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;service&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">load</span><span class="p">:</span>
+                <span class="n">sp_split</span> <span class="o">=</span> <span class="n">servicepath</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span>
+                <span class="n">servicepath</span> <span class="o">=</span> <span class="n">_loadModule</span><span class="p">((</span><span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sp_split</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">sp_split</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">urlpath</span><span class="p">,</span> <span class="n">servicepath</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">services</span>
+
+</div>
+<div class="viewcode-block" id="generateServiceMappings"><a class="viewcode-back" href="../../../../lib.apptools.services.html#lib.apptools.services.gateway.generateServiceMappings">[docs]</a><span class="k">def</span> <span class="nf">generateServiceMappings</span><span class="p">(</span><span class="n">svc_cfg</span><span class="p">,</span> <span class="n">registry_path</span><span class="o">=</span><span class="n">servicelayer</span><span class="o">.</span><span class="n">DEFAULT_REGISTRY_PATH</span><span class="p">,</span> <span class="n">handler</span><span class="o">=</span><span class="n">RemoteServiceHandlerFactory</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Utility function that reads the services config and generates URL mappings to service classes. &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">registry_path</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">registry_path</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">DEFAULT_REGISTRY_PATH</span>
+
+    <span class="c">## Generate service mappings in tuple(&lt;invocation_url&gt;, &lt;classpath&gt;) format</span>
+    <span class="n">services</span> <span class="o">=</span> <span class="n">_normalize_services</span><span class="p">(</span><span class="n">resolveServices</span><span class="p">(</span><span class="n">svc_cfg</span><span class="p">))</span>
+    <span class="n">mapping</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">registry_map</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">registry_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">registry_service</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">RegistryService</span><span class="o">.</span><span class="n">new_factory</span><span class="p">(</span><span class="n">registry_map</span><span class="p">)</span>
+        <span class="n">services</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">services</span><span class="p">)</span> <span class="o">+</span> <span class="p">[(</span><span class="n">registry_path</span><span class="p">,</span> <span class="n">registry_service</span><span class="p">)]</span>
+        <span class="n">mapping</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">registry_path</span> <span class="o">+</span> <span class="s">r&#39;/form(?:/)?&#39;</span><span class="p">,</span> <span class="n">servicelayer</span><span class="o">.</span><span class="n">RemoteServiceFormsHandler</span><span class="p">))</span>
+        <span class="n">mapping</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">registry_path</span> <span class="o">+</span> <span class="s">r&#39;/form/(.+)&#39;</span><span class="p">,</span> <span class="n">forms</span><span class="o">.</span><span class="n">ResourceHandler</span><span class="p">))</span>
+
+    <span class="n">paths</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">services</span><span class="p">:</span>
+        <span class="n">service_class</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="s">&#39;service_class&#39;</span><span class="p">,</span> <span class="n">service</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">service_class</span><span class="o">.</span><span class="n">definition_name</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="s">&#39;/&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">service_handlers</span><span class="o">.</span><span class="n">ServiceConfigurationError</span><span class="p">(</span>
+                <span class="s">&#39;Path </span><span class="si">%r</span><span class="s"> is already defined in service mapping&#39;</span>
+                <span class="o">%</span> <span class="n">path</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">paths</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="c"># Create service mapping for webapp2.</span>
+        <span class="n">new_mapping</span> <span class="o">=</span> <span class="n">handler</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">service</span><span class="p">)</span><span class="o">.</span><span class="n">mapping</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">mapping</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_mapping</span><span class="p">)</span>
+
+        <span class="c"># Update registry with service class.</span>
+        <span class="n">registry_map</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="n">service_class</span>
+
+    <span class="k">return</span> <span class="n">mapping</span>
+
+</div>
+<span class="n">_application</span> <span class="o">=</span> <span class="n">Application</span> <span class="o">=</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">WSGIApplication</span><span class="p">(</span><span class="n">generateServiceMappings</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apptools.project.services&#39;</span><span class="p">)),</span> <span class="n">debug</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">_application</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../index.html">
+              <img class="logo" src="../../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../apptools.html" >lib.apptools</a> &raquo;</li>
+          <li><a href="../services.html" >lib.apptools.services</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

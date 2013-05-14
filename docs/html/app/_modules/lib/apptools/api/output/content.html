@@ -1,0 +1,1126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.apptools.api.output.content &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../../',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../../../index.html" />
+    <link rel="up" title="lib.apptools.api.output" href="../output.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../../apptools.html" >lib.apptools</a> &raquo;</li>
+          <li><a href="../../api.html" >lib.apptools.api</a> &raquo;</li>
+          <li><a href="../output.html" accesskey="U">lib.apptools.api.output</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.apptools.api.output.content</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="c">## == Imports == ##</span>
+
+<span class="c">## Base Imports</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">config</span>
+<span class="kn">import</span> <span class="nn">webapp2</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+
+<span class="c">## Jinja2 Imports</span>
+<span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">nodes</span>
+<span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">environment</span>
+<span class="kn">from</span> <span class="nn">jinja2.ext</span> <span class="kn">import</span> <span class="n">Extension</span>
+<span class="kn">from</span> <span class="nn">jinja2.bccache</span> <span class="kn">import</span> <span class="n">BytecodeCache</span>
+<span class="kn">from</span> <span class="nn">jinja2.exceptions</span> <span class="kn">import</span> <span class="n">TemplateNotFound</span>
+
+<span class="c">## Core Imports</span>
+<span class="kn">from</span> <span class="nn">apptools.api</span> <span class="kn">import</span> <span class="n">CoreAPI</span>
+
+<span class="c">## AppTools Imports</span>
+<span class="kn">from</span> <span class="nn">apptools.api</span> <span class="kn">import</span> <span class="n">output</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">debug</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">AppToolsJSONEncoder</span>
+
+<span class="c">## External Imports</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">timesince</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">byteconvert</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="c">## NDB Imports</span>
+    <span class="kn">from</span> <span class="nn">google.appengine.ext</span> <span class="kn">import</span> <span class="n">ndb</span>
+    <span class="kn">from</span> <span class="nn">google.appengine.ext.ndb</span> <span class="kn">import</span> <span class="n">context</span>
+    <span class="kn">from</span> <span class="nn">google.appengine.ext.ndb</span> <span class="kn">import</span> <span class="n">tasklet</span> <span class="k">as</span> <span class="n">ntasklet</span>
+    <span class="kn">from</span> <span class="nn">google.appengine.ext.ndb</span> <span class="kn">import</span> <span class="n">synctasklet</span> <span class="k">as</span> <span class="n">stasklet</span>
+
+    <span class="c">## SDK Imports</span>
+    <span class="kn">from</span> <span class="nn">google.appengine.api</span> <span class="kn">import</span> <span class="n">memcache</span>
+    <span class="kn">from</span> <span class="nn">google.appengine.ext</span> <span class="kn">import</span> <span class="n">blobstore</span>
+
+<span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="n">_APPENGINE</span> <span class="o">=</span> <span class="bp">False</span>  <span class="c"># we&#39;re not running on appengine</span>
+
+<div class="viewcode-block" id="tasklet"><a class="viewcode-back" href="../../../../../lib.apptools.api.output.html#lib.apptools.api.output.content.tasklet">[docs]</a>    <span class="k">def</span> <span class="nf">tasklet</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Shim for missing tasklets. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">func</span>
+</div>
+    <span class="n">toplevel</span> <span class="o">=</span> <span class="n">tasklet</span>  <span class="c"># shim toplevel too</span>
+
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">_APPENGINE</span> <span class="o">=</span> <span class="bp">True</span>  <span class="c"># we are running on appengine</span>
+    <span class="n">tasklet</span> <span class="o">=</span> <span class="n">mtasklet</span>  <span class="c"># patch in tasklets</span>
+    <span class="n">toplevel</span> <span class="o">=</span> <span class="n">ndb</span><span class="o">.</span><span class="n">toplevel</span>  <span class="c"># patch in toplevel</span>
+
+
+<span class="c">## Builtin models</span>
+<span class="kn">from</span> <span class="nn">apptools</span> <span class="kn">import</span> <span class="n">model</span>
+<span class="kn">from</span> <span class="nn">apptools.model</span> <span class="kn">import</span> <span class="n">builtin</span> <span class="k">as</span> <span class="n">models</span>
+
+
+<span class="c">## == Globals == ##</span>
+
+<span class="c">## Cached Objects</span>
+<span class="n">_output_loader</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="n">_output_extensions</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">_output_bytecacher</span> <span class="o">=</span> <span class="bp">None</span>
+
+<span class="c">## Global Defaults</span>
+<span class="n">_SYSTEM_NAMESPACE</span> <span class="o">=</span> <span class="s">&quot;__system__&quot;</span>
+<span class="n">_blocktypes</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">([</span><span class="s">&#39;area&#39;</span><span class="p">,</span> <span class="s">&#39;snippet&#39;</span><span class="p">,</span> <span class="s">&#39;summary&#39;</span><span class="p">])</span>
+<span class="n">_dynamic_inheritance_nodes</span> <span class="o">=</span> <span class="p">(</span><span class="n">nodes</span><span class="o">.</span><span class="n">Extends</span><span class="p">,</span> <span class="n">nodes</span><span class="o">.</span><span class="n">FromImport</span><span class="p">,</span> <span class="n">nodes</span><span class="o">.</span><span class="n">Import</span><span class="p">,</span> <span class="n">nodes</span><span class="o">.</span><span class="n">Include</span><span class="p">)</span>
+
+<span class="c">## Global Query Options</span>
+<span class="k">if</span> <span class="n">_APPENGINE</span><span class="p">:</span>
+    <span class="n">_keys_only_opt</span> <span class="o">=</span> <span class="n">ndb</span><span class="o">.</span><span class="n">QueryOptions</span><span class="p">(</span><span class="n">keys_only</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">read_policy</span><span class="o">=</span><span class="n">ndb</span><span class="o">.</span><span class="n">EVENTUAL_CONSISTENCY</span><span class="p">,</span> <span class="n">produce_cursors</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">hint</span><span class="o">=</span><span class="n">ndb</span><span class="o">.</span><span class="n">QueryOptions</span><span class="o">.</span><span class="n">ANCESTOR_FIRST</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">_projection_opt</span> <span class="o">=</span> <span class="n">ndb</span><span class="o">.</span><span class="n">QueryOptions</span><span class="p">(</span><span class="n">keys_only</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">read_policy</span><span class="o">=</span><span class="n">ndb</span><span class="o">.</span><span class="n">EVENTUAL_CONSISTENCY</span><span class="p">,</span> <span class="n">produce_cursors</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">hint</span><span class="o">=</span><span class="n">ndb</span><span class="o">.</span><span class="n">QueryOptions</span><span class="o">.</span><span class="n">ANCESTOR_FIRST</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+
+<span class="c">## CoreContentAPI - manages the retrieval and update of dynamically editable site content</span>
+<div class="viewcode-block" id="CoreContentAPI"><a class="viewcode-back" href="../../../../../lib.apptools.api.output.html#lib.apptools.api.output.content.CoreContentAPI">[docs]</a><span class="k">class</span> <span class="nc">CoreContentAPI</span><span class="p">(</span><span class="n">CoreAPI</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Core API for fulfilling, rendering and managing dynamic content-related requests. &#39;&#39;&#39;</span>
+
+
+    <span class="c">## == API State == ##</span>
+
+    <span class="c"># Content Models</span>
+    <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([])</span>   <span class="c"># seen keys</span>
+    <span class="n">areas</span> <span class="o">=</span> <span class="p">{}</span>       <span class="c"># content areas</span>
+    <span class="n">futures</span> <span class="o">=</span> <span class="p">{}</span>     <span class="c"># data futures</span>
+    <span class="n">snippets</span> <span class="o">=</span> <span class="p">{}</span>    <span class="c"># content snippets</span>
+    <span class="n">summaries</span> <span class="o">=</span> <span class="p">{}</span>   <span class="c"># content summaries</span>
+    <span class="n">namespaces</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c"># content namespaces</span>
+
+    <span class="c"># Structure Cache</span>
+    <span class="n">templates</span> <span class="o">=</span> <span class="p">{}</span>   <span class="c"># templates cache</span>
+    <span class="n">keygroups</span> <span class="o">=</span> <span class="p">{}</span>   <span class="c"># keygroups active</span>
+    <span class="n">heuristics</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c"># keygroup heuristics</span>
+
+
+    <span class="c">## == Low-level Methods == ##</span>
+    <span class="k">def</span> <span class="nf">_filter_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Filter a key in a batch key list. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">_APPENGINE</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">k</span> <span class="o">=</span> <span class="n">ndb</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="n">urlsafe</span><span class="o">=</span><span class="n">k</span><span class="p">)</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="k">raise</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">ndb</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">key</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">k</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="o">.</span><span class="n">from_urlsafe</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="k">raise</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">key</span>
+        <span class="k">return</span> <span class="n">k</span>
+
+    <span class="k">def</span> <span class="nf">_filter_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Filter a model in a batch model list. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">_APPENGINE</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">ndb</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">_fulfill</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Fulfill a model, given a key, either from local cache or the datastore. &#39;&#39;&#39;</span>
+
+        <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_key</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">seen</span><span class="p">:</span>
+            <span class="n">cached_model</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">models</span><span class="o">.</span><span class="n">ContentNamespace</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">namespaces</span><span class="p">,</span>
+                <span class="n">models</span><span class="o">.</span><span class="n">ContentArea</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">areas</span><span class="p">,</span>
+                <span class="n">models</span><span class="o">.</span><span class="n">ContentSnippet</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">snippets</span><span class="p">,</span>
+                <span class="n">models</span><span class="o">.</span><span class="n">ContentSummary</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">summaries</span>
+            <span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">kind</span><span class="p">())</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+            <span class="c"># perhaps it&#39;s already here?</span>
+            <span class="k">if</span> <span class="n">cached_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+
+                <span class="c"># yay</span>
+                <span class="k">return</span> <span class="n">cached_model</span>
+
+            <span class="c"># perhaps we&#39;re still waiting?</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">futures</span><span class="p">:</span>
+
+                <span class="c"># block :(</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">get_result</span><span class="p">()</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># wtf why was it seen then</span>
+                <span class="k">return</span> <span class="n">key</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># just get it</span>
+            <span class="k">return</span> <span class="n">key</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+    <span class="nd">@tasklet</span>
+    <span class="k">def</span> <span class="nf">_batch_fulfill</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Synchronously retrieve a batch of keys. &#39;&#39;&#39;</span>
+
+        <span class="c"># if it&#39;s a future, we&#39;re probably coming from a now-finished query</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">ndb</span><span class="o">.</span><span class="n">Future</span><span class="p">):</span>
+            <span class="n">batch</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">get_result</span><span class="p">()</span>
+
+        <span class="c"># if it&#39;s not a list make it a list (obvs cuz this is _batch_ fulfill)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">batch</span> <span class="o">=</span> <span class="p">[</span><span class="n">batch</span><span class="p">]</span>
+
+        <span class="c"># filter out so we only get keys</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filter_key</span><span class="p">,</span> <span class="n">batch</span><span class="p">)</span>
+
+        <span class="c"># check for the hashed keygroup</span>
+        <span class="n">keygroup_s</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">])</span>
+        <span class="n">heuristic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">heuristics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">keygroup_s</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">heuristic</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">m</span> <span class="k">for</span> <span class="n">b</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keygroups</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">heuristic</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="n">ndb</span><span class="o">.</span><span class="n">get_multi</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@tasklet</span>
+    <span class="k">def</span> <span class="nf">_batch_fulfill_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">resultset_callback</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">item_callback</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Asynchronously retrieve a batch of keys. &#39;&#39;&#39;</span>
+
+        <span class="c"># if it&#39;s a future, we&#39;re probably coming from a now-finished query</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">ndb</span><span class="o">.</span><span class="n">Future</span><span class="p">):</span>
+            <span class="n">batch</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">get_result</span><span class="p">()</span>
+
+        <span class="c"># if it&#39;s not a list make it a list (obvs cuz this is _batch_ fulfill async)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">batch</span> <span class="o">=</span> <span class="p">[</span><span class="n">batch</span><span class="p">]</span>
+
+        <span class="c"># build fetch!</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filter_key</span><span class="p">,</span> <span class="n">batch</span><span class="p">)</span>
+
+        <span class="c"># check for the hashed keygroup</span>
+        <span class="n">keygroup_s</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">])</span>
+        <span class="n">heuristic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">heuristics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">keygroup_s</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">heuristic</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">resultset_callback</span><span class="p">:</span>
+                <span class="n">resultset_callback</span><span class="p">([</span><span class="n">m</span> <span class="k">for</span> <span class="n">b</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keygroups</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">heuristic</span><span class="p">)],</span> <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">item_callback</span><span class="p">:</span>
+                <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">item_callback</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">),</span> <span class="p">[</span><span class="n">m</span> <span class="k">for</span> <span class="n">b</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keygroups</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">heuristic</span><span class="p">)])</span>
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="c"># build operations</span>
+            <span class="n">op</span> <span class="o">=</span> <span class="n">ndb</span><span class="o">.</span><span class="n">get_multi_async</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="c"># if we want results in batch</span>
+            <span class="k">if</span> <span class="n">resultset_callback</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">item_callback</span><span class="p">:</span>
+
+                <span class="c"># build a dependent multifuture that waits on all to finish</span>
+                <span class="n">multifuture</span> <span class="o">=</span> <span class="n">ndb</span><span class="o">.</span><span class="n">MultiFuture</span><span class="p">()</span>
+
+                <span class="c"># add each operation as a dependent</span>
+                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">op</span><span class="p">:</span>
+                    <span class="n">multifuture</span><span class="o">.</span><span class="n">add_dependent</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+                <span class="c"># close dependents</span>
+                <span class="n">multifuture</span><span class="o">.</span><span class="n">complete</span><span class="p">()</span>
+
+                <span class="c"># add callback to catch results in batch</span>
+                <span class="k">if</span> <span class="n">query</span><span class="p">:</span>
+                    <span class="n">multifuture</span><span class="o">.</span><span class="n">add_callback</span><span class="p">(</span><span class="n">resultset_callback</span><span class="p">,</span> <span class="n">multifuture</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">multifuture</span><span class="o">.</span><span class="n">add_callback</span><span class="p">(</span><span class="n">resultset_callback</span><span class="p">,</span> <span class="n">multifuture</span><span class="p">)</span>
+
+            <span class="c"># if we want results one by one</span>
+            <span class="k">elif</span> <span class="n">item_callback</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">resultset_callback</span><span class="p">:</span>
+
+                <span class="c"># add the item callback to each future</span>
+                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">op</span><span class="p">:</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">add_callback</span><span class="p">(</span><span class="n">item_callback</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
+
+            <span class="c"># parallel yield!</span>
+            <span class="k">yield</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+
+    <span class="nd">@tasklet</span>
+    <span class="k">def</span> <span class="nf">_run_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Synchronously run a query. &#39;&#39;&#39;</span>
+
+        <span class="c"># if we should count first, count</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">count</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+
+        <span class="c"># pull via count or via kwargs</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">query</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">query</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@tasklet</span>
+    <span class="k">def</span> <span class="nf">_run_query_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">resultset_callback</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">item_callback</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">eventual_callback</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Asynchronously run a query. &#39;&#39;&#39;</span>
+
+        <span class="c"># if we just counted</span>
+        <span class="k">if</span> <span class="n">future</span><span class="p">:</span>
+
+            <span class="c"># we have a limit</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">get_result</span><span class="p">()</span>
+
+            <span class="c"># there are no results</span>
+            <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">resultset_callback</span><span class="p">([],</span> <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
+
+        <span class="c"># if we should count first, kick off a count and call self with the result</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">count</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">future</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">count_async</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">future</span><span class="o">.</span><span class="n">add_callback</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run_query_async</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="n">future</span><span class="p">,</span> <span class="n">resultset_callback</span><span class="p">,</span> <span class="n">item_callback</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">future</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="c"># if we want to go over things in batch</span>
+            <span class="k">if</span> <span class="n">resultset_callback</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">item_callback</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                    <span class="n">future</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">fetch_async</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">future</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">fetch_async</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">eventual_callback</span><span class="p">:</span>
+                    <span class="n">future</span><span class="o">.</span><span class="n">add_callback</span><span class="p">(</span><span class="n">resultset_callback</span><span class="p">,</span> <span class="n">future</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span> <span class="n">resultset_callback</span><span class="o">=</span><span class="n">eventual_callback</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">future</span><span class="o">.</span><span class="n">add_callback</span><span class="p">(</span><span class="n">resultset_callback</span><span class="p">,</span> <span class="n">future</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
+
+            <span class="c"># if we want to go over things one at a time</span>
+            <span class="k">elif</span> <span class="n">item_callback</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">resultset_callback</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                    <span class="n">future</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">map_async</span><span class="p">(</span><span class="n">item_callback</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="n">count</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">future</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">map_async</span><span class="p">(</span><span class="n">item_callback</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="k">yield</span> <span class="n">future</span>
+
+    <span class="nd">@tasklet</span>
+    <span class="k">def</span> <span class="nf">_batch_store_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Callback for asynchronously retrieved results. &#39;&#39;&#39;</span>
+
+        <span class="c"># landing from a query</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">ndb</span><span class="o">.</span><span class="n">Future</span><span class="p">):</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get_result</span><span class="p">()</span>
+
+        <span class="c"># should really be a list</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="n">result</span><span class="p">]</span>
+
+        <span class="n">_batch</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filter_model</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">seen</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">seen</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+            <span class="n">_batch</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">ContentNamespace</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">namespaces</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&#39;model&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s">&#39;timestamp&#39;</span><span class="p">:</span> <span class="n">timestamp</span><span class="p">})</span>
+
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">ContentArea</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">areas</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&#39;model&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s">&#39;timestamp&#39;</span><span class="p">:</span> <span class="n">timestamp</span><span class="p">})</span>
+
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">ContentSnippet</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">snippets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&#39;model&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s">&#39;timestamp&#39;</span><span class="p">:</span> <span class="n">timestamp</span><span class="p">})</span>
+
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">ContentSummary</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">summaries</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&#39;model&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s">&#39;timestamp&#39;</span><span class="p">:</span> <span class="n">timestamp</span><span class="p">})</span>
+
+        <span class="c"># generate the keygroup&#39;s signature and use it to look for an existing heuristics hint</span>
+        <span class="n">keygroup_s</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">b</span> <span class="k">for</span> <span class="n">b</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">_batch</span><span class="p">])</span>
+        <span class="n">keygroup_i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">heuristics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">keygroup_s</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+
+        <span class="c"># trim the old one</span>
+        <span class="k">if</span> <span class="n">keygroup_i</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">keygroups</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">keygroup_i</span><span class="p">)</span>
+
+        <span class="c"># add the new keygroup and map it</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keygroups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_batch</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">heuristics</span><span class="p">[</span><span class="n">keygroup_s</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">keygroups</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">_batch</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_build_keysonly_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Build a keys-only ndb.Query object with the _keys_only options object. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">kind</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">ancestor</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span> <span class="n">default_options</span><span class="o">=</span><span class="n">_keys_only_opt</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">ndb</span><span class="o">.</span><span class="n">QueryOptions</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">_build_projection_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="n">properties</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Build a projection ndb.Query object with the default _projection_opt options object. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">kind</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">ancestor</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span> <span class="n">default_options</span><span class="o">=</span><span class="n">_projection_opt</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">ndb</span><span class="o">.</span><span class="n">QueryOptions</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="n">properties</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">_build_keygroup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyname</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">snippet</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">summary</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Build a group of keys, always containing a ContentNamespace and ContentArea, optionally with a Snippet and Summary. &#39;&#39;&#39;</span>
+
+        <span class="n">keygroup</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c"># calculate namespace key</span>
+        <span class="n">namespace_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_namespace_key</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
+        <span class="n">keygroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
+
+        <span class="c"># calculate area key</span>
+        <span class="n">area_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_area_key</span><span class="p">(</span><span class="n">keyname</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span>
+        <span class="n">keygroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">area_key</span><span class="p">)</span>
+
+        <span class="c"># if a snippet key is requested</span>
+        <span class="k">if</span> <span class="n">snippet</span><span class="p">:</span>
+
+            <span class="c"># you can pass a version into snippet manually, or True</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">snippet</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="n">snippet_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_snippet_key</span><span class="p">(</span><span class="n">keyname</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">area_key</span><span class="p">,</span> <span class="n">snippet</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">snippet_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_snippet_key</span><span class="p">(</span><span class="n">keyname</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">area_key</span><span class="p">)</span>
+            <span class="n">keygroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">snippet_key</span><span class="p">)</span>
+
+            <span class="c"># if a summary is requested</span>
+            <span class="k">if</span> <span class="n">summary</span><span class="p">:</span>
+
+                <span class="c"># you can pass a version into summary manually, or True</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                    <span class="n">summary_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_summary_key</span><span class="p">(</span><span class="n">keyname</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">snippet_key</span><span class="p">,</span> <span class="n">summary</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">summary_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_summary_key</span><span class="p">(</span><span class="n">keyname</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">snippet_key</span><span class="p">)</span>
+                <span class="n">keygroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">snippet_key</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">keygroup</span>
+
+    <span class="k">def</span> <span class="nf">_build_namespace_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namespace</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Build a key for a ContentNamespace &#39;&#39;&#39;</span>
+
+        <span class="c"># if it&#39;s not the system namespace, it&#39;s key-worthy</span>
+        <span class="k">if</span> <span class="n">namespace</span> <span class="o">!=</span> <span class="n">_SYSTEM_NAMESPACE</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">ndb</span><span class="o">.</span><span class="n">Key</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">namespace</span> <span class="o">=</span> <span class="n">ndb</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">ContentNamespace</span><span class="p">,</span> <span class="n">ndb</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="n">urlsafe</span><span class="o">=</span><span class="n">namespace</span><span class="p">)</span><span class="o">.</span><span class="n">urlsafe</span><span class="p">())</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">namespace</span> <span class="o">=</span> <span class="n">ndb</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">ContentNamespace</span><span class="p">,</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">namespace</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">namespace</span> <span class="o">=</span> <span class="n">ndb</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">ContentNamespace</span><span class="p">,</span> <span class="n">_SYSTEM_NAMESPACE</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">namespace</span>
+
+    <span class="k">def</span> <span class="nf">_build_area_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyname</span><span class="p">,</span> <span class="n">namespace</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Build a key for a ContentArea &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">ndb</span><span class="o">.</span><span class="n">Key</span><span class="p">):</span>
+            <span class="n">namespace</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_namespace_key</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">keyname</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">ndb</span><span class="o">.</span><span class="n">Key</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Must pass in a string keyname and ContentNamespace-compatible Key or string namespace.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ndb</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">ContentArea</span><span class="p">,</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">keyname</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">(),</span> <span class="n">parent</span><span class="o">=</span><span class="n">namespace</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_build_snippet_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyname</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">area</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Build a key for a ContentSnippet &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">area</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ndb</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">ContentSnippet</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">version</span><span class="p">),</span> <span class="n">parent</span><span class="o">=</span><span class="n">area</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ndb</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">ContentSnippet</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">version</span><span class="p">),</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_build_area_key</span><span class="p">(</span><span class="n">keyname</span><span class="p">,</span> <span class="n">namespace</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_build_summary_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyname</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">snippet</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Build a key for a ContentSummary &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">snippet</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ndb</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">ContentSummary</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">version</span><span class="p">),</span> <span class="n">parent</span><span class="o">=</span><span class="n">snippet</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ndb</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">ContentSummary</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">version</span><span class="p">),</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_build_snippet_key</span><span class="p">(</span><span class="n">keyname</span><span class="p">,</span> <span class="n">namespace</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_find_callblocks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Find callblocks in a node. &#39;&#39;&#39;</span>
+
+        <span class="c">## @TODO: Implement AST walking.</span>
+        <span class="k">raise</span> <span class="bp">NotImplemented</span>
+
+    <span class="k">def</span> <span class="nf">_walk_jinja2_ast</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ast</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Discover the power, of the haterade &#39;&#39;&#39;</span>
+
+        <span class="c">## @TODO: Implement AST walking.</span>
+        <span class="k">raise</span> <span class="bp">NotImplemented</span>
+
+    <span class="k">def</span> <span class="nf">_pre_ast_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_ast</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Pre-hook that is called right after the template AST is ready &#39;&#39;&#39;</span>
+
+        <span class="c">## @TODO: Preload content with a pleasant walk down the AST.</span>
+        <span class="k">return</span> <span class="n">template_ast</span>
+
+    <span class="k">def</span> <span class="nf">_compiled_ast_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Post-hook that is called after the AST is compiled into a &lt;code&gt; object &#39;&#39;&#39;</span>
+
+        <span class="c">## @TODO: Pick up the hints generated by pre_ast_hook.</span>
+        <span class="k">return</span> <span class="n">code</span>
+
+
+    <span class="c">## == Mid-level Methods == ##</span>
+    <span class="k">def</span> <span class="nf">_fulfill_content_area</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyname</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">caller</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Return a contentarea&#39;s content, or the caller&#39;s default, at render time. &#39;&#39;&#39;</span>
+
+        <span class="n">area</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fulfill</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_build_area_key</span><span class="p">(</span><span class="n">keyname</span><span class="p">,</span> <span class="n">namespace</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">area</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">caller</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">area</span><span class="o">.</span><span class="n">local</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">area</span><span class="o">.</span><span class="n">html</span><span class="p">,</span> <span class="n">area</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">snippet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fulfill</span><span class="p">(</span><span class="n">area</span><span class="o">.</span><span class="n">latest</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">snippet</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">caller</span><span class="p">()</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">snippet</span><span class="o">.</span><span class="n">html</span><span class="p">,</span> <span class="n">snippet</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_fulfill_content_snippet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyname</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">caller</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Return a contentsnippet&#39;s content, or the caller&#39;s default, at render time. &#39;&#39;&#39;</span>
+
+        <span class="n">area</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fulfill</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_build_area_key</span><span class="p">(</span><span class="n">keyname</span><span class="p">,</span> <span class="n">namespace</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">area</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">caller</span><span class="p">()</span>
+
+        <span class="n">snippet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fulfill</span><span class="p">(</span><span class="n">area</span><span class="o">.</span><span class="n">latest</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">snippet</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">caller</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">snippet</span><span class="o">.</span><span class="n">html</span><span class="p">,</span> <span class="n">snippet</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_fulfill_content_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyname</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">caller</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Return a contentsummary&#39;s content, or the caller&#39;s default, at render time. &#39;&#39;&#39;</span>
+
+        <span class="n">area</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fulfill</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_build_area_key</span><span class="p">(</span><span class="n">keyname</span><span class="p">,</span> <span class="n">namespace</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">area</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">caller</span><span class="p">()</span>
+
+        <span class="n">snippet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fulfill</span><span class="p">(</span><span class="n">area</span><span class="o">.</span><span class="n">latest</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">snippet</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">caller</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">snippet</span><span class="o">.</span><span class="n">summary</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">caller</span><span class="p">()</span>
+
+        <span class="n">summary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fulfill</span><span class="p">(</span><span class="n">snippet</span><span class="o">.</span><span class="n">summary</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">summary</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">caller</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">summary</span><span class="o">.</span><span class="n">html</span><span class="p">,</span> <span class="n">summary</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_load_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_environment</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">direct</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Load a template from source/compiled packages and preprocess. &#39;&#39;&#39;</span>
+
+        <span class="c">## check the internal API bytecode cache first</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">templates</span><span class="p">:</span>
+
+            <span class="c"># get loader + bytecacher</span>
+            <span class="n">loader</span> <span class="o">=</span> <span class="n">_environment</span><span class="o">.</span><span class="n">loader</span>
+            <span class="n">bytecache</span> <span class="o">=</span> <span class="n">_environment</span><span class="o">.</span><span class="n">bytecode_cache</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c"># for modules: load directly (it&#39;s way faster)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">loader</span><span class="o">.</span><span class="n">has_source_access</span><span class="p">:</span>
+                    <span class="n">template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pre_ast_hook</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">_environment</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">prepare</span><span class="o">=</span><span class="bp">False</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">direct</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">template</span>
+
+                    <span class="n">template</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">prepare_template</span><span class="p">(</span><span class="n">_environment</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">template</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">_environment</span><span class="p">),</span> <span class="n">_environment</span><span class="o">.</span><span class="n">globals</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">templates</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">template</span>
+
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compiled_ast_hook</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+
+                <span class="c"># for source-based templates</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c"># load template source</span>
+                    <span class="n">source</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">uptodate</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">get_source</span><span class="p">(</span><span class="n">_environment</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+                    <span class="c"># parse abstract syntax tree</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">direct</span><span class="p">:</span>
+                        <span class="n">parsed_ast</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pre_ast_hook</span><span class="p">(</span><span class="n">_environment</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">_environment</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">source</span><span class="p">)))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">_environment</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">_environment</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">source</span><span class="p">))</span>
+
+                    <span class="c"># check the bytecode cache for compiled source for this template</span>
+                    <span class="n">code</span> <span class="o">=</span> <span class="bp">None</span>
+                    <span class="k">if</span> <span class="n">bytecache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                        <span class="n">bucket</span> <span class="o">=</span> <span class="n">bytecache</span><span class="o">.</span><span class="n">get_bucket</span><span class="p">(</span><span class="n">_environment</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">source</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">bucket</span><span class="o">.</span><span class="n">code</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                            <span class="n">code</span> <span class="o">=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">code</span>
+
+                    <span class="c"># if we couldn&#39;t get it anywhere else, compile source to bytecode</span>
+                    <span class="k">if</span> <span class="n">code</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                        <span class="n">code</span> <span class="o">=</span> <span class="n">_environment</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">parsed_ast</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">template</span><span class="p">)</span>
+
+                        <span class="k">if</span> <span class="n">bytecache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                            <span class="n">bucket</span><span class="o">.</span><span class="n">code</span> <span class="o">=</span> <span class="n">code</span>
+                            <span class="n">bytecache</span><span class="o">.</span><span class="n">set_bucket</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span>
+
+                    <span class="c"># we now have bytecode</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">templates</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">code</span>
+
+                    <span class="k">if</span> <span class="n">direct</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">code</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compiled_ast_hook</span><span class="p">(</span><span class="n">_environment</span><span class="o">.</span><span class="n">template_class</span><span class="o">.</span><span class="n">from_code</span><span class="p">(</span><span class="n">_environment</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">_environment</span><span class="o">.</span><span class="n">globals</span><span class="p">,</span> <span class="n">uptodate</span><span class="p">))</span>
+
+            <span class="k">except</span> <span class="n">TemplateNotFound</span><span class="p">:</span>
+                <span class="k">raise</span>
+
+        <span class="c"># return from API cache</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tpl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tpl</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compiled_ast_hook</span><span class="p">(</span><span class="n">_environment</span><span class="o">.</span><span class="n">template_class</span><span class="o">.</span><span class="n">from_module_dict</span><span class="p">(</span><span class="n">_environment</span><span class="p">,</span> <span class="n">tpl</span><span class="p">,</span> <span class="n">_environment</span><span class="o">.</span><span class="n">globals</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tpl</span><span class="p">,</span> <span class="n">environment</span><span class="o">.</span><span class="n">Template</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">tpl</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compiled_ast_hook</span><span class="p">(</span><span class="n">_environment</span><span class="o">.</span><span class="n">template_class</span><span class="o">.</span><span class="n">from_code</span><span class="p">(</span><span class="n">_environment</span><span class="p">,</span> <span class="n">tpl</span><span class="p">,</span> <span class="n">_environment</span><span class="o">.</span><span class="n">globals</span><span class="p">,</span> <span class="bp">True</span><span class="p">))</span>
+
+
+    <span class="c">## == High-level Methods == ##</span>
+    <span class="nd">@toplevel</span>
+<div class="viewcode-block" id="CoreContentAPI.preload_namespace"><a class="viewcode-back" href="../../../../../lib.apptools.api.output.html#lib.apptools.api.output.content.CoreContentAPI.preload_namespace">[docs]</a>    <span class="k">def</span> <span class="nf">preload_namespace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">snippet</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">summary</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Preload an entire namespace of content &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">ndb</span><span class="o">.</span><span class="n">Key</span><span class="p">):</span>
+            <span class="n">namespace</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_namespace_key</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
+
+        <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_query_async</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_build_projection_query</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">ContentArea</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">namespace</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;l&#39;</span><span class="p">,</span> <span class="s">&#39;lc&#39;</span><span class="p">]),</span> <span class="n">count</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+            <span class="n">resultset_callback</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_batch_fulfill_async</span><span class="p">,</span> <span class="n">eventual_callback</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">preload_content</span><span class="p">)</span>
+</div>
+    <span class="nd">@tasklet</span>
+<div class="viewcode-block" id="CoreContentAPI.preload_content"><a class="viewcode-back" href="../../../../../lib.apptools.api.output.html#lib.apptools.api.output.content.CoreContentAPI.preload_content">[docs]</a>    <span class="k">def</span> <span class="nf">preload_content</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">areas</span><span class="p">,</span> <span class="n">snippet</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">summary</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Preload a set of content areas asynchronously &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">areas</span><span class="p">,</span> <span class="n">ndb</span><span class="o">.</span><span class="n">MultiFuture</span><span class="p">):</span>
+            <span class="n">areas</span> <span class="o">=</span> <span class="n">areas</span><span class="o">.</span><span class="n">get_result</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">areas</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ndb</span><span class="o">.</span><span class="n">Return</span><span class="p">([])</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">areas</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">areas</span> <span class="o">=</span> <span class="p">[</span><span class="n">areas</span><span class="p">]</span>
+
+        <span class="n">snippet_queries</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">area</span> <span class="ow">in</span> <span class="n">areas</span><span class="p">:</span>
+            <span class="n">snippet_queries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_build_keysonly_query</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">ContentSnippet</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">area</span><span class="p">,</span> <span class="n">resultset_callback</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_fulfill_async</span><span class="p">,</span> <span class="n">eventual_callback</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_batch_store_callback</span><span class="p">))</span>
+
+        <span class="n">query_futures</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_run_query_async</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">snippet_queries</span><span class="p">]</span>
+
+        <span class="c">## Parrallel yield, then return!</span>
+        <span class="k">yield</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">query_futures</span> <span class="o">+</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_batch_store_callback</span><span class="p">(</span><span class="n">areas</span><span class="p">)])</span>
+        <span class="k">raise</span> <span class="n">ndb</span><span class="o">.</span><span class="n">Return</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="CoreContentAPI.prerender"><a class="viewcode-back" href="../../../../../lib.apptools.api.output.html#lib.apptools.api.output.content.CoreContentAPI.prerender">[docs]</a>    <span class="k">def</span> <span class="nf">prerender</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">path_or_template</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Prerender the currently selected template. &#39;&#39;&#39;</span>
+
+        <span class="c"># If it&#39;s a string path...</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path_or_template</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+            <span class="n">template_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_template</span><span class="p">(</span><span class="n">environment</span><span class="p">,</span> <span class="n">path_or_template</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">template_object</span> <span class="o">=</span> <span class="n">path_or_template</span>
+
+        <span class="k">return</span> <span class="n">template_object</span>
+</div>
+<div class="viewcode-block" id="CoreContentAPI.render"><a class="viewcode-back" href="../../../../../lib.apptools.api.output.html#lib.apptools.api.output.content.CoreContentAPI.render">[docs]</a>    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Render a template, given context &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">template</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Must pass in a template object or path to template source or an iterable of those.&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="o">**</span><span class="n">context</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="CoreContentAPI.fulfill"><a class="viewcode-back" href="../../../../../lib.apptools.api.output.html#lib.apptools.api.output.content.CoreContentAPI.fulfill">[docs]</a>    <span class="k">def</span> <span class="nf">fulfill</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyname</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">caller</span><span class="p">,</span> <span class="n">blocktype</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Utilize the blocktype-specific method according to the template render routine and dispatch to fulfill. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">blocktype</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_blocktypes</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Invalid dynamic content block type. Must be one of &quot;</span><span class="si">%s</span><span class="s">&quot;.&#39;</span> <span class="o">%</span> <span class="n">_blocktypes</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+
+            <span class="s">&#39;area&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fulfill_content_area</span><span class="p">,</span>
+            <span class="s">&#39;snippet&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fulfill_content_snippet</span><span class="p">,</span>
+            <span class="s">&#39;summary&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fulfill_content_summary</span>
+
+        <span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">blocktype</span><span class="p">)(</span><span class="n">keyname</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">caller</span><span class="p">)</span>
+
+
+<span class="c">## Globals (phase II)</span></div></div>
+<span class="n">_output_api_instance</span> <span class="o">=</span> <span class="n">CoreContentAPI</span><span class="p">()</span>
+
+
+<span class="c">## ContentBridge - brings Core Content API functionality down into an easy mixin</span>
+<div class="viewcode-block" id="ContentBridge"><a class="viewcode-back" href="../../../../../lib.apptools.api.output.html#lib.apptools.api.output.content.ContentBridge">[docs]</a><span class="k">class</span> <span class="nc">ContentBridge</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Mixin that bridges dynamic content methods into RemoteServices and WebHandlers. &#39;&#39;&#39;</span>
+
+    <span class="c"># References</span>
+    <span class="n">__app</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">__handler</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">__service</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">__environment</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="c"># Bridge state</span>
+    <span class="n">__content_bridge</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">__content_prerender</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="ContentBridge.config"><a class="viewcode-back" href="../../../../../lib.apptools.api.output.html#lib.apptools.api.output.content.ContentBridge.config">[docs]</a>    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Named config pipe. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apptools.core.output.content.ContentBridge&#39;</span><span class="p">,</span> <span class="p">{})</span>
+</div>
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="ContentBridge.logging"><a class="viewcode-back" href="../../../../../lib.apptools.api.output.html#lib.apptools.api.output.content.ContentBridge.logging">[docs]</a>    <span class="k">def</span> <span class="nf">logging</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Named logging pipe. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">debug</span><span class="o">.</span><span class="n">AppToolsLogger</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s">&#39;apptools.core.output.content&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;ContentBridge&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">_setcondition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;debug&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">))</span>
+</div>
+    <span class="nd">@webapp2.cached_property</span>
+    <span class="k">def</span> <span class="nf">_prOutputConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Named config pipe to output config. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outputConfig</span>
+
+    <span class="nd">@webapp2.cached_property</span>
+    <span class="k">def</span> <span class="nf">_jinjaConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Cached access to Jinja2 base config. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;webapp2_extras.jinja2&#39;</span><span class="p">,</span> <span class="p">{})</span>
+
+    <span class="nd">@webapp2.cached_property</span>
+    <span class="k">def</span> <span class="nf">_outputConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Cached access to base output config. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apptools.project.output&#39;</span><span class="p">,</span> <span class="p">{})</span>
+
+    <span class="nd">@webapp2.cached_property</span>
+    <span class="k">def</span> <span class="nf">_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Cached access to the current template environment. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__environment</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__environment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamicEnvironmentFactory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__app</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__environment</span>
+
+    <span class="nd">@webapp2.cached_property</span>
+    <span class="k">def</span> <span class="nf">_webHandlerConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Cached access to this handler&#39;s config. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apptools.classes.WebHandler&#39;</span><span class="p">,</span> <span class="p">{})</span>
+
+    <span class="k">def</span> <span class="nf">_initialize_dynamic_content</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">handler</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">service</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">environment</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Initialize the content bridge from an already-instantiated Handler or Service. &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__app</span> <span class="o">=</span> <span class="n">app</span>
+        <span class="k">if</span> <span class="n">handler</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__handler</span> <span class="o">=</span> <span class="n">handler</span>
+        <span class="k">elif</span> <span class="n">service</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__service</span> <span class="o">=</span> <span class="n">service</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__handler</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">handler</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__app</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__app</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__handler</span><span class="o">.</span><span class="n">app</span>
+        <span class="k">if</span> <span class="n">environment</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__environment</span> <span class="o">=</span> <span class="n">environment</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__acquire_content_bridge</span><span class="p">()</span>
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">__acquire_content_bridge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Resolve the current instance of the CoreContentAPI, or create one. &#39;&#39;&#39;</span>
+
+        <span class="k">global</span> <span class="n">_output_api_instance</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__content_bridge</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__content_bridge</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_output_api_instance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__content_bridge</span> <span class="o">=</span> <span class="n">_output_api_instance</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__content_bridge</span> <span class="o">=</span> <span class="n">_output_api_instance</span> <span class="o">=</span> <span class="n">CoreContentAPI</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__content_bridge</span>
+
+<div class="viewcode-block" id="ContentBridge.preload_template"><a class="viewcode-back" href="../../../../../lib.apptools.api.output.html#lib.apptools.api.output.content.ContentBridge.preload_template">[docs]</a>    <span class="k">def</span> <span class="nf">preload_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Preload and pre-render (pre-bytecompile) a template before rendering begins. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__content_bridge</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__acquire_content_bridge</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__content_prerender</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__content_bridge</span><span class="o">.</span><span class="n">prerender</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_environment</span><span class="p">,</span> <span class="n">template</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__content_prerender</span>
+</div>
+<div class="viewcode-block" id="ContentBridge.preload_namespace"><a class="viewcode-back" href="../../../../../lib.apptools.api.output.html#lib.apptools.api.output.content.ContentBridge.preload_namespace">[docs]</a>    <span class="k">def</span> <span class="nf">preload_namespace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">snippet</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">summary</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Preload a namespace-full of content &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__content_bridge</span><span class="o">.</span><span class="n">preload_namespace</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">snippet</span><span class="p">,</span> <span class="n">summary</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ContentBridge.dynamicEnvironmentFactory"><a class="viewcode-back" href="../../../../../lib.apptools.api.output.html#lib.apptools.api.output.content.ContentBridge.dynamicEnvironmentFactory">[docs]</a>    <span class="k">def</span> <span class="nf">dynamicEnvironmentFactory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Prepare a Jinja2 environment suitable for rendering openfire templates. &#39;&#39;&#39;</span>
+
+        <span class="k">global</span> <span class="n">_output_loader</span>
+        <span class="k">global</span> <span class="n">_output_extensions</span>
+        <span class="k">global</span> <span class="n">_output_bytecacher</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__environment</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__environment</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="c"># get openfire extension config</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Preparing Jinja2 OF template execution environment.&#39;</span><span class="p">)</span>
+
+            <span class="c"># use output logging condition for a minute</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">_setcondition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_prOutputConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;extensions&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;config&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;logging&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">))</span>
+
+            <span class="c"># get jinja2 base config</span>
+            <span class="n">j2cfg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jinjaConfig</span>
+            <span class="n">base_environment_args</span> <span class="o">=</span> <span class="n">j2cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;environment_args&#39;</span><span class="p">)</span>
+            <span class="n">base_extensions_list</span> <span class="o">=</span> <span class="n">base_environment_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;extensions&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prOutputConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;extensions&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;config&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;enabled&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_output_extensions</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">_output_extensions</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">base_extensions_list</span><span class="p">)):</span>
+                    <span class="n">compiled_extension_list</span> <span class="o">=</span> <span class="n">_output_extensions</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c"># Seen classes</span>
+                    <span class="n">installed_bytecaches</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">installed_extensions</span> <span class="o">=</span> <span class="p">[]</span>
+
+                    <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_webHandlerConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;extensions&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;load&#39;</span><span class="p">))</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">base_extensions_list</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_webHandlerConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;extensions&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;load&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">base_extensions_list</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prOutputConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;extensions&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;installed&#39;</span><span class="p">):</span>
+                                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prOutputConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;extensions&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;installed&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;enabled&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+                                    <span class="n">extension_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prOutputConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;extensions&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;installed&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;path&#39;</span><span class="p">)</span>
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="k">continue</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">extension_path</span> <span class="o">=</span> <span class="n">name</span>
+
+                            <span class="k">try</span><span class="p">:</span>
+                                <span class="n">extension</span> <span class="o">=</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">import_string</span><span class="p">(</span><span class="n">extension_path</span><span class="p">)</span>
+
+                            <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;Encountered ImportError when trying to import extension at name &quot;</span><span class="si">%s</span><span class="s">&quot; and path &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">extension_path</span><span class="p">))</span>
+
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">extension</span><span class="p">,</span> <span class="n">Extension</span><span class="p">):</span>
+                                    <span class="n">installed_extensions</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="n">extension</span><span class="p">))</span>
+                                    <span class="n">_output_extensions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">extension</span>
+                                <span class="k">elif</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">extension</span><span class="p">,</span> <span class="n">BytecodeCache</span><span class="p">):</span>
+                                    <span class="n">installed_bytecaches</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="n">extension</span><span class="p">))</span>
+
+                        <span class="c"># combine extensions and load</span>
+                        <span class="n">compiled_extension_list</span> <span class="o">=</span> <span class="p">[]</span>
+                        <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">compiled_extension_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">),</span>
+                            <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">compiled_extension_list</span><span class="p">,</span>
+                                <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">)</span> <span class="ow">and</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">import_string</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">or</span> <span class="n">x</span><span class="p">,</span>
+                                    <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="ow">in</span> <span class="n">installed_extensions</span><span class="p">])))</span>
+
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&#39;No extensions installed/found in config (at &quot;openfire.output&quot;).&#39;</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">installed_bytecaches</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">installed_extensions</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">compiled_extension_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="n">templates_compiled_target</span> <span class="o">=</span> <span class="n">j2cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;compiled_path&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">j2cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;force_compiled&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+                    <span class="n">use_compiled</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">use_compiled</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">use_compiled</span> <span class="o">=</span> <span class="bp">True</span>
+
+            <span class="c"># resolve loader/s</span>
+            <span class="k">if</span> <span class="n">_output_loader</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">_loader</span> <span class="o">=</span> <span class="n">_output_loader</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">templates_compiled_target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">use_compiled</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">):</span>
+                    <span class="n">_loader</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">ModuleLoader</span><span class="p">(</span><span class="n">templates_compiled_target</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">_loader</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">CoreOutputLoader</span><span class="p">(</span><span class="n">j2cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;template_path&#39;</span><span class="p">))</span>
+                <span class="n">_output_loader</span> <span class="o">=</span> <span class="n">_loader</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Final extensions list: &quot;</span><span class="si">%s</span><span class="s">&quot;.&#39;</span> <span class="o">%</span> <span class="n">compiled_extension_list</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Chosen loader: &quot;</span><span class="si">%s</span><span class="s">&quot;.&#39;</span> <span class="o">%</span> <span class="n">_loader</span><span class="p">)</span>
+
+            <span class="c"># resolve bytecacher/s</span>
+            <span class="k">if</span> <span class="n">_output_bytecacher</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">_bytecacher</span> <span class="o">=</span> <span class="n">_output_bytecacher</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">installed_bytecaches</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">_output_bytecacher</span> <span class="o">=</span> <span class="n">installed_bytecaches</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]()</span>
+                    <span class="n">_bytecacher</span> <span class="o">=</span> <span class="n">_output_bytecacher</span>
+
+            <span class="c"># bind environment args</span>
+            <span class="n">base_environment_args</span><span class="p">[</span><span class="s">&#39;loader&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_loader</span>
+            <span class="n">base_environment_args</span><span class="p">[</span><span class="s">&#39;bytecode_cache&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_output_bytecacher</span>
+
+            <span class="c"># hook up filters</span>
+            <span class="n">filters</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&#39;currency&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_as_currency</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">False</span><span class="p">),</span>
+                <span class="s">&#39;percentage&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_as_percentage</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">True</span><span class="p">),</span>
+                <span class="s">&#39;json&#39;</span><span class="p">:</span> <span class="n">AppToolsJSONEncoder</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">,</span>
+                <span class="s">&#39;timesince&#39;</span><span class="p">:</span> <span class="n">timesince</span><span class="o">.</span><span class="n">timesince</span><span class="p">,</span>
+                <span class="s">&#39;humanize&#39;</span><span class="p">:</span> <span class="n">byteconvert</span><span class="o">.</span><span class="n">humanize_bytes</span>
+            <span class="p">}</span>
+
+            <span class="c"># generate environment</span>
+            <span class="n">finalConfig</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">j2cfg</span><span class="o">.</span><span class="n">items</span><span class="p">()[:])</span>
+            <span class="n">environment_args</span> <span class="o">=</span> <span class="n">finalConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;environment_args&#39;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">environment_args</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">base_environment_args</span><span class="p">)</span>
+
+            <span class="n">env</span> <span class="o">=</span> <span class="n">environment</span><span class="o">.</span><span class="n">Environment</span><span class="p">(</span><span class="o">**</span><span class="n">environment_args</span><span class="p">)</span>
+
+            <span class="c"># update globals and filters</span>
+            <span class="n">env</span><span class="o">.</span><span class="n">globals</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__handler</span><span class="o">.</span><span class="n">baseContext</span><span class="p">)</span>
+            <span class="n">env</span><span class="o">.</span><span class="n">filters</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
+
+            <span class="c"># patch in app, handler, ext and api</span>
+            <span class="n">env</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="o">**</span><span class="p">{</span>
+                <span class="s">&#39;wsgi_current_application&#39;</span><span class="p">:</span> <span class="n">app</span><span class="p">,</span>
+                <span class="s">&#39;wsgi_current_handler&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__handler</span><span class="p">,</span>
+                <span class="s">&#39;jinja2_current_loader&#39;</span><span class="p">:</span> <span class="n">_loader</span><span class="p">,</span>
+                <span class="s">&#39;jinja2_current_bytecache&#39;</span><span class="p">:</span> <span class="n">base_environment_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;bytecode_cache&#39;</span><span class="p">)</span>
+            <span class="p">})</span>
+
+            <span class="k">for</span> <span class="n">extension</span> <span class="ow">in</span> <span class="n">compiled_extension_list</span><span class="p">:</span>
+                <span class="n">env</span><span class="o">.</span><span class="n">add_extension</span><span class="p">(</span><span class="n">extension</span><span class="p">)</span>
+
+            <span class="c"># replace logging conditional</span>
+            <span class="n">handler_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__handler</span><span class="o">.</span><span class="n">_webHandlerConfig</span>
+            <span class="k">if</span> <span class="n">handler_config</span><span class="p">:</span>
+                <span class="n">log_condition</span> <span class="o">=</span> <span class="n">handler_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;logging&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">log_condition</span> <span class="o">=</span> <span class="bp">True</span> <span class="c"># default to True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">_setcondition</span><span class="p">(</span><span class="n">log_condition</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__environment</span> <span class="o">=</span> <span class="n">env</span>
+
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__environment</span>
+</div>
+<div class="viewcode-block" id="ContentBridge.render_dynamic"><a class="viewcode-back" href="../../../../../lib.apptools.api.output.html#lib.apptools.api.output.content.ContentBridge.render_dynamic">[docs]</a>    <span class="k">def</span> <span class="nf">render_dynamic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="p">{},</span> <span class="n">elements</span><span class="o">=</span><span class="p">{},</span> <span class="n">content_type</span><span class="o">=</span><span class="s">&#39;text/html&#39;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{},</span> <span class="n">dependencies</span><span class="o">=</span><span class="p">[],</span> <span class="n">flush</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+            <span class="sd">&#39;&#39;&#39; Render shim for advanced dynamic content rendering. &#39;&#39;&#39;</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">RequestHandler</span><span class="p">):</span>
+                <span class="n">handler</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">handler</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">handler</span> <span class="o">=</span> <span class="bp">self</span>
+
+            <span class="c"># Provide render options to template</span>
+            <span class="n">_render_opts</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">,</span>
+                <span class="s">&#39;self&#39;</span><span class="p">:</span> <span class="n">handler</span><span class="p">,</span>
+                <span class="s">&#39;context&#39;</span><span class="p">:</span> <span class="n">context</span><span class="p">,</span>
+                <span class="s">&#39;elements&#39;</span><span class="p">:</span> <span class="n">elements</span><span class="p">,</span>
+                <span class="s">&#39;content_type&#39;</span><span class="p">:</span> <span class="n">content_type</span><span class="p">,</span>
+                <span class="s">&#39;headers&#39;</span><span class="p">:</span> <span class="n">headers</span><span class="p">,</span>
+                <span class="s">&#39;dependencies&#39;</span><span class="p">:</span> <span class="n">dependencies</span><span class="p">,</span>
+                <span class="s">&#39;kwargs&#39;</span><span class="p">:</span> <span class="n">kwargs</span>
+            <span class="p">}</span>
+
+            <span class="n">context</span><span class="p">[</span><span class="s">&#39;__render_opts&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_render_opts</span>
+
+            <span class="c"># Layer on user context</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">handler</span><span class="o">.</span><span class="n">context</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">handler</span><span class="o">.</span><span class="n">context</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">handler</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">handler</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">context</span>
+
+            <span class="c"># Build response headers</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">handler</span><span class="o">.</span><span class="n">baseHeaders</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">handler</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+            <span class="c"># Consider kwargs</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">handler</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="c"># Bind runtime-level template context</span>
+            <span class="n">handler</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">handler</span><span class="o">.</span><span class="n">_bindRuntimeTemplateContext</span><span class="p">(</span><span class="n">handler</span><span class="o">.</span><span class="n">context</span><span class="p">)</span>
+
+            <span class="c"># Bind elements</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">map</span><span class="p">(</span><span class="n">handler</span><span class="o">.</span><span class="n">_setcontext</span><span class="p">,</span> <span class="n">elements</span><span class="p">)</span>
+
+            <span class="c"># If we have a pre-render, use it, otherwise load and render</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__content_prerender</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">rendered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__content_bridge</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__content_prerender</span><span class="p">,</span> <span class="n">handler</span><span class="o">.</span><span class="n">context</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># Get/select the template using our environment</span>
+                <span class="n">rendered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__content_bridge</span><span class="o">.</span><span class="n">prerender</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_environment</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">handler</span><span class="o">.</span><span class="n">context</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">flush</span><span class="p">:</span>
+                <span class="c"># Output rendered template</span>
+                <span class="k">return</span> <span class="n">handler</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">handler</span><span class="o">.</span><span class="n">minify</span><span class="p">(</span><span class="n">rendered</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># Return rendered template</span>
+                <span class="k">return</span> <span class="n">handler</span><span class="o">.</span><span class="n">minify</span><span class="p">(</span><span class="n">rendered</span><span class="p">)</span>
+</div>
+    <span class="n">render</span> <span class="o">=</span> <span class="n">render_dynamic</span>
+
+<div class="viewcode-block" id="ContentBridge.fulfill_content"><a class="viewcode-back" href="../../../../../lib.apptools.api.output.html#lib.apptools.api.output.content.ContentBridge.fulfill_content">[docs]</a>    <span class="k">def</span> <span class="nf">fulfill_content</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyname</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">caller</span><span class="p">,</span> <span class="n">blocktype</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Callback from template render to fulfill a dynamic content block. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__content_bridge</span><span class="o">.</span><span class="n">fulfill</span><span class="p">(</span><span class="n">keyname</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">caller</span><span class="p">,</span> <span class="n">blocktype</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ContentBridge.get_dynamic_namespace"><a class="viewcode-back" href="../../../../../lib.apptools.api.output.html#lib.apptools.api.output.content.ContentBridge.get_dynamic_namespace">[docs]</a>    <span class="k">def</span> <span class="nf">get_dynamic_namespace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namespace</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Retrieve or create a ContentNamespace record &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">namespace</span> <span class="o">!=</span> <span class="n">_SYSTEM_NAMESPACE</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">target</span> <span class="o">=</span> <span class="n">ndb</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="n">urlsafe</span><span class="o">=</span><span class="n">namespace</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">target</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="n">namespace_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__content_bridge</span><span class="o">.</span><span class="n">_build_namespace_key</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
+        <span class="n">namespace_obj</span> <span class="o">=</span> <span class="n">namespace_key</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">namespace_obj</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">models</span><span class="o">.</span><span class="n">ContentNamespace</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">namespace_key</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">namespace</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">put</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">namespace_obj</span><span class="o">.</span><span class="n">key</span>
+</div>
+<div class="viewcode-block" id="ContentBridge.initialize"><a class="viewcode-back" href="../../../../../lib.apptools.api.output.html#lib.apptools.api.output.content.ContentBridge.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Initialize dynamic content support for an already-constructed handler. &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler</span> <span class="o">=</span> <span class="n">handler</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_dynamic_content</span><span class="p">(</span><span class="n">handler</span><span class="o">.</span><span class="n">app</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../../index.html">
+              <img class="logo" src="../../../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../../apptools.html" >lib.apptools</a> &raquo;</li>
+          <li><a href="../../api.html" >lib.apptools.api</a> &raquo;</li>
+          <li><a href="../output.html" >lib.apptools.api.output</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

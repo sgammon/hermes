@@ -16,7 +16,7 @@
 		<div id='amp-deferred' style='display: none !important;'></div>
 		<script type='text/javascript'>
 			(function (ctx) {
-				var _amp = ctx._amp | {}, target = (ctx.JSON && ctx.btoa) ? ['v1'] : ['v1', 'legacy'], boot_el = document.getElementById('amp'), boot = {
+				var _amp = ctx._amp | [], target = (ctx.JSON && ctx.btoa) ? ['v1'] : ['v1', 'legacy'], boot_el = document.getElementById('amp'), boot = {
 					host: boot_el.getAttribute('data-host'), ref: boot_el.getAttribute('data-ref'), mode: boot_el.getAttribute('data-mode')},
 					debug = (boot.host == 'localhost' ? [true, target.push('debug')][0] : false), proto = (debug ? 'http:/' : 'https:/'),
 					injector = (boot.mode == 'img' ? [(frag = new Image()), (frag.src = [[proto, boot.host, 'v1', 't.gif'].join('/'),

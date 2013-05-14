@@ -1,0 +1,327 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.webapp2_extras.jinja2 &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.webapp2_extras.jinja2</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    webapp2_extras.jinja2</span>
+<span class="sd">    =====================</span>
+
+<span class="sd">    Jinja2 template support for webapp2.</span>
+
+<span class="sd">    Learn more about Jinja2: http://jinja.pocoo.org/</span>
+
+<span class="sd">    :copyright: 2011 by tipfy.org.</span>
+<span class="sd">    :license: Apache Sotware License, see LICENSE for details.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">jinja2</span>
+
+<span class="kn">import</span> <span class="nn">webapp2</span>
+
+<span class="c">#: Default configuration values for this module. Keys are:</span>
+<span class="c">#:</span>
+<span class="c">#: template_path</span>
+<span class="c">#:     Directory for templates. Default is `templates`.</span>
+<span class="c">#:</span>
+<span class="c">#: compiled_path</span>
+<span class="c">#:     Target for compiled templates. If set, uses the loader for compiled</span>
+<span class="c">#:     templates in production. If it ends with a &#39;.zip&#39; it will be treated</span>
+<span class="c">#:     as a zip file. Default is None.</span>
+<span class="c">#:</span>
+<span class="c">#: force_compiled</span>
+<span class="c">#:     Forces the use of compiled templates even in the development server.</span>
+<span class="c">#:</span>
+<span class="c">#: environment_args</span>
+<span class="c">#:     Keyword arguments used to instantiate the Jinja2 environment. By</span>
+<span class="c">#:     default autoescaping is enabled and two extensions are set:</span>
+<span class="c">#:     ``jinja2.ext.autoescape`` and ``jinja2.ext.with_``. For production it</span>
+<span class="c">#:     may be a good idea to set &#39;auto_reload&#39; to False -- we don&#39;t need to</span>
+<span class="c">#:     check if templates changed after deployed.</span>
+<span class="c">#:</span>
+<span class="c">#: globals</span>
+<span class="c">#:     Extra global variables for the Jinja2 environment.</span>
+<span class="c">#:</span>
+<span class="c">#: filters</span>
+<span class="c">#:     Extra filters for the Jinja2 environment.</span>
+<span class="n">default_config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;template_path&#39;</span><span class="p">:</span> <span class="s">&#39;templates&#39;</span><span class="p">,</span>
+    <span class="s">&#39;compiled_path&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+    <span class="s">&#39;force_compiled&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+    <span class="s">&#39;environment_args&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;autoescape&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="s">&#39;extensions&#39;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s">&#39;jinja2.ext.autoescape&#39;</span><span class="p">,</span>
+            <span class="s">&#39;jinja2.ext.with_&#39;</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+    <span class="s">&#39;globals&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+    <span class="s">&#39;filters&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="Jinja2"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.jinja2.Jinja2">[docs]</a><span class="k">class</span> <span class="nc">Jinja2</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Wrapper for configurable and cached Jinja2 environment.</span>
+
+<span class="sd">    To used it, set it as a cached property in a base `RequestHandler`::</span>
+
+<span class="sd">        import webapp2</span>
+
+<span class="sd">        from webapp2_extras import jinja2</span>
+
+<span class="sd">        class BaseHandler(webapp2.RequestHandler):</span>
+
+<span class="sd">            @webapp2.cached_property</span>
+<span class="sd">            def jinja2(self):</span>
+<span class="sd">                # Returns a Jinja2 renderer cached in the app registry.</span>
+<span class="sd">                return jinja2.get_jinja2(app=self.app)</span>
+
+<span class="sd">            def render_response(self, _template, **context):</span>
+<span class="sd">                # Renders a template and writes the result to the response.</span>
+<span class="sd">                rv = self.jinja2.render_template(_template, **context)</span>
+<span class="sd">                self.response.write(rv)</span>
+
+<span class="sd">    Then extended handlers can render templates directly::</span>
+
+<span class="sd">        class MyHandler(BaseHandler):</span>
+<span class="sd">            def get(self):</span>
+<span class="sd">                context = {&#39;message&#39;: &#39;Hello, world!&#39;}</span>
+<span class="sd">                self.render_response(&#39;my_template.html&#39;, **context)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c">#: Configuration key.</span>
+    <span class="n">config_key</span> <span class="o">=</span> <span class="n">__name__</span>
+
+    <span class="c">#: Loaded configuration.</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the Jinja2 object.</span>
+
+<span class="sd">        :param app:</span>
+<span class="sd">            A :class:`webapp2.WSGIApplication` instance.</span>
+<span class="sd">        :param config:</span>
+<span class="sd">            A dictionary of configuration values to be overridden. See</span>
+<span class="sd">            the available keys in :data:`default_config`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">load_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_key</span><span class="p">,</span>
+            <span class="n">default_values</span><span class="o">=</span><span class="n">default_config</span><span class="p">,</span> <span class="n">user_values</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">required_keys</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s">&#39;environment_args&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">enable_i18n</span> <span class="o">=</span> <span class="s">&#39;jinja2.ext.i18n&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;extensions&#39;</span><span class="p">,</span> <span class="p">[])</span>
+
+        <span class="k">if</span> <span class="s">&#39;loader&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">template_path</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s">&#39;template_path&#39;</span><span class="p">]</span>
+            <span class="n">compiled_path</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s">&#39;compiled_path&#39;</span><span class="p">]</span>
+            <span class="n">use_compiled</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">app</span><span class="o">.</span><span class="n">debug</span> <span class="ow">or</span> <span class="n">config</span><span class="p">[</span><span class="s">&#39;force_compiled&#39;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">compiled_path</span> <span class="ow">and</span> <span class="n">use_compiled</span><span class="p">:</span>
+                <span class="c"># Use precompiled templates loaded from a module or zip.</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;loader&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">jinja2</span><span class="o">.</span><span class="n">ModuleLoader</span><span class="p">(</span><span class="n">compiled_path</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># Parse templates for every new environment instances.</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;loader&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">jinja2</span><span class="o">.</span><span class="n">FileSystemLoader</span><span class="p">(</span><span class="n">template_path</span><span class="p">)</span>
+
+        <span class="c"># Initialize the environment.</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">jinja2</span><span class="o">.</span><span class="n">Environment</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s">&#39;globals&#39;</span><span class="p">]:</span>
+            <span class="n">env</span><span class="o">.</span><span class="n">globals</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;globals&#39;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s">&#39;filters&#39;</span><span class="p">]:</span>
+            <span class="n">env</span><span class="o">.</span><span class="n">filters</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;filters&#39;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">enable_i18n</span><span class="p">:</span>
+            <span class="c"># Install i18n.</span>
+            <span class="kn">from</span> <span class="nn">webapp2_extras</span> <span class="kn">import</span> <span class="n">i18n</span>
+            <span class="n">env</span><span class="o">.</span><span class="n">install_gettext_callables</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">i18n</span><span class="o">.</span><span class="n">gettext</span><span class="p">(</span><span class="n">x</span><span class="p">),</span>
+                <span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="n">i18n</span><span class="o">.</span><span class="n">ngettext</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span>
+                <span class="n">newstyle</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">env</span><span class="o">.</span><span class="n">filters</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                <span class="s">&#39;format_date&#39;</span><span class="p">:</span>      <span class="n">i18n</span><span class="o">.</span><span class="n">format_date</span><span class="p">,</span>
+                <span class="s">&#39;format_time&#39;</span><span class="p">:</span>      <span class="n">i18n</span><span class="o">.</span><span class="n">format_time</span><span class="p">,</span>
+                <span class="s">&#39;format_datetime&#39;</span><span class="p">:</span>  <span class="n">i18n</span><span class="o">.</span><span class="n">format_datetime</span><span class="p">,</span>
+                <span class="s">&#39;format_timedelta&#39;</span><span class="p">:</span> <span class="n">i18n</span><span class="o">.</span><span class="n">format_timedelta</span><span class="p">,</span>
+            <span class="p">})</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">environment</span> <span class="o">=</span> <span class="n">env</span>
+
+<div class="viewcode-block" id="Jinja2.render_template"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.jinja2.Jinja2.render_template">[docs]</a>    <span class="k">def</span> <span class="nf">render_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_filename</span><span class="p">,</span> <span class="o">**</span><span class="n">context</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Renders a template and returns a response object.</span>
+
+<span class="sd">        :param _filename:</span>
+<span class="sd">            The template filename, related to the templates directory.</span>
+<span class="sd">        :param context:</span>
+<span class="sd">            Keyword arguments used as variables in the rendered template.</span>
+<span class="sd">            These will override values set in the request context.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            A rendered template.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">get_template</span><span class="p">(</span><span class="n">_filename</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="o">**</span><span class="n">context</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Jinja2.get_template_attribute"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.jinja2.Jinja2.get_template_attribute">[docs]</a>    <span class="k">def</span> <span class="nf">get_template_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">attribute</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Loads a macro (or variable) a template exports.  This can be used to</span>
+<span class="sd">        invoke a macro from within Python code.  If you for example have a</span>
+<span class="sd">        template named `_foo.html` with the following contents:</span>
+
+<span class="sd">        .. sourcecode:: html+jinja</span>
+
+<span class="sd">           {% macro hello(name) %}Hello {{ name }}!{% endmacro %}</span>
+
+<span class="sd">        You can access this from Python code like this::</span>
+
+<span class="sd">            hello = get_template_attribute(&#39;_foo.html&#39;, &#39;hello&#39;)</span>
+<span class="sd">            return hello(&#39;World&#39;)</span>
+
+<span class="sd">        This function comes from `Flask`.</span>
+
+<span class="sd">        :param filename:</span>
+<span class="sd">            The template filename.</span>
+<span class="sd">        :param attribute:</span>
+<span class="sd">            The name of the variable of macro to acccess.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">get_template</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">module</span><span class="p">,</span> <span class="n">attribute</span><span class="p">)</span>
+
+
+<span class="c"># Factories -------------------------------------------------------------------</span>
+
+
+<span class="c">#: Key used to store :class:`Jinja2` in the app registry.</span></div></div>
+<span class="n">_registry_key</span> <span class="o">=</span> <span class="s">&#39;webapp2_extras.jinja2.Jinja2&#39;</span>
+
+
+<div class="viewcode-block" id="get_jinja2"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.jinja2.get_jinja2">[docs]</a><span class="k">def</span> <span class="nf">get_jinja2</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="n">Jinja2</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">_registry_key</span><span class="p">,</span> <span class="n">app</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns an instance of :class:`Jinja2` from the app registry.</span>
+
+<span class="sd">    It&#39;ll try to get it from the current app registry, and if it is not</span>
+<span class="sd">    registered it&#39;ll be instantiated and registered. A second call to this</span>
+<span class="sd">    function will return the same instance.</span>
+
+<span class="sd">    :param factory:</span>
+<span class="sd">        The callable used to build and register the instance if it is not yet</span>
+<span class="sd">        registered. The default is the class :class:`Jinja2` itself.</span>
+<span class="sd">    :param key:</span>
+<span class="sd">        The key used to store the instance in the registry. A default is used</span>
+<span class="sd">        if it is not set.</span>
+<span class="sd">    :param app:</span>
+<span class="sd">        A :class:`webapp2.WSGIApplication` instance used to store the instance.</span>
+<span class="sd">        The active app is used if it is not set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">app</span> <span class="ow">or</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">get_app</span><span class="p">()</span>
+    <span class="n">jinja2</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">jinja2</span><span class="p">:</span>
+        <span class="n">jinja2</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">registry</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">factory</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">jinja2</span>
+
+</div>
+<div class="viewcode-block" id="set_jinja2"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.jinja2.set_jinja2">[docs]</a><span class="k">def</span> <span class="nf">set_jinja2</span><span class="p">(</span><span class="n">jinja2</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">_registry_key</span><span class="p">,</span> <span class="n">app</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sets an instance of :class:`Jinja2` in the app registry.</span>
+
+<span class="sd">    :param store:</span>
+<span class="sd">        An instance of :class:`Jinja2`.</span>
+<span class="sd">    :param key:</span>
+<span class="sd">        The key used to retrieve the instance from the registry. A default</span>
+<span class="sd">        is used if it is not set.</span>
+<span class="sd">    :param request:</span>
+<span class="sd">        A :class:`webapp2.WSGIApplication` instance used to retrieve the</span>
+<span class="sd">        instance. The active app is used if it is not set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">app</span> <span class="ow">or</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">get_app</span><span class="p">()</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">registry</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">jinja2</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

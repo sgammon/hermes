@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>components.protocol.http &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for components.protocol.http</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">Components: HTTP Protocol</span>
+
+<span class="sd">Description coming soon.</span>
+
+<span class="sd">-sam (&lt;sam.gammon@ampush.com&gt;)</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c"># Protocol</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">meta</span>
+
+
+<span class="c">## ResponseStage - indicates the status of a request/response cycle</span>
+<div class="viewcode-block" id="ResponseStage"><a class="viewcode-back" href="../../../components.protocol.html#components.protocol.http.ResponseStage">[docs]</a><span class="k">class</span> <span class="nc">ResponseStage</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">ProtocolDefinition</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Maps request stages to discrete values. &#39;&#39;&#39;</span>
+
+    <span class="n">PENDING</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c"># pending - the server is processing the request, no response headers yet</span>
+    <span class="n">STARTED</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c"># started - response headers have been sent, waiting to yield content</span>
+    <span class="n">COMPLETE</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c"># complete - response has been sent, can no longer yield content</span>
+
+
+<span class="c">## RequestMethod - indicates the HTTP method of a tracker request.</span></div>
+<div class="viewcode-block" id="RequestMethod"><a class="viewcode-back" href="../../../components.protocol.html#components.protocol.http.RequestMethod">[docs]</a><span class="k">class</span> <span class="nc">RequestMethod</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">ProtocolDefinition</span><span class="p">):</span>
+
+	<span class="sd">&#39;&#39;&#39; Maps HTTP verbs to discrete values. &#39;&#39;&#39;</span>
+
+	<span class="n">GET</span> <span class="o">=</span> <span class="mh">0x1</span>  <span class="c"># HTTP GET - used 99% of the time</span>
+	<span class="n">POST</span> <span class="o">=</span> <span class="mh">0x2</span>  <span class="c"># HTTP POST - used for server-side tracker requests</span>
+	<span class="n">PUT</span> <span class="o">=</span> <span class="mh">0x3</span>  <span class="c"># HTTP PUT - used for updates/bulk tracker uploads</span>
+	<span class="n">DELETE</span> <span class="o">=</span> <span class="mh">0x4</span>  <span class="c"># HTTP DELETE - not used, should yield 400</span>
+	<span class="n">HEAD</span> <span class="o">=</span> <span class="mh">0x5</span>  <span class="c"># HTTP HEAD - not used, should yield 400</span>
+	<span class="n">OPTIONS</span> <span class="o">=</span> <span class="mh">0x6</span>  <span class="c"># HTTP OPTIONS - used for CORS integration</span>
+	<span class="n">TRACE</span> <span class="o">=</span> <span class="mh">0x7</span>  <span class="c"># HTTP TRACE - not used, should yield 400</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

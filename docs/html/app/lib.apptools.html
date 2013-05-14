@@ -1,0 +1,602 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>apptools Package &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="index.html" />
+    <link rel="up" title="lib Package" href="lib.html" />
+    <link rel="next" title="api Package" href="lib.apptools.api.html" />
+    <link rel="prev" title="runtime Package" href="lib.appfactory.runtime.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lib.apptools.api.html" title="api Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="lib.appfactory.runtime.html" title="runtime Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="lib.html" accesskey="U">lib Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="apptools-package">
+<h1>apptools Package<a class="headerlink" href="#apptools-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">apptools</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-lib.apptools"></span><p>AppTools for Python</p>
+<p>ALL RIGHTS RESERVED
+Copyright 2012, momentum labs (<a class="reference external" href="http://www.momentum.io">http://www.momentum.io</a>)
+-sam (&lt;<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>&gt;)</p>
+<dl class="function">
+<dt id="lib.apptools.clockpoint">
+<tt class="descclassname">lib.apptools.</tt><tt class="descname">clockpoint</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/lib/apptools.html#clockpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.clockpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a clockpoint to the wallclock dict above, for easy walltime tracking.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.apptools.gateway">
+<tt class="descclassname">lib.apptools.</tt><tt class="descname">gateway</tt><big>(</big><em>environ</em>, <em>start_response</em><big>)</big><a class="reference internal" href="_modules/lib/apptools.html#gateway"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.gateway" title="Permalink to this definition">¶</a></dt>
+<dd><p>Central gateway into AppTools&#8217; WSGI dispatch.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.apptools.core">
+<span id="core-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">core</span></tt> Module<a class="headerlink" href="#module-lib.apptools.core" title="Permalink to this headline">¶</a></h2>
+<p>AppTools Core</p>
+<p>This is the heart and soul of AppTools. Modules, plugins, etc are pulled in here
+into a contiguous structure that resembles a framework. Also hosts BaseHandler.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>&gt;)</p>
+<dl class="class">
+<dt id="lib.apptools.core.AbstractPlatformHandler">
+<em class="property">class </em><tt class="descclassname">lib.apptools.core.</tt><tt class="descname">AbstractPlatformHandler</tt><big>(</big><em>request=None</em>, <em>response=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/core.html#AbstractPlatformHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.core.AbstractPlatformHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.api.BaseObject</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">webapp2.RequestHandler</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">appfactory.integration.AppFactoryMixin</span></tt></p>
+<p>Injects AppFactory configuration, shortcut, and state properties.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.core.ApplicationFactory">
+<em class="property">class </em><tt class="descclassname">lib.apptools.core.</tt><tt class="descname">ApplicationFactory</tt><a class="reference internal" href="_modules/lib/apptools/core.html#ApplicationFactory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.core.ApplicationFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Factory for generating WSGI application objects.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.core.BaseHandler">
+<em class="property">class </em><tt class="descclassname">lib.apptools.core.</tt><tt class="descname">BaseHandler</tt><big>(</big><em>request=None</em>, <em>response=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/core.html#BaseHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.core.BaseHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.core.AbstractPlatformHandler" title="lib.apptools.core.AbstractPlatformHandler"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.core.AbstractPlatformHandler</span></tt></a>, <tt class="xref py py-class docutils literal"><span class="pre">apptools.api.assets.AssetsMixin</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">apptools.api.services.ServicesMixin</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">apptools.api.output.OutputMixin</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">apptools.api.push.PushMixin</span></tt></p>
+<p>Top-level parent class for request handlers in AppTools.</p>
+<dl class="attribute">
+<dt id="lib.apptools.core.BaseHandler.appfactory">
+<tt class="descname">appfactory</tt><em class="property"> = &lt;apptools.util.datastructures.DictProxy object at 0x107040bd0&gt;</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.appfactory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.core.BaseHandler.configPath">
+<tt class="descname">configPath</tt><em class="property"> = 'apptools.project'</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.configPath" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.core.BaseHandler.context">
+<tt class="descname">context</tt><em class="property"> = {}</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.context" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.core.BaseHandler.context_injectors">
+<tt class="descname">context_injectors</tt><em class="property"> = [&lt;function inject at 0x1074e4cf8&gt;, &lt;function inject at 0x109045cf8&gt;]</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.context_injectors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.core.BaseHandler.controllerConfig">
+<tt class="descname">controllerConfig</tt><em class="property"> = {'debug': False, 'enabled': True}</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.controllerConfig" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.core.BaseHandler.direct">
+<tt class="descname">direct</tt><em class="property"> = False</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.direct" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.core.BaseHandler.dispatch">
+<tt class="descname">dispatch</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/core.html#BaseHandler.dispatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.core.BaseHandler.dispatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sniff the Uagent header, then pass off to Webapp2.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.core.BaseHandler.ext">
+<tt class="descname">ext</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x107040890&gt;</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.ext" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.core.BaseHandler.frontlineConfig">
+<tt class="descname">frontlineConfig</tt><em class="property"> = {'debug': False, 'enabled': True}</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.frontlineConfig" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.core.BaseHandler.handle_exception">
+<tt class="descname">handle_exception</tt><big>(</big><em>exception</em>, <em>debug</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/core.html#BaseHandler.handle_exception"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.core.BaseHandler.handle_exception" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle an unhandled exception during method dispatch.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.core.BaseHandler.injected_config">
+<tt class="descname">injected_config</tt><em class="property"> = [('upstreamConfig', {'debug': False, 'spdy': {'push': {'assets': {'force_priority': False, 'default_priority': 7}}}, 'preloading': {'enable_spdy_push': False, 'enable_link_fallback': False, 'gather_assets': False}, 'enabled': True}), ('frontlineConfig', {'debug': False, 'enabled': True}), ('controllerConfig', {'debug': False, 'enabled': True})]</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.injected_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.core.BaseHandler.injected_shortcuts">
+<tt class="descname">injected_shortcuts</tt><em class="property"> = [('appfactory', &lt;apptools.util.datastructures.DictProxy object at 0x107040bd0&gt;)]</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.injected_shortcuts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.core.BaseHandler.logging">
+<tt class="descname">logging</tt><a class="reference internal" href="_modules/lib/apptools/core.html#BaseHandler.logging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.core.BaseHandler.logging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Named log pipe.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.core.BaseHandler.platform_index">
+<tt class="descname">platform_index</tt><em class="property"> = set(['apptools.platform.appfactory.AppFactory', 'apptools.platform.generic.GenericWSGI'])</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.platform_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.core.BaseHandler.platforms">
+<tt class="descname">platforms</tt><em class="property"> = [&lt;apptools.platform.generic.GenericWSGI object at 0x1070401d0&gt;, &lt;apptools.platform.appfactory.AppFactory object at 0x107040310&gt;]</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.platforms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.core.BaseHandler.response">
+<tt class="descname">response</tt><a class="headerlink" href="#lib.apptools.core.BaseHandler.response" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">Response</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.core.BaseHandler.uagent">
+<tt class="descname">uagent</tt><em class="property"> = {}</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.uagent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.core.BaseHandler.upstreamConfig">
+<tt class="descname">upstreamConfig</tt><em class="property"> = {'debug': False, 'spdy': {'push': {'assets': {'force_priority': False, 'default_priority': 7}}}, 'preloading': {'enable_spdy_push': False, 'enable_link_fallback': False, 'gather_assets': False}, 'enabled': True}</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.upstreamConfig" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.core.BaseHandler.util">
+<tt class="descname">util</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x107040990&gt;</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.util" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.core.DirectDispatchApplication">
+<em class="property">class </em><tt class="descclassname">lib.apptools.core.</tt><tt class="descname">DirectDispatchApplication</tt><big>(</big><em>routes=None</em>, <em>debug=False</em>, <em>config=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/core.html#DirectDispatchApplication"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.core.DirectDispatchApplication" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">webapp2.WSGIApplication</span></tt></p>
+<p>Allows an application to be directly-dispatched, such that a WebOb response is returned rather than a content generator.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.apptools.dispatch">
+<span id="dispatch-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">dispatch</span></tt> Module<a class="headerlink" href="#module-lib.apptools.dispatch" title="Permalink to this headline">¶</a></h2>
+<p>AppTools Dispatch</p>
+<p>Used for dispatching URLs that are internal to AppTools, and routing
+requests to the user&#8217;s app.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>&gt;)</p>
+<dl class="class">
+<dt id="lib.apptools.dispatch.AppAdminHandler">
+<em class="property">class </em><tt class="descclassname">lib.apptools.dispatch.</tt><tt class="descname">AppAdminHandler</tt><big>(</big><em>request=None</em>, <em>response=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/dispatch.html#AppAdminHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.dispatch.AppAdminHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">webapp2.RequestHandler</span></tt></p>
+<p>Provides a clean admin panel that comes standard with your app.</p>
+<dl class="method">
+<dt id="lib.apptools.dispatch.AppAdminHandler.get">
+<tt class="descname">get</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/dispatch.html#AppAdminHandler.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.dispatch.AppAdminHandler.get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.dispatch.CacheManifestHandler">
+<em class="property">class </em><tt class="descclassname">lib.apptools.dispatch.</tt><tt class="descname">CacheManifestHandler</tt><big>(</big><em>request=None</em>, <em>response=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/dispatch.html#CacheManifestHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.dispatch.CacheManifestHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">webapp2.RequestHandler</span></tt></p>
+<p>Automatically generates an HTML5 AppCache manifest in proper format.</p>
+<dl class="method">
+<dt id="lib.apptools.dispatch.CacheManifestHandler.get">
+<tt class="descname">get</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/dispatch.html#CacheManifestHandler.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.dispatch.CacheManifestHandler.get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.dispatch.NoOperationHandler">
+<em class="property">class </em><tt class="descclassname">lib.apptools.dispatch.</tt><tt class="descname">NoOperationHandler</tt><big>(</big><em>request=None</em>, <em>response=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/dispatch.html#NoOperationHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.dispatch.NoOperationHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">webapp2.RequestHandler</span></tt></p>
+<p>Does nothing.</p>
+<dl class="method">
+<dt id="lib.apptools.dispatch.NoOperationHandler.get">
+<tt class="descname">get</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/dispatch.html#NoOperationHandler.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.dispatch.NoOperationHandler.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pass to NO-OP handler and 404.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.dispatch.NoOperationHandler.noop">
+<tt class="descname">noop</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/dispatch.html#NoOperationHandler.noop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.dispatch.NoOperationHandler.noop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write NO-OP and 404.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.dispatch.NoOperationHandler.post">
+<tt class="descname">post</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/dispatch.html#NoOperationHandler.post"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.dispatch.NoOperationHandler.post" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pass to NO-OP handler and 404.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.apptools.dispatch.NoURLRules">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.dispatch.</tt><tt class="descname">NoURLRules</tt><a class="reference internal" href="_modules/lib/apptools/dispatch.html#NoURLRules"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.dispatch.NoURLRules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.dispatch.SitemapHandler">
+<em class="property">class </em><tt class="descclassname">lib.apptools.dispatch.</tt><tt class="descname">SitemapHandler</tt><big>(</big><em>request=None</em>, <em>response=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/dispatch.html#SitemapHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.dispatch.SitemapHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">webapp2.RequestHandler</span></tt></p>
+<p>Automatically generates a sitemap in proper XML format.</p>
+<dl class="method">
+<dt id="lib.apptools.dispatch.SitemapHandler.get">
+<tt class="descname">get</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/dispatch.html#SitemapHandler.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.dispatch.SitemapHandler.get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.apptools.dispatch.admin">
+<tt class="descclassname">lib.apptools.dispatch.</tt><tt class="descname">admin</tt><big>(</big><em>environ=None</em>, <em>start_response=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/dispatch.html#admin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.dispatch.admin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the admin panel app.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.apptools.dispatch.appcache">
+<tt class="descclassname">lib.apptools.dispatch.</tt><tt class="descname">appcache</tt><big>(</big><em>environ=None</em>, <em>start_response=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/dispatch.html#appcache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.dispatch.appcache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the appcache manifest generation app.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.apptools.dispatch.gateway">
+<tt class="descclassname">lib.apptools.dispatch.</tt><tt class="descname">gateway</tt><big>(</big><em>environ=None</em>, <em>start_response=None</em>, <em>direct=False</em>, <em>appclass=&lt;class 'webapp2.WSGIApplication'&gt;</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/dispatch.html#gateway"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.dispatch.gateway" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resolve which internal app should be run, then do it.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.apptools.dispatch.get_builtin_apps">
+<tt class="descclassname">lib.apptools.dispatch.</tt><tt class="descname">get_builtin_apps</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/dispatch.html#get_builtin_apps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.dispatch.get_builtin_apps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of builtin WSGI applications. This should NOT include _noop_app, which is only present for utility/fallback.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.apptools.dispatch.services">
+<tt class="descclassname">lib.apptools.dispatch.</tt><tt class="descname">services</tt><big>(</big><em>environ=None</em>, <em>start_response=None</em>, <em>direct=False</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/dispatch.html#services"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.dispatch.services" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the service layer app.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.apptools.dispatch.sitemap">
+<tt class="descclassname">lib.apptools.dispatch.</tt><tt class="descname">sitemap</tt><big>(</big><em>environ=None</em>, <em>start_response=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/dispatch.html#sitemap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.dispatch.sitemap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the sitemap generation app.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.apptools.exceptions">
+<span id="exceptions-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">exceptions</span></tt> Module<a class="headerlink" href="#module-lib.apptools.exceptions" title="Permalink to this headline">¶</a></h2>
+<p>AppTools Exceptions</p>
+<p>Holds exceptions that can happen inside AppTools (AppToolsException) and in the user&#8217;s
+app (AppException).</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>&gt;)</p>
+<dl class="exception">
+<dt id="lib.apptools.exceptions.AppException">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.exceptions.</tt><tt class="descname">AppException</tt><a class="reference internal" href="_modules/lib/apptools/exceptions.html#AppException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.exceptions.AppException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>All app exceptions should inherit from this.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.apptools.exceptions.AppToolsException">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.exceptions.</tt><tt class="descname">AppToolsException</tt><a class="reference internal" href="_modules/lib/apptools/exceptions.html#AppToolsException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.exceptions.AppToolsException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>All AppTools exceptions should inherit from this.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="lib.apptools.api.html">api Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.api.html#id1"><tt class="docutils literal"><span class="pre">api</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.api.html#module-lib.apptools.api.assets"><tt class="docutils literal"><span class="pre">assets</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.api.html#module-lib.apptools.api.push"><tt class="docutils literal"><span class="pre">push</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.api.html#module-lib.apptools.api.services"><tt class="docutils literal"><span class="pre">services</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.api.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lib.apptools.api.output.html">output Package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.api.output.html#id1"><tt class="docutils literal"><span class="pre">output</span></tt> Package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.api.output.html#module-lib.apptools.api.output.content"><tt class="docutils literal"><span class="pre">content</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.api.output.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="lib.apptools.api.output.extensions.html">extensions Package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="lib.apptools.api.output.extensions.html#id1"><tt class="docutils literal"><span class="pre">extensions</span></tt> Package</a></li>
+<li class="toctree-l6"><a class="reference internal" href="lib.apptools.api.output.extensions.html#module-lib.apptools.api.output.extensions.bytecache"><tt class="docutils literal"><span class="pre">bytecache</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="lib.apptools.api.output.extensions.html#module-lib.apptools.api.output.extensions.fragment"><tt class="docutils literal"><span class="pre">fragment</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="lib.apptools.api.output.extensions.html#module-lib.apptools.api.output.extensions.memcached"><tt class="docutils literal"><span class="pre">memcached</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lib.apptools.ext.html">ext Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.ext.html#id1"><tt class="docutils literal"><span class="pre">ext</span></tt> Package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lib.apptools.model.html">model Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.model.html#id1"><tt class="docutils literal"><span class="pre">model</span></tt> Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lib.apptools.model.html#apptools2-model-api">apptools2: model API</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.model.html#module-lib.apptools.model.builtin"><tt class="docutils literal"><span class="pre">builtin</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.model.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lib.apptools.model.adapter.html">adapter Package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#id1"><tt class="docutils literal"><span class="pre">adapter</span></tt> Package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#abstract-module"><tt class="docutils literal"><span class="pre">abstract</span></tt> Module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-abstract-model-adapters">apptools2: abstract model adapters</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.core"><tt class="docutils literal"><span class="pre">core</span></tt> Module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-core-model-adapters">apptools2: core model adapters</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.inmemory"><tt class="docutils literal"><span class="pre">inmemory</span></tt> Module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-thread-memory">apptools2: model adapter for thread memory</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.memcache"><tt class="docutils literal"><span class="pre">memcache</span></tt> Module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-memcache">apptools2: model adapter for memcache</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.mongo"><tt class="docutils literal"><span class="pre">mongo</span></tt> Module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-mongo">apptools2: model adapter for mongo</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.pipeline"><tt class="docutils literal"><span class="pre">pipeline</span></tt> Module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-pipelines">apptools2: model adapter for pipelines</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.protorpc"><tt class="docutils literal"><span class="pre">protorpc</span></tt> Module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-protorpc">apptools2: model adapter for protorpc</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.redis"><tt class="docutils literal"><span class="pre">redis</span></tt> Module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-redis">apptools2: model adapter for redis</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.sql"><tt class="docutils literal"><span class="pre">sql</span></tt> Module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-sql">apptools2: model adapter for SQL</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lib.apptools.pipelines.html">pipelines Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.pipelines.html#id1"><tt class="docutils literal"><span class="pre">pipelines</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.pipelines.html#module-lib.apptools.pipelines.builtin"><tt class="docutils literal"><span class="pre">builtin</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lib.apptools.platform.html">platform Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.platform.html#id1"><tt class="docutils literal"><span class="pre">platform</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.platform.html#module-lib.apptools.platform.appengine"><tt class="docutils literal"><span class="pre">appengine</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.platform.html#module-lib.apptools.platform.appfactory"><tt class="docutils literal"><span class="pre">appfactory</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.platform.html#module-lib.apptools.platform.generic"><tt class="docutils literal"><span class="pre">generic</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lib.apptools.services.html">services Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.services.html#id1"><tt class="docutils literal"><span class="pre">services</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.services.html#module-lib.apptools.services.builtin"><tt class="docutils literal"><span class="pre">builtin</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.services.html#module-lib.apptools.services.direct"><tt class="docutils literal"><span class="pre">direct</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.services.html#module-lib.apptools.services.gateway"><tt class="docutils literal"><span class="pre">gateway</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.services.html#module-lib.apptools.services.mappers"><tt class="docutils literal"><span class="pre">mappers</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.services.html#module-lib.apptools.services.middleware"><tt class="docutils literal"><span class="pre">middleware</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lib.apptools.tests.html">tests Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.tests.html#id1"><tt class="docutils literal"><span class="pre">tests</span></tt> Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lib.apptools.tests.html#apptools2-testsuite">apptools2: testsuite</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.tests.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lib.apptools.tests.test_model.html">test_model Package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.tests.test_model.html#id1"><tt class="docutils literal"><span class="pre">test_model</span></tt> Package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="lib.apptools.tests.test_model.html#apptools2-model-tests">apptools2: model tests</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.tests.test_model.html#module-lib.apptools.tests.test_model.test_key"><tt class="docutils literal"><span class="pre">test_key</span></tt> Module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="lib.apptools.tests.test_model.html#apptools2-model-key-tests">apptools2: model key tests</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.tests.test_model.html#module-lib.apptools.tests.test_model.test_meta"><tt class="docutils literal"><span class="pre">test_meta</span></tt> Module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="lib.apptools.tests.test_model.html#apptools2-meta-model-tests">apptools2: meta model tests</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.tests.test_model.html#module-lib.apptools.tests.test_model.test_model"><tt class="docutils literal"><span class="pre">test_model</span></tt> Module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="lib.apptools.tests.test_model.html#id20">apptools2: model tests</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.tests.test_model.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="lib.apptools.tests.test_model.test_adapters.html">test_adapters Package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="lib.apptools.tests.test_model.test_adapters.html#id1"><tt class="docutils literal"><span class="pre">test_adapters</span></tt> Package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="lib.apptools.tests.test_model.test_adapters.html#apptools2-model-adapter-tests">apptools2: model adapter tests</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="lib.apptools.tests.test_model.test_adapters.html#module-lib.apptools.tests.test_model.test_adapters.test_abstract"><tt class="docutils literal"><span class="pre">test_abstract</span></tt> Module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="lib.apptools.tests.test_model.test_adapters.html#apptools2-abstract-adapter-tests">apptools2: abstract adapter tests</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="lib.apptools.tests.test_model.test_adapters.html#module-lib.apptools.tests.test_model.test_adapters.test_core"><tt class="docutils literal"><span class="pre">test_core</span></tt> Module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="lib.apptools.tests.test_model.test_adapters.html#apptools2-core-adapter-tests">apptools2: core adapter tests</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="lib.apptools.tests.test_model.test_adapters.html#module-lib.apptools.tests.test_model.test_adapters.test_inmemory"><tt class="docutils literal"><span class="pre">test_inmemory</span></tt> Module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="lib.apptools.tests.test_model.test_adapters.html#apptools2-in-memory-adapter-tests">apptools2: in-memory adapter tests</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="lib.apptools.tests.test_model.test_adapters.html#module-lib.apptools.tests.test_model.test_adapters.test_protorpc"><tt class="docutils literal"><span class="pre">test_protorpc</span></tt> Module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="lib.apptools.tests.test_model.test_adapters.html#apptools2-protorpc-adapter-tests">apptools2: protorpc adapter tests</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="lib.apptools.tests.test_model.test_adapters.html#module-lib.apptools.tests.test_model.test_adapters.test_redis"><tt class="docutils literal"><span class="pre">test_redis</span></tt> Module</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="lib.apptools.tests.test_model.test_adapters.html#apptools2-redis-adapter-tests">apptools2: redis adapter tests</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lib.apptools.util.html">util Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.util.html#id1"><tt class="docutils literal"><span class="pre">util</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.util.html#module-lib.apptools.util.appconfig"><tt class="docutils literal"><span class="pre">appconfig</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.util.html#module-lib.apptools.util.byteconvert"><tt class="docutils literal"><span class="pre">byteconvert</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.util.html#module-lib.apptools.util.datastructures"><tt class="docutils literal"><span class="pre">datastructures</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.util.html#module-lib.apptools.util.debug"><tt class="docutils literal"><span class="pre">debug</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.util.html#module-lib.apptools.util.decorators"><tt class="docutils literal"><span class="pre">decorators</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.util.html#module-lib.apptools.util.httpagentparser"><tt class="docutils literal"><span class="pre">httpagentparser</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.util.html#module-lib.apptools.util.platform"><tt class="docutils literal"><span class="pre">platform</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.util.html#module-lib.apptools.util.runtools"><tt class="docutils literal"><span class="pre">runtools</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.util.html#module-lib.apptools.util.timesince"><tt class="docutils literal"><span class="pre">timesince</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">apptools Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">apptools</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.core"><tt class="docutils literal"><span class="pre">core</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.dispatch"><tt class="docutils literal"><span class="pre">dispatch</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.exceptions"><tt class="docutils literal"><span class="pre">exceptions</span></tt> Module</a></li>
+<li><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="lib.appfactory.runtime.html"
+                        title="previous chapter">runtime Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="lib.apptools.api.html"
+                        title="next chapter">api Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/lib.apptools.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lib.apptools.api.html" title="api Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="lib.appfactory.runtime.html" title="runtime Package"
+             >previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="lib.html" >lib Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

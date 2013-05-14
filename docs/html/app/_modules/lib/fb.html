@@ -1,0 +1,667 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.fb &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.fb</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c">#</span>
+<span class="c"># Copyright 2010 Facebook</span>
+<span class="c">#</span>
+<span class="c"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may</span>
+<span class="c"># not use this file except in compliance with the License. You may obtain</span>
+<span class="c"># a copy of the License at</span>
+<span class="c">#</span>
+<span class="c">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS, WITHOUT</span>
+<span class="c"># WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the</span>
+<span class="c"># License for the specific language governing permissions and limitations</span>
+<span class="c"># under the License.</span>
+
+<span class="sd">&quot;&quot;&quot;Python client library for the Facebook Platform.</span>
+
+<span class="sd">This client library is designed to support the Graph API and the</span>
+<span class="sd">official Facebook JavaScript SDK, which is the canonical way to</span>
+<span class="sd">implement Facebook authentication. Read more about the Graph API at</span>
+<span class="sd">http://developers.facebook.com/docs/api. You can download the Facebook</span>
+<span class="sd">JavaScript SDK at http://github.com/facebook/connect-js/.</span>
+
+<span class="sd">If your application is using Google AppEngine&#39;s webapp framework, your</span>
+<span class="sd">usage of this module might look like this:</span>
+
+<span class="sd">user = facebook.get_user_from_cookie(self.request.cookies, key, secret)</span>
+<span class="sd">if user:</span>
+<span class="sd">    graph = facebook.GraphAPI(user[&quot;access_token&quot;])</span>
+<span class="sd">    profile = graph.get_object(&quot;me&quot;)</span>
+<span class="sd">    friends = graph.get_connections(&quot;me&quot;, &quot;friends&quot;)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">cgi</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">urllib</span>
+<span class="kn">import</span> <span class="nn">urllib2</span>
+<span class="kn">import</span> <span class="nn">httplib</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">import</span> <span class="nn">hmac</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="c"># Find a JSON parser</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">simplejson</span> <span class="kn">as</span> <span class="nn">json</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">django.utils</span> <span class="kn">import</span> <span class="n">simplejson</span> <span class="k">as</span> <span class="n">json</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">json</span>
+<span class="n">_parse_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span>
+
+<span class="c"># Find a query string parser</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">urlparse</span> <span class="kn">import</span> <span class="n">parse_qs</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">cgi</span> <span class="kn">import</span> <span class="n">parse_qs</span>
+
+
+<div class="viewcode-block" id="GraphAPI"><a class="viewcode-back" href="../../lib.html#lib.fb.GraphAPI">[docs]</a><span class="k">class</span> <span class="nc">GraphAPI</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A client for the Facebook Graph API.</span>
+
+<span class="sd">    See http://developers.facebook.com/docs/api for complete</span>
+<span class="sd">    documentation for the API.</span>
+
+<span class="sd">    The Graph API is made up of the objects in Facebook (e.g., people,</span>
+<span class="sd">    pages, events, photos) and the connections between them (e.g.,</span>
+<span class="sd">    friends, photo tags, and event RSVPs). This client provides access</span>
+<span class="sd">    to those primitive types in a generic way. For example, given an</span>
+<span class="sd">    OAuth access token, this will fetch the profile of the active user</span>
+<span class="sd">    and the list of the user&#39;s friends:</span>
+
+<span class="sd">       graph = facebook.GraphAPI(access_token)</span>
+<span class="sd">       user = graph.get_object(&quot;me&quot;)</span>
+<span class="sd">       friends = graph.get_connections(user[&quot;id&quot;], &quot;friends&quot;)</span>
+
+<span class="sd">    You can see a list of all of the objects and connections supported</span>
+<span class="sd">    by the API at http://developers.facebook.com/docs/reference/api/.</span>
+
+<span class="sd">    You can obtain an access token via OAuth or by using the Facebook</span>
+<span class="sd">    JavaScript SDK. See</span>
+<span class="sd">    http://developers.facebook.com/docs/authentication/ for details.</span>
+
+<span class="sd">    If you are using the JavaScript SDK, you can use the</span>
+<span class="sd">    get_user_from_cookie() method below to get the OAuth access token</span>
+<span class="sd">    for the active user from the cookie saved by the SDK.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">access_token</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span> <span class="o">=</span> <span class="n">access_token</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span>
+
+<div class="viewcode-block" id="GraphAPI.get_object"><a class="viewcode-back" href="../../lib.html#lib.fb.GraphAPI.get_object">[docs]</a>    <span class="k">def</span> <span class="nf">get_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="o">**</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fetchs the given object from the graph.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GraphAPI.get_objects"><a class="viewcode-back" href="../../lib.html#lib.fb.GraphAPI.get_objects">[docs]</a>    <span class="k">def</span> <span class="nf">get_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="o">**</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fetchs all of the given object from the graph.</span>
+
+<span class="sd">        We return a map from ID to object. If any of the IDs are</span>
+<span class="sd">        invalid, we raise an exception.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">args</span><span class="p">[</span><span class="s">&quot;ids&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GraphAPI.get_connections"><a class="viewcode-back" href="../../lib.html#lib.fb.GraphAPI.get_connections">[docs]</a>    <span class="k">def</span> <span class="nf">get_connections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">connection_name</span><span class="p">,</span> <span class="o">**</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fetchs the connections for given object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="nb">id</span> <span class="o">+</span> <span class="s">&quot;/&quot;</span> <span class="o">+</span> <span class="n">connection_name</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GraphAPI.put_object"><a class="viewcode-back" href="../../lib.html#lib.fb.GraphAPI.put_object">[docs]</a>    <span class="k">def</span> <span class="nf">put_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_object</span><span class="p">,</span> <span class="n">connection_name</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Writes the given object to the graph, connected to the given parent.</span>
+
+<span class="sd">        For example,</span>
+
+<span class="sd">            graph.put_object(&quot;me&quot;, &quot;feed&quot;, message=&quot;Hello, world&quot;)</span>
+
+<span class="sd">        writes &quot;Hello, world&quot; to the active user&#39;s wall. Likewise, this</span>
+<span class="sd">        will comment on a the first post of the active user&#39;s feed:</span>
+
+<span class="sd">            feed = graph.get_connections(&quot;me&quot;, &quot;feed&quot;)</span>
+<span class="sd">            post = feed[&quot;data&quot;][0]</span>
+<span class="sd">            graph.put_object(post[&quot;id&quot;], &quot;comments&quot;, message=&quot;First!&quot;)</span>
+
+<span class="sd">        See http://developers.facebook.com/docs/api#publishing for all</span>
+<span class="sd">        of the supported writeable objects.</span>
+
+<span class="sd">        Certain write operations require extended permissions. For</span>
+<span class="sd">        example, publishing to a user&#39;s feed requires the</span>
+<span class="sd">        &quot;publish_actions&quot; permission. See</span>
+<span class="sd">        http://developers.facebook.com/docs/publishing/ for details</span>
+<span class="sd">        about publishing permissions.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span><span class="p">,</span> <span class="s">&quot;Write operations require an access token&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">parent_object</span> <span class="o">+</span> <span class="s">&quot;/&quot;</span> <span class="o">+</span> <span class="n">connection_name</span><span class="p">,</span>
+                            <span class="n">post_args</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GraphAPI.put_wall_post"><a class="viewcode-back" href="../../lib.html#lib.fb.GraphAPI.put_wall_post">[docs]</a>    <span class="k">def</span> <span class="nf">put_wall_post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">attachment</span><span class="o">=</span><span class="p">{},</span> <span class="n">profile_id</span><span class="o">=</span><span class="s">&quot;me&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Writes a wall post to the given profile&#39;s wall.</span>
+
+<span class="sd">        We default to writing to the authenticated user&#39;s wall if no</span>
+<span class="sd">        profile_id is specified.</span>
+
+<span class="sd">        attachment adds a structured attachment to the status message</span>
+<span class="sd">        being posted to the Wall. It should be a dictionary of the form:</span>
+
+<span class="sd">            {&quot;name&quot;: &quot;Link name&quot;</span>
+<span class="sd">             &quot;link&quot;: &quot;http://www.example.com/&quot;,</span>
+<span class="sd">             &quot;caption&quot;: &quot;{*actor*} posted a new review&quot;,</span>
+<span class="sd">             &quot;description&quot;: &quot;This is a longer description of the attachment&quot;,</span>
+<span class="sd">             &quot;picture&quot;: &quot;http://www.example.com/thumbnail.jpg&quot;}</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">put_object</span><span class="p">(</span><span class="n">profile_id</span><span class="p">,</span> <span class="s">&quot;feed&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>
+                               <span class="o">**</span><span class="n">attachment</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GraphAPI.put_comment"><a class="viewcode-back" href="../../lib.html#lib.fb.GraphAPI.put_comment">[docs]</a>    <span class="k">def</span> <span class="nf">put_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">object_id</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Writes the given comment on the given post.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">put_object</span><span class="p">(</span><span class="n">object_id</span><span class="p">,</span> <span class="s">&quot;comments&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GraphAPI.put_like"><a class="viewcode-back" href="../../lib.html#lib.fb.GraphAPI.put_like">[docs]</a>    <span class="k">def</span> <span class="nf">put_like</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">object_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Likes the given post.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">put_object</span><span class="p">(</span><span class="n">object_id</span><span class="p">,</span> <span class="s">&quot;likes&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GraphAPI.delete_object"><a class="viewcode-back" href="../../lib.html#lib.fb.GraphAPI.delete_object">[docs]</a>    <span class="k">def</span> <span class="nf">delete_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Deletes the object with the given ID from the graph.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">post_args</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;method&quot;</span><span class="p">:</span> <span class="s">&quot;delete&quot;</span><span class="p">})</span>
+</div>
+<div class="viewcode-block" id="GraphAPI.delete_request"><a class="viewcode-back" href="../../lib.html#lib.fb.GraphAPI.delete_request">[docs]</a>    <span class="k">def</span> <span class="nf">delete_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">request_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Deletes the Request with the given ID for the given user.&quot;&quot;&quot;</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">httplib</span><span class="o">.</span><span class="n">HTTPSConnection</span><span class="p">(</span><span class="s">&#39;graph.facebook.com&#39;</span><span class="p">)</span>
+
+        <span class="n">url</span> <span class="o">=</span> <span class="s">&#39;/</span><span class="si">%s</span><span class="s">_</span><span class="si">%s</span><span class="s">?</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="n">request_id</span><span class="p">,</span>
+            <span class="n">user_id</span><span class="p">,</span>
+            <span class="n">urllib</span><span class="o">.</span><span class="n">urlencode</span><span class="p">({</span><span class="s">&#39;access_token&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span><span class="p">}),</span>
+        <span class="p">)</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="s">&#39;DELETE&#39;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">getresponse</span><span class="p">()</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="n">_parse_json</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="c"># Raise an error if we got one, but don&#39;t not if Facebook just</span>
+        <span class="c"># gave us a Bool value</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">response</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;error&quot;</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="n">GraphAPIError</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+        <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="GraphAPI.put_photo"><a class="viewcode-back" href="../../lib.html#lib.fb.GraphAPI.put_photo">[docs]</a>    <span class="k">def</span> <span class="nf">put_photo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">album_id</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Uploads an image using multipart/form-data.</span>
+
+<span class="sd">        image=File like object for the image</span>
+<span class="sd">        message=Caption for your image</span>
+<span class="sd">        album_id=None posts to /me/photos which uses or creates and uses</span>
+<span class="sd">        an album for your application.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">object_id</span> <span class="o">=</span> <span class="n">album_id</span> <span class="ow">or</span> <span class="s">&quot;me&quot;</span>
+        <span class="c">#it would have been nice to reuse self.request;</span>
+        <span class="c">#but multipart is messy in urllib</span>
+        <span class="n">post_args</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;access_token&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span><span class="p">,</span>
+            <span class="s">&#39;source&#39;</span><span class="p">:</span> <span class="n">image</span><span class="p">,</span>
+            <span class="s">&#39;message&#39;</span><span class="p">:</span> <span class="n">message</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">post_args</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">content_type</span><span class="p">,</span> <span class="n">body</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encode_multipart_form</span><span class="p">(</span><span class="n">post_args</span><span class="p">)</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">Request</span><span class="p">((</span><span class="s">&quot;https://graph.facebook.com/</span><span class="si">%s</span><span class="s">/photos&quot;</span> <span class="o">%</span>
+                               <span class="n">object_id</span><span class="p">),</span>
+                              <span class="n">data</span><span class="o">=</span><span class="n">body</span><span class="p">)</span>
+        <span class="n">req</span><span class="o">.</span><span class="n">add_header</span><span class="p">(</span><span class="s">&#39;Content-Type&#39;</span><span class="p">,</span> <span class="n">content_type</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">req</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="c">#For Python 3 use this:</span>
+        <span class="c">#except urllib2.HTTPError as e:</span>
+        <span class="k">except</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>  <span class="c"># Facebook sends OAuth errors as 400, and urllib2</span>
+                             <span class="c"># throws an exception, we want a GraphAPIError</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">_parse_json</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="c"># Raise an error if we got one, but don&#39;t not if Facebook just</span>
+            <span class="c"># gave us a Bool value</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">response</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span>
+                    <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;error&quot;</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="n">GraphAPIError</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">data</span>
+
+        <span class="k">return</span> <span class="n">response</span>
+
+    <span class="c"># based on: http://code.activestate.com/recipes/146306/</span></div>
+    <span class="k">def</span> <span class="nf">_encode_multipart_form</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Encode files as &#39;multipart/form-data&#39;.</span>
+
+<span class="sd">        Fields are a dict of form name-&gt; value. For files, value should</span>
+<span class="sd">        be a file object. Other file-like objects might work and a fake</span>
+<span class="sd">        name will be chosen.</span>
+
+<span class="sd">        Returns (content_type, body) ready for httplib.HTTP instance.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">BOUNDARY</span> <span class="o">=</span> <span class="s">&#39;----------ThIs_Is_tHe_bouNdaRY_$&#39;</span>
+        <span class="n">CRLF</span> <span class="o">=</span> <span class="s">&#39;</span><span class="se">\r\n</span><span class="s">&#39;</span>
+        <span class="n">L</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">fields</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Encoding </span><span class="si">%s</span><span class="s">, (</span><span class="si">%s</span><span class="s">)</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="n">value</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">L</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;--&#39;</span> <span class="o">+</span> <span class="n">BOUNDARY</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s">&#39;read&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">callable</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">read</span><span class="p">):</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">.jpg&#39;</span> <span class="o">%</span> <span class="n">key</span><span class="p">)</span>
+                <span class="n">L</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s">&#39;Content-Disposition: form-data;&#39;</span>
+                          <span class="s">&#39;name=&quot;</span><span class="si">%s</span><span class="s">&quot;;&#39;</span>
+                          <span class="s">&#39;filename=&quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">filename</span><span class="p">))</span>
+                <span class="n">L</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Content-Type: image/jpeg&#39;</span><span class="p">)</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">L</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Content-Disposition: form-data; name=&quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">key</span><span class="p">)</span>
+            <span class="n">L</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">unicode</span><span class="p">):</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Convert to ascii&quot;</span><span class="p">)</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;ascii&#39;</span><span class="p">)</span>
+            <span class="n">L</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">L</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;--&#39;</span> <span class="o">+</span> <span class="n">BOUNDARY</span> <span class="o">+</span> <span class="s">&#39;--&#39;</span><span class="p">)</span>
+        <span class="n">L</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="n">CRLF</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+        <span class="n">content_type</span> <span class="o">=</span> <span class="s">&#39;multipart/form-data; boundary=</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">BOUNDARY</span>
+        <span class="k">return</span> <span class="n">content_type</span><span class="p">,</span> <span class="n">body</span>
+
+<div class="viewcode-block" id="GraphAPI.request"><a class="viewcode-back" href="../../lib.html#lib.fb.GraphAPI.request">[docs]</a>    <span class="k">def</span> <span class="nf">request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">post_args</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fetches the given path in the Graph API.</span>
+
+<span class="sd">        We translate args to a valid query string. If post_args is</span>
+<span class="sd">        given, we send a POST request to the given path with the given</span>
+<span class="sd">        arguments.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="n">args</span> <span class="ow">or</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">post_args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">post_args</span><span class="p">[</span><span class="s">&quot;access_token&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">args</span><span class="p">[</span><span class="s">&quot;access_token&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span>
+        <span class="n">post_data</span> <span class="o">=</span> <span class="bp">None</span> <span class="k">if</span> <span class="n">post_args</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">urllib</span><span class="o">.</span><span class="n">urlencode</span><span class="p">(</span><span class="n">post_args</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">file</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="s">&quot;https://graph.facebook.com/&quot;</span> <span class="o">+</span> <span class="n">path</span> <span class="o">+</span> <span class="s">&quot;?&quot;</span> <span class="o">+</span>
+                                   <span class="n">urllib</span><span class="o">.</span><span class="n">urlencode</span><span class="p">(</span><span class="n">args</span><span class="p">),</span>
+                                   <span class="n">post_data</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">_parse_json</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+            <span class="k">raise</span> <span class="n">GraphAPIError</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="c"># Timeout support for Python &lt;2.6</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">:</span>
+                <span class="n">socket</span><span class="o">.</span><span class="n">setdefaulttimeout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span>
+            <span class="nb">file</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="s">&quot;https://graph.facebook.com/&quot;</span> <span class="o">+</span> <span class="n">path</span> <span class="o">+</span> <span class="s">&quot;?&quot;</span> <span class="o">+</span>
+                                   <span class="n">urllib</span><span class="o">.</span><span class="n">urlencode</span><span class="p">(</span><span class="n">args</span><span class="p">),</span> <span class="n">post_data</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">fileInfo</span> <span class="o">=</span> <span class="nb">file</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">fileInfo</span><span class="o">.</span><span class="n">maintype</span> <span class="o">==</span> <span class="s">&#39;text&#39;</span><span class="p">:</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="n">_parse_json</span><span class="p">(</span><span class="nb">file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="n">fileInfo</span><span class="o">.</span><span class="n">maintype</span> <span class="o">==</span> <span class="s">&#39;image&#39;</span><span class="p">:</span>
+                <span class="n">mimetype</span> <span class="o">=</span> <span class="n">fileInfo</span><span class="p">[</span><span class="s">&#39;content-type&#39;</span><span class="p">]</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s">&quot;data&quot;</span><span class="p">:</span> <span class="nb">file</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span>
+                    <span class="s">&quot;mime-type&quot;</span><span class="p">:</span> <span class="n">mimetype</span><span class="p">,</span>
+                    <span class="s">&quot;url&quot;</span><span class="p">:</span> <span class="nb">file</span><span class="o">.</span><span class="n">url</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">GraphAPIError</span><span class="p">(</span><span class="s">&#39;Maintype was not text or image&#39;</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="nb">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">response</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;error&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">GraphAPIError</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="s">&quot;error&quot;</span><span class="p">][</span><span class="s">&quot;type&quot;</span><span class="p">],</span>
+                                <span class="n">response</span><span class="p">[</span><span class="s">&quot;error&quot;</span><span class="p">][</span><span class="s">&quot;message&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">response</span>
+</div>
+<div class="viewcode-block" id="GraphAPI.fql"><a class="viewcode-back" href="../../lib.html#lib.fb.GraphAPI.fql">[docs]</a>    <span class="k">def</span> <span class="nf">fql</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">post_args</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;FQL query.</span>
+
+<span class="sd">        Example query: &quot;SELECT affiliations FROM user WHERE uid = me()&quot;</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">args</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">post_args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">post_args</span><span class="p">[</span><span class="s">&quot;access_token&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">args</span><span class="p">[</span><span class="s">&quot;access_token&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span>
+        <span class="n">post_data</span> <span class="o">=</span> <span class="bp">None</span> <span class="k">if</span> <span class="n">post_args</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">urllib</span><span class="o">.</span><span class="n">urlencode</span><span class="p">(</span><span class="n">post_args</span><span class="p">)</span>
+
+        <span class="sd">&quot;&quot;&quot;Check if query is a dict and</span>
+<span class="sd">           use the multiquery method</span>
+<span class="sd">           else use single query</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+            <span class="n">args</span><span class="p">[</span><span class="s">&quot;queries&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">query</span>
+            <span class="n">fql_method</span> <span class="o">=</span> <span class="s">&#39;fql.multiquery&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">args</span><span class="p">[</span><span class="s">&quot;query&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">query</span>
+            <span class="n">fql_method</span> <span class="o">=</span> <span class="s">&#39;fql.query&#39;</span>
+
+        <span class="n">args</span><span class="p">[</span><span class="s">&quot;format&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;json&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">file</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="s">&quot;https://api.facebook.com/method/&quot;</span> <span class="o">+</span>
+                                   <span class="n">fql_method</span> <span class="o">+</span> <span class="s">&quot;?&quot;</span> <span class="o">+</span> <span class="n">urllib</span><span class="o">.</span><span class="n">urlencode</span><span class="p">(</span><span class="n">args</span><span class="p">),</span>
+                                   <span class="n">post_data</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="c"># Timeout support for Python &lt;2.6</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">:</span>
+                <span class="n">socket</span><span class="o">.</span><span class="n">setdefaulttimeout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span>
+            <span class="nb">file</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="s">&quot;https://api.facebook.com/method/&quot;</span> <span class="o">+</span>
+                                   <span class="n">fql_method</span> <span class="o">+</span> <span class="s">&quot;?&quot;</span> <span class="o">+</span> <span class="n">urllib</span><span class="o">.</span><span class="n">urlencode</span><span class="p">(</span><span class="n">args</span><span class="p">),</span>
+                                   <span class="n">post_data</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="nb">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">_parse_json</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+            <span class="c">#Return a list if success, return a dictionary if failed</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">response</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">dict</span> <span class="ow">and</span> <span class="s">&quot;error_code&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">GraphAPIError</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">e</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="nb">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">response</span>
+</div>
+<div class="viewcode-block" id="GraphAPI.extend_access_token"><a class="viewcode-back" href="../../lib.html#lib.fb.GraphAPI.extend_access_token">[docs]</a>    <span class="k">def</span> <span class="nf">extend_access_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">,</span> <span class="n">app_secret</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extends the expiration time of a valid OAuth access token. See</span>
+<span class="sd">        &lt;https://developers.facebook.com/roadmap/offline-access-removal/</span>
+<span class="sd">        #extend_token&gt;</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&quot;client_id&quot;</span><span class="p">:</span> <span class="n">app_id</span><span class="p">,</span>
+            <span class="s">&quot;client_secret&quot;</span><span class="p">:</span> <span class="n">app_secret</span><span class="p">,</span>
+            <span class="s">&quot;grant_type&quot;</span><span class="p">:</span> <span class="s">&quot;fb_exchange_token&quot;</span><span class="p">,</span>
+            <span class="s">&quot;fb_exchange_token&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="s">&quot;https://graph.facebook.com/oauth/&quot;</span>
+                                  <span class="s">&quot;access_token?&quot;</span> <span class="o">+</span>
+                                  <span class="n">urllib</span><span class="o">.</span><span class="n">urlencode</span><span class="p">(</span><span class="n">args</span><span class="p">))</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">query_str</span> <span class="o">=</span> <span class="n">parse_qs</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s">&quot;access_token&quot;</span> <span class="ow">in</span> <span class="n">query_str</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;access_token&quot;</span><span class="p">:</span> <span class="n">query_str</span><span class="p">[</span><span class="s">&quot;access_token&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]}</span>
+            <span class="k">if</span> <span class="s">&quot;expires&quot;</span> <span class="ow">in</span> <span class="n">query_str</span><span class="p">:</span>
+                <span class="n">result</span><span class="p">[</span><span class="s">&quot;expires&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">query_str</span><span class="p">[</span><span class="s">&quot;expires&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">result</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">GraphAPIError</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="GraphAPIError"><a class="viewcode-back" href="../../lib.html#lib.fb.GraphAPIError">[docs]</a><span class="k">class</span> <span class="nc">GraphAPIError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
+        <span class="c">#Exception.__init__(self, message)</span>
+        <span class="c">#self.type = type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="n">result</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s">&quot;error_code&quot;</span><span class="p">]</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+
+        <span class="c"># OAuth 2.0 Draft 10</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s">&quot;error_description&quot;</span><span class="p">]</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="c"># OAuth 2.0 Draft 00</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s">&quot;error&quot;</span><span class="p">][</span><span class="s">&quot;message&quot;</span><span class="p">]</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="c"># REST server style</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s">&quot;error_msg&quot;</span><span class="p">]</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">result</span>
+
+        <span class="ne">Exception</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="get_user_from_cookie"><a class="viewcode-back" href="../../lib.html#lib.fb.get_user_from_cookie">[docs]</a><span class="k">def</span> <span class="nf">get_user_from_cookie</span><span class="p">(</span><span class="n">cookies</span><span class="p">,</span> <span class="n">app_id</span><span class="p">,</span> <span class="n">app_secret</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parses the cookie set by the official Facebook JavaScript SDK.</span>
+
+<span class="sd">    cookies should be a dictionary-like object mapping cookie names to</span>
+<span class="sd">    cookie values.</span>
+
+<span class="sd">    If the user is logged in via Facebook, we return a dictionary with</span>
+<span class="sd">    the keys &quot;uid&quot; and &quot;access_token&quot;. The former is the user&#39;s</span>
+<span class="sd">    Facebook ID, and the latter can be used to make authenticated</span>
+<span class="sd">    requests to the Graph API. If the user is not logged in, we</span>
+<span class="sd">    return None.</span>
+
+<span class="sd">    Download the official Facebook JavaScript SDK at</span>
+<span class="sd">    http://github.com/facebook/connect-js/. Read more about Facebook</span>
+<span class="sd">    authentication at</span>
+<span class="sd">    http://developers.facebook.com/docs/authentication/.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cookie</span> <span class="o">=</span> <span class="n">cookies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;fbsr_&quot;</span> <span class="o">+</span> <span class="n">app_id</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">cookie</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">None</span>
+    <span class="n">parsed_request</span> <span class="o">=</span> <span class="n">parse_signed_request</span><span class="p">(</span><span class="n">cookie</span><span class="p">,</span> <span class="n">app_secret</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">parsed_request</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">get_access_token_from_code</span><span class="p">(</span><span class="n">parsed_request</span><span class="p">[</span><span class="s">&quot;code&quot;</span><span class="p">],</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
+                                            <span class="n">app_id</span><span class="p">,</span> <span class="n">app_secret</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">GraphAPIError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">None</span>
+    <span class="n">result</span><span class="p">[</span><span class="s">&quot;uid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parsed_request</span><span class="p">[</span><span class="s">&quot;user_id&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+</div>
+<div class="viewcode-block" id="parse_signed_request"><a class="viewcode-back" href="../../lib.html#lib.fb.parse_signed_request">[docs]</a><span class="k">def</span> <span class="nf">parse_signed_request</span><span class="p">(</span><span class="n">signed_request</span><span class="p">,</span> <span class="n">app_secret</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Return dictionary with signed request data.</span>
+
+<span class="sd">    We return a dictionary containing the information in the</span>
+<span class="sd">    signed_request. This includes a user_id if the user has authorised</span>
+<span class="sd">    your application, as well as any information requested.</span>
+
+<span class="sd">    If the signed_request is malformed or corrupted, False is returned.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">signed_request</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">encoded_sig</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">sig</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64decode</span><span class="p">(</span><span class="n">encoded_sig</span> <span class="o">+</span> <span class="s">&quot;=&quot;</span> <span class="o">*</span>
+                                       <span class="p">((</span><span class="mi">4</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">encoded_sig</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span><span class="p">))</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64decode</span><span class="p">(</span><span class="n">payload</span> <span class="o">+</span> <span class="s">&quot;=&quot;</span> <span class="o">*</span>
+                                        <span class="p">((</span><span class="mi">4</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+        <span class="c"># Signed request was malformed.</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="c"># Signed request had a corrupted payload.</span>
+        <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">_parse_json</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;algorithm&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">!=</span> <span class="s">&#39;HMAC-SHA256&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="c"># HMAC can only handle ascii (byte) strings</span>
+    <span class="c"># http://bugs.python.org/issue5285</span>
+    <span class="n">app_secret</span> <span class="o">=</span> <span class="n">app_secret</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;ascii&#39;</span><span class="p">)</span>
+    <span class="n">payload</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;ascii&#39;</span><span class="p">)</span>
+
+    <span class="n">expected_sig</span> <span class="o">=</span> <span class="n">hmac</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">app_secret</span><span class="p">,</span>
+                            <span class="n">msg</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span>
+                            <span class="n">digestmod</span><span class="o">=</span><span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">)</span><span class="o">.</span><span class="n">digest</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">sig</span> <span class="o">!=</span> <span class="n">expected_sig</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="k">return</span> <span class="n">data</span>
+
+</div>
+<div class="viewcode-block" id="auth_url"><a class="viewcode-back" href="../../lib.html#lib.fb.auth_url">[docs]</a><span class="k">def</span> <span class="nf">auth_url</span><span class="p">(</span><span class="n">app_id</span><span class="p">,</span> <span class="n">canvas_url</span><span class="p">,</span> <span class="n">perms</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s">&quot;https://www.facebook.com/dialog/oauth?&quot;</span>
+    <span class="n">kvps</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;client_id&#39;</span><span class="p">:</span> <span class="n">app_id</span><span class="p">,</span> <span class="s">&#39;redirect_uri&#39;</span><span class="p">:</span> <span class="n">canvas_url</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">perms</span><span class="p">:</span>
+        <span class="n">kvps</span><span class="p">[</span><span class="s">&#39;scope&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">perms</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">state</span><span class="p">:</span>
+        <span class="n">kvps</span><span class="p">[</span><span class="s">&#39;state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">state</span>
+    <span class="k">return</span> <span class="n">url</span> <span class="o">+</span> <span class="n">urllib</span><span class="o">.</span><span class="n">urlencode</span><span class="p">(</span><span class="n">kvps</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="get_access_token_from_code"><a class="viewcode-back" href="../../lib.html#lib.fb.get_access_token_from_code">[docs]</a><span class="k">def</span> <span class="nf">get_access_token_from_code</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">redirect_uri</span><span class="p">,</span> <span class="n">app_id</span><span class="p">,</span> <span class="n">app_secret</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get an access token from the &quot;code&quot; returned from an OAuth dialog.</span>
+
+<span class="sd">    Returns a dict containing the user-specific access token and its</span>
+<span class="sd">    expiration date (if applicable).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&quot;code&quot;</span><span class="p">:</span> <span class="n">code</span><span class="p">,</span>
+        <span class="s">&quot;redirect_uri&quot;</span><span class="p">:</span> <span class="n">redirect_uri</span><span class="p">,</span>
+        <span class="s">&quot;client_id&quot;</span><span class="p">:</span> <span class="n">app_id</span><span class="p">,</span>
+        <span class="s">&quot;client_secret&quot;</span><span class="p">:</span> <span class="n">app_secret</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="c"># We would use GraphAPI.request() here, except for that the fact</span>
+    <span class="c"># that the response is a key-value pair, and not JSON.</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="s">&quot;https://graph.facebook.com/oauth/access_token&quot;</span> <span class="o">+</span>
+                              <span class="s">&quot;?&quot;</span> <span class="o">+</span> <span class="n">urllib</span><span class="o">.</span><span class="n">urlencode</span><span class="p">(</span><span class="n">args</span><span class="p">))</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">query_str</span> <span class="o">=</span> <span class="n">parse_qs</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s">&quot;access_token&quot;</span> <span class="ow">in</span> <span class="n">query_str</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;access_token&quot;</span><span class="p">:</span> <span class="n">query_str</span><span class="p">[</span><span class="s">&quot;access_token&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]}</span>
+        <span class="k">if</span> <span class="s">&quot;expires&quot;</span> <span class="ow">in</span> <span class="n">query_str</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s">&quot;expires&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">query_str</span><span class="p">[</span><span class="s">&quot;expires&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">result</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">GraphAPIError</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="get_app_access_token"><a class="viewcode-back" href="../../lib.html#lib.fb.get_app_access_token">[docs]</a><span class="k">def</span> <span class="nf">get_app_access_token</span><span class="p">(</span><span class="n">app_id</span><span class="p">,</span> <span class="n">app_secret</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the access_token for the app.</span>
+
+<span class="sd">    This token can be used for insights and creating test users.</span>
+
+<span class="sd">    app_id = retrieved from the developer page</span>
+<span class="sd">    app_secret = retrieved from the developer page</span>
+
+<span class="sd">    Returns the application access_token.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Get an app access token</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;grant_type&#39;</span><span class="p">:</span> <span class="s">&#39;client_credentials&#39;</span><span class="p">,</span>
+            <span class="s">&#39;client_id&#39;</span><span class="p">:</span> <span class="n">app_id</span><span class="p">,</span>
+            <span class="s">&#39;client_secret&#39;</span><span class="p">:</span> <span class="n">app_secret</span><span class="p">}</span>
+
+    <span class="nb">file</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="s">&quot;https://graph.facebook.com/oauth/access_token?&quot;</span> <span class="o">+</span>
+                           <span class="n">urllib</span><span class="o">.</span><span class="n">urlencode</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;=&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="nb">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

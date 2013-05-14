@@ -1,0 +1,511 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>output Package &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="index.html" />
+    <link rel="up" title="api Package" href="lib.apptools.api.html" />
+    <link rel="next" title="extensions Package" href="lib.apptools.api.output.extensions.html" />
+    <link rel="prev" title="api Package" href="lib.apptools.api.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lib.apptools.api.output.extensions.html" title="extensions Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="lib.apptools.api.html" title="api Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="lib.html" >lib Package</a> &raquo;</li>
+          <li><a href="lib.apptools.html" >apptools Package</a> &raquo;</li>
+          <li><a href="lib.apptools.api.html" accesskey="U">api Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="output-package">
+<h1>output Package<a class="headerlink" href="#output-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">output</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-lib.apptools.api.output"></span><p>API: Output</p>
+<p>Responsible for the task of finding and compiling templates to be sent to the browser.
+Two levels of caching are implemented here - in-memory handler caching and memcache.</p>
+<p>According to settings in the config.py, this module will attempt to load compiled
+template code from the handler first, memcache second, and at last resort will compile
+the template and store it in the cache.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>&gt;)</p>
+<dl class="class">
+<dt id="lib.apptools.api.output.CoreOutputAPI">
+<em class="property">class </em><tt class="descclassname">lib.apptools.api.output.</tt><tt class="descname">CoreOutputAPI</tt><a class="reference internal" href="_modules/lib/apptools/api/output.html#CoreOutputAPI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.CoreOutputAPI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.api.CoreAPI</span></tt></p>
+<p>Contains utils, methods and properties related to outputting data with AppTools.</p>
+<dl class="method">
+<dt id="lib.apptools.api.output.CoreOutputAPI.get_jinja">
+<tt class="descname">get_jinja</tt><big>(</big><em>app</em>, <em>factory</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output.html#CoreOutputAPI.get_jinja"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.CoreOutputAPI.get_jinja" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cached access to Jinja2.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.apptools.api.output.CoreOutputAPIException">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.api.output.</tt><tt class="descname">CoreOutputAPIException</tt><a class="reference internal" href="_modules/lib/apptools/api/output.html#CoreOutputAPIException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.CoreOutputAPIException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.exceptions.AppException</span></tt></p>
+<p>Root exception class for all Output API-related exceptions.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.api.output.CoreOutputLoader">
+<em class="property">class </em><tt class="descclassname">lib.apptools.api.output.</tt><tt class="descname">CoreOutputLoader</tt><big>(</big><em>searchpath</em>, <em>encoding='utf-8'</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output.html#CoreOutputLoader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.CoreOutputLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">jinja2.loaders.FileSystemLoader</span></tt></p>
+<p>Loads templates and automatically inserts bytecode caching logic for both fastcache (instance memory) and memcache.</p>
+<dl class="attribute">
+<dt id="lib.apptools.api.output.CoreOutputLoader.devConfig">
+<tt class="descname">devConfig</tt><a class="reference internal" href="_modules/lib/apptools/api/output.html#CoreOutputLoader.devConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.CoreOutputLoader.devConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cached dev configuration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.output.CoreOutputLoader.get_source">
+<tt class="descname">get_source</tt><big>(</big><em>environment</em>, <em>name</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output.html#CoreOutputLoader.get_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.CoreOutputLoader.get_source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides Jinja&#8217;s default FileSystemLoader get_source to provide it via memcache or instance memory, if available.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.api.output.CoreOutputLoader.has_source_access">
+<tt class="descname">has_source_access</tt><em class="property"> = True</em><a class="headerlink" href="#lib.apptools.api.output.CoreOutputLoader.has_source_access" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.api.output.CoreOutputLoader.loaderConfig">
+<tt class="descname">loaderConfig</tt><a class="reference internal" href="_modules/lib/apptools/api/output.html#CoreOutputLoader.loaderConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.CoreOutputLoader.loaderConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cached template loader configuration.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.api.output.CoreOutputLoader.logging">
+<tt class="descname">logging</tt><a class="reference internal" href="_modules/lib/apptools/api/output.html#CoreOutputLoader.logging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.CoreOutputLoader.logging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log pipe.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.api.output.ModuleLoader">
+<em class="property">class </em><tt class="descclassname">lib.apptools.api.output.</tt><tt class="descname">ModuleLoader</tt><big>(</big><em>templatemodule</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output.html#ModuleLoader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.ModuleLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Loads templates that have been compiled into Python modules.</p>
+<dl class="method">
+<dt id="lib.apptools.api.output.ModuleLoader.get_module">
+<tt class="descname">get_module</tt><big>(</big><em>environment</em>, <em>template</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output.html#ModuleLoader.get_module"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.ModuleLoader.get_module" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a template path to a package path and attempts import, or else raises Jinja2&#8217;s TemplateNotFound.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.api.output.ModuleLoader.has_source_access">
+<tt class="descname">has_source_access</tt><em class="property"> = False</em><a class="headerlink" href="#lib.apptools.api.output.ModuleLoader.has_source_access" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.output.ModuleLoader.load">
+<tt class="descname">load</tt><big>(</big><em>environment</em>, <em>filename</em>, <em>globals=None</em>, <em>prepare=True</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output.html#ModuleLoader.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.ModuleLoader.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a pre-compiled template, stored as Python code in a template module.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.api.output.ModuleLoader.loaderConfig">
+<tt class="descname">loaderConfig</tt><a class="reference internal" href="_modules/lib/apptools/api/output.html#ModuleLoader.loaderConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.ModuleLoader.loaderConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cached template loader configuration.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.api.output.ModuleLoader.logging">
+<tt class="descname">logging</tt><a class="reference internal" href="_modules/lib/apptools/api/output.html#ModuleLoader.logging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.ModuleLoader.logging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log pipe.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.output.ModuleLoader.prepare_template">
+<tt class="descname">prepare_template</tt><big>(</big><em>environment</em>, <em>filename</em>, <em>tpl_vars</em>, <em>globals</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output.html#ModuleLoader.prepare_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.ModuleLoader.prepare_template" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare a template to be returned after it has been loaded.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.api.output.OutputMixin">
+<em class="property">class </em><tt class="descclassname">lib.apptools.api.output.</tt><tt class="descname">OutputMixin</tt><a class="reference internal" href="_modules/lib/apptools/api/output.html#OutputMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.OutputMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.api.HandlerMixin</span></tt></p>
+<p>Bridge the Core Output API to methods on a handler.</p>
+<dl class="attribute">
+<dt id="lib.apptools.api.output.OutputMixin.baseContext">
+<tt class="descname">baseContext</tt><a class="reference internal" href="_modules/lib/apptools/api/output.html#OutputMixin.baseContext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.OutputMixin.baseContext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base template context - available to every template at runtime.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.api.output.OutputMixin.baseHeaders">
+<tt class="descname">baseHeaders</tt><a class="reference internal" href="_modules/lib/apptools/api/output.html#OutputMixin.baseHeaders"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.OutputMixin.baseHeaders" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base HTTP response headers - returned with every request.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.output.OutputMixin.injectContext">
+<tt class="descname">injectContext</tt><big>(</big><em>context</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output.html#OutputMixin.injectContext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.OutputMixin.injectContext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run attached context injectors.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.api.output.OutputMixin.jinja2">
+<tt class="descname">jinja2</tt><a class="reference internal" href="_modules/lib/apptools/api/output.html#OutputMixin.jinja2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.OutputMixin.jinja2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cached access to Jinja2.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.output.OutputMixin.jinja2EnvironmentFactory">
+<tt class="descname">jinja2EnvironmentFactory</tt><big>(</big><em>app</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output.html#OutputMixin.jinja2EnvironmentFactory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.OutputMixin.jinja2EnvironmentFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a prepared Jinja2 environment.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.api.output.OutputMixin.json_encoder">
+<tt class="descname">json_encoder</tt><a class="headerlink" href="#lib.apptools.api.output.OutputMixin.json_encoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">AppToolsJSONEncoder</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.output.OutputMixin.minify">
+<tt class="descname">minify</tt><big>(</big><em>rendered_template</em>, <em>content_type='text/html'</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output.html#OutputMixin.minify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.OutputMixin.minify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Minify rendered template output. Override for custom minification function or monkeypatch to &#8216;unicode&#8217; to disable completely.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.output.OutputMixin.render">
+<tt class="descname">render</tt><big>(</big><em>path</em>, <em>context={}</em>, <em>elements={}</em>, <em>content_type='text/html'</em>, <em>headers={}</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output.html#OutputMixin.render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.OutputMixin.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a response containing a rendered Jinja2 template.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.api.output.OutputMixin.template_environment">
+<tt class="descname">template_environment</tt><a class="reference internal" href="_modules/lib/apptools/api/output.html#OutputMixin.template_environment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.OutputMixin.template_environment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new environment, because if we&#8217;re already here it&#8217;s not cached.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.apptools.api.output.get_tdata_from_fastcache">
+<tt class="descclassname">lib.apptools.api.output.</tt><tt class="descname">get_tdata_from_fastcache</tt><big>(</big><em>name</em>, <em>do_log</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output.html#get_tdata_from_fastcache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.get_tdata_from_fastcache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get template data from fastcache (instance memory).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.apptools.api.output.get_tdata_from_memcache">
+<tt class="descclassname">lib.apptools.api.output.</tt><tt class="descname">get_tdata_from_memcache</tt><big>(</big><em>name</em>, <em>do_log</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output.html#get_tdata_from_memcache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.get_tdata_from_memcache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get template data from memcache.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.apptools.api.output.set_tdata_to_fastcache">
+<tt class="descclassname">lib.apptools.api.output.</tt><tt class="descname">set_tdata_to_fastcache</tt><big>(</big><em>name</em>, <em>data</em>, <em>do_log</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output.html#set_tdata_to_fastcache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.set_tdata_to_fastcache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save template data to fastcache (instance memory).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.apptools.api.output.set_tdata_to_memcache">
+<tt class="descclassname">lib.apptools.api.output.</tt><tt class="descname">set_tdata_to_memcache</tt><big>(</big><em>name</em>, <em>data</em>, <em>do_log</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output.html#set_tdata_to_memcache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.set_tdata_to_memcache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set template data to memcache.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.apptools.api.output.content">
+<span id="content-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">content</span></tt> Module<a class="headerlink" href="#module-lib.apptools.api.output.content" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="lib.apptools.api.output.content.ContentBridge">
+<em class="property">class </em><tt class="descclassname">lib.apptools.api.output.content.</tt><tt class="descname">ContentBridge</tt><a class="reference internal" href="_modules/lib/apptools/api/output/content.html#ContentBridge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.content.ContentBridge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Mixin that bridges dynamic content methods into RemoteServices and WebHandlers.</p>
+<dl class="attribute">
+<dt id="lib.apptools.api.output.content.ContentBridge.config">
+<tt class="descname">config</tt><a class="reference internal" href="_modules/lib/apptools/api/output/content.html#ContentBridge.config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.content.ContentBridge.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Named config pipe.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.output.content.ContentBridge.dynamicEnvironmentFactory">
+<tt class="descname">dynamicEnvironmentFactory</tt><big>(</big><em>app</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output/content.html#ContentBridge.dynamicEnvironmentFactory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.content.ContentBridge.dynamicEnvironmentFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare a Jinja2 environment suitable for rendering openfire templates.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.output.content.ContentBridge.fulfill_content">
+<tt class="descname">fulfill_content</tt><big>(</big><em>keyname</em>, <em>namespace</em>, <em>caller</em>, <em>blocktype</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output/content.html#ContentBridge.fulfill_content"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.content.ContentBridge.fulfill_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback from template render to fulfill a dynamic content block.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.output.content.ContentBridge.get_dynamic_namespace">
+<tt class="descname">get_dynamic_namespace</tt><big>(</big><em>namespace</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output/content.html#ContentBridge.get_dynamic_namespace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.content.ContentBridge.get_dynamic_namespace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve or create a ContentNamespace record</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.output.content.ContentBridge.initialize">
+<tt class="descname">initialize</tt><big>(</big><em>handler</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output/content.html#ContentBridge.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.content.ContentBridge.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize dynamic content support for an already-constructed handler.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.api.output.content.ContentBridge.logging">
+<tt class="descname">logging</tt><a class="reference internal" href="_modules/lib/apptools/api/output/content.html#ContentBridge.logging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.content.ContentBridge.logging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Named logging pipe.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.output.content.ContentBridge.preload_namespace">
+<tt class="descname">preload_namespace</tt><big>(</big><em>namespace</em>, <em>snippet=True</em>, <em>summary=False</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output/content.html#ContentBridge.preload_namespace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.content.ContentBridge.preload_namespace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preload a namespace-full of content</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.output.content.ContentBridge.preload_template">
+<tt class="descname">preload_template</tt><big>(</big><em>template</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output/content.html#ContentBridge.preload_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.content.ContentBridge.preload_template" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preload and pre-render (pre-bytecompile) a template before rendering begins.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.output.content.ContentBridge.render">
+<tt class="descname">render</tt><big>(</big><em>path=None</em>, <em>context={}</em>, <em>elements={}</em>, <em>content_type='text/html'</em>, <em>headers={}</em>, <em>dependencies=</em><span class="optional">[</span><span class="optional">]</span>, <em>flush=True</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#lib.apptools.api.output.content.ContentBridge.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>Render shim for advanced dynamic content rendering.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.output.content.ContentBridge.render_dynamic">
+<tt class="descname">render_dynamic</tt><big>(</big><em>path=None</em>, <em>context={}</em>, <em>elements={}</em>, <em>content_type='text/html'</em>, <em>headers={}</em>, <em>dependencies=</em><span class="optional">[</span><span class="optional">]</span>, <em>flush=True</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output/content.html#ContentBridge.render_dynamic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.content.ContentBridge.render_dynamic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Render shim for advanced dynamic content rendering.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.api.output.content.CoreContentAPI">
+<em class="property">class </em><tt class="descclassname">lib.apptools.api.output.content.</tt><tt class="descname">CoreContentAPI</tt><a class="reference internal" href="_modules/lib/apptools/api/output/content.html#CoreContentAPI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.content.CoreContentAPI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.api.CoreAPI</span></tt></p>
+<p>Core API for fulfilling, rendering and managing dynamic content-related requests.</p>
+<dl class="attribute">
+<dt id="lib.apptools.api.output.content.CoreContentAPI.areas">
+<tt class="descname">areas</tt><em class="property"> = {}</em><a class="headerlink" href="#lib.apptools.api.output.content.CoreContentAPI.areas" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.output.content.CoreContentAPI.fulfill">
+<tt class="descname">fulfill</tt><big>(</big><em>keyname</em>, <em>namespace</em>, <em>caller</em>, <em>blocktype</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output/content.html#CoreContentAPI.fulfill"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.content.CoreContentAPI.fulfill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utilize the blocktype-specific method according to the template render routine and dispatch to fulfill.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.api.output.content.CoreContentAPI.futures">
+<tt class="descname">futures</tt><em class="property"> = {}</em><a class="headerlink" href="#lib.apptools.api.output.content.CoreContentAPI.futures" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.api.output.content.CoreContentAPI.heuristics">
+<tt class="descname">heuristics</tt><em class="property"> = {}</em><a class="headerlink" href="#lib.apptools.api.output.content.CoreContentAPI.heuristics" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.api.output.content.CoreContentAPI.keygroups">
+<tt class="descname">keygroups</tt><em class="property"> = {}</em><a class="headerlink" href="#lib.apptools.api.output.content.CoreContentAPI.keygroups" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.api.output.content.CoreContentAPI.namespaces">
+<tt class="descname">namespaces</tt><em class="property"> = {}</em><a class="headerlink" href="#lib.apptools.api.output.content.CoreContentAPI.namespaces" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.output.content.CoreContentAPI.preload_content">
+<tt class="descname">preload_content</tt><big>(</big><em>areas</em>, <em>snippet=True</em>, <em>summary=False</em>, <em>query=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output/content.html#CoreContentAPI.preload_content"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.content.CoreContentAPI.preload_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preload a set of content areas asynchronously</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.output.content.CoreContentAPI.preload_namespace">
+<tt class="descname">preload_namespace</tt><big>(</big><em>namespace</em>, <em>snippet=True</em>, <em>summary=False</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output/content.html#CoreContentAPI.preload_namespace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.content.CoreContentAPI.preload_namespace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preload an entire namespace of content</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.output.content.CoreContentAPI.prerender">
+<tt class="descname">prerender</tt><big>(</big><em>environment</em>, <em>path_or_template</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output/content.html#CoreContentAPI.prerender"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.content.CoreContentAPI.prerender" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prerender the currently selected template.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.output.content.CoreContentAPI.render">
+<tt class="descname">render</tt><big>(</big><em>template</em>, <em>context</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output/content.html#CoreContentAPI.render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.content.CoreContentAPI.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>Render a template, given context</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.api.output.content.CoreContentAPI.seen">
+<tt class="descname">seen</tt><em class="property"> = set([])</em><a class="headerlink" href="#lib.apptools.api.output.content.CoreContentAPI.seen" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.api.output.content.CoreContentAPI.snippets">
+<tt class="descname">snippets</tt><em class="property"> = {}</em><a class="headerlink" href="#lib.apptools.api.output.content.CoreContentAPI.snippets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.api.output.content.CoreContentAPI.summaries">
+<tt class="descname">summaries</tt><em class="property"> = {}</em><a class="headerlink" href="#lib.apptools.api.output.content.CoreContentAPI.summaries" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.api.output.content.CoreContentAPI.templates">
+<tt class="descname">templates</tt><em class="property"> = {}</em><a class="headerlink" href="#lib.apptools.api.output.content.CoreContentAPI.templates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.apptools.api.output.content.tasklet">
+<tt class="descclassname">lib.apptools.api.output.content.</tt><tt class="descname">tasklet</tt><big>(</big><em>func</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/output/content.html#tasklet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.output.content.tasklet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shim for missing tasklets.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.apptools.api.output.content.toplevel">
+<tt class="descclassname">lib.apptools.api.output.content.</tt><tt class="descname">toplevel</tt><big>(</big><em>func</em><big>)</big><a class="headerlink" href="#lib.apptools.api.output.content.toplevel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shim for missing tasklets.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="lib.apptools.api.output.extensions.html">extensions Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.api.output.extensions.html#id1"><tt class="docutils literal"><span class="pre">extensions</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.api.output.extensions.html#module-lib.apptools.api.output.extensions.bytecache"><tt class="docutils literal"><span class="pre">bytecache</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.api.output.extensions.html#module-lib.apptools.api.output.extensions.fragment"><tt class="docutils literal"><span class="pre">fragment</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.api.output.extensions.html#module-lib.apptools.api.output.extensions.memcached"><tt class="docutils literal"><span class="pre">memcached</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">output Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">output</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.api.output.content"><tt class="docutils literal"><span class="pre">content</span></tt> Module</a></li>
+<li><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="lib.apptools.api.html"
+                        title="previous chapter">api Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="lib.apptools.api.output.extensions.html"
+                        title="next chapter">extensions Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/lib.apptools.api.output.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lib.apptools.api.output.extensions.html" title="extensions Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="lib.apptools.api.html" title="api Package"
+             >previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="lib.html" >lib Package</a> &raquo;</li>
+          <li><a href="lib.apptools.html" >apptools Package</a> &raquo;</li>
+          <li><a href="lib.apptools.api.html" >api Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>

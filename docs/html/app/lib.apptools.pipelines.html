@@ -1,0 +1,246 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pipelines Package &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="index.html" />
+    <link rel="up" title="apptools Package" href="lib.apptools.html" />
+    <link rel="next" title="platform Package" href="lib.apptools.platform.html" />
+    <link rel="prev" title="adapter Package" href="lib.apptools.model.adapter.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lib.apptools.platform.html" title="platform Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="lib.apptools.model.adapter.html" title="adapter Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="lib.html" >lib Package</a> &raquo;</li>
+          <li><a href="lib.apptools.html" accesskey="U">apptools Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pipelines-package">
+<h1>pipelines Package<a class="headerlink" href="#pipelines-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">pipelines</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-lib.apptools.pipelines"></span><p>AppTools Pipelines</p>
+<p>Holds BasePipeline to be exported by core, and includes any code or features
+built around AppEngine Pipelines.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>&gt;)</p>
+<dl class="class">
+<dt id="lib.apptools.pipelines.BasePipeline">
+<em class="property">class </em><tt class="descclassname">lib.apptools.pipelines.</tt><tt class="descname">BasePipeline</tt><a class="reference internal" href="_modules/lib/apptools/pipelines.html#BasePipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.pipelines._BaseAbstractPipeline</span></tt></p>
+<dl class="attribute">
+<dt id="lib.apptools.pipelines.BasePipeline.appfactory">
+<tt class="descname">appfactory</tt><em class="property"> = &lt;apptools.util.datastructures.DictProxy object at 0x10903b710&gt;</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.appfactory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.pipelines.BasePipeline.context">
+<tt class="descname">context</tt><em class="property"> = {}</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.context" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.pipelines.BasePipeline.context_injectors">
+<tt class="descname">context_injectors</tt><em class="property"> = [&lt;function inject at 0x1098a0578&gt;, &lt;function inject at 0x1070c9500&gt;]</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.context_injectors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.pipelines.BasePipeline.controllerConfig">
+<tt class="descname">controllerConfig</tt><em class="property"> = {'debug': False, 'enabled': True}</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.controllerConfig" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.pipelines.BasePipeline.ext">
+<tt class="descname">ext</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x10903b090&gt;</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.ext" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.pipelines.BasePipeline.frontlineConfig">
+<tt class="descname">frontlineConfig</tt><em class="property"> = {'debug': False, 'enabled': True}</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.frontlineConfig" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.pipelines.BasePipeline.injected_config">
+<tt class="descname">injected_config</tt><em class="property"> = [('upstreamConfig', {'debug': False, 'spdy': {'push': {'assets': {'force_priority': False, 'default_priority': 7}}}, 'preloading': {'enable_spdy_push': False, 'enable_link_fallback': False, 'gather_assets': False}, 'enabled': True}), ('frontlineConfig', {'debug': False, 'enabled': True}), ('controllerConfig', {'debug': False, 'enabled': True})]</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.injected_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.pipelines.BasePipeline.injected_shortcuts">
+<tt class="descname">injected_shortcuts</tt><em class="property"> = [('appfactory', &lt;apptools.util.datastructures.DictProxy object at 0x10903b710&gt;)]</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.injected_shortcuts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.pipelines.BasePipeline.logging">
+<tt class="descname">logging</tt><a class="reference internal" href="_modules/lib/apptools/pipelines.html#BasePipeline.logging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.logging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Named log pipe.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.pipelines.BasePipeline.platform_index">
+<tt class="descname">platform_index</tt><em class="property"> = set(['apptools.platform.appfactory.AppFactory', 'apptools.platform.generic.GenericWSGI'])</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.platform_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.pipelines.BasePipeline.platforms">
+<tt class="descname">platforms</tt><em class="property"> = [&lt;apptools.platform.generic.GenericWSGI object at 0x10741bb50&gt;, &lt;apptools.platform.appfactory.AppFactory object at 0x10903b4d0&gt;]</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.platforms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.pipelines.BasePipeline.state">
+<tt class="descname">state</tt><em class="property"> = {}</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.pipelines.BasePipeline.upstreamConfig">
+<tt class="descname">upstreamConfig</tt><em class="property"> = {'debug': False, 'spdy': {'push': {'assets': {'force_priority': False, 'default_priority': 7}}}, 'preloading': {'enable_spdy_push': False, 'enable_link_fallback': False, 'gather_assets': False}, 'enabled': True}</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.upstreamConfig" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.pipelines.BasePipeline.util">
+<tt class="descname">util</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x10903b810&gt;</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.util" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.apptools.pipelines.builtin">
+<span id="builtin-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">builtin</span></tt> Module<a class="headerlink" href="#module-lib.apptools.pipelines.builtin" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="lib.apptools.pipelines.builtin.ContentAreaPipeline">
+<em class="property">class </em><tt class="descclassname">lib.apptools.pipelines.builtin.</tt><tt class="descname">ContentAreaPipeline</tt><a class="reference internal" href="_modules/lib/apptools/pipelines/builtin.html#ContentAreaPipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.pipelines.builtin.ContentAreaPipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.pipelines.builtin.ContentPipeline" title="lib.apptools.pipelines.builtin.ContentPipeline"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.pipelines.builtin.ContentPipeline</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.pipelines.builtin.ContentPipeline">
+<em class="property">class </em><tt class="descclassname">lib.apptools.pipelines.builtin.</tt><tt class="descname">ContentPipeline</tt><a class="reference internal" href="_modules/lib/apptools/pipelines/builtin.html#ContentPipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.pipelines.builtin.ContentPipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.pipelines.BasePipeline</span></tt></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.pipelines.builtin.ContentSnippetPipeline">
+<em class="property">class </em><tt class="descclassname">lib.apptools.pipelines.builtin.</tt><tt class="descname">ContentSnippetPipeline</tt><a class="reference internal" href="_modules/lib/apptools/pipelines/builtin.html#ContentSnippetPipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.pipelines.builtin.ContentSnippetPipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.pipelines.builtin.ContentPipeline" title="lib.apptools.pipelines.builtin.ContentPipeline"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.pipelines.builtin.ContentPipeline</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.pipelines.builtin.ContentSummaryPipeline">
+<em class="property">class </em><tt class="descclassname">lib.apptools.pipelines.builtin.</tt><tt class="descname">ContentSummaryPipeline</tt><a class="reference internal" href="_modules/lib/apptools/pipelines/builtin.html#ContentSummaryPipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.pipelines.builtin.ContentSummaryPipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.pipelines.builtin.ContentPipeline" title="lib.apptools.pipelines.builtin.ContentPipeline"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.pipelines.builtin.ContentPipeline</span></tt></a></p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">pipelines Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">pipelines</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.pipelines.builtin"><tt class="docutils literal"><span class="pre">builtin</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="lib.apptools.model.adapter.html"
+                        title="previous chapter">adapter Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="lib.apptools.platform.html"
+                        title="next chapter">platform Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/lib.apptools.pipelines.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lib.apptools.platform.html" title="platform Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="lib.apptools.model.adapter.html" title="adapter Package"
+             >previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="lib.html" >lib Package</a> &raquo;</li>
+          <li><a href="lib.apptools.html" >apptools Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush, Inc.
+    </div>
+  </body>
+</html>
