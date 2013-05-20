@@ -28,7 +28,6 @@
           href="_static/opensearch.xml"/>
     <link rel="top" title="Hermes v2.0 Docs" href="index.html" />
     <link rel="up" title="api Package" href="api.html" />
-    <link rel="next" title="models Package" href="api.models.html" />
     <link rel="prev" title="messages Package" href="api.messages.html" /> 
   </head>
   <body>
@@ -41,9 +40,6 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="api.models.html" title="models Package"
-             accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="api.messages.html" title="messages Package"
              accesskey="P">previous</a> |</li>
@@ -61,12 +57,31 @@
 <h1>middleware Package<a class="headerlink" href="#middleware-package" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="id1">
 <h2><tt class="xref py py-mod docutils literal"><span class="pre">middleware</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
-<span class="target" id="module-api.middleware"></span><p>API: Middleware</p>
+<span class="target" id="module-api.middleware"></span><div class="section" id="api-middleware">
+<h3>API: Middleware<a class="headerlink" href="#api-middleware" title="Permalink to this headline">¶</a></h3>
 <p>This package holds service middleware. Middleware classes export either (or both)
 of the hook methods <cite>before_request</cite> and <cite>after_request</cite>, which will be picked up
 and dispatched by the Service Layer. Register middleware classes in config at
 <cite>config.middleware.</cite></p>
-<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 Ampush.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - all rights are reserved. For details about
+embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 
@@ -82,7 +97,10 @@ and dispatched by the Service Layer. Register middleware classes in config at
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">middleware Package</a><ul>
-<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">middleware</span></tt> Package</a></li>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">middleware</span></tt> Package</a><ul>
+<li><a class="reference internal" href="#api-middleware">API: Middleware</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -90,9 +108,6 @@ and dispatched by the Service Layer. Register middleware classes in config at
   <h4>Previous topic</h4>
   <p class="topless"><a href="api.messages.html"
                         title="previous chapter">messages Package</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="api.models.html"
-                        title="next chapter">models Package</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/api.middleware.txt"
@@ -124,9 +139,6 @@ and dispatched by the Service Layer. Register middleware classes in config at
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="api.models.html" title="models Package"
-             >next</a> |</li>
         <li class="right" >
           <a href="api.messages.html" title="messages Package"
              >previous</a> |</li>

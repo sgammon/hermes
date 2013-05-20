@@ -17,7 +17,7 @@ echo "";
 echo "--- Building application SASS...";
 echo "";
 echo "--- Building application docs...";
-#PYTHONPATH="app:app/lib:app/lib/dist:/appengine:/appengine/lib" sphinx-apidoc -o docs/source/app -l -H "Hermes" -A "Ampush" -V "$VERSION" -R "$RELEASE" -d 3 ./app;
+PYTHONPATH="app:app/lib:app/lib/dist:/appengine:/appengine/lib" sphinx-apidoc -o docs/source/app -l -H "Hermes" -A "Ampush" -V "$VERSION" -R "$RELEASE" -d 3 ./app;
 PYTHONPATH="app:app/lib:app/lib/dist:/appengine:/appengine/lib" sphinx-build -b html docs/source/app docs/html/app;
 echo "";
 echo "--- Building API client libraries...";
