@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 
-'''
-
+"""
 Config: Services
 
 This file holds configuration and registration for service layer
 service classes. It also contains configuration for the service
 layer itself.
 
--sam (<sam.gammon@ampush.com>)
-
-'''
+:author: Sam Gammon (sam.gammon@ampush.com)
+:copyright: (c) 2013 Ampush.
+:license: This is private source code - all rights are reserved. For details about
+          embedded licenses and other legalese, see `LICENSE.md`.
+"""
 
 """
 

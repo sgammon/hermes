@@ -350,11 +350,23 @@ ENABLE_LEGACY ? (function (context) {
 
     /**
      * Collapse local environment and state into a serialized beacon.
-     * @return {EventTracker} Returns the current `EventTracker`.
+     * @param {string} id Fingerprinted browser/user token.
+     * @param {Object} env Environment to pass along to the tracker.
+     * @return {Object} Returns the current `EventTracker`.
      */
-    EventTracker.prototype.collapse = function () {
+    EventTracker.prototype.collapse = function (id, env) {
 
     };
+
+    /**
+     * Send collapsed beacon as an XHR or embedded image.
+     * @param {string} endpoint Configuration object to overlay on top of in-page config, if any.
+     * @param {Object} params Configuration object to overlay on top of in-page config, if any.
+     * @return {XMLHttpRequest} Spec object with props `config` (materialized config), `deferred` (deferred el), `async` (queued beacons).
+     */
+     EventTracker.prototype.beacon = function (endpoint, params) {
+
+     };
 
     return new (context['EventTracker'] = EventTracker)(context, (context._amp ? context._amp : []));
 })(this));

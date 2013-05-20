@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 '''
-
 App Config
 
 This directory holds all of your apps' configuration info. AppTools can stitch together multiple config
@@ -9,8 +8,10 @@ files, as long as they export a `config` dictionary (add config files below in `
 
 AppTools ships with a few other config files in this folder.
 
--sam (<sam.gammon@ampush.com>)
-
+:author: Sam Gammon (sam.gammon@ampush.com)
+:copyright: (c) 2013 Ampush.
+:license: This is private source code - all rights are reserved. For details about
+          embedded licenses and other legalese, see `LICENSE.md`.
 '''
 
 import os
@@ -164,8 +165,8 @@ _config['apptools.system.platform'] = {
 
         {'name': 'Generic WSGI', 'path': 'apptools.platform.generic.GenericWSGI'},
         {'name': 'Layer9 AppFactory', 'path': 'apptools.platform.appfactory.AppFactory'},
-        #{'name': 'AmpushHermes', 'path': 'api.platform.ampush.hermes'},
-        #{'name': 'EventTracker', 'path': 'api.platform.ampush.tracker'},
+        #{'name': 'AmpushHermes', 'path': 'api.platform.ampush.hermes.Hermes'},
+        {'name': 'EventTracker', 'path': 'api.platform.ampush.tracker.Tracker'}
 
     ]
 

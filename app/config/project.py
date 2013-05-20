@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 
-'''
-
+"""
 Config: Project
 
 This file holds main project configuration.
 
--sam (<sam.gammon@ampush.com>)
-
-'''
+:author: Sam Gammon (sam.gammon@ampush.com)
+:copyright: (c) 2013 Ampush.
+:license: This is private source code - all rights are reserved. For details about
+          embedded licenses and other legalese, see `LICENSE.md`.
+"""
 
 """
 
@@ -34,7 +35,7 @@ config['apptools.project'] = {
         'major': 0,
         'minor': 5,
         'micro': 0,
-        'build': 20130511,
+        'build': 20130520,
         'release': 'ALPHA'
     }
 
