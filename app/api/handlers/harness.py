@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 '''
+Handlers for the API test harness, which provides a
+clean sandbox and platform for testing API endpoints
+and service methods.
 
-API Handlers: Harness
-
-Handlers for the API test harness.
-
--sam (<sam.gammon@ampush.com>)
-
+:author: Sam Gammon (sam.gammon@ampush.com)
+:copyright: (c) 2013 Ampush.
+:license: This is private source code - all rights are reserved. For details about
+          embedded licenses and other legalese, see `LICENSE.md`.-sam (<sam.gammon@ampush.com>)
 '''
 
 # stdlib
@@ -25,7 +26,8 @@ class SandboxHandler(WebHandler):
 
     def get(self):
 
-        ''' HTTP GET '''
+        ''' HTTP GET
+            :returns: Rendered template ``harness/sandbox.html``. '''
 
         return self.render('harness/sandbox.html')
 
@@ -37,6 +39,7 @@ class Landing(WebHandler):
 
     def get(self):
 
-        ''' HTTP GET '''
+        ''' HTTP GET
+            :returns: Rendered template ``harness/landing.html``. '''
 
         return self.render('harness/landing.html')

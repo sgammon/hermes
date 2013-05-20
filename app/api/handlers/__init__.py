@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 
 '''
-
-API: Handlers
-
 This module contains the top level WebHandler, which is responsible for
 responding to regular HTTP requests in a traditional HTTP request/response
 cycle. All project handlers should inherit from this.
 
--sam (<sam.gammon@ampush.com>)
-
+:author: Sam Gammon (sam.gammon@ampush.com)
+:copyright: (c) 2013 Ampush.
+:license: This is private source code - all rights are reserved. For details about
+          embedded licenses and other legalese, see `LICENSE.md`.-sam (<sam.gammon@ampush.com>)
 '''
 
 # Base Imports
@@ -24,9 +23,7 @@ import webapp2
 from apptools import core
 
 # AppTools Util Imports
-from apptools.util import json
 from apptools.util import debug
-from apptools.util import datastructures
 
 
 ## WebHanlder - parent class for all site request handler classes
@@ -48,8 +45,8 @@ class WebHandler(core.BaseHandler):
     transport = {
 
         'secure': config.production,  # whether to communicate over HTTPS (switches on production deployment)
-        'consumer': 'hermes' if (config.production == True) else 'hermes-sandbox',  # API consumer name (logging/simple access control)
-        'endpoint': 'api.amp.sh' if (config.production == True) else '127.0.0.1:8080',  # API endpoint (passed to client)
+        'consumer': 'hermes' if (config.production is True) else 'hermes-sandbox',  # API consumer name
+        'endpoint': 'api.amp.sh' if (config.production is True) else '127.0.0.1:8080',  # API endpoint
 
         'realtime': {  # realtime / websocket settings
             'enabled': False,  # enable/disable realtime
@@ -65,7 +62,8 @@ class WebHandler(core.BaseHandler):
     @webapp2.cached_property
     def debug(self):
 
-        ''' Shortcut to AppTools debugging utilities. '''
+        ''' Shortcut to AppTools debugging utilities.
+            :returns: Boolean value indicating whether debug mode is active. '''
 
         return debug
 
@@ -73,7 +71,10 @@ class WebHandler(core.BaseHandler):
     @webapp2.cached_property
     def logging(self):
 
-        ''' Named logging pipe / shortcut. '''
+        ''' Named logging pipe / shortcut.
+
+            :returns: Customized log pipe, with ``path``, ``name`` and
+                      ``condition`` set according to config. '''
 
         return debug.AppToolsLogger(path='api.handlers', name='WebHandler')._setcondition(config.debug)
 
@@ -81,35 +82,51 @@ class WebHandler(core.BaseHandler):
     @webapp2.cached_property
     def config(self):
 
-        ''' Cached access to main config for this handler. '''
+        ''' Cached access to main config for this handler.
+
+            :returns: Configuration ``dict`` for current
+                      ``WebHandler`` descendent. '''
 
         return self._webHandlerConfig
 
     @webapp2.cached_property
     def _webHandlerConfig(self):
 
-        ''' Cached access to this handler's config. '''
+        ''' Cached access to this handler's config.
+
+            :returns: Configuration ``dict`` for base ``WebHandler``. '''
 
         return config.config.get(self._handler_config_path)
 
     @webapp2.cached_property
     def _jinjaConfig(self):
 
-        ''' Cached access to Jinja2 base config. '''
+        ''' Cached access to Jinja2 base config.
+
+            :returns: Configuration ``dict`` for :py:mod:`jinja2`
+                      integration. '''
 
         return config.config.get(self._jinja2_config_path)
 
     @webapp2.cached_property
     def _integrationConfig(self):
 
-        ''' Cached access to this handler's integration config. '''
+        ''' Cached access to this handler's integration config.
+
+            :returns: Configuration ``dict`` for integration
+                      components that are encapsulated by
+                      ``WebHandler``. '''
 
         return self._webHandlerConfig.get('integrations')
 
     @webapp2.cached_property
     def _outputConfig(self):
 
-        ''' Cached access to base output config. '''
+        ''' Cached access to base output config.
+
+            :returns: Configuration ``dict`` for the :py:mod:`apptools`
+                      *Core Output API*, which provides integration with
+                      :py:mod:`jinja2`, among other things. '''
 
         return config.config.get(self._p_output_config_path)
 
@@ -117,14 +134,25 @@ class WebHandler(core.BaseHandler):
     @webapp2.cached_property
     def hostname(self):
 
-        ''' Return proxied or request hostname. '''
+        ''' Return proxied or request hostname. In cases where :py:mod:`apptools`
+            is running on specialized infrastructure, :py:mod:`appfactory` provides
+            the ability to override the current hostname via the ``XAF-Hostname``
+            header.
+
+            :returns: Active hostname (``str``). Either parses from the
+                      current :py:class:`webapp2.Request` (which uses
+                      uses the ``Host:`` header), or returns an overridden
+                      hostname from :py:mod:`appfactory`. '''
 
         return self.request.host if not self.force_hostname else self.force_hostname
 
     @webapp2.cached_property
     def baseTransport(self):
 
-        ''' Return a clean set of transport base settings. '''
+        ''' Return a clean set of transport base settings.
+
+            :returns: Base configuration ``dict`` for page transports, like
+                      JSONRPC and WebSockets. '''
 
         return {
             'secure': False,
@@ -140,7 +168,10 @@ class WebHandler(core.BaseHandler):
     @webapp2.cached_property
     def computedTransport(self):
 
-        ''' Overlay this handler's transport settings on the app's base settings and return. '''
+        ''' Overlay this handler's transport settings on the app's base settings and return.
+
+            :returns: Computed + collapsed configuration ``dict`` for page
+                      transports, like JSONRPC and WebSockets. '''
 
         b = dict([(k, v) for k, v in self.baseTransport.items()])
         b.update(self.transport)
@@ -149,14 +180,18 @@ class WebHandler(core.BaseHandler):
     @webapp2.cached_property
     def template_environment(self):
 
-        ''' Return a new environment, because if we're already here it's not cached. '''
+        ''' Return a new environment, because if we're already here it's not cached.
+
+            :returns: New or existing :py:class:`jinja2.environment.Environment`. '''
 
         return self.jinja2
 
     @webapp2.cached_property
     def jinja2(self):
 
-        ''' Cached access to Jinja2. '''
+        ''' Cached access to Jinja2.
+
+            :returns: New or existing :py:class:`jinja2.environment.Environment`. '''
 
         ## Patch in dynamic content support
         if hasattr(self, 'dynamicEnvironmentFactory'):
@@ -166,14 +201,18 @@ class WebHandler(core.BaseHandler):
 
     def _preload_data(self):
 
-        ''' Preloaded data support. '''
+        ''' Preloaded data support.
+
+            :returns: Current ``WebHandler`` (``self``) for method chainability. '''
 
         self.logging.info('Data preloading currently disabled.')
         return self
 
     def _preload_template(self):
 
-        ''' Preloaded template support. '''
+        ''' Preloaded template support.
+
+            :returns: Current ``WebHandler`` (``self``) for method chainability. '''
 
         if hasattr(self, 'template') and getattr(self, 'template') not in frozenset(['', None, False]):
             self.preload_template(self.template)
@@ -181,7 +220,13 @@ class WebHandler(core.BaseHandler):
 
     def _make_services_object(self, services):
 
-        ''' Make a dict suitable for JSON representing an API service. '''
+        ''' Make a dict suitable for JSON representing an API service.
+
+            :param services: Dictionary service configuration to generate
+                             service description object from.
+
+            :returns: Materialized configuration array, suitable for
+                      serilization and inlining into the page. '''
 
         return [[
             service,
@@ -191,7 +236,12 @@ class WebHandler(core.BaseHandler):
 
     def _bindRuntimeTemplateContext(self, context):
 
-        ''' Bind a bunch of utils-n-stuff at runtime. '''
+        ''' Bind a bunch of utils-n-stuff at runtime.
+
+            :param context: Current :py:mod:`jinja2` template context ``dict``.
+
+            :returns: Updated context ``dict``. This method **must** return the
+                      appropriately-mutated context, or it will be dropped. '''
 
         context.update({
 
@@ -215,14 +265,24 @@ class WebHandler(core.BaseHandler):
     ## ++ External Methods ++ ##
     def initialize(self, request, response):
 
-        ''' Initialize this handler. '''
+        ''' Initialize this handler.
+
+            :param request: Current or empty :py:class:`webapp2.Request`.
+            :param response: Current or empty :py:class:`webapp2.Response`.
+
+            :returns: Currently-active ``WebHandler`` descendent, for method
+                      chainability. '''
 
         super(core.BaseHandler, self).initialize(request, response)
         return self
 
     def dispatch(self):
 
-        ''' Dispatch a response for a given request using this handler. '''
+        ''' Dispatch a response for a given request using this handler.
+
+            :returns: Attribute :py:attr:`WebHandler.response`, which is
+                      the resulting response from a dispatched HTTP-based
+                      method, such as ``WebHandler.GET``. '''
 
         try:
             _super = super(WebHandler, self)
@@ -249,7 +309,11 @@ class WebHandler(core.BaseHandler):
     ## Render APIs
     def render(self, *args, **kwargs):
 
-        ''' If supported, pass off to dynamic render, which rolls-in support for editable content blocks. '''
+        ''' If supported, pass off to dynamic render, which rolls-in support for editable content blocks.
+
+            :param args: Positional arguments to :py:meth:`jinja2.render_template`.
+            :param kwargs: Keyword arguments to overlay onto the active template context.
+            :returns: Rendered content, via :py:mod:`jinja2`. '''
 
         if hasattr(self, 'content'):
             return self.content.render(*args, **kwargs)
@@ -259,7 +323,9 @@ class WebHandler(core.BaseHandler):
     ## HTTP Methods
     def head(self):
 
-        ''' Run GET, if defined, and return the headers only. '''
+        ''' Run GET, if defined, and return the headers only (method for ``HTTP HEAD``).
+
+            :returns: Stringified response from ``GET`` call, with response body removed. '''
 
         response = None
         if hasattr(self, 'get'):
@@ -271,12 +337,16 @@ class WebHandler(core.BaseHandler):
 
     def options(self):
 
-        ''' Run GET, clear response, return headers only. '''
+        ''' Run GET, clear response, return headers only (method for ``HTTP OPTIONS``).
+
+            :returns: Stringified list of supported HTTP methods, including headers like ``HEAD``,
+                      with ``GET`` response body removed. '''
 
         for k, v in self.baseHeaders.items():
             if k.lower() == 'access-control-allow-origin':
-                if v == None:
+                if v is None:
                     self.response.headers[k] = self.request.headers['origin']
             else:
                 self.response.headers[k] = v
-        return self.response.write(','.join([i for i in frozenset(['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS']) if hasattr(self, i.lower())]))
+        return self.response.write(','.join([i for i in frozenset(['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
+                                             if hasattr(self, i.lower())]))
