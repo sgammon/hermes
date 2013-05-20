@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 
 '''
-
 Components: Datastore
 
 This component holds a `DatastoreEngine` actor that wakes
 up and writes `TrackedEvent`(s) to Redis. This engine
 supports command pipelining and configurable autobatching.
 
--sam (<sam.gammon@ampush.com>)
-
+:author: Sam Gammon (sam.gammon@ampush.com)
+:copyright: (c) 2013 Ampush.
+:license: This is private source code - all rights are reserved. For details about
+          embedded licenses and other legalese, see `LICENSE.md`.
 '''
 
 # stdlib
@@ -40,7 +41,8 @@ class DatastoreEngine(actor.Actor):
 
     def __init__(self, tracker):
 
-        ''' Initialize this DatastoreEngine. '''
+        ''' Initialize this DatastoreEngine.
+            :param tracker: The current :py:class:`EventTracker` server. '''
 
         self.tracker = tracker
         self.log("Datastore: Initialized datastore engine.")
@@ -50,14 +52,16 @@ class DatastoreEngine(actor.Actor):
         @property
         def log(self):
 
-            ''' Log to the current tracker. '''
+            ''' Log to the current tracker.
+                :returns: Active logger on :py:class:`EventTracker`. '''
 
             return self.tracker.log
 
         @property
         def verbose(self):
 
-            ''' Log verbosely to the current tracker. '''
+            ''' Log verbosely to the current tracker.
+                :returns: Active verbose logger on :py:class:`EventTracker`. '''
 
             return self.tracker.verbose
 
@@ -66,7 +70,11 @@ class DatastoreEngine(actor.Actor):
         @property
         def log(self):
 
-            ''' Log blackhole. '''
+            ''' Log blackhole.
+
+                :param args: Arguments to be discarded.
+                :param kwargs: Keyword arguments to be discarded.
+                :returns: Self, for chainability. '''
 
             def blackhole(*args, **kwargs):
                 return self
@@ -74,7 +82,11 @@ class DatastoreEngine(actor.Actor):
         @property
         def verbose(self):
 
-            ''' Soak up any verbose logs to the current tracker. '''
+            ''' Soak up any verbose logs to the current tracker.
+
+                :param args: Arguments to be discarded.
+                :param kwargs: Keyword arguments to be discarded.
+                :returns: Self, for chainability. '''
 
             def blackhole(*args, **kwargs):
                 return self
@@ -82,20 +94,25 @@ class DatastoreEngine(actor.Actor):
     @property
     def warn(self):
 
-        ''' Warn to the current tracker. '''
+        ''' Warn to the current tracker.
+            :returns: Self, for chainaibility. '''
 
         return self.tracker.warn
 
     @property
     def error(self):
 
-        ''' Err to the current tracker. '''
+        ''' Err to the current tracker.
+            :returns: Error logger on :py:class:`EventTracker`. '''
 
         return self.tracker.error
 
     def _write_item(self, item):
 
-        ''' Write a single item. '''
+        ''' Write a single item to Redis.
+
+            :param item: The write bundle to commit to Redis.
+            :returns: The result of the write call. '''
 
         '''
         if verbose:
@@ -116,7 +133,10 @@ class DatastoreEngine(actor.Actor):
 
     def _write_batch(self, batch):
 
-        ''' Write a batch of items. '''
+        ''' Write a batch of items.
+
+            :param batch: The batch of write bundles to commit to Redis.
+            :returns: The result of the committed pipeline. '''
 
         pipeline = client.pipeline(transaction=self.EngineConfig.transactional)
         self.log("Datastore: Opened new pipeline with ID %s (transactions are %s)." % (id(pipeline), "ON" if self.EngineConfig.transactional else "OFF"))
@@ -146,7 +166,10 @@ class DatastoreEngine(actor.Actor):
 
     def execute(self, operations):
 
-        ''' Perform a write operation against Redis. '''
+        ''' Perform a write operation against Redis.
+
+            :param operations: Bundle of pre-processed write operations.
+            :returns: Self, for chainability. '''
 
         ## If pipelined, spawn new pipeline greenlet
         if self.EngineConfig.pipeline:
@@ -167,7 +190,10 @@ class DatastoreEngine(actor.Actor):
 
     def serialize(self, deque):
 
-        ''' Serialize a single operation into an appropriate Redis call. '''
+        ''' Serialize a single operation into an appropriate Redis call.
+
+            :param deque: :py:class:`TrackedEvent` records due for serialization.
+            :returns: Serialized queue of writes for the items in ``deque``. '''
 
         _write_queue = []
         for event in deque:
@@ -180,7 +206,11 @@ class DatastoreEngine(actor.Actor):
 
     def fire(self, operation, autobatch=True):
 
-        ''' Execution entrypoint for a queued item. '''
+        ''' Execution entrypoint for a queued item.
+
+            :param operation: Operation object, describing what the engine should do.
+            :param autobatch: Boolean, defaults to ``True``. Activates the autobatcher.
+            :returns: Nothing, as we are working across :py:class:`gevent.Greenlet` bounds here. '''
 
         self.log("Datastore: Firing on buffered frame %s." % id(operation))
         #return self.execute(self.serialize(operation))

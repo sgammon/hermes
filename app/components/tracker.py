@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 '''
-
 Components: Tracker
 
 This file contains the main `EventTracker` server, with accompanying
@@ -9,8 +8,10 @@ low-level WSGI logic to dispatch and double-buffer tracked events
 to the `DatastoreEngine` component, for pipelined persistence to
 Redis.
 
--sam (<sam.gammon@ampush.com>)
-
+:author: Sam Gammon (sam.gammon@ampush.com)
+:copyright: (c) 2013 Ampush.
+:license: This is private source code - all rights are reserved. For details about
+          embedded licenses and other legalese, see `LICENSE.md`.
 '''
 
 # stdlib
@@ -237,7 +238,6 @@ class EventTracker(object):
         try:
             # Factory new `TrackedEvent`.
             event = self.event_class.new(self, request, response)
-            self.engine.inbox.put_nowait(event)  # send to datastore adapter immediately
 
             # Begin building headers.
             response.headers['%s-Match' % self.header_prefix] = event.match
@@ -297,5 +297,6 @@ class EventTracker(object):
         # We're done processing. Flush buffer and respond.
         self.log("Tracked event with ID \"%s\"." % event.id, force=True)
 
+        self.engine.inbox.put_nowait(event)  # send to datastore adapter immediately
         gevent.sleep(0)
         raise StopIteration()

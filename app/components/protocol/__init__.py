@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 '''
-
 Components: Protocol
 
 Description coming soon.
 
--sam (<sam.gammon@ampush.com>)
-
+:author: Sam Gammon (sam.gammon@ampush.com)
+:copyright: (c) 2013 Ampush.
+:license: This is private source code - all rights are reserved. For details about
+          embedded licenses and other legalese, see `LICENSE.md`.
 '''
 
 __doc__ = "Protocol definition suite for Ampush Tracker API."
@@ -48,20 +49,20 @@ from .tracker import BuiltinParameters
 __extensions__ = [http, event, param, tracker]
 
 __bindings__ = [
-	Definition,
-	ProtocolDefinition,
-	RequestMethod,
-	ResponseStage,
-	EventType,
-	EventProvider,
-	EventProperty,
-	EventTypePriority,
-	ParameterPolicy,
-	ParameterBasetype,
-	TrackerMode,
-	TrackerPrefix,
-	TrackerProtocol,
-	BuiltinParameters
+    Definition,
+    ProtocolDefinition,
+    RequestMethod,
+    ResponseStage,
+    EventType,
+    EventProvider,
+    EventProperty,
+    EventTypePriority,
+    ParameterPolicy,
+    ParameterBasetype,
+    TrackerMode,
+    TrackerPrefix,
+    TrackerProtocol,
+    BuiltinParameters
 ]
 
 __all__ = __extensions__ + __bindings__

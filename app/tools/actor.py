@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 
-'''
-
+"""
 Tools: Actor Model
 
 Allows a class to act as an `Actor`, which wakes up and processes
 a singular type of task once new tasks are added via the internal
 Gevent queue at `Actor.inbox`.
 
--sam (<sam.gammon@ampush.com>)
-
-'''
+:author: Sam Gammon (sam.gammon@ampush.com)
+:copyright: (c) 2013 Ampush.
+:license: This is private source code - all rights are reserved. For details about
+          embedded licenses and other legalese, see `LICENSE.md`.
+"""
 
 # gevent
 import gevent
