@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     'alpha',
+        VERSION:     '0.5-alpha-dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -69,12 +69,10 @@
 <span class="c"># hermes codebase</span>
 <span class="kn">import</span> <span class="nn">protocol</span>
 <span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">debug</span>
-<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">verbose</span>
 <span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">_PARAM_SEPARATOR</span>
 <span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">_DISCARD_NOSENTINEL</span>
 
 <span class="c"># hermes util</span>
-<span class="kn">import</span> <span class="nn">util</span>
 <span class="kn">from</span> <span class="nn">util</span> <span class="kn">import</span> <span class="n">exceptions</span>
 
 
@@ -139,7 +137,7 @@
 
         <span class="sd">&#39;&#39;&#39; Indicate whether we&#39;re in debug mode (globally or per-request). &#39;&#39;&#39;</span>
 
-        <span class="k">return</span> <span class="p">(</span><span class="n">debug</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="n">protocol</span><span class="o">.</span><span class="n">BuiltinParameters</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span> <span class="ow">in</span> <span class="n">params</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">debug</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="n">protocol</span><span class="o">.</span><span class="n">BuiltinParameters</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">params</span><span class="p">))</span>
 </div>
 <div class="viewcode-block" id="TrackedEvent.param"><a class="viewcode-back" href="../../components.html#components.event.TrackedEvent.param">[docs]</a>    <span class="k">def</span> <span class="nf">param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
 
@@ -157,14 +155,18 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">param</span> <span class="o">=</span> <span class="n">_PARAM_SEPARATOR</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">protocol</span><span class="o">.</span><span class="n">TrackerPrefix</span><span class="o">.</span><span class="n">CUSTOM</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">tracker</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s">&quot;Transformed param &#39;</span><span class="si">%s</span><span class="s">&#39; to &#39;</span><span class="si">%s</span><span class="s">&#39;.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">param</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">param</span>
 </div>
 <div class="viewcode-block" id="TrackedEvent.generate_id"><a class="viewcode-back" href="../../components.html#components.event.TrackedEvent.generate_id">[docs]</a>    <span class="k">def</span> <span class="nf">generate_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base</span><span class="p">):</span>
 
         <span class="sd">&#39;&#39;&#39; Generate a proper unique ID for this event. &#39;&#39;&#39;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;XAF-Hash&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;XAF-Request-ID&#39;</span><span class="p">,</span> <span class="s">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">base</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()))])))</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;XAF-Hash&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">id</span><span class="p">:</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;XAF-Request-ID&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">id</span><span class="p">:</span>
+                <span class="nb">id</span> <span class="o">=</span> <span class="s">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">base</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()))])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">id</span>
         <span class="k">return</span> <span class="bp">self</span>
 </div>
 <div class="viewcode-block" id="TrackedEvent.decode"><a class="viewcode-back" href="../../components.html#components.event.TrackedEvent.decode">[docs]</a>    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">injected</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -213,7 +215,19 @@
 
         <span class="sd">&#39;&#39;&#39; Read Redis to see if we know this to be a match. &#39;&#39;&#39;</span>
 
-        <span class="k">return</span> <span class="s">&#39;NONE&#39;</span></div></div>
+        <span class="k">return</span> <span class="s">&#39;NONE&#39;</span>
+</div>
+<div class="viewcode-block" id="TrackedEvent.respond"><a class="viewcode-back" href="../../components.html#components.event.TrackedEvent.respond">[docs]</a>    <span class="k">def</span> <span class="nf">respond</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Respond to the client that generated this event. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">response</span>
+</div>
+<div class="viewcode-block" id="TrackedEvent.guess_response"><a class="viewcode-back" href="../../components.html#components.event.TrackedEvent.guess_response">[docs]</a>    <span class="k">def</span> <span class="nf">guess_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Quickly try and guess a response type that can immediately be sent. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">None</span></div></div>
 </pre></div>
 
           </div>
@@ -255,7 +269,7 @@
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Ampush, Inc.
+        &copy; Copyright 2013, Ampush.
     </div>
   </body>
 </html>

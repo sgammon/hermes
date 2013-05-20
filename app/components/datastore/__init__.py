@@ -183,4 +183,4 @@ class DatastoreEngine(actor.Actor):
         ''' Execution entrypoint for a queued item. '''
 
         self.log("Datastore: Firing on buffered frame %s." % id(operation))
-        return self.execute(self.serialize(operation))
+        #return self.execute(self.serialize(operation))

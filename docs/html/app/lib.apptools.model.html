@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     'alpha',
+        VERSION:     '0.5-alpha-dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -62,28 +62,28 @@
 <h1>model Package<a class="headerlink" href="#model-package" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="id1">
 <h2><tt class="xref py py-mod docutils literal"><span class="pre">model</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
-<span class="target" id="module-lib.apptools.model"></span><div class="section" id="apptools2-model-api">
-<h3>apptools2: model API<a class="headerlink" href="#apptools2-model-api" title="Permalink to this headline">¶</a></h3>
-<div class="line-block">
-<div class="line-block">
-<div class="line"><a href="#id2"><span class="problematic" id="id3">|</span></a></div>
+<span class="target" id="module-lib.apptools.model"></span><p>Welcome to the <tt class="xref py py-mod docutils literal"><span class="pre">apptools</span></tt> Model API! Using this package, you can model data,
+interact with datastore layers through Model Adapters (see: <tt class="xref py py-mod docutils literal"><span class="pre">adapters</span></tt>),
+and generate messages for use with Service classes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 Ampush.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - all rights are reserved. For details about
+embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div class="line"><cite>apptools.model</cite>                            |</div>
-<div class="line-block">
-<div class="line"><a href="#id4"><span class="problematic" id="id5">|</span></a></div>
-</div>
-<div class="line">a general-purpose, minimalist toolkit for   |</div>
-<div class="line">extensible pythonic data modelling.         |</div>
-<div class="line-block">
-<div class="line"><a href="#id6"><span class="problematic" id="id7">|</span></a></div>
-</div>
-</div>
-<div class="line-block">
-<div class="line">&#8211; may 7, 2013: refactor-&gt;v2, cleanup   |</div>
-</div>
-</div>
-</div>
-<hr class="docutils" />
 <div class="section" id="module-lib.apptools.model.builtin">
 <span id="builtin-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">builtin</span></tt> Module<a class="headerlink" href="#module-lib.apptools.model.builtin" title="Permalink to this headline">¶</a></h2>
 <p>Models: Builtin</p>
@@ -282,6 +282,209 @@
 </dd></dl>
 
 </div>
+<div class="section" id="module-lib.apptools.model.exceptions">
+<span id="exceptions-module"></span><h2><a class="reference external" href="http://docs.python.org/2.7/library/exceptions.html#exceptions" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">exceptions</span></tt></a> Module<a class="headerlink" href="#module-lib.apptools.model.exceptions" title="Permalink to this headline">¶</a></h2>
+<dl class="exception">
+<dt id="lib.apptools.model.exceptions.AbstractConstructionFailure">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.model.exceptions.</tt><tt class="descname">AbstractConstructionFailure</tt><a class="reference internal" href="_modules/lib/apptools/model/exceptions.html#AbstractConstructionFailure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.exceptions.AbstractConstructionFailure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.NotImplementedError</span></tt></p>
+<dl class="attribute">
+<dt id="lib.apptools.model.exceptions.AbstractConstructionFailure.message">
+<tt class="descname">message</tt><em class="property"> = 'Cannot directly instantiate abstract class `%s`.'</em><a class="headerlink" href="#lib.apptools.model.exceptions.AbstractConstructionFailure.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.apptools.model.exceptions.AdapterException">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.model.exceptions.</tt><tt class="descname">AdapterException</tt><a class="reference internal" href="_modules/lib/apptools/model/exceptions.html#AdapterException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.exceptions.AdapterException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.RuntimeError</span></tt></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.apptools.model.exceptions.InvalidAttribute">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.model.exceptions.</tt><tt class="descname">InvalidAttribute</tt><a class="reference internal" href="_modules/lib/apptools/model/exceptions.html#InvalidAttribute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.exceptions.InvalidAttribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.AttributeError</span></tt></p>
+<dl class="attribute">
+<dt id="lib.apptools.model.exceptions.InvalidAttribute.message">
+<tt class="descname">message</tt><em class="property"> = 'Cannot %s nonexistent data property &quot;%s&quot; of model class &quot;%s&quot;.'</em><a class="headerlink" href="#lib.apptools.model.exceptions.InvalidAttribute.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.apptools.model.exceptions.InvalidAttributeWrite">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.model.exceptions.</tt><tt class="descname">InvalidAttributeWrite</tt><a class="reference internal" href="_modules/lib/apptools/model/exceptions.html#InvalidAttributeWrite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.exceptions.InvalidAttributeWrite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.AttributeError</span></tt></p>
+<dl class="attribute">
+<dt id="lib.apptools.model.exceptions.InvalidAttributeWrite.message">
+<tt class="descname">message</tt><em class="property"> = 'Cannot %s property &quot;%s&quot; of model &quot;%s&quot; before instantiation.'</em><a class="headerlink" href="#lib.apptools.model.exceptions.InvalidAttributeWrite.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.apptools.model.exceptions.InvalidExplicitAdapter">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.model.exceptions.</tt><tt class="descname">InvalidExplicitAdapter</tt><a class="reference internal" href="_modules/lib/apptools/model/exceptions.html#InvalidExplicitAdapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.exceptions.InvalidExplicitAdapter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.exceptions.AdapterException" title="lib.apptools.model.exceptions.AdapterException"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.exceptions.AdapterException</span></tt></a></p>
+<dl class="attribute">
+<dt id="lib.apptools.model.exceptions.InvalidExplicitAdapter.message">
+<tt class="descname">message</tt><em class="property"> = 'Requested model adapter &quot;%s&quot; could not be found or is not supported in this environment.'</em><a class="headerlink" href="#lib.apptools.model.exceptions.InvalidExplicitAdapter.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.apptools.model.exceptions.InvalidItem">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.model.exceptions.</tt><tt class="descname">InvalidItem</tt><a class="reference internal" href="_modules/lib/apptools/model/exceptions.html#InvalidItem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.exceptions.InvalidItem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.KeyError</span></tt></p>
+<dl class="attribute">
+<dt id="lib.apptools.model.exceptions.InvalidItem.message">
+<tt class="descname">message</tt><em class="property"> = 'Cannot %s nonexistent data item &quot;%s&quot; of model class &quot;%s&quot;.'</em><a class="headerlink" href="#lib.apptools.model.exceptions.InvalidItem.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.apptools.model.exceptions.InvalidKey">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.model.exceptions.</tt><tt class="descname">InvalidKey</tt><a class="reference internal" href="_modules/lib/apptools/model/exceptions.html#InvalidKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.exceptions.InvalidKey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.TypeError</span></tt></p>
+<dl class="attribute">
+<dt id="lib.apptools.model.exceptions.InvalidKey.message">
+<tt class="descname">message</tt><em class="property"> = 'Cannot set model key to invalid type &quot;%s&quot; (for value &quot;%s&quot;). Expected `basestring`, `tuple` or `%s`.'</em><a class="headerlink" href="#lib.apptools.model.exceptions.InvalidKey.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.apptools.model.exceptions.InvalidPropertyValue">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.model.exceptions.</tt><tt class="descname">InvalidPropertyValue</tt><a class="reference internal" href="_modules/lib/apptools/model/exceptions.html#InvalidPropertyValue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.exceptions.InvalidPropertyValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.exceptions.PropertyBasetypeViolation" title="lib.apptools.model.exceptions.PropertyBasetypeViolation"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.exceptions.PropertyBasetypeViolation</span></tt></a></p>
+<dl class="attribute">
+<dt id="lib.apptools.model.exceptions.InvalidPropertyValue.message">
+<tt class="descname">message</tt><em class="property"> = 'Property &quot;%s&quot; of Model class &quot;%s&quot; cannot accept value of type &quot;%s&quot; (was expecting type &quot;%s&quot;).'</em><a class="headerlink" href="#lib.apptools.model.exceptions.InvalidPropertyValue.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.apptools.model.exceptions.KeySchemaMismatch">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.model.exceptions.</tt><tt class="descname">KeySchemaMismatch</tt><a class="reference internal" href="_modules/lib/apptools/model/exceptions.html#KeySchemaMismatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.exceptions.KeySchemaMismatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.exceptions.InvalidKey" title="lib.apptools.model.exceptions.InvalidKey"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.exceptions.InvalidKey</span></tt></a></p>
+<dl class="attribute">
+<dt id="lib.apptools.model.exceptions.KeySchemaMismatch.message">
+<tt class="descname">message</tt><em class="property"> = 'Key type &quot;%s&quot; takes a maximum of %s positional arguments to populate the format &quot;%s&quot;.'</em><a class="headerlink" href="#lib.apptools.model.exceptions.KeySchemaMismatch.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.apptools.model.exceptions.MultipleKeyFormats">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.model.exceptions.</tt><tt class="descname">MultipleKeyFormats</tt><a class="reference internal" href="_modules/lib/apptools/model/exceptions.html#MultipleKeyFormats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.exceptions.MultipleKeyFormats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.TypeError</span></tt></p>
+<dl class="attribute">
+<dt id="lib.apptools.model.exceptions.MultipleKeyFormats.message">
+<tt class="descname">message</tt><em class="property"> = 'Cannot provide multiple formats to `_set_key` (got: &quot;%s&quot;).'</em><a class="headerlink" href="#lib.apptools.model.exceptions.MultipleKeyFormats.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.apptools.model.exceptions.MultipleKeyValues">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.model.exceptions.</tt><tt class="descname">MultipleKeyValues</tt><a class="reference internal" href="_modules/lib/apptools/model/exceptions.html#MultipleKeyValues"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.exceptions.MultipleKeyValues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.TypeError</span></tt></p>
+<dl class="attribute">
+<dt id="lib.apptools.model.exceptions.MultipleKeyValues.message">
+<tt class="descname">message</tt><em class="property"> = 'Cannot merge multiple key values/formats in `%s._set_key`. (got: value(%s), formats(%s)).'</em><a class="headerlink" href="#lib.apptools.model.exceptions.MultipleKeyValues.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.apptools.model.exceptions.NoSupportedAdapters">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.model.exceptions.</tt><tt class="descname">NoSupportedAdapters</tt><a class="reference internal" href="_modules/lib/apptools/model/exceptions.html#NoSupportedAdapters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.exceptions.NoSupportedAdapters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.exceptions.AdapterException" title="lib.apptools.model.exceptions.AdapterException"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.exceptions.AdapterException</span></tt></a></p>
+<dl class="attribute">
+<dt id="lib.apptools.model.exceptions.NoSupportedAdapters.message">
+<tt class="descname">message</tt><em class="property"> = 'No valid model adapters found.'</em><a class="headerlink" href="#lib.apptools.model.exceptions.NoSupportedAdapters.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.apptools.model.exceptions.PersistedKey">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.model.exceptions.</tt><tt class="descname">PersistedKey</tt><a class="reference internal" href="_modules/lib/apptools/model/exceptions.html#PersistedKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.exceptions.PersistedKey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.AttributeError</span></tt></p>
+<dl class="attribute">
+<dt id="lib.apptools.model.exceptions.PersistedKey.message">
+<tt class="descname">message</tt><em class="property"> = 'Cannot set property &quot;%s&quot; of an already-persisted key.'</em><a class="headerlink" href="#lib.apptools.model.exceptions.PersistedKey.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.apptools.model.exceptions.PropertyBasetypeViolation">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.model.exceptions.</tt><tt class="descname">PropertyBasetypeViolation</tt><a class="reference internal" href="_modules/lib/apptools/model/exceptions.html#PropertyBasetypeViolation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.exceptions.PropertyBasetypeViolation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.exceptions.ValidationError" title="lib.apptools.model.exceptions.ValidationError"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.exceptions.ValidationError</span></tt></a></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.apptools.model.exceptions.PropertyNotRepeated">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.model.exceptions.</tt><tt class="descname">PropertyNotRepeated</tt><a class="reference internal" href="_modules/lib/apptools/model/exceptions.html#PropertyNotRepeated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.exceptions.PropertyNotRepeated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.exceptions.PropertyPolicyViolation" title="lib.apptools.model.exceptions.PropertyPolicyViolation"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.exceptions.PropertyPolicyViolation</span></tt></a></p>
+<dl class="attribute">
+<dt id="lib.apptools.model.exceptions.PropertyNotRepeated.message">
+<tt class="descname">message</tt><em class="property"> = 'Property &quot;%s&quot; of Model class &quot;%s&quot; is not marked as repeated, and cannot accept iterable values.'</em><a class="headerlink" href="#lib.apptools.model.exceptions.PropertyNotRepeated.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.apptools.model.exceptions.PropertyPolicyViolation">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.model.exceptions.</tt><tt class="descname">PropertyPolicyViolation</tt><a class="reference internal" href="_modules/lib/apptools/model/exceptions.html#PropertyPolicyViolation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.exceptions.PropertyPolicyViolation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.exceptions.ValidationError" title="lib.apptools.model.exceptions.ValidationError"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.exceptions.ValidationError</span></tt></a></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.apptools.model.exceptions.PropertyRepeated">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.model.exceptions.</tt><tt class="descname">PropertyRepeated</tt><a class="reference internal" href="_modules/lib/apptools/model/exceptions.html#PropertyRepeated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.exceptions.PropertyRepeated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.exceptions.PropertyPolicyViolation" title="lib.apptools.model.exceptions.PropertyPolicyViolation"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.exceptions.PropertyPolicyViolation</span></tt></a></p>
+<dl class="attribute">
+<dt id="lib.apptools.model.exceptions.PropertyRepeated.message">
+<tt class="descname">message</tt><em class="property"> = 'Property &quot;%s&quot; of Model class &quot;%s&quot; is marked as iterable, and cannot accept non-iterable values.'</em><a class="headerlink" href="#lib.apptools.model.exceptions.PropertyRepeated.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.apptools.model.exceptions.PropertyRequired">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.model.exceptions.</tt><tt class="descname">PropertyRequired</tt><a class="reference internal" href="_modules/lib/apptools/model/exceptions.html#PropertyRequired"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.exceptions.PropertyRequired" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.exceptions.PropertyPolicyViolation" title="lib.apptools.model.exceptions.PropertyPolicyViolation"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.exceptions.PropertyPolicyViolation</span></tt></a></p>
+<dl class="attribute">
+<dt id="lib.apptools.model.exceptions.PropertyRequired.message">
+<tt class="descname">message</tt><em class="property"> = 'Property &quot;%s&quot; of Model class &quot;%s&quot; is marked as `required`, but was left unset.'</em><a class="headerlink" href="#lib.apptools.model.exceptions.PropertyRequired.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.apptools.model.exceptions.UndefinedKey">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.model.exceptions.</tt><tt class="descname">UndefinedKey</tt><a class="reference internal" href="_modules/lib/apptools/model/exceptions.html#UndefinedKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.exceptions.UndefinedKey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.exceptions.InvalidKey" title="lib.apptools.model.exceptions.InvalidKey"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.exceptions.InvalidKey</span></tt></a></p>
+<dl class="attribute">
+<dt id="lib.apptools.model.exceptions.UndefinedKey.message">
+<tt class="descname">message</tt><em class="property"> = 'Could not operate on undefined key (value: &quot;%s&quot;, kwargs: &quot;%s&quot;).'</em><a class="headerlink" href="#lib.apptools.model.exceptions.UndefinedKey.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.apptools.model.exceptions.ValidationError">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.model.exceptions.</tt><tt class="descname">ValidationError</tt><a class="reference internal" href="_modules/lib/apptools/model/exceptions.html#ValidationError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.exceptions.ValidationError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.ValueError</span></tt></p>
+</dd></dl>
+
+</div>
 <div class="section" id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
@@ -343,11 +546,9 @@
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">model Package</a><ul>
-<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">model</span></tt> Package</a><ul>
-<li><a class="reference internal" href="#apptools2-model-api">apptools2: model API</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">model</span></tt> Package</a></li>
 <li><a class="reference internal" href="#module-lib.apptools.model.builtin"><tt class="docutils literal"><span class="pre">builtin</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.model.exceptions"><tt class="docutils literal"><span class="pre">exceptions</span></tt> Module</a></li>
 <li><a class="reference internal" href="#subpackages">Subpackages</a><ul>
 </ul>
 </li>
@@ -404,7 +605,7 @@
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Ampush, Inc.
+        &copy; Copyright 2013, Ampush.
     </div>
   </body>
 </html>

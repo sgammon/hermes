@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../../',
-        VERSION:     'alpha',
+        VERSION:     '0.5-alpha-dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -95,6 +95,7 @@
 <span class="c"># apptools model API</span>
 <span class="kn">from</span> <span class="nn">apptools</span> <span class="kn">import</span> <span class="n">model</span>
 <span class="kn">from</span> <span class="nn">apptools.model</span> <span class="kn">import</span> <span class="n">adapter</span>
+<span class="kn">from</span> <span class="nn">apptools.model</span> <span class="kn">import</span> <span class="n">exceptions</span>
 
 <span class="c"># apptools tests</span>
 <span class="kn">from</span> <span class="nn">apptools.tests</span> <span class="kn">import</span> <span class="n">AppToolsTest</span>
@@ -277,7 +278,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">((</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">Model</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">)))</span>
 
         <span class="c"># try directly-instantiation</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">TypeError</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">exceptions</span><span class="o">.</span><span class="n">AbstractConstructionFailure</span><span class="p">):</span>
             <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">AbstractModel</span><span class="p">())</span>
 </div>
 <div class="viewcode-block" id="ModelTests.test_concrete_model"><a class="viewcode-back" href="../../../../../lib.apptools.tests.test_model.html#lib.apptools.tests.test_model.test_model.ModelTests.test_concrete_model">[docs]</a>    <span class="k">def</span> <span class="nf">test_concrete_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -848,7 +849,7 @@
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Ampush, Inc.
+        &copy; Copyright 2013, Ampush.
     </div>
   </body>
 </html>

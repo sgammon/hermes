@@ -1,9 +1,117 @@
 # -*- coding: utf-8 -*-
 """
-    :author: Sam Gammon (sam.gammon@ampush.com)
-    :copyright: (c) 2013 Ampush.
-    :license: This is private source code - all rights are reserved. For details about
-              embedded licenses and other legalese, see `LICENSE.md`.
+This is where it all begins... ah, the wonderful *main.py*.
+From here, we stitch together :py:mod:`apptools` and :py:mod:`gevent`
+to provide an entrypoint for both :py:class:`components.tracker.EventTracker` and
+:py:mod:`apptools.dispatch`.
+
+In addition to being the WSGI entrypoint for AppFactory (and any other WSGI-compliant
+platform), this is also where you run the devserver...
+
+Running the devserver
+---------------------
+
+Only one WSGI application can be run at a time, and running ``Hermes``
+or :py:class:`EventTracker` can easily be done from the same tool.
+
+From the root of your project (the folder outside *app/*):
+
+.. code-block :: console
+
+    $ tools/devserver tracker
+
+    ==== Hermes Devserver ====
+    Preloaded module bundle: "apptools".
+    Preloaded module bundle: "tracker".
+    Failed to preload compiled templates.
+    Preloaded module bundle: "hermes".
+    [TRACKER]: Datastore: Initialized datastore engine.
+    [TRACKER]: Debug mode is ON, serving on port 8080.
+
+    !! Started listener for app <components.tracker.EventTracker> on host/port :8080. !!
+
+
+This runs ``EventTracker`` on the default devserver port, which is defined at
+:py:attr:`config._DEVSERVER_PORT` and defaults to 8080.
+
+If you'd like to start up ``Hermes``, perhaps on port 80 instead, just replace
+*tracker* with *api*, like so:
+
+.. code-block :: console
+
+    $ sudo tools/devserver api --port=80
+
+
+.. note :: For ports under 1024, Unix/Linux requires the use of :command:`sudo`.
+
+
+Dispatching in production
+-------------------------
+
+Many platforms, including *AppFactory* and *Google App Engine*, dispatch Python applications
+over WSGI. **This app's main module can be used with WSGI** - applications are exported at
+:py:class:`main.EventTracker` and :py:class:`main.APIServer` for *EventTracker* and *Hermes*,
+respectively.
+
+Here's a sample *app.yaml* file for *AppFactory*:
+
+.. code-block :: yaml
+
+    appfactory:
+      dispatch: main:APIServer
+      processes: 2
+      threads: 20
+
+As you might imagine, the above will start 2 app processes with 20 dedicated app threads each.
+Apps hosted on :py:mod:`gevent` are just as easy:
+
+.. code-block :: yaml
+
+    appfactory:
+        dispatch: main:EventTracker
+        runtime: gevent
+        greenlets: 1000
+        processes: 1
+
+
+Note that *AppFactory* will monkey-patch the CPython standard library for you when you use
+the ``gevent`` runtime. To prevent this behavior, simply append ``monkey: off``.
+
+.. note :: Multiple processes with :py:mod:`gevent` enabled is **not recommended**. In many
+           cases, you can actually achieve *better* concurrency using Greenlets in a single
+           process only, as the native OS management overhead tends to outweigh performance
+           benefits significantly.
+
+
+Just for good measure, here is an *AppEngine*-compatible *app.yaml* file (you can also
+specify an *appfactory.yaml* file to avoid compatibility issues and run on *both* platforms!):
+
+.. code-block :: yaml
+
+    application: my-cool-app
+    version: docs-sample
+
+    runtime: python27
+    api_version: 1
+    threadsafe: yes
+
+    handlers:
+
+    - url: /v1
+      script: main.APIServer
+
+    - url: /.*
+      script: main.EventTracker
+
+
+To be clear, those module endpoints are completely *WSGI-compliant*, meaning you could
+also simply import them and run them however you want, even from a regular Python shell.
+
+
+:author: Sam Gammon (sam.gammon@ampush.com)
+:copyright: (c) 2013 Ampush.
+:license: This is private source code - all rights are reserved. For details about
+          embedded licenses and other legalese, see `LICENSE.md`.
 """
 __docformat__ = 'restructuredtext en'
 __version__ = '0.5'
@@ -25,23 +133,17 @@ from apptools import dispatch
 
 # uWSGI
 try:
-    import uwsgi
+    import uwsgi; PLATFORM = 'uWSGI'
 except ImportError as e:
     ## Not running from uWSGI.
     PLATFORM = 'WSGI'
-else:
-    # Monkey-patching is done for us in production by uWSGI
-    PLATFORM = 'uWSGI'
 
 # PyPy
 try:
-    import pypycore
+    import pypycore; RUNTIME = 'PyPy'
 except ImportError as e:
     ## Not running in PyPy.
     RUNTIME = 'CPython'
-else:  # pragma: no cover
-    ## Running in PyPy.
-    RUNTIME = 'PyPy'
 
 # gevent
 import gevent
@@ -79,7 +181,24 @@ def RealtimeServer(environ, start_response):
 
 def devserver(app=EventTracker, port=config._DEVSERVER_PORT, host=config._DEVSERVER_HOST):
 
-    ''' Start a local listener for development. '''
+    ''' Start a local listener for development, using :py:mod:`gevent.pywsgi`.
+
+        :param app:
+            WSGI application to run. Defaults to :py:class:`components.tracker.EventTracker`.
+
+        :param port:
+            Port to run the application on. Defaults to the value of :py:attr:`config._DEVSERVER_PORT`,
+            which is usually set to ``8080``.
+
+        :param host:
+            IP to bind the devserver to. Defaults to the value of :py:attr:`config._DEVSERVER_HOST`,
+            which is usually set to ``127.0.0.1``. Setting this value to an empty string binds to
+            all available IPs - *make sure it is not set to this in production*.
+
+        .. note :: Dispatching this function from Python (or the command line) will block forever
+                   via :py:meth:`pyuwsgi.WSGIServer.serve_forever`.
+
+    '''
 
     global _locals
     global _patched

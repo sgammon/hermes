@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     'alpha',
+        VERSION:     '0.5-alpha-dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -184,7 +184,7 @@
 <dl class="attribute">
 <dt id="lib.webapp2_extras.auth.Auth.request">
 <tt class="descname">request</tt><em class="property"> = None</em><a class="headerlink" href="#lib.webapp2_extras.auth.Auth.request" title="Permalink to this definition">¶</a></dt>
-<dd><p>A <tt class="xref py py-class docutils literal"><span class="pre">webapp2.Request</span></tt> instance.</p>
+<dd><p>A <a class="reference external" href="http://webapp-improved.appspot.com/api/webapp2.html#webapp2.Request" title="(in webapp2 v2.5.1)"><tt class="xref py py-class docutils literal"><span class="pre">webapp2.Request</span></tt></a> instance.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -325,7 +325,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> &#8211; A <tt class="xref py py-class docutils literal"><span class="pre">webapp2.Request</span></tt> instance.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> &#8211; A <a class="reference external" href="http://webapp-improved.appspot.com/api/webapp2.html#webapp2.Request" title="(in webapp2 v2.5.1)"><tt class="xref py py-class docutils literal"><span class="pre">webapp2.Request</span></tt></a> instance.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A session dict.</td>
 </tr>
@@ -531,7 +531,7 @@ used to validate sessions or service requests.</p>
 <dt>user_model</dt>
 <dd>User model which authenticates custom users and tokens.
 Can also be a string in dotted notation to be lazily imported.
-Default is <tt class="xref py py-class docutils literal"><span class="pre">webapp2_extras.appengine.auth.models.User</span></tt>.</dd>
+Default is <a class="reference external" href="http://webapp-improved.appspot.com/api/webapp2_extras/appengine/auth/models.html#webapp2_extras.appengine.auth.models.User" title="(in webapp2 v2.5.1)"><tt class="xref py py-class docutils literal"><span class="pre">webapp2_extras.appengine.auth.models.User</span></tt></a>.</dd>
 <dt>session_backend</dt>
 <dd>Name of the session backend to be used. Default is <cite>securecookie</cite>.</dd>
 <dt>cookie_name</dt>
@@ -571,7 +571,7 @@ function will return the same instance.</p>
 registered. The default is the class <a class="reference internal" href="#lib.webapp2_extras.auth.Auth" title="lib.webapp2_extras.auth.Auth"><tt class="xref py py-class docutils literal"><span class="pre">Auth</span></tt></a> itself.</li>
 <li><strong>key</strong> &#8211; The key used to store the instance in the registry. A default is used
 if it is not set.</li>
-<li><strong>request</strong> &#8211; A <tt class="xref py py-class docutils literal"><span class="pre">webapp2.Request</span></tt> instance used to store the instance. The
+<li><strong>request</strong> &#8211; A <a class="reference external" href="http://webapp-improved.appspot.com/api/webapp2.html#webapp2.Request" title="(in webapp2 v2.5.1)"><tt class="xref py py-class docutils literal"><span class="pre">webapp2.Request</span></tt></a> instance used to store the instance. The
 active request is used if it is not set.</li>
 </ul>
 </td>
@@ -596,7 +596,7 @@ function will return the same instance.</p>
 registered. The default is the class <a class="reference internal" href="#lib.webapp2_extras.auth.AuthStore" title="lib.webapp2_extras.auth.AuthStore"><tt class="xref py py-class docutils literal"><span class="pre">AuthStore</span></tt></a> itself.</li>
 <li><strong>key</strong> &#8211; The key used to store the instance in the registry. A default is used
 if it is not set.</li>
-<li><strong>app</strong> &#8211; A <tt class="xref py py-class docutils literal"><span class="pre">webapp2.WSGIApplication</span></tt> instance used to store the instance.
+<li><strong>app</strong> &#8211; A <a class="reference external" href="http://webapp-improved.appspot.com/api/webapp2.html#webapp2.WSGIApplication" title="(in webapp2 v2.5.1)"><tt class="xref py py-class docutils literal"><span class="pre">webapp2.WSGIApplication</span></tt></a> instance used to store the instance.
 The active app is used if it is not set.</li>
 </ul>
 </td>
@@ -617,7 +617,7 @@ The active app is used if it is not set.</li>
 <li><strong>auth</strong> &#8211; An instance of <a class="reference internal" href="#lib.webapp2_extras.auth.Auth" title="lib.webapp2_extras.auth.Auth"><tt class="xref py py-class docutils literal"><span class="pre">Auth</span></tt></a>.</li>
 <li><strong>key</strong> &#8211; The key used to retrieve the instance from the registry. A default
 is used if it is not set.</li>
-<li><strong>request</strong> &#8211; A <tt class="xref py py-class docutils literal"><span class="pre">webapp2.Request</span></tt> instance used to retrieve the instance. The
+<li><strong>request</strong> &#8211; A <a class="reference external" href="http://webapp-improved.appspot.com/api/webapp2.html#webapp2.Request" title="(in webapp2 v2.5.1)"><tt class="xref py py-class docutils literal"><span class="pre">webapp2.Request</span></tt></a> instance used to retrieve the instance. The
 active request is used if it is not set.</li>
 </ul>
 </td>
@@ -638,7 +638,7 @@ active request is used if it is not set.</li>
 <li><strong>store</strong> &#8211; An instance of <a class="reference internal" href="#lib.webapp2_extras.auth.AuthStore" title="lib.webapp2_extras.auth.AuthStore"><tt class="xref py py-class docutils literal"><span class="pre">AuthStore</span></tt></a>.</li>
 <li><strong>key</strong> &#8211; The key used to retrieve the instance from the registry. A default
 is used if it is not set.</li>
-<li><strong>request</strong> &#8211; A <tt class="xref py py-class docutils literal"><span class="pre">webapp2.WSGIApplication</span></tt> instance used to retrieve the
+<li><strong>request</strong> &#8211; A <a class="reference external" href="http://webapp-improved.appspot.com/api/webapp2.html#webapp2.WSGIApplication" title="(in webapp2 v2.5.1)"><tt class="xref py py-class docutils literal"><span class="pre">webapp2.WSGIApplication</span></tt></a> instance used to retrieve the
 instance. The active app is used if it is not set.</li>
 </ul>
 </td>
@@ -668,7 +668,7 @@ instance. The active app is used if it is not set.</li>
 <dl class="class">
 <dt id="lib.webapp2_extras.config.Config">
 <em class="property">class </em><tt class="descclassname">lib.webapp2_extras.config.</tt><tt class="descname">Config</tt><big>(</big><em>values=None</em>, <em>defaults=None</em><big>)</big><a class="reference internal" href="_modules/lib/webapp2_extras/config.html#Config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.webapp2_extras.config.Config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt></p>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/2.7/library/stdtypes.html#dict" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt></a></p>
 <p>A simple configuration dictionary keyed by module name. This is a
 dictionary of dictionaries. It requires all values to be dictionaries
 and applies updates and default values to the inner dictionaries instead
@@ -700,7 +700,7 @@ of the first level one.</p>
 </div>
 <dl class="method">
 <dt id="lib.webapp2_extras.config.Config.get">
-<tt class="descname">get</tt><big>(</big><em>module</em>, <em>default=&lt;object object at 0x10d01cc60&gt;</em><big>)</big><a class="reference internal" href="_modules/lib/webapp2_extras/config.html#Config.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.webapp2_extras.config.Config.get" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get</tt><big>(</big><em>module</em>, <em>default=&lt;object object at 0x10cf29d50&gt;</em><big>)</big><a class="reference internal" href="_modules/lib/webapp2_extras/config.html#Config.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.webapp2_extras.config.Config.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a configuration for a module. If default is not provided,
 returns an empty dict if the module is not configured.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -720,7 +720,7 @@ set, returns an empty dict.</td>
 
 <dl class="method">
 <dt id="lib.webapp2_extras.config.Config.get_config">
-<tt class="descname">get_config</tt><big>(</big><em>module</em>, <em>key=None</em>, <em>default=&lt;object object at 0x10d01cd30&gt;</em><big>)</big><a class="reference internal" href="_modules/lib/webapp2_extras/config.html#Config.get_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.webapp2_extras.config.Config.get_config" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_config</tt><big>(</big><em>module</em>, <em>key=None</em>, <em>default=&lt;object object at 0x10cf29e20&gt;</em><big>)</big><a class="reference internal" href="_modules/lib/webapp2_extras/config.html#Config.get_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.webapp2_extras.config.Config.get_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a configuration value for a module and optionally a key.
 Will raise a KeyError if they the module is not configured or the key
 doesn&#8217;t exist and a default is not provided.</p>
@@ -793,20 +793,20 @@ doesn&#8217;t exist and a default is not provided.</p>
 
 <dl class="data">
 <dt id="lib.webapp2_extras.config.DEFAULT_VALUE">
-<tt class="descclassname">lib.webapp2_extras.config.</tt><tt class="descname">DEFAULT_VALUE</tt><em class="property"> = &lt;object object at 0x10d01cc60&gt;</em><a class="headerlink" href="#lib.webapp2_extras.config.DEFAULT_VALUE" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">lib.webapp2_extras.config.</tt><tt class="descname">DEFAULT_VALUE</tt><em class="property"> = &lt;object object at 0x10cf29d50&gt;</em><a class="headerlink" href="#lib.webapp2_extras.config.DEFAULT_VALUE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Value used for missing default values.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="lib.webapp2_extras.config.REQUIRED_VALUE">
-<tt class="descclassname">lib.webapp2_extras.config.</tt><tt class="descname">REQUIRED_VALUE</tt><em class="property"> = &lt;object object at 0x10d01cd30&gt;</em><a class="headerlink" href="#lib.webapp2_extras.config.REQUIRED_VALUE" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">lib.webapp2_extras.config.</tt><tt class="descname">REQUIRED_VALUE</tt><em class="property"> = &lt;object object at 0x10cf29e20&gt;</em><a class="headerlink" href="#lib.webapp2_extras.config.REQUIRED_VALUE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Value used for required values.</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="lib.webapp2_extras.config.SubConfig">
 <em class="property">class </em><tt class="descclassname">lib.webapp2_extras.config.</tt><tt class="descname">SubConfig</tt><big>(</big><em>module</em>, <em>values=None</em><big>)</big><a class="reference internal" href="_modules/lib/webapp2_extras/config.html#SubConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.webapp2_extras.config.SubConfig" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt></p>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/2.7/library/stdtypes.html#dict" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt></a></p>
 <dl class="method">
 <dt id="lib.webapp2_extras.config.SubConfig.get">
 <tt class="descname">get</tt><big>(</big><em>key</em>, <em>default=None</em><big>)</big><a class="reference internal" href="_modules/lib/webapp2_extras/config.html#SubConfig.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.webapp2_extras.config.SubConfig.get" title="Permalink to this definition">¶</a></dt>
@@ -1665,7 +1665,7 @@ function will return the same instance.</p>
 registered. The default is the class <a class="reference internal" href="#lib.webapp2_extras.i18n.I18n" title="lib.webapp2_extras.i18n.I18n"><tt class="xref py py-class docutils literal"><span class="pre">I18n</span></tt></a> itself.</li>
 <li><strong>key</strong> &#8211; The key used to store the instance in the registry. A default is used
 if it is not set.</li>
-<li><strong>request</strong> &#8211; A <tt class="xref py py-class docutils literal"><span class="pre">webapp2.Request</span></tt> instance used to store the instance. The
+<li><strong>request</strong> &#8211; A <a class="reference external" href="http://webapp-improved.appspot.com/api/webapp2.html#webapp2.Request" title="(in webapp2 v2.5.1)"><tt class="xref py py-class docutils literal"><span class="pre">webapp2.Request</span></tt></a> instance used to store the instance. The
 active request is used if it is not set.</li>
 </ul>
 </td>
@@ -1690,7 +1690,7 @@ function will return the same instance.</p>
 registered. The default is the class <a class="reference internal" href="#lib.webapp2_extras.i18n.I18nStore" title="lib.webapp2_extras.i18n.I18nStore"><tt class="xref py py-class docutils literal"><span class="pre">I18nStore</span></tt></a> itself.</li>
 <li><strong>key</strong> &#8211; The key used to store the instance in the registry. A default is used
 if it is not set.</li>
-<li><strong>app</strong> &#8211; A <tt class="xref py py-class docutils literal"><span class="pre">webapp2.WSGIApplication</span></tt> instance used to store the instance.
+<li><strong>app</strong> &#8211; A <a class="reference external" href="http://webapp-improved.appspot.com/api/webapp2.html#webapp2.WSGIApplication" title="(in webapp2 v2.5.1)"><tt class="xref py py-class docutils literal"><span class="pre">webapp2.WSGIApplication</span></tt></a> instance used to store the instance.
 The active app is used if it is not set.</li>
 </ul>
 </td>
@@ -1781,7 +1781,7 @@ the string.</p>
 <li><strong>store</strong> &#8211; An instance of <a class="reference internal" href="#lib.webapp2_extras.i18n.I18n" title="lib.webapp2_extras.i18n.I18n"><tt class="xref py py-class docutils literal"><span class="pre">I18n</span></tt></a>.</li>
 <li><strong>key</strong> &#8211; The key used to retrieve the instance from the registry. A default
 is used if it is not set.</li>
-<li><strong>request</strong> &#8211; A <tt class="xref py py-class docutils literal"><span class="pre">webapp2.Request</span></tt> instance used to retrieve the instance. The
+<li><strong>request</strong> &#8211; A <a class="reference external" href="http://webapp-improved.appspot.com/api/webapp2.html#webapp2.Request" title="(in webapp2 v2.5.1)"><tt class="xref py py-class docutils literal"><span class="pre">webapp2.Request</span></tt></a> instance used to retrieve the instance. The
 active request is used if it is not set.</li>
 </ul>
 </td>
@@ -1802,7 +1802,7 @@ active request is used if it is not set.</li>
 <li><strong>store</strong> &#8211; An instance of <a class="reference internal" href="#lib.webapp2_extras.i18n.I18nStore" title="lib.webapp2_extras.i18n.I18nStore"><tt class="xref py py-class docutils literal"><span class="pre">I18nStore</span></tt></a>.</li>
 <li><strong>key</strong> &#8211; The key used to retrieve the instance from the registry. A default
 is used if it is not set.</li>
-<li><strong>request</strong> &#8211; A <tt class="xref py py-class docutils literal"><span class="pre">webapp2.WSGIApplication</span></tt> instance used to retrieve the
+<li><strong>request</strong> &#8211; A <a class="reference external" href="http://webapp-improved.appspot.com/api/webapp2.html#webapp2.WSGIApplication" title="(in webapp2 v2.5.1)"><tt class="xref py py-class docutils literal"><span class="pre">webapp2.WSGIApplication</span></tt></a> instance used to retrieve the
 instance. The active app is used if it is not set.</li>
 </ul>
 </td>
@@ -1978,7 +1978,7 @@ function will return the same instance.</p>
 registered. The default is the class <a class="reference internal" href="#lib.webapp2_extras.jinja2.Jinja2" title="lib.webapp2_extras.jinja2.Jinja2"><tt class="xref py py-class docutils literal"><span class="pre">Jinja2</span></tt></a> itself.</li>
 <li><strong>key</strong> &#8211; The key used to store the instance in the registry. A default is used
 if it is not set.</li>
-<li><strong>app</strong> &#8211; A <tt class="xref py py-class docutils literal"><span class="pre">webapp2.WSGIApplication</span></tt> instance used to store the instance.
+<li><strong>app</strong> &#8211; A <a class="reference external" href="http://webapp-improved.appspot.com/api/webapp2.html#webapp2.WSGIApplication" title="(in webapp2 v2.5.1)"><tt class="xref py py-class docutils literal"><span class="pre">webapp2.WSGIApplication</span></tt></a> instance used to store the instance.
 The active app is used if it is not set.</li>
 </ul>
 </td>
@@ -1999,7 +1999,7 @@ The active app is used if it is not set.</li>
 <li><strong>store</strong> &#8211; An instance of <a class="reference internal" href="#lib.webapp2_extras.jinja2.Jinja2" title="lib.webapp2_extras.jinja2.Jinja2"><tt class="xref py py-class docutils literal"><span class="pre">Jinja2</span></tt></a>.</li>
 <li><strong>key</strong> &#8211; The key used to retrieve the instance from the registry. A default
 is used if it is not set.</li>
-<li><strong>request</strong> &#8211; A <tt class="xref py py-class docutils literal"><span class="pre">webapp2.WSGIApplication</span></tt> instance used to retrieve the
+<li><strong>request</strong> &#8211; A <a class="reference external" href="http://webapp-improved.appspot.com/api/webapp2.html#webapp2.WSGIApplication" title="(in webapp2 v2.5.1)"><tt class="xref py py-class docutils literal"><span class="pre">webapp2.WSGIApplication</span></tt></a> instance used to retrieve the
 instance. The active app is used if it is not set.</li>
 </ul>
 </td>
@@ -2011,7 +2011,7 @@ instance. The active app is used if it is not set.</li>
 </div>
 </div>
 <div class="section" id="module-lib.webapp2_extras.json">
-<span id="json-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">json</span></tt> Module<a class="headerlink" href="#module-lib.webapp2_extras.json" title="Permalink to this headline">¶</a></h2>
+<span id="json-module"></span><h2><a class="reference external" href="http://docs.python.org/2.7/library/json.html#json" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">json</span></tt></a> Module<a class="headerlink" href="#module-lib.webapp2_extras.json" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="webapp2-extras-json">
 <h3>webapp2_extras.json<a class="headerlink" href="#webapp2-extras-json" title="Permalink to this headline">¶</a></h3>
 <p>JSON helpers for webapp2.</p>
@@ -2365,7 +2365,7 @@ webapp2 application.</p>
 <span class="p">])</span>
 </pre></div>
 </div>
-<p>The template follows the same syntax used by <tt class="xref py py-class docutils literal"><span class="pre">webapp2.Route</span></tt> and
+<p>The template follows the same syntax used by <a class="reference external" href="http://webapp-improved.appspot.com/api/webapp2.html#webapp2.Route" title="(in webapp2 v2.5.1)"><tt class="xref py py-class docutils literal"><span class="pre">webapp2.Route</span></tt></a> and
 must define named groups if any value must be added to the match results.
 In the example above, an extra <cite>subdomain</cite> keyword is passed to the
 handler, but if the regex didn&#8217;t define any named groups, nothing would
@@ -2528,10 +2528,10 @@ will only be tested if the path prefix matches.</p>
 <dl class="class">
 <dt id="lib.webapp2_extras.routes.RedirectRoute">
 <em class="property">class </em><tt class="descclassname">lib.webapp2_extras.routes.</tt><tt class="descname">RedirectRoute</tt><big>(</big><em>template</em>, <em>handler=None</em>, <em>name=None</em>, <em>defaults=None</em>, <em>build_only=False</em>, <em>handler_method=None</em>, <em>methods=None</em>, <em>schemes=None</em>, <em>redirect_to=None</em>, <em>redirect_to_name=None</em>, <em>strict_slash=False</em><big>)</big><a class="reference internal" href="_modules/lib/webapp2_extras/routes.html#RedirectRoute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.webapp2_extras.routes.RedirectRoute" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">webapp2.Route</span></tt></p>
+<dd><p>Bases: <a class="reference external" href="http://webapp-improved.appspot.com/api/webapp2.html#webapp2.Route" title="(in webapp2 v2.5.1)"><tt class="xref py py-class docutils literal"><span class="pre">webapp2.Route</span></tt></a></p>
 <p>A convenience route class for easy redirects.</p>
 <p>It adds redirect_to, redirect_to_name and strict_slash options to
-<tt class="xref py py-class docutils literal"><span class="pre">webapp2.Route</span></tt>.</p>
+<a class="reference external" href="http://webapp-improved.appspot.com/api/webapp2.html#webapp2.Route" title="(in webapp2 v2.5.1)"><tt class="xref py py-class docutils literal"><span class="pre">webapp2.Route</span></tt></a>.</p>
 <dl class="method">
 <dt id="lib.webapp2_extras.routes.RedirectRoute.get_match_routes">
 <tt class="descname">get_match_routes</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/webapp2_extras/routes.html#RedirectRoute.get_match_routes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.webapp2_extras.routes.RedirectRoute.get_match_routes" title="Permalink to this definition">¶</a></dt>
@@ -2911,7 +2911,7 @@ salted passwords are used hmac is used.</p>
 <p>Base class for all session factories.</p>
 <dl class="method">
 <dt id="lib.webapp2_extras.sessions.BaseSessionFactory.get_session">
-<tt class="descname">get_session</tt><big>(</big><em>max_age=&lt;object object at 0x10c02b270&gt;</em><big>)</big><a class="reference internal" href="_modules/lib/webapp2_extras/sessions.html#BaseSessionFactory.get_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.webapp2_extras.sessions.BaseSessionFactory.get_session" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_session</tt><big>(</big><em>max_age=&lt;object object at 0x10c4b7b20&gt;</em><big>)</big><a class="reference internal" href="_modules/lib/webapp2_extras/sessions.html#BaseSessionFactory.get_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.webapp2_extras.sessions.BaseSessionFactory.get_session" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -2952,7 +2952,7 @@ salted passwords are used hmac is used.</p>
 <p>Base class for sessions that use custom backends, e.g., memcache.</p>
 <dl class="method">
 <dt id="lib.webapp2_extras.sessions.CustomBackendSessionFactory.get_session">
-<tt class="descname">get_session</tt><big>(</big><em>max_age=&lt;object object at 0x10c02b270&gt;</em><big>)</big><a class="reference internal" href="_modules/lib/webapp2_extras/sessions.html#CustomBackendSessionFactory.get_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.webapp2_extras.sessions.CustomBackendSessionFactory.get_session" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_session</tt><big>(</big><em>max_age=&lt;object object at 0x10c4b7b20&gt;</em><big>)</big><a class="reference internal" href="_modules/lib/webapp2_extras/sessions.html#CustomBackendSessionFactory.get_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.webapp2_extras.sessions.CustomBackendSessionFactory.get_session" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -2979,7 +2979,7 @@ can&#8217;t be visible to users. For this, use datastore or memcache sessions.</
 </div>
 <dl class="method">
 <dt id="lib.webapp2_extras.sessions.SecureCookieSessionFactory.get_session">
-<tt class="descname">get_session</tt><big>(</big><em>max_age=&lt;object object at 0x10c02b270&gt;</em><big>)</big><a class="reference internal" href="_modules/lib/webapp2_extras/sessions.html#SecureCookieSessionFactory.get_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.webapp2_extras.sessions.SecureCookieSessionFactory.get_session" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_session</tt><big>(</big><em>max_age=&lt;object object at 0x10c4b7b20&gt;</em><big>)</big><a class="reference internal" href="_modules/lib/webapp2_extras/sessions.html#SecureCookieSessionFactory.get_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.webapp2_extras.sessions.SecureCookieSessionFactory.get_session" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -2992,7 +2992,7 @@ can&#8217;t be visible to users. For this, use datastore or memcache sessions.</
 <dl class="class">
 <dt id="lib.webapp2_extras.sessions.SessionDict">
 <em class="property">class </em><tt class="descclassname">lib.webapp2_extras.sessions.</tt><tt class="descname">SessionDict</tt><big>(</big><em>container</em>, <em>data=None</em>, <em>new=False</em><big>)</big><a class="reference internal" href="_modules/lib/webapp2_extras/sessions.html#SessionDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.webapp2_extras.sessions.SessionDict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lib.webapp2_extras.sessions._UpdateDictMixin</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt></p>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lib.webapp2_extras.sessions._UpdateDictMixin</span></tt>, <a class="reference external" href="http://docs.python.org/2.7/library/stdtypes.html#dict" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt></a></p>
 <p>A dictionary for session data.</p>
 <dl class="method">
 <dt id="lib.webapp2_extras.sessions.SessionDict.add_flash">
@@ -3134,7 +3134,7 @@ configuration is a simple dictionary:</p>
 
 <dl class="method">
 <dt id="lib.webapp2_extras.sessions.SessionStore.get_secure_cookie">
-<tt class="descname">get_secure_cookie</tt><big>(</big><em>name</em>, <em>max_age=&lt;object object at 0x10c02b270&gt;</em><big>)</big><a class="reference internal" href="_modules/lib/webapp2_extras/sessions.html#SessionStore.get_secure_cookie"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.webapp2_extras.sessions.SessionStore.get_secure_cookie" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_secure_cookie</tt><big>(</big><em>name</em>, <em>max_age=&lt;object object at 0x10c4b7b20&gt;</em><big>)</big><a class="reference internal" href="_modules/lib/webapp2_extras/sessions.html#SessionStore.get_secure_cookie"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.webapp2_extras.sessions.SessionStore.get_secure_cookie" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a deserialized secure cookie value.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -3156,7 +3156,7 @@ than this, returns None.</li>
 
 <dl class="method">
 <dt id="lib.webapp2_extras.sessions.SessionStore.get_session">
-<tt class="descname">get_session</tt><big>(</big><em>name=None</em>, <em>max_age=&lt;object object at 0x10c02b270&gt;</em>, <em>factory=None</em>, <em>backend='securecookie'</em><big>)</big><a class="reference internal" href="_modules/lib/webapp2_extras/sessions.html#SessionStore.get_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.webapp2_extras.sessions.SessionStore.get_session" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_session</tt><big>(</big><em>name=None</em>, <em>max_age=&lt;object object at 0x10c4b7b20&gt;</em>, <em>factory=None</em>, <em>backend='securecookie'</em><big>)</big><a class="reference internal" href="_modules/lib/webapp2_extras/sessions.html#SessionStore.get_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.webapp2_extras.sessions.SessionStore.get_session" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a session for a given name. If the session doesn&#8217;t exist, a
 new session is returned.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -3290,7 +3290,7 @@ function will return the same instance.</p>
 registered. The default is the class <a class="reference internal" href="#lib.webapp2_extras.sessions.SessionStore" title="lib.webapp2_extras.sessions.SessionStore"><tt class="xref py py-class docutils literal"><span class="pre">SessionStore</span></tt></a> itself.</li>
 <li><strong>key</strong> &#8211; The key used to store the instance in the registry. A default is used
 if it is not set.</li>
-<li><strong>request</strong> &#8211; A <tt class="xref py py-class docutils literal"><span class="pre">webapp2.Request</span></tt> instance used to store the instance. The
+<li><strong>request</strong> &#8211; A <a class="reference external" href="http://webapp-improved.appspot.com/api/webapp2.html#webapp2.Request" title="(in webapp2 v2.5.1)"><tt class="xref py py-class docutils literal"><span class="pre">webapp2.Request</span></tt></a> instance used to store the instance. The
 active request is used if it is not set.</li>
 </ul>
 </td>
@@ -3311,7 +3311,7 @@ active request is used if it is not set.</li>
 <li><strong>store</strong> &#8211; An instance of <a class="reference internal" href="#lib.webapp2_extras.sessions.SessionStore" title="lib.webapp2_extras.sessions.SessionStore"><tt class="xref py py-class docutils literal"><span class="pre">SessionStore</span></tt></a>.</li>
 <li><strong>key</strong> &#8211; The key used to retrieve the instance from the registry. A default
 is used if it is not set.</li>
-<li><strong>request</strong> &#8211; A <tt class="xref py py-class docutils literal"><span class="pre">webapp2.Request</span></tt> instance used to retrieve the instance. The
+<li><strong>request</strong> &#8211; A <a class="reference external" href="http://webapp-improved.appspot.com/api/webapp2.html#webapp2.Request" title="(in webapp2 v2.5.1)"><tt class="xref py py-class docutils literal"><span class="pre">webapp2.Request</span></tt></a> instance used to retrieve the instance. The
 active request is used if it is not set.</li>
 </ul>
 </td>
@@ -3440,7 +3440,7 @@ active request is used if it is not set.</li>
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Ampush, Inc.
+        &copy; Copyright 2013, Ampush.
     </div>
   </body>
 </html>

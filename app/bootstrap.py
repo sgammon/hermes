@@ -1,20 +1,26 @@
 # -*- coding: utf-8 -*-
 
-'''
-
-AmpushHermes: Bootstrapper
-
+"""
 This small utility file is loaded by AppTools and executed as early
 as possible in the execution flow, to facilitate the injection of
 paths onto `sys.path`, preloading, and other process-level init for
 the app.
 
--sam (<sam.gammon@ampush.com>)
+It's dead simple to use::
 
-'''
+    # -*- coding: utf-8 -*-
+
+    import bootstrap
+    bootstrap.AppBootstrapper.prepareImports().preload()
+
+
+:author: Sam Gammon (sam.gammon@ampush.com)
+:copyright: (c) 2013 Ampush.
+:license: This is private source code - all rights are reserved. For details about
+          embedded licenses and other legalese, see `LICENSE.md`.
+"""
 
 # stdlib
-import os
 import sys
 
 # Globals
@@ -24,14 +30,25 @@ _bootstrapped = False
 ## AppBootstrapper - does basic app startup/boot tasks.
 class AppBootstrapper(object):
 
-    ''' Bootstrap this app for WSGI. '''
+    ''' Performs early app bootstrap procedures, such as
+        adding to :py:attr:`sys.path` and preloading
+        :py:mod:`apptools`.
+
+        Paths from :py:attr:`cls.injected_paths` are added to :py:attr:`sys.path`
+        if they are not present. This class is designed to
+        be idempotent - a module-global flag (*_bootstrapped*)
+        is flipped once the bootstrapper has run.
+    '''
 
     injected_paths = 'lib', 'lib/dist', '/momentum'
 
     @classmethod
     def prepareImports(cls):
 
-        ''' Prepare Python import path. '''
+        ''' Prepare Python import path.
+
+            :returns: :class:`AppBootstrapper`.
+        '''
 
         global _bootstrapped
 
@@ -45,7 +62,14 @@ class AppBootstrapper(object):
     @classmethod
     def preloadApptools(cls, _DEBUG=False):
 
-        ''' Preload AppTools modules. '''
+        ''' Preload AppTools modules.
+
+            :param _DEBUG:
+                If truthy, re-raises *ImportErrors* encountered during
+                the module preload routine. Defaults to ``False``.
+            :returns: :py:class:`AppBootstrapper`.
+            :raises: Re-raises :py:exc:`ImportError`.
+        '''
 
         import apptools  # apptools, by momentum :)
 
@@ -116,10 +140,21 @@ class AppBootstrapper(object):
         from apptools.services import realtime
         from apptools.services import middleware
 
+        return cls
+
     @classmethod
     def preloadHermes(cls, _DEBUG=False):
 
-        ''' Preload Hermes modules. '''
+        ''' Preload Hermes modules.
+
+            :keyword _DEBUG:
+                If truthy, re-raises *ImportErrors* encountered during
+                the module preload routine. Defaults to ``False``.
+            :returns: :py:class:`AppBootstrapper`.
+            :raises: :py:exc:`ImportError` if ``_DEBUG`` is ``True``
+                     and a descendent of :py:exc:`ImportError` is
+                     encountered during execution.
+        '''
 
         import api  # Project: Hermes
 
@@ -235,10 +270,19 @@ class AppBootstrapper(object):
                 print "Failed to preload compiled templates."
             pass
 
+        return cls
+
     @classmethod
     def preloadTracker(cls, _DEBUG=False):
 
-        ''' Preload Tracker modules. '''
+        ''' Preload Tracker modules.
+
+            :param _DEBUG:
+                If truthy, re-raises *ImportErrors* encountered during
+                the module preload routine. Defaults to ``False``.
+            :returns: :py:class:`AppBootstrapper`.
+            :raises: Re-raises :py:exc:`ImportError`.
+        '''
 
         # === Tools === #
         import tools
@@ -263,15 +307,27 @@ class AppBootstrapper(object):
         from components import datastore
         from components.datastore import embedded
 
+        return cls
+
     @classmethod
     def preload(cls, _DEBUG=False):
 
-        ''' Preload important Python modules at construction time. '''
+        ''' Preload important Python modules at construction time.
+
+            :param _DEBUG:
+                If truthy, re-raises *ImportErrors* encountered during
+                the module preload routine. Defaults to ``False``.
+            :returns: :py:class:`AppBootstrapper`.
+            :raises: :py:exc:`ImportError` if ``_DEBUG`` is ``True`` and
+                     a descendent of :py:exc:`ImportError` is encountered
+                     while executing this sub-classmethods (such as
+                     :py:meth:`cls.preloadApptools`).
+        '''
 
         for name, routine in (('apptools', cls.preloadApptools), ('tracker', cls.preloadTracker), ('hermes', cls.preloadHermes)):
             try:
                 routine(_DEBUG)  # preload modules
-            except ImportError as e:
+            except ImportError:
                 print "ERROR: Failed to preload module bundle \"%s\"." % name
                 if _DEBUG:
                     raise

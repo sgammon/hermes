@@ -17,12 +17,10 @@ import time
 # hermes codebase
 import protocol
 from config import debug
-from config import verbose
 from config import _PARAM_SEPARATOR
 from config import _DISCARD_NOSENTINEL
 
 # hermes util
-import util
 from util import exceptions
 
 
@@ -87,7 +85,7 @@ class TrackedEvent(object):
 
         ''' Indicate whether we're in debug mode (globally or per-request). '''
 
-        return (debug or (self.param(protocol.BuiltinParameters.DEBUG) in params))
+        return (debug or (self.param(protocol.BuiltinParameters.DEBUG) in self.request.params))
 
     def param(self, name):
 
@@ -105,14 +103,18 @@ class TrackedEvent(object):
         else:
             param = _PARAM_SEPARATOR.join((protocol.TrackerPrefix.CUSTOM, name))
 
-        self.tracker.verbose("Transformed param '%s' to '%s'." % (name, param))
         return param
 
     def generate_id(self, base):
 
         ''' Generate a proper unique ID for this event. '''
 
-        self.id = self.request.headers.get('XAF-Hash', self.request.headers.get('XAF-Request-ID', '-'.join([str(base), str(int(time.time()))])))
+        id = self.request.headers.get('XAF-Hash')
+        if not id:
+            id = self.request.headers.get('XAF-Request-ID')
+            if not id:
+                id = '-'.join([str(base), str(int(time.time()))])
+        self.id = id
         return self
 
     def decode(self, injected=None):
@@ -162,3 +164,15 @@ class TrackedEvent(object):
         ''' Read Redis to see if we know this to be a match. '''
 
         return 'NONE'
+
+    def respond(self, response):
+
+        ''' Respond to the client that generated this event. '''
+
+        return response
+
+    def guess_response(self, request):
+
+        ''' Quickly try and guess a response type that can immediately be sent. '''
+
+        return None

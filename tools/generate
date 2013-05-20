@@ -2,6 +2,11 @@
 
 ## Generates autobuilt-files for Hermes.
 
+VERSION="0.5"
+TRACK="dev"
+BUILD="00"
+
+RELEASE="$VERSION-$BUILD-$TRACK"
 
 echo "";
 echo "";
@@ -12,7 +17,7 @@ echo "";
 echo "--- Building application SASS...";
 echo "";
 echo "--- Building application docs...";
-PYTHONPATH="app:app/lib:app/lib/dist:/appengine:/appengine/lib" sphinx-apidoc -o docs/source/app -l --full -H "Hermes" -A "Ampush, Inc" -V "0.5-alpha" -R "sandbox" -d 3 ./app;
+#PYTHONPATH="app:app/lib:app/lib/dist:/appengine:/appengine/lib" sphinx-apidoc -o docs/source/app -l -H "Hermes" -A "Ampush" -V "$VERSION" -R "$RELEASE" -d 3 ./app;
 PYTHONPATH="app:app/lib:app/lib/dist:/appengine:/appengine/lib" sphinx-build -b html docs/source/app docs/html/app;
 echo "";
 echo "--- Building API client libraries...";
@@ -25,7 +30,7 @@ echo "";
 echo "(building Protobuf bindings)...";
 echo ""
 echo "Building API docs...";
-PYTHONPATH="app:tools:app/lib:app/lib/dist:/appengine:/appengine/lib" sphinx-apidoc -o docs/source/api -l --full -H "Hermes API" -A "Ampush, Inc" -V "0.5-alpha" -R "sandbox" -d 2 ./tools/client;
+PYTHONPATH="app:tools:app/lib:app/lib/dist:/appengine:/appengine/lib" sphinx-apidoc -o docs/source/api -l --full -H "Hermes API" -A "Ampush" -V "$VERSION" -R "$RELEASE" -d 2 ./tools/client;
 PYTHONPATH="app:tools:app/lib:app/lib/dist:/appengine:/appengine/lib" sphinx-build -b html docs/source/api docs/html/api;
 echo "";
 echo "========= Compilation succeeded. =========";

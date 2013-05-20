@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     'alpha',
+        VERSION:     '0.5-alpha-dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -115,6 +115,12 @@ individual events tracked by the <cite>EventTracker</cite>.</p>
 <dd><p>Generate index writes for a given <cite>TrackedEvent</cite>.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="components.event.TrackedEvent.guess_response">
+<tt class="descname">guess_response</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="_modules/components/event.html#TrackedEvent.guess_response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.event.TrackedEvent.guess_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quickly try and guess a response type that can immediately be sent.</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="components.event.TrackedEvent.id">
 <tt class="descname">id</tt><em class="property"> = None</em><a class="headerlink" href="#components.event.TrackedEvent.id" title="Permalink to this definition">¶</a></dt>
@@ -152,6 +158,12 @@ individual events tracked by the <cite>EventTracker</cite>.</p>
 <dt id="components.event.TrackedEvent.request">
 <tt class="descname">request</tt><em class="property"> = None</em><a class="headerlink" href="#components.event.TrackedEvent.request" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="components.event.TrackedEvent.respond">
+<tt class="descname">respond</tt><big>(</big><em>response</em><big>)</big><a class="reference internal" href="_modules/components/event.html#TrackedEvent.respond"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.event.TrackedEvent.respond" title="Permalink to this definition">¶</a></dt>
+<dd><p>Respond to the client that generated this event.</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="components.event.TrackedEvent.response">
@@ -230,18 +242,6 @@ Redis.</p>
 <dd><p>Factory a new <cite>webob.Request</cite>/<cite>webob.Response</cite> pair, representing a new HTTP transaction cycle.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="components.tracker.EventTracker.buffer">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">buffer</tt><big>(</big><em>event</em><big>)</big><a class="reference internal" href="_modules/components/tracker.html#EventTracker.buffer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.tracker.EventTracker.buffer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a <cite>TrackedEvent</cite> to the in-memory buffer.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="components.tracker.EventTracker.check">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">check</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/components/tracker.html#EventTracker.check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.tracker.EventTracker.check" title="Permalink to this definition">¶</a></dt>
-<dd><p>See if we need to close out the prebuffer.</p>
-</dd></dl>
-
 <dl class="attribute">
 <dt id="components.tracker.EventTracker.chunked">
 <tt class="descclassname">EventTracker.</tt><tt class="descname">chunked</tt><em class="property"> = True</em><a class="headerlink" href="#components.tracker.EventTracker.chunked" title="Permalink to this definition">¶</a></dt>
@@ -280,20 +280,9 @@ Redis.</p>
 <dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">TrackedEvent</span></tt></p>
 </dd></dl>
 
-<dl class="method">
-<dt id="components.tracker.EventTracker.flush">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">flush</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/components/tracker.html#EventTracker.flush"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.tracker.EventTracker.flush" title="Permalink to this definition">¶</a></dt>
-<dd><p>Flush the prebuffer batch to the frame buffer.</p>
-</dd></dl>
-
 <dl class="attribute">
 <dt id="components.tracker.EventTracker.flushqueue">
 <tt class="descclassname">EventTracker.</tt><tt class="descname">flushqueue</tt><em class="property"> = None</em><a class="headerlink" href="#components.tracker.EventTracker.flushqueue" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.tracker.EventTracker.framebuffer">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">framebuffer</tt><em class="property"> = deque([])</em><a class="headerlink" href="#components.tracker.EventTracker.framebuffer" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -329,7 +318,7 @@ Redis.</p>
 
 <dl class="attribute">
 <dt id="components.tracker.EventTracker.prebuffer">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">prebuffer</tt><em class="property"> = &lt;Group at 0x1079da3d0 set([])&gt;</em><a class="headerlink" href="#components.tracker.EventTracker.prebuffer" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">EventTracker.</tt><tt class="descname">prebuffer</tt><em class="property"> = &lt;Group at 0x107af4bd0 set([])&gt;</em><a class="headerlink" href="#components.tracker.EventTracker.prebuffer" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -347,7 +336,7 @@ Redis.</p>
 <dl class="method">
 <dt id="components.tracker.EventTracker.send_response">
 <tt class="descclassname">EventTracker.</tt><tt class="descname">send_response</tt><big>(</big><em>response</em>, <em>start_response</em>, <em>flush=False</em><big>)</big><a class="reference internal" href="_modules/components/tracker.html#EventTracker.send_response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.tracker.EventTracker.send_response" title="Permalink to this definition">¶</a></dt>
-<dd><p>Send the WSGI start_response call, optionally flushing the response buffer and finishing the transaction.</p>
+<dd><p>Send the WSGI start_response, optionally flushing the response buffer and finishing the transaction.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -359,12 +348,6 @@ Redis.</p>
 <dt id="components.tracker.EventTracker.staged_flush">
 <tt class="descclassname">EventTracker.</tt><tt class="descname">staged_flush</tt><em class="property"> = False</em><a class="headerlink" href="#components.tracker.EventTracker.staged_flush" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="method">
-<dt id="components.tracker.EventTracker.superflush">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">superflush</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/components/tracker.html#EventTracker.superflush"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.tracker.EventTracker.superflush" title="Permalink to this definition">¶</a></dt>
-<dd><p>Flush the frame buffer to the DatastoreEngine.</p>
-</dd></dl>
 
 <dl class="attribute">
 <dt id="components.tracker.EventTracker.verbose">
@@ -479,7 +462,7 @@ Redis.</p>
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Ampush, Inc.
+        &copy; Copyright 2013, Ampush.
     </div>
   </body>
 </html>

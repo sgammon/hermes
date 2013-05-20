@@ -161,7 +161,7 @@ div.body h6 {
     background-color: #f2f2f2;
     font-weight: normal;
     color: #444;
-    border-bottom: 1px solid #fff;
+    border-bottom: 1px solid #f2f2f2;
     margin: 20px -20px 10px -20px;
     padding: 3px 0 3px 10px;
 }
@@ -178,7 +178,7 @@ div.body h2:before {
     height: 0px;
     border-style: solid;
     border-width: 0 5px 5px 0;
-    border-color: transparent #fff transparent transparent;
+    border-color: transparent #f2f2f2 transparent transparent;
     line-height: 0px;
     position: relative;
     left: -10px;

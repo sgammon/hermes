@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     'alpha',
+        VERSION:     '0.5-alpha-dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -68,640 +68,59 @@ supports command pipelining and configurable autobatching.</p>
 <p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
 <dl class="class">
 <dt id="components.datastore.DatastoreEngine">
-<em class="property">class </em><tt class="descclassname">components.datastore.</tt><tt class="descname">DatastoreEngine</tt><big>(</big><em>tracker</em>, <em>redis='/ns/runtime/sock/redis.sock'</em><big>)</big><a class="reference internal" href="_modules/components/datastore.html#DatastoreEngine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.datastore.DatastoreEngine" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">components.datastore.</tt><tt class="descname">DatastoreEngine</tt><big>(</big><em>tracker</em><big>)</big><a class="reference internal" href="_modules/components/datastore.html#DatastoreEngine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.datastore.DatastoreEngine" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="tools.html#tools.actor.Actor" title="tools.actor.Actor"><tt class="xref py py-class docutils literal"><span class="pre">tools.actor.Actor</span></tt></a></p>
 <p>Datastore adapter and transaction engine.</p>
-<dl class="class">
-<dt id="components.datastore.DatastoreEngine.EngineConfig">
-<em class="property">class </em><tt class="descname">EngineConfig</tt><a class="reference internal" href="_modules/components/datastore.html#DatastoreEngine.EngineConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.datastore.DatastoreEngine.EngineConfig" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>Configuration values for the <cite>DatastoreEngine</cite>.</p>
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.EngineConfig.pipeline">
-<tt class="descname">pipeline</tt><em class="property"> = True</em><a class="headerlink" href="#components.datastore.DatastoreEngine.EngineConfig.pipeline" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.EngineConfig.transactional">
-<tt class="descname">transactional</tt><em class="property"> = False</em><a class="headerlink" href="#components.datastore.DatastoreEngine.EngineConfig.transactional" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="components.datastore.DatastoreEngine.Operations">
-<em class="property">class </em><tt class="descclassname">DatastoreEngine.</tt><tt class="descname">Operations</tt><a class="reference internal" href="_modules/components/datastore.html#DatastoreEngine.Operations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>Available datastore operations.</p>
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.APPEND">
-<tt class="descname">APPEND</tt><em class="property"> = 'APPEND'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.APPEND" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.AUTHENTICATE">
-<tt class="descname">AUTHENTICATE</tt><em class="property"> = 'AUTH'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.AUTHENTICATE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.BACKGROUND_REWRITE">
-<tt class="descname">BACKGROUND_REWRITE</tt><em class="property"> = 'BGREWRITEAOF'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.BACKGROUND_REWRITE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.BACKGROUND_SAVE">
-<tt class="descname">BACKGROUND_SAVE</tt><em class="property"> = 'BGSAVE'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.BACKGROUND_SAVE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.BLOCK_LEFT_POP">
-<tt class="descname">BLOCK_LEFT_POP</tt><em class="property"> = 'BLPOP'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.BLOCK_LEFT_POP" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.BLOCK_RIGHT_POP">
-<tt class="descname">BLOCK_RIGHT_POP</tt><em class="property"> = 'BRPOP'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.BLOCK_RIGHT_POP" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.CLIENT_GET_NAME">
-<tt class="descname">CLIENT_GET_NAME</tt><em class="property"> = 'CLIENT GETNAME'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.CLIENT_GET_NAME" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.CLIENT_KILL">
-<tt class="descname">CLIENT_KILL</tt><em class="property"> = 'CLIENT KILL'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.CLIENT_KILL" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.CLIENT_LIST">
-<tt class="descname">CLIENT_LIST</tt><em class="property"> = 'CLIENT LIST'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.CLIENT_LIST" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.CLIENT_SET_NAME">
-<tt class="descname">CLIENT_SET_NAME</tt><em class="property"> = 'CLIENT SETNAME'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.CLIENT_SET_NAME" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.CONFIG_GET">
-<tt class="descname">CONFIG_GET</tt><em class="property"> = 'CONFIG GET'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.CONFIG_GET" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.CONFIG_RESET_STAT">
-<tt class="descname">CONFIG_RESET_STAT</tt><em class="property"> = 'CONFIG RESETSTAT'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.CONFIG_RESET_STAT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.CONFIG_SET">
-<tt class="descname">CONFIG_SET</tt><em class="property"> = 'CONFIG SET'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.CONFIG_SET" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.DB_SIZE">
-<tt class="descname">DB_SIZE</tt><em class="property"> = 'DBSIZE'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.DB_SIZE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.DEBUG">
-<tt class="descname">DEBUG</tt><em class="property"> = 'DEBUG OBJECT'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.DEBUG" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.DECREMENT">
-<tt class="descname">DECREMENT</tt><em class="property"> = 'DECR'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.DECREMENT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.DECREMENT_BY">
-<tt class="descname">DECREMENT_BY</tt><em class="property"> = 'DECRBY'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.DECREMENT_BY" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.DELETE">
-<tt class="descname">DELETE</tt><em class="property"> = 'DEL'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.DELETE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.DISCARD">
-<tt class="descname">DISCARD</tt><em class="property"> = 'DISCARD'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.DISCARD" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.DUMP">
-<tt class="descname">DUMP</tt><em class="property"> = 'DUMP'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.DUMP" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.ECHO">
-<tt class="descname">ECHO</tt><em class="property"> = 'ECHO'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.ECHO" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.EVALUATE">
-<tt class="descname">EVALUATE</tt><em class="property"> = 'EVAL'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.EVALUATE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.EVALUATE_STORED">
-<tt class="descname">EVALUATE_STORED</tt><em class="property"> = 'EVALSHA'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.EVALUATE_STORED" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.EXEC">
-<tt class="descname">EXEC</tt><em class="property"> = 'EXEC'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.EXEC" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.FLUSH_ALL">
-<tt class="descname">FLUSH_ALL</tt><em class="property"> = 'FLUSHALL'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.FLUSH_ALL" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.FLUSH_DB">
-<tt class="descname">FLUSH_DB</tt><em class="property"> = 'FLUSHDB'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.FLUSH_DB" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.GET">
-<tt class="descname">GET</tt><em class="property"> = 'GET'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.GET" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.GETSET">
-<tt class="descname">GETSET</tt><em class="property"> = 'GETSET'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.GETSET" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.HASH_DELETE">
-<tt class="descname">HASH_DELETE</tt><em class="property"> = 'HDEL'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.HASH_DELETE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.HASH_EXISTS">
-<tt class="descname">HASH_EXISTS</tt><em class="property"> = 'HEXISTS'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.HASH_EXISTS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.HASH_GET">
-<tt class="descname">HASH_GET</tt><em class="property"> = 'HGET'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.HASH_GET" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.HASH_INCREMENT">
-<tt class="descname">HASH_INCREMENT</tt><em class="property"> = 'HINCRBY'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.HASH_INCREMENT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.HASH_LENGTH">
-<tt class="descname">HASH_LENGTH</tt><em class="property"> = 'HLEN'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.HASH_LENGTH" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.HASH_MULTI_GET">
-<tt class="descname">HASH_MULTI_GET</tt><em class="property"> = 'HMGET'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.HASH_MULTI_GET" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.HASH_MULTI_SET">
-<tt class="descname">HASH_MULTI_SET</tt><em class="property"> = 'HMSET'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.HASH_MULTI_SET" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.HASH_SET">
-<tt class="descname">HASH_SET</tt><em class="property"> = 'HSET'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.HASH_SET" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.HASH_VALUES">
-<tt class="descname">HASH_VALUES</tt><em class="property"> = 'HVALS'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.HASH_VALUES" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.INCREMENT">
-<tt class="descname">INCREMENT</tt><em class="property"> = 'INCR'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.INCREMENT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.INCREMENT_BY">
-<tt class="descname">INCREMENT_BY</tt><em class="property"> = 'INCRBY'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.INCREMENT_BY" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.INFO">
-<tt class="descname">INFO</tt><em class="property"> = 'INFO'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.INFO" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.KEYS">
-<tt class="descname">KEYS</tt><em class="property"> = 'KEYS'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.KEYS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.LAST_SAVE">
-<tt class="descname">LAST_SAVE</tt><em class="property"> = 'LASTSAVE'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.LAST_SAVE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.LEFT_POP">
-<tt class="descname">LEFT_POP</tt><em class="property"> = 'LPOP'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.LEFT_POP" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.LEFT_PUSH">
-<tt class="descname">LEFT_PUSH</tt><em class="property"> = 'LPUSH'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.LEFT_PUSH" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.LEFT_PUSH_X">
-<tt class="descname">LEFT_PUSH_X</tt><em class="property"> = 'LPUSHX'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.LEFT_PUSH_X" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.LIST_INDEX">
-<tt class="descname">LIST_INDEX</tt><em class="property"> = 'LINDEX'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.LIST_INDEX" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.LIST_LENGTH">
-<tt class="descname">LIST_LENGTH</tt><em class="property"> = 'LLEN'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.LIST_LENGTH" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.LIST_RANGE">
-<tt class="descname">LIST_RANGE</tt><em class="property"> = 'LRANGE'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.LIST_RANGE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.LIST_REMOVE">
-<tt class="descname">LIST_REMOVE</tt><em class="property"> = 'LREM'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.LIST_REMOVE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.LIST_SET">
-<tt class="descname">LIST_SET</tt><em class="property"> = 'LSET'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.LIST_SET" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.LIST_TRIM">
-<tt class="descname">LIST_TRIM</tt><em class="property"> = 'LTRIM'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.LIST_TRIM" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.MONITOR">
-<tt class="descname">MONITOR</tt><em class="property"> = 'MONITOR'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.MONITOR" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.MULTI">
-<tt class="descname">MULTI</tt><em class="property"> = 'MULTI'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.MULTI" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.PATTERN_SUBSCRIBE">
-<tt class="descname">PATTERN_SUBSCRIBE</tt><em class="property"> = 'PSUBSCRIBE'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.PATTERN_SUBSCRIBE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.PATTERN_UNSUBSCRIBE">
-<tt class="descname">PATTERN_UNSUBSCRIBE</tt><em class="property"> = 'PUNSUBSCRIBE'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.PATTERN_UNSUBSCRIBE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.PING">
-<tt class="descname">PING</tt><em class="property"> = 'PING'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.PING" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.PUBLISH">
-<tt class="descname">PUBLISH</tt><em class="property"> = 'PUBLISH'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.PUBLISH" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.QUIT">
-<tt class="descname">QUIT</tt><em class="property"> = 'QUIT'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.QUIT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.RIGHT_POP">
-<tt class="descname">RIGHT_POP</tt><em class="property"> = 'RPOP'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.RIGHT_POP" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.RIGHT_PUSH">
-<tt class="descname">RIGHT_PUSH</tt><em class="property"> = 'RPUSH'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.RIGHT_PUSH" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.RIGHT_PUSH_X">
-<tt class="descname">RIGHT_PUSH_X</tt><em class="property"> = 'RPUSHX'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.RIGHT_PUSH_X" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SAVE">
-<tt class="descname">SAVE</tt><em class="property"> = 'SAVE'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SAVE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SCRIPT_EXISTS">
-<tt class="descname">SCRIPT_EXISTS</tt><em class="property"> = 'SCRIPT EXISTS'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SCRIPT_EXISTS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SCRIPT_FLUSH">
-<tt class="descname">SCRIPT_FLUSH</tt><em class="property"> = 'SCRIPT FLUSH'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SCRIPT_FLUSH" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SCRIPT_KILL">
-<tt class="descname">SCRIPT_KILL</tt><em class="property"> = 'SCRIPT KILL'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SCRIPT_KILL" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SCRIPT_LOAD">
-<tt class="descname">SCRIPT_LOAD</tt><em class="property"> = 'SCRIPT LOAD'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SCRIPT_LOAD" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SELECT">
-<tt class="descname">SELECT</tt><em class="property"> = 'SELECT'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SELECT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SET">
-<tt class="descname">SET</tt><em class="property"> = 'SET'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SET" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SET_ADD">
-<tt class="descname">SET_ADD</tt><em class="property"> = 'SADD'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SET_ADD" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SET_CARDINALITY">
-<tt class="descname">SET_CARDINALITY</tt><em class="property"> = 'SCARD'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SET_CARDINALITY" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SET_DIFF">
-<tt class="descname">SET_DIFF</tt><em class="property"> = 'SDIFF'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SET_DIFF" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SET_DIFF_STORE">
-<tt class="descname">SET_DIFF_STORE</tt><em class="property"> = 'SDIFFSTORE'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SET_DIFF_STORE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SET_INTERSECT">
-<tt class="descname">SET_INTERSECT</tt><em class="property"> = 'SINTER'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SET_INTERSECT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SET_INTERSECT_STORE">
-<tt class="descname">SET_INTERSECT_STORE</tt><em class="property"> = 'SINTERSTORE'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SET_INTERSECT_STORE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SET_IS_MEMBER">
-<tt class="descname">SET_IS_MEMBER</tt><em class="property"> = 'SISMEMBER'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SET_IS_MEMBER" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SET_MEMBERS">
-<tt class="descname">SET_MEMBERS</tt><em class="property"> = 'SMEMBERS'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SET_MEMBERS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SET_MOVE">
-<tt class="descname">SET_MOVE</tt><em class="property"> = 'SMOVE'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SET_MOVE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SET_POP">
-<tt class="descname">SET_POP</tt><em class="property"> = 'SPOP'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SET_POP" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SET_RANDOM_MEMBER">
-<tt class="descname">SET_RANDOM_MEMBER</tt><em class="property"> = 'SRANDMEMBER'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SET_RANDOM_MEMBER" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SET_REMOVE">
-<tt class="descname">SET_REMOVE</tt><em class="property"> = 'SREM'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SET_REMOVE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SET_UNION">
-<tt class="descname">SET_UNION</tt><em class="property"> = 'SUNION'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SET_UNION" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SET_UNION_STORE">
-<tt class="descname">SET_UNION_STORE</tt><em class="property"> = 'SUNIONSTORE'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SET_UNION_STORE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SHUTDOWN">
-<tt class="descname">SHUTDOWN</tt><em class="property"> = 'SHUTDOWN'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SHUTDOWN" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SLAVE_OF">
-<tt class="descname">SLAVE_OF</tt><em class="property"> = 'SLAVEOF'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SLAVE_OF" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SLOWLOG">
-<tt class="descname">SLOWLOG</tt><em class="property"> = 'SLOWLOG'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SLOWLOG" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SORTED_ADD">
-<tt class="descname">SORTED_ADD</tt><em class="property"> = 'ZADD'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SORTED_ADD" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SORTED_CARDINALITY">
-<tt class="descname">SORTED_CARDINALITY</tt><em class="property"> = 'ZCARD'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SORTED_CARDINALITY" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SORTED_COUNT">
-<tt class="descname">SORTED_COUNT</tt><em class="property"> = 'ZCOUNT'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SORTED_COUNT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SORTED_INCREMENT_BY">
-<tt class="descname">SORTED_INCREMENT_BY</tt><em class="property"> = 'ZINCRBY'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SORTED_INCREMENT_BY" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SORTED_INDEX_BY_SCORE">
-<tt class="descname">SORTED_INDEX_BY_SCORE</tt><em class="property"> = 'ZREVRANK'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SORTED_INDEX_BY_SCORE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SORTED_INTERSECT_STORE">
-<tt class="descname">SORTED_INTERSECT_STORE</tt><em class="property"> = 'ZINTERSTORE'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SORTED_INTERSECT_STORE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SORTED_MEMBERS_BY_INDEX">
-<tt class="descname">SORTED_MEMBERS_BY_INDEX</tt><em class="property"> = 'ZREVRANGE'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SORTED_MEMBERS_BY_INDEX" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SORTED_MEMBERS_BY_SCORE">
-<tt class="descname">SORTED_MEMBERS_BY_SCORE</tt><em class="property"> = 'ZREVRANGEBYSCORE'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SORTED_MEMBERS_BY_SCORE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SORTED_RANGE">
-<tt class="descname">SORTED_RANGE</tt><em class="property"> = 'ZRANGE'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SORTED_RANGE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SORTED_RANGE_BY_SCORE">
-<tt class="descname">SORTED_RANGE_BY_SCORE</tt><em class="property"> = 'ZRANGEBYSCORE'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SORTED_RANGE_BY_SCORE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SORTED_RANK">
-<tt class="descname">SORTED_RANK</tt><em class="property"> = 'ZRANK'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SORTED_RANK" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SORTED_REMOVE">
-<tt class="descname">SORTED_REMOVE</tt><em class="property"> = 'ZREM'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SORTED_REMOVE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SORTED_REMOVE_RANGE_BY_RANK">
-<tt class="descname">SORTED_REMOVE_RANGE_BY_RANK</tt><em class="property"> = 'ZREMRANGEBYRANK'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SORTED_REMOVE_RANGE_BY_RANK" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SORTED_REMOVE_RANGE_BY_SCORE">
-<tt class="descname">SORTED_REMOVE_RANGE_BY_SCORE</tt><em class="property"> = 'ZREMRANGEBYSCORE'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SORTED_REMOVE_RANGE_BY_SCORE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SORTED_SCORE">
-<tt class="descname">SORTED_SCORE</tt><em class="property"> = 'ZSCORE'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SORTED_SCORE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SORTED_UNION_STORE">
-<tt class="descname">SORTED_UNION_STORE</tt><em class="property"> = 'ZUNIONSTORE'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SORTED_UNION_STORE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.STRING_LENGTH">
-<tt class="descname">STRING_LENGTH</tt><em class="property"> = 'STRLEN'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.STRING_LENGTH" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SUBSCRIBE">
-<tt class="descname">SUBSCRIBE</tt><em class="property"> = 'SUBSCRIBE'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SUBSCRIBE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.SYNC">
-<tt class="descname">SYNC</tt><em class="property"> = 'SYNC'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.SYNC" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.TIME">
-<tt class="descname">TIME</tt><em class="property"> = 'TIME'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.TIME" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.UNSUBSCRIBE">
-<tt class="descname">UNSUBSCRIBE</tt><em class="property"> = 'UNSUBSCRIBE'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.UNSUBSCRIBE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.UNWATCH">
-<tt class="descname">UNWATCH</tt><em class="property"> = 'UNWATCH'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.UNWATCH" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.Operations.WATCH">
-<tt class="descname">WATCH</tt><em class="property"> = 'WATCH'</em><a class="headerlink" href="#components.datastore.DatastoreEngine.Operations.WATCH" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
 <dl class="attribute">
 <dt id="components.datastore.DatastoreEngine.error">
-<tt class="descclassname">DatastoreEngine.</tt><tt class="descname">error</tt><a class="reference internal" href="_modules/components/datastore.html#DatastoreEngine.error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.datastore.DatastoreEngine.error" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">error</tt><a class="reference internal" href="_modules/components/datastore.html#DatastoreEngine.error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.datastore.DatastoreEngine.error" title="Permalink to this definition">¶</a></dt>
 <dd><p>Err to the current tracker.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="components.datastore.DatastoreEngine.execute">
-<tt class="descclassname">DatastoreEngine.</tt><tt class="descname">execute</tt><big>(</big><em>operations</em><big>)</big><a class="reference internal" href="_modules/components/datastore.html#DatastoreEngine.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.datastore.DatastoreEngine.execute" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">execute</tt><big>(</big><em>operations</em><big>)</big><a class="reference internal" href="_modules/components/datastore.html#DatastoreEngine.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.datastore.DatastoreEngine.execute" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform a write operation against Redis.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="components.datastore.DatastoreEngine.fire">
-<tt class="descclassname">DatastoreEngine.</tt><tt class="descname">fire</tt><big>(</big><em>operation</em>, <em>autobatch=True</em><big>)</big><a class="reference internal" href="_modules/components/datastore.html#DatastoreEngine.fire"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.datastore.DatastoreEngine.fire" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">fire</tt><big>(</big><em>operation</em>, <em>autobatch=True</em><big>)</big><a class="reference internal" href="_modules/components/datastore.html#DatastoreEngine.fire"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.datastore.DatastoreEngine.fire" title="Permalink to this definition">¶</a></dt>
 <dd><p>Execution entrypoint for a queued item.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="components.datastore.DatastoreEngine.inflight">
-<tt class="descclassname">DatastoreEngine.</tt><tt class="descname">inflight</tt><em class="property"> = None</em><a class="headerlink" href="#components.datastore.DatastoreEngine.inflight" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">inflight</tt><em class="property"> = None</em><a class="headerlink" href="#components.datastore.DatastoreEngine.inflight" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="components.datastore.DatastoreEngine.log">
-<tt class="descclassname">DatastoreEngine.</tt><tt class="descname">log</tt><a class="reference internal" href="_modules/components/datastore.html#DatastoreEngine.log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.datastore.DatastoreEngine.log" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">log</tt><a class="reference internal" href="_modules/components/datastore.html#DatastoreEngine.log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.datastore.DatastoreEngine.log" title="Permalink to this definition">¶</a></dt>
 <dd><p>Log to the current tracker.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.redis">
-<tt class="descclassname">DatastoreEngine.</tt><tt class="descname">redis</tt><a class="reference internal" href="_modules/components/datastore.html#DatastoreEngine.redis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.datastore.DatastoreEngine.redis" title="Permalink to this definition">¶</a></dt>
-<dd><p>Retrieve the current Redis connection object.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="components.datastore.DatastoreEngine.serialize">
-<tt class="descclassname">DatastoreEngine.</tt><tt class="descname">serialize</tt><big>(</big><em>deque</em><big>)</big><a class="reference internal" href="_modules/components/datastore.html#DatastoreEngine.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.datastore.DatastoreEngine.serialize" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">serialize</tt><big>(</big><em>deque</em><big>)</big><a class="reference internal" href="_modules/components/datastore.html#DatastoreEngine.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.datastore.DatastoreEngine.serialize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Serialize a single operation into an appropriate Redis call.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.socket">
-<tt class="descclassname">DatastoreEngine.</tt><tt class="descname">socket</tt><em class="property"> = None</em><a class="headerlink" href="#components.datastore.DatastoreEngine.socket" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
 <dt id="components.datastore.DatastoreEngine.tracker">
-<tt class="descclassname">DatastoreEngine.</tt><tt class="descname">tracker</tt><em class="property"> = None</em><a class="headerlink" href="#components.datastore.DatastoreEngine.tracker" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">tracker</tt><em class="property"> = None</em><a class="headerlink" href="#components.datastore.DatastoreEngine.tracker" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="components.datastore.DatastoreEngine.verbose">
-<tt class="descclassname">DatastoreEngine.</tt><tt class="descname">verbose</tt><a class="reference internal" href="_modules/components/datastore.html#DatastoreEngine.verbose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.datastore.DatastoreEngine.verbose" title="Permalink to this definition">¶</a></dt>
-<dd><p>Verbose-log to the current tracker.</p>
+<tt class="descname">verbose</tt><a class="reference internal" href="_modules/components/datastore.html#DatastoreEngine.verbose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.datastore.DatastoreEngine.verbose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log verbosely to the current tracker.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="components.datastore.DatastoreEngine.warn">
-<tt class="descclassname">DatastoreEngine.</tt><tt class="descname">warn</tt><a class="reference internal" href="_modules/components/datastore.html#DatastoreEngine.warn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.datastore.DatastoreEngine.warn" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">warn</tt><a class="reference internal" href="_modules/components/datastore.html#DatastoreEngine.warn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.datastore.DatastoreEngine.warn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Warn to the current tracker.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="components.datastore.DatastoreEngine.writepool">
-<tt class="descclassname">DatastoreEngine.</tt><tt class="descname">writepool</tt><a class="reference internal" href="_modules/components/datastore.html#DatastoreEngine.writepool"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.datastore.DatastoreEngine.writepool" title="Permalink to this definition">¶</a></dt>
-<dd><p>Retrieve the global writepool.</p>
 </dd></dl>
 
 </dd></dl>
@@ -788,7 +207,7 @@ supports command pipelining and configurable autobatching.</p>
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Ampush, Inc.
+        &copy; Copyright 2013, Ampush.
     </div>
   </body>
 </html>

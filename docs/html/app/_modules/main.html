@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'alpha',
+        VERSION:     '0.5-alpha-dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -51,14 +51,122 @@
             
   <h1>Source code for main</h1><div class="highlight"><pre>
 <span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This is where it all begins... ah, the wonderful *main.py*.</span>
+<span class="sd">From here, we stitch together :py:mod:`apptools` and :py:mod:`gevent`</span>
+<span class="sd">to provide an entrypoint for both :py:class:`components.tracker.EventTracker` and</span>
+<span class="sd">:py:mod:`apptools.dispatch`.</span>
 
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">In addition to being the WSGI entrypoint for AppFactory (and any other WSGI-compliant</span>
+<span class="sd">platform), this is also where you run the devserver...</span>
 
-<span class="sd">AmpushHermes</span>
+<span class="sd">Running the devserver</span>
+<span class="sd">---------------------</span>
 
-<span class="sd">-sam (&lt;sam.gammon@ampush.com&gt;)</span>
+<span class="sd">Only one WSGI application can be run at a time, and running ``Hermes``</span>
+<span class="sd">or :py:class:`EventTracker` can easily be done from the same tool.</span>
 
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">From the root of your project (the folder outside *app/*):</span>
+
+<span class="sd">.. code-block :: console</span>
+
+<span class="sd">    $ tools/devserver tracker</span>
+
+<span class="sd">    ==== Hermes Devserver ====</span>
+<span class="sd">    Preloaded module bundle: &quot;apptools&quot;.</span>
+<span class="sd">    Preloaded module bundle: &quot;tracker&quot;.</span>
+<span class="sd">    Failed to preload compiled templates.</span>
+<span class="sd">    Preloaded module bundle: &quot;hermes&quot;.</span>
+<span class="sd">    [TRACKER]: Datastore: Initialized datastore engine.</span>
+<span class="sd">    [TRACKER]: Debug mode is ON, serving on port 8080.</span>
+
+<span class="sd">    !! Started listener for app &lt;components.tracker.EventTracker&gt; on host/port :8080. !!</span>
+
+
+<span class="sd">This runs ``EventTracker`` on the default devserver port, which is defined at</span>
+<span class="sd">:py:attr:`config._DEVSERVER_PORT` and defaults to 8080.</span>
+
+<span class="sd">If you&#39;d like to start up ``Hermes``, perhaps on port 80 instead, just replace</span>
+<span class="sd">*tracker* with *api*, like so:</span>
+
+<span class="sd">.. code-block :: console</span>
+
+<span class="sd">    $ sudo tools/devserver api --port=80</span>
+
+
+<span class="sd">.. note :: For ports under 1024, Unix/Linux requires the use of :command:`sudo`.</span>
+
+
+<span class="sd">Dispatching in production</span>
+<span class="sd">-------------------------</span>
+
+<span class="sd">Many platforms, including *AppFactory* and *Google App Engine*, dispatch Python applications</span>
+<span class="sd">over WSGI. **This app&#39;s main module can be used with WSGI** - applications are exported at</span>
+<span class="sd">:py:class:`main.EventTracker` and :py:class:`main.APIServer` for *EventTracker* and *Hermes*,</span>
+<span class="sd">respectively.</span>
+
+<span class="sd">Here&#39;s a sample *app.yaml* file for *AppFactory*:</span>
+
+<span class="sd">.. code-block :: yaml</span>
+
+<span class="sd">    appfactory:</span>
+<span class="sd">      dispatch: main:APIServer</span>
+<span class="sd">      processes: 2</span>
+<span class="sd">      threads: 20</span>
+
+<span class="sd">As you might imagine, the above will start 2 app processes with 20 dedicated app threads each.</span>
+<span class="sd">Apps hosted on :py:mod:`gevent` are just as easy:</span>
+
+<span class="sd">.. code-block :: yaml</span>
+
+<span class="sd">    appfactory:</span>
+<span class="sd">        dispatch: main:EventTracker</span>
+<span class="sd">        runtime: gevent</span>
+<span class="sd">        greenlets: 1000</span>
+<span class="sd">        processes: 1</span>
+
+
+<span class="sd">Note that *AppFactory* will monkey-patch the CPython standard library for you when you use</span>
+<span class="sd">the ``gevent`` runtime. To prevent this behavior, simply append ``monkey: off``.</span>
+
+<span class="sd">.. note :: Multiple processes with :py:mod:`gevent` enabled is **not recommended**. In many</span>
+<span class="sd">           cases, you can actually achieve *better* concurrency using Greenlets in a single</span>
+<span class="sd">           process only, as the native OS management overhead tends to outweigh performance</span>
+<span class="sd">           benefits significantly.</span>
+
+
+<span class="sd">Just for good measure, here is an *AppEngine*-compatible *app.yaml* file (you can also</span>
+<span class="sd">specify an *appfactory.yaml* file to avoid compatibility issues and run on *both* platforms!):</span>
+
+<span class="sd">.. code-block :: yaml</span>
+
+<span class="sd">    application: my-cool-app</span>
+<span class="sd">    version: docs-sample</span>
+
+<span class="sd">    runtime: python27</span>
+<span class="sd">    api_version: 1</span>
+<span class="sd">    threadsafe: yes</span>
+
+<span class="sd">    handlers:</span>
+
+<span class="sd">    - url: /v1</span>
+<span class="sd">      script: main.APIServer</span>
+
+<span class="sd">    - url: /.*</span>
+<span class="sd">      script: main.EventTracker</span>
+
+
+<span class="sd">To be clear, those module endpoints are completely *WSGI-compliant*, meaning you could</span>
+<span class="sd">also simply import them and run them however you want, even from a regular Python shell.</span>
+
+
+<span class="sd">:author: Sam Gammon (sam.gammon@ampush.com)</span>
+<span class="sd">:copyright: (c) 2013 Ampush.</span>
+<span class="sd">:license: This is private source code - all rights are reserved. For details about</span>
+<span class="sd">          embedded licenses and other legalese, see `LICENSE.md`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="n">__docformat__</span> <span class="o">=</span> <span class="s">&#39;restructuredtext en&#39;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&#39;0.5&#39;</span>
 
 <span class="c"># stdlib / app</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -77,23 +185,17 @@
 
 <span class="c"># uWSGI</span>
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">uwsgi</span>
+    <span class="kn">import</span> <span class="nn">uwsgi</span><span class="p">;</span> <span class="n">PLATFORM</span> <span class="o">=</span> <span class="s">&#39;uWSGI&#39;</span>
 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
     <span class="c">## Not running from uWSGI.</span>
     <span class="n">PLATFORM</span> <span class="o">=</span> <span class="s">&#39;WSGI&#39;</span>
-<span class="k">else</span><span class="p">:</span>
-    <span class="c"># Monkey-patching is done for us in production by uWSGI</span>
-    <span class="n">PLATFORM</span> <span class="o">=</span> <span class="s">&#39;uWSGI&#39;</span>
 
 <span class="c"># PyPy</span>
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">pypycore</span>
+    <span class="kn">import</span> <span class="nn">pypycore</span><span class="p">;</span> <span class="n">RUNTIME</span> <span class="o">=</span> <span class="s">&#39;PyPy&#39;</span>
 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
     <span class="c">## Not running in PyPy.</span>
     <span class="n">RUNTIME</span> <span class="o">=</span> <span class="s">&#39;CPython&#39;</span>
-<span class="k">else</span><span class="p">:</span>  <span class="c"># pragma: no cover</span>
-    <span class="c">## Running in PyPy.</span>
-    <span class="n">RUNTIME</span> <span class="o">=</span> <span class="s">&#39;PyPy&#39;</span>
 
 <span class="c"># gevent</span>
 <span class="kn">import</span> <span class="nn">gevent</span>
@@ -131,7 +233,24 @@
 </div>
 <div class="viewcode-block" id="devserver"><a class="viewcode-back" href="../main.html#main.devserver">[docs]</a><span class="k">def</span> <span class="nf">devserver</span><span class="p">(</span><span class="n">app</span><span class="o">=</span><span class="n">EventTracker</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">_DEVSERVER_PORT</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">_DEVSERVER_HOST</span><span class="p">):</span>
 
-    <span class="sd">&#39;&#39;&#39; Start a local listener for development. &#39;&#39;&#39;</span>
+    <span class="sd">&#39;&#39;&#39; Start a local listener for development, using :py:mod:`gevent.pywsgi`.</span>
+
+<span class="sd">        :param app:</span>
+<span class="sd">            WSGI application to run. Defaults to :py:class:`components.tracker.EventTracker`.</span>
+
+<span class="sd">        :param port:</span>
+<span class="sd">            Port to run the application on. Defaults to the value of :py:attr:`config._DEVSERVER_PORT`,</span>
+<span class="sd">            which is usually set to ``8080``.</span>
+
+<span class="sd">        :param host:</span>
+<span class="sd">            IP to bind the devserver to. Defaults to the value of :py:attr:`config._DEVSERVER_HOST`,</span>
+<span class="sd">            which is usually set to ``127.0.0.1``. Setting this value to an empty string binds to</span>
+<span class="sd">            all available IPs - *make sure it is not set to this in production*.</span>
+
+<span class="sd">        .. note :: Dispatching this function from Python (or the command line) will block forever</span>
+<span class="sd">                   via :py:meth:`pyuwsgi.WSGIServer.serve_forever`.</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
 
     <span class="k">global</span> <span class="n">_locals</span>
     <span class="k">global</span> <span class="n">_patched</span>
@@ -275,7 +394,7 @@
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Ampush, Inc.
+        &copy; Copyright 2013, Ampush.
     </div>
   </body>
 </html>

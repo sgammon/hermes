@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../../',
-        VERSION:     'alpha',
+        VERSION:     '0.5-alpha-dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -73,20 +73,13 @@
 
 <span class="sd">&#39;&#39;&#39;</span>
 
-<span class="c"># stdlib</span>
-<span class="kn">import</span> <span class="nn">time</span>
-
-<span class="c"># 3rd party</span>
-<span class="kn">import</span> <span class="nn">webapp2</span>
-
 <span class="c"># adapter API</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">abstract</span>
 <span class="kn">from</span> <span class="nn">.abstract</span> <span class="kn">import</span> <span class="n">IndexedModelAdapter</span>
 
 <span class="c"># apptools util</span>
 <span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">json</span>
-<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">debug</span>
 <span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">decorators</span>
-<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">datastructures</span>
 
 <span class="c"># resolve msgpack</span>
 <span class="k">try</span><span class="p">:</span>
@@ -153,9 +146,8 @@
     <span class="n">_kind_prefix</span> <span class="o">=</span> <span class="s">&#39;__kind__&#39;</span>
     <span class="n">_magic_separator</span> <span class="o">=</span> <span class="s">&#39;::&#39;</span>
 
-
     <span class="c">## EngineConfig</span>
-    <span class="c"># Holds hard-coded configuration values for the `RedisAdapter` engine. Values can be overridden via the same name existing in config.</span>
+    <span class="c"># Holds hard-coded configuration values for the `RedisAdapter` engine.</span>
 <div class="viewcode-block" id="RedisAdapter.EngineConfig"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.redis.RedisAdapter.EngineConfig">[docs]</a>    <span class="k">class</span> <span class="nc">EngineConfig</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
         <span class="sd">&#39;&#39;&#39; Configuration for the `RedisAdapter` engine. &#39;&#39;&#39;</span>
@@ -163,7 +155,6 @@
         <span class="n">encoding</span> <span class="o">=</span> <span class="bp">True</span>  <span class="c"># encoding for keys and special values</span>
         <span class="n">compression</span> <span class="o">=</span> <span class="bp">False</span>  <span class="c"># compression for serialized data values</span>
         <span class="n">mode</span> <span class="o">=</span> <span class="n">RedisMode</span><span class="o">.</span><span class="n">toplevel_blob</span>  <span class="c"># internal mode of operation</span>
-
 
     <span class="c">## Operations</span>
     <span class="c"># Holds bound names for available Redis operations.</span></div>
@@ -249,13 +240,13 @@
         <span class="n">SORTED_CARDINALITY</span> <span class="o">=</span> <span class="s">&#39;ZCARD&#39;</span>  <span class="c"># get the number of members in a sorted set (cardinality)</span>
         <span class="n">SORTED_UNION_STORE</span> <span class="o">=</span> <span class="s">&#39;ZUNIONSTORE&#39;</span>  <span class="c"># compute the union of two sorted sets, storing the result at a new key</span>
         <span class="n">SORTED_INCREMENT_BY</span> <span class="o">=</span> <span class="s">&#39;ZINCRBY&#39;</span>  <span class="c"># increment the score of a member in a sorted set by X</span>
-        <span class="n">SORTED_INDEX_BY_SCORE</span> <span class="o">=</span> <span class="s">&#39;ZREVRANK&#39;</span>  <span class="c"># determine the index of a member in a sorted set, with scores ordered high=&gt;low</span>
+        <span class="n">SORTED_INDEX_BY_SCORE</span> <span class="o">=</span> <span class="s">&#39;ZREVRANK&#39;</span>  <span class="c"># determine the index of a member in a sorted set, scores ordered high=&gt;low</span>
         <span class="n">SORTED_RANGE_BY_SCORE</span> <span class="o">=</span> <span class="s">&#39;ZRANGEBYSCORE&#39;</span>  <span class="c"># return a range of members in a sorted set, by score</span>
         <span class="n">SORTED_INTERSECT_STORE</span> <span class="o">=</span> <span class="s">&#39;ZINTERSTORE&#39;</span>  <span class="c"># intersect multiple sets, storing the result in a new key</span>
-        <span class="n">SORTED_MEMBERS_BY_INDEX</span> <span class="o">=</span> <span class="s">&#39;ZREVRANGE&#39;</span>  <span class="c"># return a range of members in a sorted set, by index, scores ordered high=&gt;low</span>
+        <span class="n">SORTED_MEMBERS_BY_INDEX</span> <span class="o">=</span> <span class="s">&#39;ZREVRANGE&#39;</span>  <span class="c"># get a range of members in a sorted set. by index, scores high=&gt;low</span>
         <span class="n">SORTED_MEMBERS_BY_SCORE</span> <span class="o">=</span> <span class="s">&#39;ZREVRANGEBYSCORE&#39;</span>  <span class="c"># remove all members in a sorted set within the given scores</span>
         <span class="n">SORTED_REMOVE_RANGE_BY_RANK</span> <span class="o">=</span> <span class="s">&#39;ZREMRANGEBYRANK&#39;</span>  <span class="c"># remove members in a sorted set within a given range of ranks</span>
-        <span class="n">SORTED_REMOVE_RANGE_BY_SCORE</span> <span class="o">=</span> <span class="s">&#39;ZREMRANGEBYSCORE&#39;</span>  <span class="c"># remove members in a sorted set within a given range of scores</span>
+        <span class="n">SORTED_REMOVE_RANGE_BY_SCORE</span> <span class="o">=</span> <span class="s">&#39;ZREMRANGEBYSCORE&#39;</span>  <span class="c"># remove members in a sorted set within a range of scores</span>
 
         <span class="c">## Pub/Sub Operations</span>
         <span class="n">PUBLISH</span> <span class="o">=</span> <span class="s">&#39;PUBLISH&#39;</span>  <span class="c"># publish a message to a specific pub/sub channel</span>
@@ -267,7 +258,7 @@
         <span class="c">## Transactional Operations</span>
         <span class="n">EXEC</span> <span class="o">=</span> <span class="s">&#39;EXEC&#39;</span>  <span class="c"># execute buffered commands in a pipeline queue</span>
         <span class="n">MULTI</span> <span class="o">=</span> <span class="s">&#39;MULTI&#39;</span>  <span class="c"># start a new pipeline, where commands can be buffered</span>
-        <span class="n">WATCH</span> <span class="o">=</span> <span class="s">&#39;WATCH&#39;</span>  <span class="c"># watch a key, such that we can receive a notification in the event it is modified while watching</span>
+        <span class="n">WATCH</span> <span class="o">=</span> <span class="s">&#39;WATCH&#39;</span>  <span class="c"># watch a key, such that we can receive a notification in the event it is modified</span>
         <span class="n">UNWATCH</span> <span class="o">=</span> <span class="s">&#39;UNWATCH&#39;</span>  <span class="c"># unwatch all currently watched keys</span>
         <span class="n">DISCARD</span> <span class="o">=</span> <span class="s">&#39;DISCARD&#39;</span>  <span class="c"># discard buffered commands in a pipeline completely</span>
 
@@ -346,7 +337,7 @@
                 <span class="k">return</span> <span class="bp">None</span>  <span class="c"># no servers to connect to (on noez)</span>
 
             <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">servers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&#39;default&#39;</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;default&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&#39;default&#39;</span> <span class="ow">or</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;default&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">):</span>
                     <span class="n">_default_profile</span> <span class="o">=</span> <span class="n">name</span>
                 <span class="k">elif</span> <span class="ow">not</span> <span class="n">_default_profile</span><span class="p">:</span>  <span class="c"># pragma: no cover</span>
                     <span class="n">_default_profile</span> <span class="o">=</span> <span class="n">name</span>
@@ -355,7 +346,8 @@
         <span class="c"># Resolve specific adapter, if listed explicitly</span>
         <span class="k">if</span> <span class="s">&#39;__redis__&#39;</span> <span class="ow">in</span> <span class="n">properties</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">properties</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;__redis__&#39;</span><span class="p">),</span> <span class="nb">basestring</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">properties</span><span class="p">[</span><span class="s">&#39;__redis__&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">servers</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Model </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s"> mapped to non-existent Redis profile </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">properties</span><span class="p">[</span><span class="s">&#39;__redis__&#39;</span><span class="p">]))</span>
+                <span class="n">error</span> <span class="o">=</span> <span class="s">&quot;Model </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s"> mapped to non-existent Redis profile </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">properties</span><span class="p">[</span><span class="s">&#39;__redis__&#39;</span><span class="p">])</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">_profiles_by_model</span><span class="p">[</span><span class="s">&#39;index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
                 <span class="n">_profiles_by_model</span><span class="p">[</span><span class="s">&#39;map&#39;</span><span class="p">][</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">servers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">properties</span><span class="p">[</span><span class="s">&#39;__redis__&#39;</span><span class="p">],</span> <span class="n">_default_profile</span><span class="p">)</span>
@@ -413,7 +405,7 @@
 
         <span class="n">joined</span><span class="p">,</span> <span class="n">flattened</span> <span class="o">=</span> <span class="n">key</span>
         <span class="k">if</span> <span class="n">cls</span><span class="o">.</span><span class="n">EngineConfig</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="n">RedisMode</span><span class="o">.</span><span class="n">toplevel_blob</span><span class="p">:</span>
-            
+
             <span class="c"># execute query</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">Operations</span><span class="o">.</span><span class="n">GET</span><span class="p">,</span> <span class="n">flattened</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">joined</span><span class="p">)</span>
 
@@ -547,7 +539,7 @@
         <span class="sd">&#39;&#39;&#39; Encode a Key for storage in Redis. &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="n">cls</span><span class="o">.</span><span class="n">EngineConfig</span><span class="o">.</span><span class="n">encoding</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">_encoder</span><span class="p">(</span><span class="n">joined</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">abstract</span><span class="o">.</span><span class="n">_encoder</span><span class="p">(</span><span class="n">joined</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">joined</span>
 </div>
 <div class="viewcode-block" id="RedisAdapter.write_indexes"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.redis.RedisAdapter.write_indexes">[docs]</a>    <span class="k">def</span> <span class="nf">write_indexes</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">writes</span><span class="p">):</span>  <span class="c"># pragma: no cover</span>
@@ -609,7 +601,7 @@
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Ampush, Inc.
+        &copy; Copyright 2013, Ampush.
     </div>
   </body>
 </html>

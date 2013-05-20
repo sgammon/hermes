@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'alpha',
+        VERSION:     '0.5-alpha-dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -52,21 +52,27 @@
   <h1>Source code for bootstrap</h1><div class="highlight"><pre>
 <span class="c"># -*- coding: utf-8 -*-</span>
 
-<span class="sd">&#39;&#39;&#39;</span>
-
-<span class="sd">AmpushHermes: Bootstrapper</span>
-
+<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This small utility file is loaded by AppTools and executed as early</span>
 <span class="sd">as possible in the execution flow, to facilitate the injection of</span>
 <span class="sd">paths onto `sys.path`, preloading, and other process-level init for</span>
 <span class="sd">the app.</span>
 
-<span class="sd">-sam (&lt;sam.gammon@ampush.com&gt;)</span>
+<span class="sd">It&#39;s dead simple to use::</span>
 
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    # -*- coding: utf-8 -*-</span>
+
+<span class="sd">    import bootstrap</span>
+<span class="sd">    bootstrap.AppBootstrapper.prepareImports().preload()</span>
+
+
+<span class="sd">:author: Sam Gammon (sam.gammon@ampush.com)</span>
+<span class="sd">:copyright: (c) 2013 Ampush.</span>
+<span class="sd">:license: This is private source code - all rights are reserved. For details about</span>
+<span class="sd">          embedded licenses and other legalese, see `LICENSE.md`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="c"># stdlib</span>
-<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
 <span class="c"># Globals</span>
@@ -76,14 +82,25 @@
 <span class="c">## AppBootstrapper - does basic app startup/boot tasks.</span>
 <div class="viewcode-block" id="AppBootstrapper"><a class="viewcode-back" href="../bootstrap.html#bootstrap.AppBootstrapper">[docs]</a><span class="k">class</span> <span class="nc">AppBootstrapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
-    <span class="sd">&#39;&#39;&#39; Bootstrap this app for WSGI. &#39;&#39;&#39;</span>
+    <span class="sd">&#39;&#39;&#39; Performs early app bootstrap procedures, such as</span>
+<span class="sd">        adding to :py:attr:`sys.path` and preloading</span>
+<span class="sd">        :py:mod:`apptools`.</span>
+
+<span class="sd">        Paths from :py:attr:`cls.injected_paths` are added to :py:attr:`sys.path`</span>
+<span class="sd">        if they are not present. This class is designed to</span>
+<span class="sd">        be idempotent - a module-global flag (*_bootstrapped*)</span>
+<span class="sd">        is flipped once the bootstrapper has run.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
 
     <span class="n">injected_paths</span> <span class="o">=</span> <span class="s">&#39;lib&#39;</span><span class="p">,</span> <span class="s">&#39;lib/dist&#39;</span><span class="p">,</span> <span class="s">&#39;/momentum&#39;</span>
 
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="AppBootstrapper.prepareImports"><a class="viewcode-back" href="../bootstrap.html#bootstrap.AppBootstrapper.prepareImports">[docs]</a>    <span class="k">def</span> <span class="nf">prepareImports</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Prepare Python import path. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Prepare Python import path.</span>
+
+<span class="sd">            :returns: :class:`AppBootstrapper`.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">global</span> <span class="n">_bootstrapped</span>
 
@@ -97,7 +114,14 @@
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="AppBootstrapper.preloadApptools"><a class="viewcode-back" href="../bootstrap.html#bootstrap.AppBootstrapper.preloadApptools">[docs]</a>    <span class="k">def</span> <span class="nf">preloadApptools</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">_DEBUG</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Preload AppTools modules. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Preload AppTools modules.</span>
+
+<span class="sd">            :param _DEBUG:</span>
+<span class="sd">                If truthy, re-raises *ImportErrors* encountered during</span>
+<span class="sd">                the module preload routine. Defaults to ``False``.</span>
+<span class="sd">            :returns: :py:class:`AppBootstrapper`.</span>
+<span class="sd">            :raises: Re-raises :py:exc:`ImportError`.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="kn">import</span> <span class="nn">apptools</span>  <span class="c"># apptools, by momentum :)</span>
 
@@ -167,11 +191,22 @@
         <span class="kn">from</span> <span class="nn">apptools.services</span> <span class="kn">import</span> <span class="n">mappers</span>
         <span class="kn">from</span> <span class="nn">apptools.services</span> <span class="kn">import</span> <span class="n">realtime</span>
         <span class="kn">from</span> <span class="nn">apptools.services</span> <span class="kn">import</span> <span class="n">middleware</span>
+
+        <span class="k">return</span> <span class="n">cls</span>
 </div>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="AppBootstrapper.preloadHermes"><a class="viewcode-back" href="../bootstrap.html#bootstrap.AppBootstrapper.preloadHermes">[docs]</a>    <span class="k">def</span> <span class="nf">preloadHermes</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">_DEBUG</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Preload Hermes modules. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Preload Hermes modules.</span>
+
+<span class="sd">            :keyword _DEBUG:</span>
+<span class="sd">                If truthy, re-raises *ImportErrors* encountered during</span>
+<span class="sd">                the module preload routine. Defaults to ``False``.</span>
+<span class="sd">            :returns: :py:class:`AppBootstrapper`.</span>
+<span class="sd">            :raises: :py:exc:`ImportError` if ``_DEBUG`` is ``True``</span>
+<span class="sd">                     and a descendent of :py:exc:`ImportError` is</span>
+<span class="sd">                     encountered during execution.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="kn">import</span> <span class="nn">api</span>  <span class="c"># Project: Hermes</span>
 
@@ -286,11 +321,20 @@
             <span class="k">if</span> <span class="n">_DEBUG</span><span class="p">:</span>
                 <span class="k">print</span> <span class="s">&quot;Failed to preload compiled templates.&quot;</span>
             <span class="k">pass</span>
+
+        <span class="k">return</span> <span class="n">cls</span>
 </div>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="AppBootstrapper.preloadTracker"><a class="viewcode-back" href="../bootstrap.html#bootstrap.AppBootstrapper.preloadTracker">[docs]</a>    <span class="k">def</span> <span class="nf">preloadTracker</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">_DEBUG</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Preload Tracker modules. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Preload Tracker modules.</span>
+
+<span class="sd">            :param _DEBUG:</span>
+<span class="sd">                If truthy, re-raises *ImportErrors* encountered during</span>
+<span class="sd">                the module preload routine. Defaults to ``False``.</span>
+<span class="sd">            :returns: :py:class:`AppBootstrapper`.</span>
+<span class="sd">            :raises: Re-raises :py:exc:`ImportError`.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="c"># === Tools === #</span>
         <span class="kn">import</span> <span class="nn">tools</span>
@@ -314,16 +358,28 @@
         <span class="c"># Datastore</span>
         <span class="kn">from</span> <span class="nn">components</span> <span class="kn">import</span> <span class="n">datastore</span>
         <span class="kn">from</span> <span class="nn">components.datastore</span> <span class="kn">import</span> <span class="n">embedded</span>
+
+        <span class="k">return</span> <span class="n">cls</span>
 </div>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="AppBootstrapper.preload"><a class="viewcode-back" href="../bootstrap.html#bootstrap.AppBootstrapper.preload">[docs]</a>    <span class="k">def</span> <span class="nf">preload</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">_DEBUG</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Preload important Python modules at construction time. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Preload important Python modules at construction time.</span>
+
+<span class="sd">            :param _DEBUG:</span>
+<span class="sd">                If truthy, re-raises *ImportErrors* encountered during</span>
+<span class="sd">                the module preload routine. Defaults to ``False``.</span>
+<span class="sd">            :returns: :py:class:`AppBootstrapper`.</span>
+<span class="sd">            :raises: :py:exc:`ImportError` if ``_DEBUG`` is ``True`` and</span>
+<span class="sd">                     a descendent of :py:exc:`ImportError` is encountered</span>
+<span class="sd">                     while executing this sub-classmethods (such as</span>
+<span class="sd">                     :py:meth:`cls.preloadApptools`).</span>
+<span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">routine</span> <span class="ow">in</span> <span class="p">((</span><span class="s">&#39;apptools&#39;</span><span class="p">,</span> <span class="n">cls</span><span class="o">.</span><span class="n">preloadApptools</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;tracker&#39;</span><span class="p">,</span> <span class="n">cls</span><span class="o">.</span><span class="n">preloadTracker</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;hermes&#39;</span><span class="p">,</span> <span class="n">cls</span><span class="o">.</span><span class="n">preloadHermes</span><span class="p">)):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">routine</span><span class="p">(</span><span class="n">_DEBUG</span><span class="p">)</span>  <span class="c"># preload modules</span>
-            <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
                 <span class="k">print</span> <span class="s">&quot;ERROR: Failed to preload module bundle </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="n">name</span>
                 <span class="k">if</span> <span class="n">_DEBUG</span><span class="p">:</span>
                     <span class="k">raise</span>
@@ -377,7 +433,7 @@
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Ampush, Inc.
+        &copy; Copyright 2013, Ampush.
     </div>
   </body>
 </html>

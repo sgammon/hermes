@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bootstrap Module &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">Hermes</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-bootstrap">
+<span id="bootstrap-module"></span><h1>bootstrap Module<a class="headerlink" href="#module-bootstrap" title="Permalink to this headline">¶</a></h1>
+<p>This small utility file is loaded by AppTools and executed as early
+as possible in the execution flow, to facilitate the injection of
+paths onto <cite>sys.path</cite>, preloading, and other process-level init for
+the app.</p>
+<p>It&#8217;s dead simple to use:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">bootstrap</span>
+<span class="n">bootstrap</span><span class="o">.</span><span class="n">AppBootstrapper</span><span class="o">.</span><span class="n">prepareImports</span><span class="p">()</span><span class="o">.</span><span class="n">preload</span><span class="p">()</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 Ampush.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - all rights are reserved. For details about
+embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="bootstrap.AppBootstrapper">
+<em class="property">class </em><tt class="descclassname">bootstrap.</tt><tt class="descname">AppBootstrapper</tt><a class="reference internal" href="../_modules/bootstrap.html#AppBootstrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bootstrap.AppBootstrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Performs early app bootstrap procedures, such as
+adding to <tt class="xref py py-attr docutils literal"><span class="pre">sys.path</span></tt> and preloading
+<tt class="xref py py-mod docutils literal"><span class="pre">apptools</span></tt>.</p>
+<p>Paths from <tt class="xref py py-attr docutils literal"><span class="pre">cls.injected_paths</span></tt> are added to <tt class="xref py py-attr docutils literal"><span class="pre">sys.path</span></tt>
+if they are not present. This class is designed to
+be idempotent - a module-global flag (<em>_bootstrapped</em>)
+is flipped once the bootstrapper has run.</p>
+<dl class="attribute">
+<dt id="bootstrap.AppBootstrapper.injected_paths">
+<tt class="descname">injected_paths</tt><em class="property"> = ('lib', 'lib/dist', '/momentum')</em><a class="headerlink" href="#bootstrap.AppBootstrapper.injected_paths" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="bootstrap.AppBootstrapper.preload">
+<em class="property">classmethod </em><tt class="descname">preload</tt><big>(</big><em>_DEBUG=False</em><big>)</big><a class="reference internal" href="../_modules/bootstrap.html#AppBootstrapper.preload"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bootstrap.AppBootstrapper.preload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preload important Python modules at construction time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>_DEBUG</strong> &#8211; If truthy, re-raises <em>ImportErrors</em> encountered during
+the module preload routine. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><a class="reference internal" href="../bootstrap.html#bootstrap.AppBootstrapper" title="bootstrap.AppBootstrapper"><tt class="xref py py-class docutils literal"><span class="pre">AppBootstrapper</span></tt></a>.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises :</th><td class="field-body"><tt class="xref py py-exc docutils literal"><span class="pre">ImportError</span></tt> if <tt class="docutils literal"><span class="pre">_DEBUG</span></tt> is <tt class="docutils literal"><span class="pre">True</span></tt> and
+a descendent of <tt class="xref py py-exc docutils literal"><span class="pre">ImportError</span></tt> is encountered
+while executing this sub-classmethods (such as
+<tt class="xref py py-meth docutils literal"><span class="pre">cls.preloadApptools()</span></tt>).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="bootstrap.AppBootstrapper.preloadApptools">
+<em class="property">classmethod </em><tt class="descname">preloadApptools</tt><big>(</big><em>_DEBUG=False</em><big>)</big><a class="reference internal" href="../_modules/bootstrap.html#AppBootstrapper.preloadApptools"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bootstrap.AppBootstrapper.preloadApptools" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preload AppTools modules.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>_DEBUG</strong> &#8211; If truthy, re-raises <em>ImportErrors</em> encountered during
+the module preload routine. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><a class="reference internal" href="../bootstrap.html#bootstrap.AppBootstrapper" title="bootstrap.AppBootstrapper"><tt class="xref py py-class docutils literal"><span class="pre">AppBootstrapper</span></tt></a>.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises :</th><td class="field-body">Re-raises <tt class="xref py py-exc docutils literal"><span class="pre">ImportError</span></tt>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="bootstrap.AppBootstrapper.preloadHermes">
+<em class="property">classmethod </em><tt class="descname">preloadHermes</tt><big>(</big><em>_DEBUG=False</em><big>)</big><a class="reference internal" href="../_modules/bootstrap.html#AppBootstrapper.preloadHermes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bootstrap.AppBootstrapper.preloadHermes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preload Hermes modules.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>_DEBUG</strong> &#8211; If truthy, re-raises <em>ImportErrors</em> encountered during
+the module preload routine. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><a class="reference internal" href="../bootstrap.html#bootstrap.AppBootstrapper" title="bootstrap.AppBootstrapper"><tt class="xref py py-class docutils literal"><span class="pre">AppBootstrapper</span></tt></a>.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises :</th><td class="field-body"><tt class="xref py py-exc docutils literal"><span class="pre">ImportError</span></tt> if <tt class="docutils literal"><span class="pre">_DEBUG</span></tt> is <tt class="docutils literal"><span class="pre">True</span></tt>
+and a descendent of <tt class="xref py py-exc docutils literal"><span class="pre">ImportError</span></tt> is
+encountered during execution.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="bootstrap.AppBootstrapper.preloadTracker">
+<em class="property">classmethod </em><tt class="descname">preloadTracker</tt><big>(</big><em>_DEBUG=False</em><big>)</big><a class="reference internal" href="../_modules/bootstrap.html#AppBootstrapper.preloadTracker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bootstrap.AppBootstrapper.preloadTracker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preload Tracker modules.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>_DEBUG</strong> &#8211; If truthy, re-raises <em>ImportErrors</em> encountered during
+the module preload routine. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><a class="reference internal" href="../bootstrap.html#bootstrap.AppBootstrapper" title="bootstrap.AppBootstrapper"><tt class="xref py py-class docutils literal"><span class="pre">AppBootstrapper</span></tt></a>.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises :</th><td class="field-body">Re-raises <tt class="xref py py-exc docutils literal"><span class="pre">ImportError</span></tt>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="bootstrap.AppBootstrapper.prepareImports">
+<em class="property">classmethod </em><tt class="descname">prepareImports</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/bootstrap.html#AppBootstrapper.prepareImports"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bootstrap.AppBootstrapper.prepareImports" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare Python import path.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><a class="reference internal" href="../bootstrap.html#bootstrap.AppBootstrapper" title="bootstrap.AppBootstrapper"><tt class="xref py py-class docutils literal"><span class="pre">AppBootstrapper</span></tt></a>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/_backup/bootstrap.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">Hermes</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

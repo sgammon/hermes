@@ -17,6 +17,14 @@ model Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`exceptions` Module
+------------------------
+
+.. automodule:: lib.apptools.model.exceptions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 

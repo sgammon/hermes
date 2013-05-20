@@ -1,7 +1,7 @@
 uwsgi:
   chdir: /ampush/apps/hermes/app
   socket: /ns/runtime/sock/wsgi/hermes.sock
-  module: apps.hermes.app:APIServer
+  module: main:APIServer
   chmod: 775
   chown: appfactory
   uid: appfactory

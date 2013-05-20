@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Getting Started &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">Hermes</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="getting-started">
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<p>Hermes is a Python-based platform designed from the ground up for building and supporting
+latency-sensitive API services in a structured, flexible, and developer-friendly way.</p>
+<p>By combining a rich application hosting environment, prebuilt base class structures,
+integration with existing libraries, and a comprehensive dev toolchain, Hermes aims
+to make the construction and deployment of enterprise-quality web services a breeze.</p>
+<div class="section" id="server-side">
+<h2>Server-Side<a class="headerlink" href="#server-side" title="Permalink to this headline">¶</a></h2>
+<p>Remotely-accessible <cite>Services</cite> group relevant methods, which are themselves bound to
+datamodel-like structures called <cite>Messages</cite>. Think of a <cite>Service</cite> as a small WSGI
+application, with your handlers or views being the methods contained within - except
+you don&#8217;t have to worry about parameters, paths, security, caching, serialization or HTTP.</p>
+<p>Where you would regularly have a <cite>Request</cite>, you instead have a <cite>Message</cite>, which is fully
+structured by you, The Developer. You can then (optionally) reply with your very own
+<cite>Message</cite>, which is sent to the requesting party post-haste.</p>
+<p>Let&#8217;s take a look:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="c"># apptools :) by momentum</span>
+<span class="kn">from</span> <span class="nn">apptools</span> <span class="kn">import</span> <span class="n">model</span>
+<span class="kn">from</span> <span class="nn">apptools</span> <span class="kn">import</span> <span class="n">services</span>
+
+<span class="c"># hermes API services</span>
+<span class="kn">from</span> <span class="nn">api.services</span> <span class="kn">import</span> <span class="n">APIService</span>
+
+
+<span class="k">class</span> <span class="nc">Echo</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; A small message containing, well, a message. &#39;&#39;&#39;</span>
+
+    <span class="n">message</span> <span class="o">=</span> <span class="nb">basestring</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="s">&#39;Hello, Hermes!&#39;</span><span class="p">}</span>
+
+
+<span class="nd">@services.api</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;example&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">ExampleService</span><span class="p">(</span><span class="n">APIService</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; An example remote service for the docs. &#39;&#39;&#39;</span>
+
+    <span class="nd">@services.rpcmethod</span><span class="p">(</span><span class="n">Echo</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">echo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Echo back what we get! &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">Echo</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>That&#8217;s it, you&#8217;re done! Under the hood, <cite>apptools</cite> does some fancy metaclass stuff. Magically, your
+service registers, loads, and is mounted to a new RPC endpoint (except if you don&#8217;t want it to, if
+you add <cite>disabled=True</cite> to the <cite>services.api</cite> decorator, in which case it is ignored in production).</p>
+</div>
+<div class="section" id="client-side-javascript">
+<h2>Client-Side: JavaScript<a class="headerlink" href="#client-side-javascript" title="Permalink to this headline">¶</a></h2>
+<p>Once you have a service like the one above, the easiest way to call it is from <cite>apptoolsJS</cite> (<strong>shocker</strong>),
+especially if you&#8217;re in the JS context of a page served by apptools PY. You can achieve the same thing with
+a static config object, too.</p>
+<p>For instance, to dispatch the example above:</p>
+<div class="highlight-js"><div class="highlight"><pre><span class="nx">$</span><span class="p">.</span><span class="nx">apptools</span><span class="p">.</span><span class="nx">api</span><span class="p">.</span><span class="nx">example</span><span class="p">.</span><span class="nx">echo</span><span class="p">({</span><span class="nx">message</span><span class="o">:</span> <span class="s2">&quot;Hello from JavaScript!&quot;</span><span class="p">}).</span><span class="nx">fulfill</span><span class="p">({</span>
+
+    <span class="nx">success</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">response</span><span class="p">)</span> <span class="p">{</span>  <span class="c1">// this is our success callback</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Success! Got back:&#39;</span><span class="p">,</span> <span class="nx">response</span><span class="p">.</span><span class="nx">message</span><span class="p">);</span>
+    <span class="p">},</span>
+
+    <span class="nx">failure</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>  <span class="c1">// this is our failure callback</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;Oh noez! Something failed.&#39;</span><span class="p">,</span> <span class="nx">error</span><span class="p">);</span>
+    <span class="p">}</span>
+
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>Woah! Where did that come from? Once you set up your server-side stuff, apptools PY injects the configuration
+for your new service into the in-page configuration. When apptools JS picks it up again, it automatically
+sets you up with a full set of stub-methods, namespaced under the <cite>name</cite> you provided to <cite>&#64;services.api</cite> and
+mounted at <cite>$.apptools.api</cite>.</p>
+<p>The astute reader might also notice the reference to <cite>response.message</cite> - JSON serialization is performed
+automatically, complete with built-in multiplexing and extensible transport support.</p>
+</div>
+<div class="section" id="client-side-python">
+<h2>Client-Side: Python<a class="headerlink" href="#client-side-python" title="Permalink to this headline">¶</a></h2>
+<p>Hermes comes with tools to auto-generate structured client libraries from your server-side bindings. In the
+<cite>tools</cite> directory, you&#8217;ll find a script called <cite>generate</cite>. If you want, you can simply run it (but it will
+also re-generate this documentation, build a <strong>full</strong> client library, and compile a bunch of stuff).</p>
+<p>You can be a zen master and generate a Python library just for your service:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> tools/generate py client --service example --endpoint <span class="s2">&quot;localhost:8080/v1/rpc&quot;</span>
+
+<span class="go">========= Hermes: Compilation Routine =========</span>
+
+<span class="go">--- Building client lib for service &#39;example&#39;...</span>
+
+<span class="go">building Python client...</span>
+<span class="go">INFO:root:Writing package init at &quot;tools/client/__init__.py&quot;.</span>
+<span class="go">INFO:root:Writing package core to tools/client/core.py</span>
+<span class="go">INFO:root:Writing package tracker to tools/client/example.py</span>
+
+<span class="go">========= Compilation succeeded. =========</span>
+</pre></div>
+</div>
+<p>Now that you&#8217;ve generated your client library, you can directly use it to query your service over HTTP!
+To run this next one, you&#8217;ll have to have your devserver running in another thread (or your example in
+production, lols):</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">client</span><span class="o">,</span> <span class="nn">client.example</span> <span class="kn">as</span> <span class="nn">service</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">example</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">service</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">ExampleService</span><span class="p">)</span>  <span class="c"># build our client</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">example</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s">&quot;Hello from Python!&quot;</span><span class="p">)</span>
+<span class="go">&lt;Echo message=&quot;Hello from Python!&quot;&gt;</span>
+</pre></div>
+</div>
+<p>That&#8217;s it! You&#8217;ll also notice that if you assign the result of a <cite>example.echo</cite> to a local variable,
+you can browse it like an object, because it <strong>is an object</strong>. So <cite>response.message</cite> works here, just
+as it does in JavaScript.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Getting Started</a><ul>
+<li><a class="reference internal" href="#server-side">Server-Side</a></li>
+<li><a class="reference internal" href="#client-side-javascript">Client-Side: JavaScript</a></li>
+<li><a class="reference internal" href="#client-side-python">Client-Side: Python</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/_backup/intro.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">Hermes</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>
