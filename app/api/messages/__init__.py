@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 
 '''
-
-API: Messages
-
 Holds structured classes that map simple datastructures for use in
 API services. Allows structured access to API requests and easy
 serialization of responses via ProtoRPC.
 
--sam (<sam.gammon@ampush.com>)
-
+:author: Sam Gammon (sam.gammon@ampush.com)
+:copyright: (c) 2013 Ampush.
+:license: This is private source code - all rights are reserved. For details about
+          embedded licenses and other legalese, see `LICENSE.md`.
 '''
 
 # protorpc

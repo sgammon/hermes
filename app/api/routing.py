@@ -1,14 +1,15 @@
 # -*- utf-8 -*-
 
 '''
-
 API: Routes
 
 This file contains API routing rules that pass requests
 bound to certain URLs to the mapped handler.
 
--sam (<sam.gammon@ampush.com>)
-
+:author: Sam Gammon (sam.gammon@ampush.com)
+:copyright: (c) 2013 Ampush.
+:license: This is private source code - all rights are reserved. For details about
+          embedded licenses and other legalese, see `LICENSE.md`.
 '''
 
 # webapp2
@@ -26,6 +27,7 @@ def get_rules():
     return [
 
         routes.HandlerPrefixRoute('api.handlers.', [
+            Route('/%s/__tracker' % _VERSION_PREFIX, name='tracker-root', handler='tracker.TrackerEndpoint'),
             Route('/%s/sandbox' % _VERSION_PREFIX, name='harness-sandbox', handler='harness.SandboxHandler'),
             Route('/%s/sandbox/harness' % _VERSION_PREFIX, name='harness-landing', handler='harness.Landing')
         ])

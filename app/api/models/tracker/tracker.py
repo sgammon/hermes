@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 '''
-
-Tracker Models: Trackers
-
 Contains models that express `Tracker` schema, which is a discrete
 endpoint for tracking events of a certain profile or type.
 
--sam (<sam.gammon@ampush.com>)
+:author: Sam Gammon (sam.gammon@ampush.com)
+:copyright: (c) 2013 Ampush.
+:license: This is private source code - all rights are reserved. For details about
+          embedded licenses and other legalese, see `LICENSE.md`.
 
 '''
 

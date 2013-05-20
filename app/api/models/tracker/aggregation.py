@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 
 '''
-
-Tracker Models: Aggregation
-
 Holds model classes designed to express aggregation groups and aggregations
 linked to `TrackedEvent`(s).
 
--sam (<sam.gammon@ampush.com>)
-
+:author: Sam Gammon (sam.gammon@ampush.com)
+:copyright: (c) 2013 Ampush.
+:license: This is private source code - all rights are reserved. For details about
+          embedded licenses and other legalese, see `LICENSE.md`.
 '''
 
 # apptools models
@@ -19,9 +18,9 @@ from apptools import model
 # Represents an aggregation "matched-to" a `TrackedEvent`.
 class Aggregation(model.Model):
 
-	''' Represents a single aggregation match from an event=>property or event=>object. '''
+    ''' Represents a single aggregation match from an event=>property or event=>object. '''
 
-	pass
+    pass
 
 
 ## AggregationGroup

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 '''
-
 API: Services
 
 This package exports classes for use as ProtoRPC services. Services defined
@@ -18,8 +17,10 @@ The services listed here are dependent on Message classes, that structure
 the Request/Response flow. AppTools models happen to make great Message classes.
 Messages that must be custom-built live in `messages`.
 
--sam (<sam.gammon@ampush.com>)
-
+:author: Sam Gammon (sam.gammon@ampush.com)
+:copyright: (c) 2013 Ampush.
+:license: This is private source code - all rights are reserved. For details about
+          embedded licenses and other legalese, see `LICENSE.md`.
 '''
 
 # Base Imports
