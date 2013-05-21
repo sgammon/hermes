@@ -3,8 +3,7 @@
 """
 This is where it all begins... ah, the wonderful *main.py*.
 From here, we stitch together :py:mod:`apptools` and :py:mod:`gevent`
-to provide an entrypoint for both :py:class:`components.tracker.EventTracker` and
-:py:mod:`apptools.dispatch`.
+to provide an entrypoint for :py:mod:`apptools.dispatch`.
 
 In addition to being the WSGI entrypoint for AppFactory (and any other WSGI-compliant
 platform), this is also where you run the devserver...
@@ -13,13 +12,13 @@ Running the devserver
 ---------------------
 
 Only one WSGI application can be run at a time, and running ``Hermes``
-or :py:class:`EventTracker` can easily be done from the same tool.
+can easily be done from the command line.
 
 From the root of your project (the folder outside *app/*):
 
 .. code-block :: console
 
-    $ tools/devserver tracker
+    $ tools/devserver
 
     ==== Hermes Devserver ====
     Preloaded module bundle: "apptools".
@@ -32,15 +31,11 @@ From the root of your project (the folder outside *app/*):
     !! Started listener for app <components.tracker.EventTracker> on host/port :8080. !!
 
 
-This runs ``EventTracker`` on the default devserver port, which is defined at
-:py:attr:`config._DEVSERVER_PORT` and defaults to 8080.
-
-If you'd like to start up ``Hermes``, perhaps on port 80 instead, just replace
-*tracker* with *api*, like so:
+If you'd like to start up on port 80 instead:
 
 .. code-block :: console
 
-    $ sudo tools/devserver api --port=80
+    $ sudo tools/devserver --port=80
 
 
 .. note :: For ports under 1024, Unix/Linux requires the use of :command:`sudo`.
