@@ -136,7 +136,6 @@ class AppBootstrapper(object):
         from apptools.services import builtin
         from apptools.services import gateway
         from apptools.services import mappers
-        from apptools.services import realtime
         from apptools.services import middleware
 
         return cls
