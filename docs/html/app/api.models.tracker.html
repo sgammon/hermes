@@ -62,16 +62,28 @@
 <h1>tracker Package<a class="headerlink" href="#tracker-package" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="id1">
 <h2><tt class="xref py py-mod docutils literal"><span class="pre">tracker</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
-<span class="target" id="module-api.models.tracker"></span><div class="section" id="models-tracker">
-<h3>Models: Tracker<a class="headerlink" href="#models-tracker" title="Permalink to this headline">¶</a></h3>
-<p>Contains models used in the <cite>EventTracker</cite> subsystem.</p>
-<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
-</div>
+<span class="target" id="module-api.models.tracker"></span><p>Contains models used in the <cite>EventTracker</cite> subsystem.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 Ampush.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - all rights are reserved. For details about
+embedded licenses and other legalese, see <cite>LICENSE.md</cite>.-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="module-api.models.tracker.aggregation">
 <span id="aggregation-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">aggregation</span></tt> Module<a class="headerlink" href="#module-api.models.tracker.aggregation" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="tracker-models-aggregation">
-<h3>Tracker Models: Aggregation<a class="headerlink" href="#tracker-models-aggregation" title="Permalink to this headline">¶</a></h3>
 <p>Holds model classes designed to express aggregation groups and aggregations
 linked to <a href="#id2"><span class="problematic" id="id3">`</span></a>TrackedEvent`(s).</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -105,11 +117,8 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 </dd></dl>
 
 </div>
-</div>
 <div class="section" id="module-api.models.tracker.attribution">
 <span id="attribution-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">attribution</span></tt> Module<a class="headerlink" href="#module-api.models.tracker.attribution" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="tracker-models-attribution">
-<h3>Tracker Models: Attribution<a class="headerlink" href="#tracker-models-attribution" title="Permalink to this headline">¶</a></h3>
 <p>Holds model classes designed to express calculated ad attributions.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -142,11 +151,8 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 </dd></dl>
 
 </div>
-</div>
 <div class="section" id="module-api.models.tracker.event">
 <span id="event-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">event</span></tt> Module<a class="headerlink" href="#module-api.models.tracker.event" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="tracker-models-event">
-<h3>Tracker Models: Event<a class="headerlink" href="#tracker-models-event" title="Permalink to this headline">¶</a></h3>
 <p>Contains models used in the <cite>EventTracker</cite> subsystem that are specifically related to
 expressing/persisting individual events.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -219,7 +225,7 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 
 <dl class="attribute">
 <dt id="api.models.tracker.event.TrackedEvent.provider">
-<tt class="descname">provider</tt><em class="property"> = 'cli'</em><a class="headerlink" href="#api.models.tracker.event.TrackedEvent.provider" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">provider</tt><em class="property"> = 'CLIENT'</em><a class="headerlink" href="#api.models.tracker.event.TrackedEvent.provider" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -234,17 +240,14 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 
 <dl class="attribute">
 <dt id="api.models.tracker.event.TrackedEvent.type">
-<tt class="descname">type</tt><em class="property"> = 'x'</em><a class="headerlink" href="#api.models.tracker.event.TrackedEvent.type" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">type</tt><em class="property"> = 'CUSTOM'</em><a class="headerlink" href="#api.models.tracker.event.TrackedEvent.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 </div>
-</div>
 <div class="section" id="module-api.models.tracker.integration">
 <span id="integration-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">integration</span></tt> Module<a class="headerlink" href="#module-api.models.tracker.integration" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="tracker-models-integration">
-<h3>Tracker Models: Integration<a class="headerlink" href="#tracker-models-integration" title="Permalink to this headline">¶</a></h3>
 <p>Contains models used in the <cite>EventTracker</cite> subsystem that are related to
 expressing configuration and audit for integrated systems.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -313,11 +316,8 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 </dd></dl>
 
 </div>
-</div>
 <div class="section" id="module-api.models.tracker.parameter">
 <span id="parameter-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">parameter</span></tt> Module<a class="headerlink" href="#module-api.models.tracker.parameter" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="tracker-models-parameters">
-<h3>Tracker Models: Parameters<a class="headerlink" href="#tracker-models-parameters" title="Permalink to this headline">¶</a></h3>
 <p>Contains models used to model and express parameters/args linked
 to <cite>TrackedEvent</cite> or <cite>Profile</cite>/<cite>Tracker</cite> objects.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -344,9 +344,8 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
 <dl class="attribute">
 <dt id="api.models.tracker.parameter.Parameter.basetype">
-<tt class="descname">basetype</tt><a class="headerlink" href="#api.models.tracker.parameter.Parameter.basetype" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">basestring</span></tt></p>
-</dd></dl>
+<tt class="descname">basetype</tt><em class="property"> = 'STRING'</em><a class="headerlink" href="#api.models.tracker.parameter.Parameter.basetype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="attribute">
 <dt id="api.models.tracker.parameter.Parameter.label">
@@ -360,17 +359,14 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 
 <dl class="attribute">
 <dt id="api.models.tracker.parameter.Parameter.policy">
-<tt class="descname">policy</tt><em class="property"> = 3</em><a class="headerlink" href="#api.models.tracker.parameter.Parameter.policy" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">policy</tt><em class="property"> = 'OPTIONAL'</em><a class="headerlink" href="#api.models.tracker.parameter.Parameter.policy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 </div>
-</div>
 <div class="section" id="module-api.models.tracker.profile">
 <span id="profile-module"></span><h2><a class="reference external" href="http://docs.python.org/2.7/library/profile.html#profile" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">profile</span></tt></a> Module<a class="headerlink" href="#module-api.models.tracker.profile" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="tracker-models-profiles">
-<h3>Tracker Models: Profiles<a class="headerlink" href="#tracker-models-profiles" title="Permalink to this headline">¶</a></h3>
 <p>Contains models used in the <cite>EventTracker</cite> subsystem that are related to
 expressing configuration and parameter profiles for Trackers.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -427,7 +423,7 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 
 <dl class="attribute">
 <dt id="api.models.tracker.profile.Profile.provider">
-<tt class="descname">provider</tt><em class="property"> = 'cli'</em><a class="headerlink" href="#api.models.tracker.profile.Profile.provider" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">provider</tt><em class="property"> = 'CLIENT'</em><a class="headerlink" href="#api.models.tracker.profile.Profile.provider" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -442,17 +438,14 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 
 <dl class="attribute">
 <dt id="api.models.tracker.profile.Profile.type">
-<tt class="descname">type</tt><em class="property"> = 'x'</em><a class="headerlink" href="#api.models.tracker.profile.Profile.type" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">type</tt><em class="property"> = 'CUSTOM'</em><a class="headerlink" href="#api.models.tracker.profile.Profile.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 </div>
-</div>
 <div class="section" id="module-api.models.tracker.pubsub">
 <span id="pubsub-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">pubsub</span></tt> Module<a class="headerlink" href="#module-api.models.tracker.pubsub" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="tracker-models-pubsub">
-<h3>Tracker Models: PubSub<a class="headerlink" href="#tracker-models-pubsub" title="Permalink to this headline">¶</a></h3>
 <p>Contains models used in the <cite>EventTracker</cite> subsystem that are specifically related to
 fulfilling publish/subscribe infrastructure behind the global eventstream.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -495,11 +488,8 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 </dd></dl>
 
 </div>
-</div>
 <div class="section" id="module-api.models.tracker.raw">
 <span id="raw-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">raw</span></tt> Module<a class="headerlink" href="#module-api.models.tracker.raw" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="tracker-models-raw">
-<h3>Tracker Models: Raw<a class="headerlink" href="#tracker-models-raw" title="Permalink to this headline">¶</a></h3>
 <p>These models are used to express raw tracker events, before they are processed
 into full <cite>TrackedEvent</cite> entities.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -562,11 +552,8 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 </dd></dl>
 
 </div>
-</div>
 <div class="section" id="module-api.models.tracker.tracker">
 <span id="tracker-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">tracker</span></tt> Module<a class="headerlink" href="#module-api.models.tracker.tracker" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="tracker-models-trackers">
-<h3>Tracker Models: Trackers<a class="headerlink" href="#tracker-models-trackers" title="Permalink to this headline">¶</a></h3>
 <p>Contains models that express <cite>Tracker</cite> schema, which is a discrete
 endpoint for tracking events of a certain profile or type.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -610,7 +597,6 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 
 </div>
 </div>
-</div>
 
 
           </div>
@@ -624,46 +610,16 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">tracker Package</a><ul>
-<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">tracker</span></tt> Package</a><ul>
-<li><a class="reference internal" href="#models-tracker">Models: Tracker</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-api.models.tracker.aggregation"><tt class="docutils literal"><span class="pre">aggregation</span></tt> Module</a><ul>
-<li><a class="reference internal" href="#tracker-models-aggregation">Tracker Models: Aggregation</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-api.models.tracker.attribution"><tt class="docutils literal"><span class="pre">attribution</span></tt> Module</a><ul>
-<li><a class="reference internal" href="#tracker-models-attribution">Tracker Models: Attribution</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-api.models.tracker.event"><tt class="docutils literal"><span class="pre">event</span></tt> Module</a><ul>
-<li><a class="reference internal" href="#tracker-models-event">Tracker Models: Event</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-api.models.tracker.integration"><tt class="docutils literal"><span class="pre">integration</span></tt> Module</a><ul>
-<li><a class="reference internal" href="#tracker-models-integration">Tracker Models: Integration</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-api.models.tracker.parameter"><tt class="docutils literal"><span class="pre">parameter</span></tt> Module</a><ul>
-<li><a class="reference internal" href="#tracker-models-parameters">Tracker Models: Parameters</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-api.models.tracker.profile"><tt class="docutils literal"><span class="pre">profile</span></tt> Module</a><ul>
-<li><a class="reference internal" href="#tracker-models-profiles">Tracker Models: Profiles</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-api.models.tracker.pubsub"><tt class="docutils literal"><span class="pre">pubsub</span></tt> Module</a><ul>
-<li><a class="reference internal" href="#tracker-models-pubsub">Tracker Models: PubSub</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-api.models.tracker.raw"><tt class="docutils literal"><span class="pre">raw</span></tt> Module</a><ul>
-<li><a class="reference internal" href="#tracker-models-raw">Tracker Models: Raw</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-api.models.tracker.tracker"><tt class="docutils literal"><span class="pre">tracker</span></tt> Module</a><ul>
-<li><a class="reference internal" href="#tracker-models-trackers">Tracker Models: Trackers</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">tracker</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-api.models.tracker.aggregation"><tt class="docutils literal"><span class="pre">aggregation</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-api.models.tracker.attribution"><tt class="docutils literal"><span class="pre">attribution</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-api.models.tracker.event"><tt class="docutils literal"><span class="pre">event</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-api.models.tracker.integration"><tt class="docutils literal"><span class="pre">integration</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-api.models.tracker.parameter"><tt class="docutils literal"><span class="pre">parameter</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-api.models.tracker.profile"><tt class="docutils literal"><span class="pre">profile</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-api.models.tracker.pubsub"><tt class="docutils literal"><span class="pre">pubsub</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-api.models.tracker.raw"><tt class="docutils literal"><span class="pre">raw</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-api.models.tracker.tracker"><tt class="docutils literal"><span class="pre">tracker</span></tt> Module</a></li>
 </ul>
 </li>
 </ul>

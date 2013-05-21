@@ -58,311 +58,13 @@
   <div class="section" id="components-package">
 <h1>components Package<a class="headerlink" href="#components-package" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="id1">
-<h2><a class="reference internal" href="#module-components" title="components"><tt class="xref py py-mod docutils literal"><span class="pre">components</span></tt></a> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
-<span class="target" id="module-components"></span><p>Hermes: Components</p>
-<p>This directory contains components for low-level Hermes subsystems,
-most notably the <cite>EventTracker</cite>.</p>
-<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">components</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-components.event">
-<span id="event-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">event</span></tt> Module<a class="headerlink" href="#module-components.event" title="Permalink to this headline">¶</a></h2>
-<p>Components: Events</p>
-<p>This file contains <cite>TrackedEvent</cite>, a class used to represent
-individual events tracked by the <cite>EventTracker</cite>.</p>
-<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
-<dl class="class">
-<dt id="components.event.TrackedEvent">
-<em class="property">class </em><tt class="descclassname">components.event.</tt><tt class="descname">TrackedEvent</tt><big>(</big><em>tracker</em>, <em>request</em>, <em>params</em>, <em>response</em><big>)</big><a class="reference internal" href="_modules/components/event.html#TrackedEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.event.TrackedEvent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>Represents a hit to a tracked event.</p>
-<dl class="method">
-<dt id="components.event.TrackedEvent.build">
-<tt class="descname">build</tt><big>(</big><em>salt=None</em>, <em>pepper=None</em><big>)</big><a class="reference internal" href="_modules/components/event.html#TrackedEvent.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.event.TrackedEvent.build" title="Permalink to this definition">¶</a></dt>
-<dd><p>Build a new local session, and return the new session ID.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="components.event.TrackedEvent.cookie">
-<tt class="descname">cookie</tt><em class="property"> = None</em><a class="headerlink" href="#components.event.TrackedEvent.cookie" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.event.TrackedEvent.debug">
-<tt class="descname">debug</tt><a class="reference internal" href="_modules/components/event.html#TrackedEvent.debug"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.event.TrackedEvent.debug" title="Permalink to this definition">¶</a></dt>
-<dd><p>Indicate whether we&#8217;re in debug mode (globally or per-request).</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="components.event.TrackedEvent.decode">
-<tt class="descname">decode</tt><big>(</big><em>injected=None</em><big>)</big><a class="reference internal" href="_modules/components/event.html#TrackedEvent.decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.event.TrackedEvent.decode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Decode an existing session, if any, or use <cite>injected</cite>.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="components.event.TrackedEvent.error">
-<tt class="descname">error</tt><em class="property"> = None</em><a class="headerlink" href="#components.event.TrackedEvent.error" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="components.event.TrackedEvent.generate_id">
-<tt class="descname">generate_id</tt><big>(</big><em>base</em><big>)</big><a class="reference internal" href="_modules/components/event.html#TrackedEvent.generate_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.event.TrackedEvent.generate_id" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate a proper unique ID for this event.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="components.event.TrackedEvent.generate_indexes">
-<tt class="descname">generate_indexes</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/components/event.html#TrackedEvent.generate_indexes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.event.TrackedEvent.generate_indexes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate index writes for a given <cite>TrackedEvent</cite>.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="components.event.TrackedEvent.guess_response">
-<tt class="descname">guess_response</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="_modules/components/event.html#TrackedEvent.guess_response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.event.TrackedEvent.guess_response" title="Permalink to this definition">¶</a></dt>
-<dd><p>Quickly try and guess a response type that can immediately be sent.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="components.event.TrackedEvent.id">
-<tt class="descname">id</tt><em class="property"> = None</em><a class="headerlink" href="#components.event.TrackedEvent.id" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.event.TrackedEvent.match">
-<tt class="descname">match</tt><a class="reference internal" href="_modules/components/event.html#TrackedEvent.match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.event.TrackedEvent.match" title="Permalink to this definition">¶</a></dt>
-<dd><p>Retrieve any identified session matches.</p>
-</dd></dl>
-
-<dl class="classmethod">
-<dt id="components.event.TrackedEvent.new">
-<em class="property">classmethod </em><tt class="descname">new</tt><big>(</big><em>tracker</em>, <em>request</em>, <em>response</em><big>)</big><a class="reference internal" href="_modules/components/event.html#TrackedEvent.new"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.event.TrackedEvent.new" title="Permalink to this definition">¶</a></dt>
-<dd><p>Factory for a <cite>TrackedEvent</cite>.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="components.event.TrackedEvent.param">
-<tt class="descname">param</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/components/event.html#TrackedEvent.param"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.event.TrackedEvent.param" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get or set the value of a URL param.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="components.event.TrackedEvent.params">
-<tt class="descname">params</tt><em class="property"> = {}</em><a class="headerlink" href="#components.event.TrackedEvent.params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.event.TrackedEvent.path">
-<tt class="descname">path</tt><em class="property"> = None</em><a class="headerlink" href="#components.event.TrackedEvent.path" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.event.TrackedEvent.request">
-<tt class="descname">request</tt><em class="property"> = None</em><a class="headerlink" href="#components.event.TrackedEvent.request" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="components.event.TrackedEvent.respond">
-<tt class="descname">respond</tt><big>(</big><em>response</em><big>)</big><a class="reference internal" href="_modules/components/event.html#TrackedEvent.respond"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.event.TrackedEvent.respond" title="Permalink to this definition">¶</a></dt>
-<dd><p>Respond to the client that generated this event.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="components.event.TrackedEvent.response">
-<tt class="descname">response</tt><em class="property"> = None</em><a class="headerlink" href="#components.event.TrackedEvent.response" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="components.event.TrackedEvent.seen">
-<tt class="descname">seen</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/components/event.html#TrackedEvent.seen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.event.TrackedEvent.seen" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read Redis to see if we know this to be a match.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="components.event.TrackedEvent.sentinel">
-<tt class="descname">sentinel</tt><em class="property"> = False</em><a class="headerlink" href="#components.event.TrackedEvent.sentinel" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="components.event.TrackedEvent.serialize">
-<tt class="descname">serialize</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/components/event.html#TrackedEvent.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.event.TrackedEvent.serialize" title="Permalink to this definition">¶</a></dt>
-<dd><p>Serialize this TrackedEvent into numerous Redis writes.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="components.event.TrackedEvent.session">
-<tt class="descname">session</tt><a class="reference internal" href="_modules/components/event.html#TrackedEvent.session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.event.TrackedEvent.session" title="Permalink to this definition">¶</a></dt>
-<dd><p>Retrieve the current session object, or if there isn&#8217;t one, build it anew.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="components.event.TrackedEvent.tracker">
-<tt class="descname">tracker</tt><em class="property"> = None</em><a class="headerlink" href="#components.event.TrackedEvent.tracker" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+<div class="section" id="event-module">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">event</span></tt> Module<a class="headerlink" href="#event-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-components.tracker">
-<span id="tracker-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">tracker</span></tt> Module<a class="headerlink" href="#module-components.tracker" title="Permalink to this headline">¶</a></h2>
-<p>Components: Tracker</p>
-<p>This file contains the main <cite>EventTracker</cite> server, with accompanying
-low-level WSGI logic to dispatch and double-buffer tracked events
-to the <cite>DatastoreEngine</cite> component, for pipelined persistence to
-Redis.</p>
-<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
-<dl class="class">
-<dt id="components.tracker.EventTracker">
-<em class="property">class </em><tt class="descclassname">components.tracker.</tt><tt class="descname">EventTracker</tt><big>(</big><em>platform='WSGI'</em>, <em>event=None</em>, <em>engine=None</em><big>)</big><a class="reference internal" href="_modules/components/tracker.html#EventTracker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.tracker.EventTracker" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>WSGI-compliant application that tracks URL-dispatched events.</p>
-<dl class="class">
-<dt id="components.tracker.EventTracker.BufferConfig">
-<em class="property">class </em><tt class="descname">BufferConfig</tt><a class="reference internal" href="_modules/components/tracker.html#EventTracker.BufferConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.tracker.EventTracker.BufferConfig" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>Static config class for <cite>EventTracker</cite>.</p>
-<dl class="attribute">
-<dt id="components.tracker.EventTracker.BufferConfig.frequency">
-<tt class="descname">frequency</tt><em class="property"> = 30</em><a class="headerlink" href="#components.tracker.EventTracker.BufferConfig.frequency" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.tracker.EventTracker.BufferConfig.threshold">
-<tt class="descname">threshold</tt><em class="property"> = 60</em><a class="headerlink" href="#components.tracker.EventTracker.BufferConfig.threshold" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="attribute">
-<dt id="components.tracker.EventTracker.active">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">active</tt><em class="property"> = None</em><a class="headerlink" href="#components.tracker.EventTracker.active" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="components.tracker.EventTracker.begin_request">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">begin_request</tt><big>(</big><em>environ</em>, <em>start_response</em><big>)</big><a class="reference internal" href="_modules/components/tracker.html#EventTracker.begin_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.tracker.EventTracker.begin_request" title="Permalink to this definition">¶</a></dt>
-<dd><p>Factory a new <cite>webob.Request</cite>/<cite>webob.Response</cite> pair, representing a new HTTP transaction cycle.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="components.tracker.EventTracker.chunked">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">chunked</tt><em class="property"> = True</em><a class="headerlink" href="#components.tracker.EventTracker.chunked" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.tracker.EventTracker.content_type">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">content_type</tt><em class="property"> = ('text/html', 'utf-8')</em><a class="headerlink" href="#components.tracker.EventTracker.content_type" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.tracker.EventTracker.debug">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">debug</tt><em class="property"> = True</em><a class="headerlink" href="#components.tracker.EventTracker.debug" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.tracker.EventTracker.engine">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">engine</tt><em class="property"> = None</em><a class="headerlink" href="#components.tracker.EventTracker.engine" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.tracker.EventTracker.engine_class">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">engine_class</tt><a class="headerlink" href="#components.tracker.EventTracker.engine_class" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">DatastoreEngine</span></tt></p>
-</dd></dl>
-
-<dl class="method">
-<dt id="components.tracker.EventTracker.error">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">error</tt><big>(</big><em>message</em><big>)</big><a class="reference internal" href="_modules/components/tracker.html#EventTracker.error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.tracker.EventTracker.error" title="Permalink to this definition">¶</a></dt>
-<dd><p>Log an error.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="components.tracker.EventTracker.event_class">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">event_class</tt><a class="headerlink" href="#components.tracker.EventTracker.event_class" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">TrackedEvent</span></tt></p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="components.tracker.EventTracker.flushqueue">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">flushqueue</tt><em class="property"> = None</em><a class="headerlink" href="#components.tracker.EventTracker.flushqueue" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.tracker.EventTracker.header_prefix">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">header_prefix</tt><em class="property"> = 'AMP'</em><a class="headerlink" href="#components.tracker.EventTracker.header_prefix" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.tracker.EventTracker.lastflush">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">lastflush</tt><em class="property"> = None</em><a class="headerlink" href="#components.tracker.EventTracker.lastflush" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.tracker.EventTracker.log">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">log</tt><a class="reference internal" href="_modules/components/tracker.html#EventTracker.log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.tracker.EventTracker.log" title="Permalink to this definition">¶</a></dt>
-<dd><p>Log something if we&#8217;re in debug mode.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="components.tracker.EventTracker.log_prefix">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">log_prefix</tt><em class="property"> = 'TRACKER'</em><a class="headerlink" href="#components.tracker.EventTracker.log_prefix" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.tracker.EventTracker.params">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">params</tt><em class="property"> = None</em><a class="headerlink" href="#components.tracker.EventTracker.params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.tracker.EventTracker.past">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">past</tt><em class="property"> = None</em><a class="headerlink" href="#components.tracker.EventTracker.past" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.tracker.EventTracker.prebuffer">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">prebuffer</tt><em class="property"> = &lt;Group at 0x10a134990 set([])&gt;</em><a class="headerlink" href="#components.tracker.EventTracker.prebuffer" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.tracker.EventTracker.request_class">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">request_class</tt><a class="headerlink" href="#components.tracker.EventTracker.request_class" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">Request</span></tt></p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="components.tracker.EventTracker.response_class">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">response_class</tt><a class="headerlink" href="#components.tracker.EventTracker.response_class" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">Response</span></tt></p>
-</dd></dl>
-
-<dl class="method">
-<dt id="components.tracker.EventTracker.send_response">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">send_response</tt><big>(</big><em>response</em>, <em>start_response</em>, <em>flush=False</em><big>)</big><a class="reference internal" href="_modules/components/tracker.html#EventTracker.send_response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.tracker.EventTracker.send_response" title="Permalink to this definition">¶</a></dt>
-<dd><p>Send the WSGI start_response, optionally flushing the response buffer and finishing the transaction.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="components.tracker.EventTracker.session">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">session</tt><em class="property"> = None</em><a class="headerlink" href="#components.tracker.EventTracker.session" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.tracker.EventTracker.staged_flush">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">staged_flush</tt><em class="property"> = False</em><a class="headerlink" href="#components.tracker.EventTracker.staged_flush" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="components.tracker.EventTracker.verbose">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">verbose</tt><a class="reference internal" href="_modules/components/tracker.html#EventTracker.verbose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.tracker.EventTracker.verbose" title="Permalink to this definition">¶</a></dt>
-<dd><p>Log something only if we&#8217;re in debug AND verbose mode.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="components.tracker.EventTracker.warn">
-<tt class="descclassname">EventTracker.</tt><tt class="descname">warn</tt><big>(</big><em>message</em><big>)</big><a class="reference internal" href="_modules/components/tracker.html#EventTracker.warn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#components.tracker.EventTracker.warn" title="Permalink to this definition">¶</a></dt>
-<dd><p>Log a warning.</p>
-</dd></dl>
-
-</dd></dl>
-
+<div class="section" id="tracker-module">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">tracker</span></tt> Module<a class="headerlink" href="#tracker-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
@@ -381,11 +83,11 @@ Redis.</p>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="components.protocol.html">protocol Package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="components.protocol.html#id1"><tt class="docutils literal"><span class="pre">protocol</span></tt> Package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="components.protocol.html#module-components.protocol.event"><tt class="docutils literal"><span class="pre">event</span></tt> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="components.protocol.html#module-components.protocol.http"><tt class="docutils literal"><span class="pre">http</span></tt> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="components.protocol.html#module-components.protocol.meta"><tt class="docutils literal"><span class="pre">meta</span></tt> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="components.protocol.html#module-components.protocol.param"><tt class="docutils literal"><span class="pre">param</span></tt> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="components.protocol.html#module-components.protocol.tracker"><tt class="docutils literal"><span class="pre">tracker</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components.protocol.html#event-module"><tt class="docutils literal"><span class="pre">event</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components.protocol.html#http-module"><tt class="docutils literal"><span class="pre">http</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components.protocol.html#meta-module"><tt class="docutils literal"><span class="pre">meta</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components.protocol.html#param-module"><tt class="docutils literal"><span class="pre">param</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components.protocol.html#tracker-module"><tt class="docutils literal"><span class="pre">tracker</span></tt> Module</a></li>
 </ul>
 </li>
 </ul>
@@ -406,8 +108,8 @@ Redis.</p>
   <ul>
 <li><a class="reference internal" href="#">components Package</a><ul>
 <li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">components</span></tt> Package</a></li>
-<li><a class="reference internal" href="#module-components.event"><tt class="docutils literal"><span class="pre">event</span></tt> Module</a></li>
-<li><a class="reference internal" href="#module-components.tracker"><tt class="docutils literal"><span class="pre">tracker</span></tt> Module</a></li>
+<li><a class="reference internal" href="#event-module"><tt class="docutils literal"><span class="pre">event</span></tt> Module</a></li>
+<li><a class="reference internal" href="#tracker-module"><tt class="docutils literal"><span class="pre">tracker</span></tt> Module</a></li>
 <li><a class="reference internal" href="#subpackages">Subpackages</a><ul>
 </ul>
 </li>

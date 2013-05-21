@@ -66,103 +66,131 @@ simply called &#8220;api&#8221;. :)</p>
 <p>The codebase is organized a lot like a regular apptools app, so it&#8217;s got
 the standard directories:</p>
 <blockquote>
-<div><dl class="docutils">
-<dt>&#8211; handlers/</dt>
-<dd><p class="first">Contains RequestHandler-descendent classes that are bound to
-one-or-many URLs and are responsible for handling a single
-HTTP request/response lifecycle. All you have to do to make
-one is extend <cite>handlers.WebHandler</cite> and define your HTTP
-methods as, well... methods.</p>
-<p>For example:</p>
-<blockquote class="last">
-<div><p>from handlers import WebHandler</p>
-<p>class MyCoolHandler(WebHandler):</p>
-<blockquote>
-<div><p>&#8220;&#8221;&#8221; Hey look I&#8217;m a handler &#8220;&#8221;&#8220;</p>
-<p>def get(self):</p>
-<blockquote>
-<div><p>&#8220;&#8221;&#8221; Called upon HTTP GET &#8220;&#8221;&#8220;</p>
-<p>return self.render(&#8220;cool/template.html&#8221;)  # render a template, why not</p>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-</dd>
-</dl>
-<p class="attribution">&mdash;messages/
-This directory holds structured message classes that express
-request or response datastructures for the apptools service
-layer. Since apptools models can be used transparently as
-messages, only explicitly-defined or custom-built message
-classes need to live here. These are directly ProtoRPC-
+<div><ul>
+<li><p class="first"><tt class="docutils literal"><span class="pre">handlers</span></tt>:
+Contains <a class="reference external" href="http://webapp-improved.appspot.com/api/webapp2.html#webapp2.RequestHandler" title="(in webapp2 v2.5.1)"><tt class="xref py py-class docutils literal"><span class="pre">webapp2.RequestHandler</span></tt></a>-descendent classes
+that are bound to one-or-many URLs and are responsible for
+handling a single HTTP request/response lifecycle. All you have
+to do to make one is extend <cite>handlers.WebHandler</cite> and define
+your HTTP methods as, well... methods:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">handlers</span> <span class="kn">import</span> <span class="n">WebHandler</span>
+
+<span class="k">class</span> <span class="nc">MyCoolHandler</span><span class="p">(</span><span class="n">WebHandler</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Hey look I&#39;m a handler &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Called upon HTTP GET &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s">&quot;cool/template.html&quot;</span><span class="p">)</span>  <span class="c"># render a template, why not</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">messages</span></tt>:
+This directory holds structured <tt class="xref py py-class docutils literal"><span class="pre">protorpc.message.Message</span></tt>
+classes that express request or response datastructures for the
+<tt class="docutils literal"><span class="pre">apptools</span></tt> service layer. Since apptools models can be used
+transparently as messages, only explicitly-defined or custom-built
+message classes need to live here. These are directly <tt class="docutils literal"><span class="pre">ProtoRPC</span></tt>-
 descendent message classes, so refer to that documentation for
 writing your own.</p>
-</div></blockquote>
-<blockquote>
-<div><blockquote>
-<div><p>For example:</p>
-<blockquote>
-<div><p>from protorpc import messages</p>
-<p>class Person(messages.Message):</p>
-<blockquote>
-<div><p>&#8220;&#8221;&#8221; We can use this as a request or response message. &#8220;&#8221;&#8220;</p>
-<p>firstname = messages.StringField(1)
-lastname = messages.StringField(2, required=True)
-age = messages.IntegerField(3)</p>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-<p class="attribution">&mdash;middleware/
+<p>For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">protorpc</span> <span class="kn">import</span> <span class="n">messages</span>
+
+<span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">messages</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; We can use this as a request or response message. &#39;&#39;&#39;</span>
+
+    <span class="n">firstname</span> <span class="o">=</span> <span class="n">messages</span><span class="o">.</span><span class="n">StringField</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">lastname</span> <span class="o">=</span> <span class="n">messages</span><span class="o">.</span><span class="n">StringField</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">age</span> <span class="o">=</span> <span class="n">messages</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">middleware</span></tt>:
 This directory contains service layer middleware classes, which
 hook into the request/response flow for an API dispatch lifecycle
 and have a chance at doing something <em>before</em> or <em>after</em> the
 request. Middleware classes must be registered in config to be
 autoloaded by apptools.</p>
-</div></blockquote>
-<blockquote>
-<div><dl class="docutils">
-<dt>&#8211; models/</dt>
-<dd>Put your datamodels here! This is where all datamodels go, to
-hopefully try and mitigate circular dependencies.</dd>
-</dl>
-<p class="attribution">&mdash;platform/
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">models</span></tt>:
+Put your datamodels here! This is where all datamodels go, to
+hopefully try and mitigate circular dependencies.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">platform</span></tt>:
 AppTools Platforms deserve a description all their own - and they
 have one, in platform/__init__ :). Essentially, a platform is
 where you put code that has a responsibility spanning multiple
 app base classes - for instance, code that needs to be dispatched
 from a handler <em>and</em> a service, but <em>must</em> not be duplicated.</p>
-</div></blockquote>
-<blockquote>
-<div><dl class="docutils">
-<dt>&#8211; services/</dt>
-<dd>AppTools service classes live here. Services are responsible for
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">services</span></tt>:
+AppTools service classes live here. Services are responsible for
 responding to API requests, and are integrated tightly with
 AppTools JS and Google Cloud Endpoints, if running on App Engine.
 Services structure requests and responses via <cite>messages</cite> (see
 above) and can inject functionality before or after dispatch by
-utilizing <cite>middleware</cite> (also see above).</dd>
-</dl>
-<p class="attribution">&mdash;templates/
+utilizing <cite>middleware</cite> (also see above).</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">templates</span></tt>:
 Jinja2 template root. Put your source HTML into <cite>templates/source</cite>.
 The prefix for templates is set at runtime, depending on whether
 the current environment supports compiled templates, they are up-
 to-date, and you have selected to enable them via config.</p>
-</div></blockquote>
-<blockquote>
-<div><dl class="docutils">
-<dt>&#8211; tests/</dt>
-<dd>Of course, this is where unit and integration tests live. There can
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">tests</span></tt>:
+Of course, this is where unit and integration tests live. There can
 never be enough tests and if your criticism starts there, I&#8217;ve done
-my job! :)</dd>
-</dl>
+my job! :)</p>
+</li>
+</ul>
 </div></blockquote>
-<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 Ampush.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - all rights are reserved. For details about
+embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="module-api.exceptions">
 <span id="exceptions-module"></span><h2><a class="reference external" href="http://docs.python.org/2.7/library/exceptions.html#exceptions" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">exceptions</span></tt></a> Module<a class="headerlink" href="#module-api.exceptions" title="Permalink to this headline">¶</a></h2>
 <p>API: Exceptions</p>
 <p>Top-level exceptions are defined here, including Hermes&#8217;
 package-level catchall, defined as <cite>Error</cite>.</p>
-<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 Ampush.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - all rights are reserved. For details about
+embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="exception">
 <dt id="api.exceptions.Error">
 <em class="property">exception </em><tt class="descclassname">api.exceptions.</tt><tt class="descname">Error</tt><a class="reference internal" href="_modules/api/exceptions.html#Error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.exceptions.Error" title="Permalink to this definition">¶</a></dt>
@@ -176,7 +204,24 @@ package-level catchall, defined as <cite>Error</cite>.</p>
 <p>API: Routes</p>
 <p>This file contains API routing rules that pass requests
 bound to certain URLs to the mapped handler.</p>
-<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 Ampush.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - all rights are reserved. For details about
+embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="function">
 <dt id="api.routing.get_rules">
 <tt class="descclassname">api.routing.</tt><tt class="descname">get_rules</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/api/routing.html#get_rules"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.routing.get_rules" title="Permalink to this definition">¶</a></dt>
@@ -189,88 +234,37 @@ bound to certain URLs to the mapped handler.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api.handlers.html">handlers Package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api.handlers.html#id1"><tt class="docutils literal"><span class="pre">handlers</span></tt> Package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api.handlers.html#api-handlers">API: Handlers</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="api.handlers.html#module-api.handlers.harness"><tt class="docutils literal"><span class="pre">harness</span></tt> Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api.handlers.html#api-handlers-harness">API Handlers: Harness</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="api.handlers.html#id1"><tt class="docutils literal"><span class="pre">handlers</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.handlers.html#module-api.handlers.harness"><tt class="docutils literal"><span class="pre">harness</span></tt> Module</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.messages.html">messages Package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api.messages.html#id1"><tt class="docutils literal"><span class="pre">messages</span></tt> Package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api.messages.html#api-messages">API: Messages</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="api.messages.html#id1"><tt class="docutils literal"><span class="pre">messages</span></tt> Package</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.middleware.html">middleware Package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api.middleware.html#id1"><tt class="docutils literal"><span class="pre">middleware</span></tt> Package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api.middleware.html#api-middleware">API: Middleware</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="api.middleware.html#id1"><tt class="docutils literal"><span class="pre">middleware</span></tt> Package</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.models.html">models Package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api.models.html#id1"><tt class="docutils literal"><span class="pre">models</span></tt> Package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api.models.html#api-models">API: Models</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="api.models.html#module-api.models.client"><tt class="docutils literal"><span class="pre">client</span></tt> Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api.models.html#models-client">Models: Client</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="api.models.html#id1"><tt class="docutils literal"><span class="pre">models</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.models.html#module-api.models.client"><tt class="docutils literal"><span class="pre">client</span></tt> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.models.html#subpackages">Subpackages</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api.models.harness.html">harness Package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api.models.harness.html#id1"><tt class="docutils literal"><span class="pre">harness</span></tt> Package</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="api.models.harness.html#models-harness">Models: Harness</a></li>
-</ul>
-</li>
+<li class="toctree-l4"><a class="reference internal" href="api.models.harness.html#id1"><tt class="docutils literal"><span class="pre">harness</span></tt> Package</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api.models.tracker.html">tracker Package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api.models.tracker.html#id1"><tt class="docutils literal"><span class="pre">tracker</span></tt> Package</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="api.models.tracker.html#models-tracker">Models: Tracker</a></li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.aggregation"><tt class="docutils literal"><span class="pre">aggregation</span></tt> Module</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="api.models.tracker.html#tracker-models-aggregation">Tracker Models: Aggregation</a></li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.attribution"><tt class="docutils literal"><span class="pre">attribution</span></tt> Module</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="api.models.tracker.html#tracker-models-attribution">Tracker Models: Attribution</a></li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.event"><tt class="docutils literal"><span class="pre">event</span></tt> Module</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="api.models.tracker.html#tracker-models-event">Tracker Models: Event</a></li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.integration"><tt class="docutils literal"><span class="pre">integration</span></tt> Module</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="api.models.tracker.html#tracker-models-integration">Tracker Models: Integration</a></li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.parameter"><tt class="docutils literal"><span class="pre">parameter</span></tt> Module</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="api.models.tracker.html#tracker-models-parameters">Tracker Models: Parameters</a></li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.profile"><tt class="docutils literal"><span class="pre">profile</span></tt> Module</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="api.models.tracker.html#tracker-models-profiles">Tracker Models: Profiles</a></li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.pubsub"><tt class="docutils literal"><span class="pre">pubsub</span></tt> Module</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="api.models.tracker.html#tracker-models-pubsub">Tracker Models: PubSub</a></li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.raw"><tt class="docutils literal"><span class="pre">raw</span></tt> Module</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="api.models.tracker.html#tracker-models-raw">Tracker Models: Raw</a></li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.tracker"><tt class="docutils literal"><span class="pre">tracker</span></tt> Module</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="api.models.tracker.html#tracker-models-trackers">Tracker Models: Trackers</a></li>
-</ul>
-</li>
+<li class="toctree-l4"><a class="reference internal" href="api.models.tracker.html#id1"><tt class="docutils literal"><span class="pre">tracker</span></tt> Package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.aggregation"><tt class="docutils literal"><span class="pre">aggregation</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.attribution"><tt class="docutils literal"><span class="pre">attribution</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.event"><tt class="docutils literal"><span class="pre">event</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.integration"><tt class="docutils literal"><span class="pre">integration</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.parameter"><tt class="docutils literal"><span class="pre">parameter</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.profile"><tt class="docutils literal"><span class="pre">profile</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.pubsub"><tt class="docutils literal"><span class="pre">pubsub</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.raw"><tt class="docutils literal"><span class="pre">raw</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api.models.tracker.html#module-api.models.tracker.tracker"><tt class="docutils literal"><span class="pre">tracker</span></tt> Module</a></li>
 </ul>
 </li>
 </ul>

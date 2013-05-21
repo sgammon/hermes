@@ -141,7 +141,7 @@ this module is very configurable using the &#8220;config/services.py&#8221; file
 
 <dl class="attribute">
 <dt id="lib.apptools.services.BaseService.appfactory">
-<tt class="descclassname">BaseService.</tt><tt class="descname">appfactory</tt><em class="property"> = &lt;apptools.util.datastructures.DictProxy object at 0x108d87e90&gt;</em><a class="headerlink" href="#lib.apptools.services.BaseService.appfactory" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">BaseService.</tt><tt class="descname">appfactory</tt><em class="property"> = &lt;apptools.util.datastructures.DictProxy object at 0x10cb68750&gt;</em><a class="headerlink" href="#lib.apptools.services.BaseService.appfactory" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -156,7 +156,7 @@ this module is very configurable using the &#8220;config/services.py&#8221; file
 
 <dl class="attribute">
 <dt id="lib.apptools.services.BaseService.context_injectors">
-<tt class="descclassname">BaseService.</tt><tt class="descname">context_injectors</tt><em class="property"> = [&lt;function inject at 0x109a72a28&gt;, &lt;function inject at 0x109a72aa0&gt;]</em><a class="headerlink" href="#lib.apptools.services.BaseService.context_injectors" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">BaseService.</tt><tt class="descname">context_injectors</tt><em class="property"> = [&lt;function inject at 0x10a64e578&gt;, &lt;function inject at 0x10a64e6e0&gt;, &lt;function inject_tracker at 0x10a64e7d0&gt;]</em><a class="headerlink" href="#lib.apptools.services.BaseService.context_injectors" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -166,12 +166,12 @@ this module is very configurable using the &#8220;config/services.py&#8221; file
 
 <dl class="attribute">
 <dt id="lib.apptools.services.BaseService.exceptions">
-<tt class="descclassname">BaseService.</tt><tt class="descname">exceptions</tt><em class="property"> = &lt;apptools.util.datastructures.DictProxy object at 0x1088cb550&gt;</em><a class="headerlink" href="#lib.apptools.services.BaseService.exceptions" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">BaseService.</tt><tt class="descname">exceptions</tt><em class="property"> = &lt;apptools.util.datastructures.DictProxy object at 0x10cb9e250&gt;</em><a class="headerlink" href="#lib.apptools.services.BaseService.exceptions" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="lib.apptools.services.BaseService.ext">
-<tt class="descclassname">BaseService.</tt><tt class="descname">ext</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x108d87c50&gt;</em><a class="headerlink" href="#lib.apptools.services.BaseService.ext" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">BaseService.</tt><tt class="descname">ext</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x10cb68ad0&gt;</em><a class="headerlink" href="#lib.apptools.services.BaseService.ext" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -209,7 +209,7 @@ this module is very configurable using the &#8220;config/services.py&#8221; file
 
 <dl class="attribute">
 <dt id="lib.apptools.services.BaseService.injected_shortcuts">
-<tt class="descclassname">BaseService.</tt><tt class="descname">injected_shortcuts</tt><em class="property"> = [('appfactory', &lt;apptools.util.datastructures.DictProxy object at 0x108d87e90&gt;)]</em><a class="headerlink" href="#lib.apptools.services.BaseService.injected_shortcuts" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">BaseService.</tt><tt class="descname">injected_shortcuts</tt><em class="property"> = [('tracker', &lt;api.platform.ampush.tracker.Tracker object at 0x10cb68f50&gt;)]</em><a class="headerlink" href="#lib.apptools.services.BaseService.injected_shortcuts" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -225,17 +225,17 @@ this module is very configurable using the &#8220;config/services.py&#8221; file
 
 <dl class="attribute">
 <dt id="lib.apptools.services.BaseService.platform_index">
-<tt class="descclassname">BaseService.</tt><tt class="descname">platform_index</tt><em class="property"> = set(['apptools.platform.appfactory.AppFactory', 'apptools.platform.generic.GenericWSGI'])</em><a class="headerlink" href="#lib.apptools.services.BaseService.platform_index" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">BaseService.</tt><tt class="descname">platform_index</tt><em class="property"> = set(['apptools.platform.appfactory.AppFactory', 'api.platform.ampush.tracker.Tracker', 'apptools.platform.generic.GenericWSGI'])</em><a class="headerlink" href="#lib.apptools.services.BaseService.platform_index" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="lib.apptools.services.BaseService.platforms">
-<tt class="descclassname">BaseService.</tt><tt class="descname">platforms</tt><em class="property"> = [&lt;apptools.platform.generic.GenericWSGI object at 0x108d87d90&gt;, &lt;apptools.platform.appfactory.AppFactory object at 0x108d872d0&gt;]</em><a class="headerlink" href="#lib.apptools.services.BaseService.platforms" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">BaseService.</tt><tt class="descname">platforms</tt><em class="property"> = [&lt;apptools.platform.generic.GenericWSGI object at 0x10cb68ed0&gt;, &lt;apptools.platform.appfactory.AppFactory object at 0x10cb68710&gt;, &lt;api.platform.ampush.tracker.Tracker object at 0x10cb68f50&gt;]</em><a class="headerlink" href="#lib.apptools.services.BaseService.platforms" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="lib.apptools.services.BaseService.request">
-<tt class="descclassname">BaseService.</tt><tt class="descname">request</tt><em class="property"> = &lt;apptools.util.datastructures.DictProxy object at 0x1088cb290&gt;</em><a class="headerlink" href="#lib.apptools.services.BaseService.request" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">BaseService.</tt><tt class="descname">request</tt><em class="property"> = &lt;apptools.util.datastructures.DictProxy object at 0x10cb9e050&gt;</em><a class="headerlink" href="#lib.apptools.services.BaseService.request" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -256,13 +256,18 @@ this module is very configurable using the &#8220;config/services.py&#8221; file
 <dd></dd></dl>
 
 <dl class="attribute">
+<dt id="lib.apptools.services.BaseService.tracker">
+<tt class="descclassname">BaseService.</tt><tt class="descname">tracker</tt><em class="property"> = &lt;api.platform.ampush.tracker.Tracker object at 0x10cb68f50&gt;</em><a class="headerlink" href="#lib.apptools.services.BaseService.tracker" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="lib.apptools.services.BaseService.upstreamConfig">
 <tt class="descclassname">BaseService.</tt><tt class="descname">upstreamConfig</tt><em class="property"> = {'debug': False, 'spdy': {'push': {'assets': {'force_priority': False, 'default_priority': 7}}}, 'preloading': {'enable_spdy_push': False, 'enable_link_fallback': False, 'gather_assets': False}, 'enabled': True}</em><a class="headerlink" href="#lib.apptools.services.BaseService.upstreamConfig" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="lib.apptools.services.BaseService.util">
-<tt class="descclassname">BaseService.</tt><tt class="descname">util</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x108d870d0&gt;</em><a class="headerlink" href="#lib.apptools.services.BaseService.util" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">BaseService.</tt><tt class="descname">util</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x10cb68c10&gt;</em><a class="headerlink" href="#lib.apptools.services.BaseService.util" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -479,7 +484,7 @@ response in the HTML page.</p>
 </div></blockquote>
 <dl class="attribute">
 <dt id="lib.apptools.services.RemoteServiceFormsHandler.config">
-<tt class="descname">config</tt><em class="property"> = &lt;apptools.util.appconfig.ConfigProxy object at 0x108937a10&gt;</em><a class="headerlink" href="#lib.apptools.services.RemoteServiceFormsHandler.config" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">config</tt><em class="property"> = &lt;apptools.util.appconfig.ConfigProxy object at 0x10aff0bd0&gt;</em><a class="headerlink" href="#lib.apptools.services.RemoteServiceFormsHandler.config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -666,12 +671,12 @@ services are configured via service_handlers.service_mapping.</div></blockquote>
 <p>Factory for preparing ServiceHandlers.</p>
 <dl class="attribute">
 <dt id="lib.apptools.services.RemoteServiceHandlerFactory.appfactory">
-<tt class="descname">appfactory</tt><em class="property"> = &lt;apptools.util.datastructures.DictProxy object at 0x108d8a510&gt;</em><a class="headerlink" href="#lib.apptools.services.RemoteServiceHandlerFactory.appfactory" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">appfactory</tt><em class="property"> = &lt;apptools.util.datastructures.DictProxy object at 0x10cb93fd0&gt;</em><a class="headerlink" href="#lib.apptools.services.RemoteServiceHandlerFactory.appfactory" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="lib.apptools.services.RemoteServiceHandlerFactory.context_injectors">
-<tt class="descname">context_injectors</tt><em class="property"> = [&lt;function inject at 0x109a72b18&gt;, &lt;function inject at 0x1098e29b0&gt;]</em><a class="headerlink" href="#lib.apptools.services.RemoteServiceHandlerFactory.context_injectors" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">context_injectors</tt><em class="property"> = [&lt;function inject at 0x10a64ec08&gt;, &lt;function inject at 0x10aab7758&gt;, &lt;function inject_tracker at 0x10aab77d0&gt;]</em><a class="headerlink" href="#lib.apptools.services.RemoteServiceHandlerFactory.context_injectors" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -693,7 +698,7 @@ services are configured via service_handlers.service_mapping.</div></blockquote>
 
 <dl class="attribute">
 <dt id="lib.apptools.services.RemoteServiceHandlerFactory.ext">
-<tt class="descname">ext</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x108d871d0&gt;</em><a class="headerlink" href="#lib.apptools.services.RemoteServiceHandlerFactory.ext" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">ext</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x10cb93590&gt;</em><a class="headerlink" href="#lib.apptools.services.RemoteServiceHandlerFactory.ext" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -708,7 +713,7 @@ services are configured via service_handlers.service_mapping.</div></blockquote>
 
 <dl class="attribute">
 <dt id="lib.apptools.services.RemoteServiceHandlerFactory.injected_shortcuts">
-<tt class="descname">injected_shortcuts</tt><em class="property"> = [('appfactory', &lt;apptools.util.datastructures.DictProxy object at 0x108d8a510&gt;)]</em><a class="headerlink" href="#lib.apptools.services.RemoteServiceHandlerFactory.injected_shortcuts" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">injected_shortcuts</tt><em class="property"> = [('tracker', &lt;api.platform.ampush.tracker.Tracker object at 0x10cb93190&gt;)]</em><a class="headerlink" href="#lib.apptools.services.RemoteServiceHandlerFactory.injected_shortcuts" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -743,12 +748,17 @@ services are configured via service_handlers.service_mapping.</div></blockquote>
 
 <dl class="attribute">
 <dt id="lib.apptools.services.RemoteServiceHandlerFactory.platform_index">
-<tt class="descname">platform_index</tt><em class="property"> = set(['apptools.platform.appfactory.AppFactory', 'apptools.platform.generic.GenericWSGI'])</em><a class="headerlink" href="#lib.apptools.services.RemoteServiceHandlerFactory.platform_index" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">platform_index</tt><em class="property"> = set(['apptools.platform.appfactory.AppFactory', 'api.platform.ampush.tracker.Tracker', 'apptools.platform.generic.GenericWSGI'])</em><a class="headerlink" href="#lib.apptools.services.RemoteServiceHandlerFactory.platform_index" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="lib.apptools.services.RemoteServiceHandlerFactory.platforms">
-<tt class="descname">platforms</tt><em class="property"> = [&lt;apptools.platform.generic.GenericWSGI object at 0x108d8a2d0&gt;, &lt;apptools.platform.appfactory.AppFactory object at 0x108d87a90&gt;]</em><a class="headerlink" href="#lib.apptools.services.RemoteServiceHandlerFactory.platforms" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">platforms</tt><em class="property"> = [&lt;apptools.platform.generic.GenericWSGI object at 0x10cb93610&gt;, &lt;apptools.platform.appfactory.AppFactory object at 0x10cb93990&gt;, &lt;api.platform.ampush.tracker.Tracker object at 0x10cb93190&gt;]</em><a class="headerlink" href="#lib.apptools.services.RemoteServiceHandlerFactory.platforms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.services.RemoteServiceHandlerFactory.tracker">
+<tt class="descname">tracker</tt><em class="property"> = &lt;api.platform.ampush.tracker.Tracker object at 0x10cb93190&gt;</em><a class="headerlink" href="#lib.apptools.services.RemoteServiceHandlerFactory.tracker" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -758,7 +768,7 @@ services are configured via service_handlers.service_mapping.</div></blockquote>
 
 <dl class="attribute">
 <dt id="lib.apptools.services.RemoteServiceHandlerFactory.util">
-<tt class="descname">util</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x108d87090&gt;</em><a class="headerlink" href="#lib.apptools.services.RemoteServiceHandlerFactory.util" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">util</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x10cb930d0&gt;</em><a class="headerlink" href="#lib.apptools.services.RemoteServiceHandlerFactory.util" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

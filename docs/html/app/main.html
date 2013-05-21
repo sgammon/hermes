@@ -59,7 +59,7 @@
 <span id="main-module"></span><h1>main Module<a class="headerlink" href="#module-main" title="Permalink to this headline">¶</a></h1>
 <p>This is where it all begins... ah, the wonderful <em>main.py</em>.
 From here, we stitch together <tt class="xref py py-mod docutils literal"><span class="pre">apptools</span></tt> and <tt class="xref py py-mod docutils literal"><span class="pre">gevent</span></tt>
-to provide an entrypoint for both <a class="reference internal" href="components.html#components.tracker.EventTracker" title="components.tracker.EventTracker"><tt class="xref py py-class docutils literal"><span class="pre">components.tracker.EventTracker</span></tt></a> and
+to provide an entrypoint for both <tt class="xref py py-class docutils literal"><span class="pre">components.tracker.EventTracker</span></tt> and
 <tt class="xref py py-mod docutils literal"><span class="pre">apptools.dispatch</span></tt>.</p>
 <p>In addition to being the WSGI entrypoint for AppFactory (and any other WSGI-compliant
 platform), this is also where you run the devserver...</p>
@@ -163,21 +163,15 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 </tbody>
 </table>
 <dl class="function">
-<dt id="main.RealtimeServer">
-<tt class="descclassname">main.</tt><tt class="descname">RealtimeServer</tt><big>(</big><em>environ</em>, <em>start_response</em><big>)</big><a class="reference internal" href="_modules/main.html#RealtimeServer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#main.RealtimeServer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bootstrap and dispatch the Hermes Realtime API Server.</p>
-</dd></dl>
-
-<dl class="function">
 <dt id="main.devserver">
-<tt class="descclassname">main.</tt><tt class="descname">devserver</tt><big>(</big><em>app=&lt;components.tracker.EventTracker object at 0x10c7338d0&gt;</em>, <em>port=8080</em>, <em>host=''</em><big>)</big><a class="reference internal" href="_modules/main.html#devserver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#main.devserver" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">main.</tt><tt class="descname">devserver</tt><big>(</big><em>app=&lt;function gateway at 0x10eca7230&gt;</em>, <em>port=8080</em>, <em>host=''</em><big>)</big><a class="reference internal" href="_modules/main.html#devserver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#main.devserver" title="Permalink to this definition">¶</a></dt>
 <dd><p>Start a local listener for development, using <tt class="xref py py-mod docutils literal"><span class="pre">gevent.pywsgi</span></tt>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>app</strong> &#8211; WSGI application to run. Defaults to <a class="reference internal" href="components.html#components.tracker.EventTracker" title="components.tracker.EventTracker"><tt class="xref py py-class docutils literal"><span class="pre">components.tracker.EventTracker</span></tt></a>.</li>
+<li><strong>app</strong> &#8211; WSGI application to run. Defaults to <tt class="xref py py-mod docutils literal"><span class="pre">apptools.dispatch.gateway</span></tt>.</li>
 <li><strong>port</strong> &#8211; Port to run the application on. Defaults to the value of <tt class="xref py py-attr docutils literal"><span class="pre">config._DEVSERVER_PORT</span></tt>,
 which is usually set to <tt class="docutils literal"><span class="pre">8080</span></tt>.</li>
 <li><strong>host</strong> &#8211; IP to bind the devserver to. Defaults to the value of <tt class="xref py py-attr docutils literal"><span class="pre">config._DEVSERVER_HOST</span></tt>,
