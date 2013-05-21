@@ -38,7 +38,7 @@ def main(test_path='app', mode='text', output='../.tests'):  # pragma: no cover
     loader = unittest.loader.TestLoader()
     suites, suite = [], unittest.TestSuite()
 
-    for directory in ('app/', 'app/api/', 'app/components/', 'app/tools/', 'app/util'):
+    for directory in ('app/', 'app/api/', 'app/tools/', 'app/util'):
 
         # Discovery patterns
         for pattern in frozenset(['tests',
