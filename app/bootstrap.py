@@ -47,8 +47,7 @@ class AppBootstrapper(object):
 
         ''' Prepare Python import path.
 
-            :returns: :class:`AppBootstrapper`.
-        '''
+            :returns: :class:`AppBootstrapper`. '''
 
         global _bootstrapped
 
@@ -287,25 +286,6 @@ class AppBootstrapper(object):
         # === Tools === #
         import tools
         from tools import actor
-
-        # === Components === #
-        import components
-
-        # Event / Tracker
-        from components import event
-        from components import tracker
-
-        # Protocol
-        from components import protocol
-        from components.protocol import meta
-        from components.protocol import http
-        from components.protocol import event
-        from components.protocol import param
-        from components.protocol import tracker
-
-        # Datastore
-        from components import datastore
-        from components.datastore import embedded
 
         return cls
 

@@ -23,9 +23,6 @@ from api.models.tracker import integration
 from api.models.tracker import attribution
 from api.models.tracker import aggregation
 
-# tracker protocol
-from components.protocol import event
-
 
 ## Profile
 # Represents a profile that may be applied to `Tracker`(s) of events.
@@ -33,12 +30,12 @@ class Profile(model.Model):
 
     ''' Bundle of configuration for a `Tracker`. '''
 
-    # == Metadata == #
+    # == Metadata == #  # @TODO: Change str types to full enums.
     name = basestring, {'required': True, 'indexed': True}  # profile shortname for use in URLs/keys
     label = basestring, {'required': True, 'indexed': True}  # profile longname for use in UI/reporting
     scope = client.Contract, {'default': None, 'indexed': True}  # scoped owner of this profile: can be client/contract/ad/etc (attributed automatically)
-    type = event.EventType, {'default': event.EventType.CUSTOM, 'indexed': True}  # type to apply to profile events
-    provider = event.EventProvider, {'default': event.EventProvider.CLIENT, 'indexed': True}  # provider for events that match this profile
+    type = str, {'default': 'CUSTOM', 'indexed': True}  # type to apply to profile events
+    provider = str, {'default': 'CLIENT', 'indexed': True}  # provider for events that match this profile
 
     # == Parameter Schema == #
     inherit = model.Key, {'repeated': True, 'indexed': True}  # super-schema to inherit from when calculating compound profile

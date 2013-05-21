@@ -147,13 +147,8 @@ except ImportError as e:
     RUNTIME = 'CPython'
 
 # gevent
-import gevent
 from gevent import local
 from gevent import monkey
-
-# tracker / hermes components
-from components import tracker
-
 
 # Globals
 _DEBUG = True  # DANGER: core debug flag, use with caution
@@ -167,25 +162,14 @@ bootstrapper.preload(_DEBUG)
 
 ## Server singletons
 _APIServer = APIServer = dispatch.gateway
-_EventTracker = EventTracker = tracker.EventTracker(PLATFORM)
 
 
-def RealtimeServer(environ, start_response):
-
-    ''' Bootstrap and dispatch the Hermes Realtime API Server. '''
-
-    # for now, just delegate to APIServer.
-    if config.debug or _DEBUG:
-        raise NotImplemented('RealtimeServer is not yet implemented.')
-    return APIServer(environ, start_response, dispatch)
-
-
-def devserver(app=EventTracker, port=config._DEVSERVER_PORT, host=config._DEVSERVER_HOST):
+def devserver(app=APIServer, port=config._DEVSERVER_PORT, host=config._DEVSERVER_HOST):
 
     ''' Start a local listener for development, using :py:mod:`gevent.pywsgi`.
 
         :param app:
-            WSGI application to run. Defaults to :py:class:`components.tracker.EventTracker`.
+            WSGI application to run. Defaults to :py:mod:`apptools.dispatch.gateway`.
 
         :param port:
             Port to run the application on. Defaults to the value of :py:attr:`config._DEVSERVER_PORT`,
@@ -210,13 +194,12 @@ def devserver(app=EventTracker, port=config._DEVSERVER_PORT, host=config._DEVSER
 
     print "Starting listener for app %s on host/port %s:%s." % (app, host, port)
 
-    if app == EventTracker:
-        if not _patched:
-            # Patch stdlib for gevent
-            monkey.patch_all()
-            _patched = True
+    if not _patched:
+        # Patch stdlib for gevent
+        monkey.patch_all()
+        _patched = True
 
-    root_prefix = prefix = os.path.abspath(__file__).split('/')[0:-2]
+    prefix = os.path.abspath(__file__).split('/')[0:-2]
 
     if isinstance(app, (type(devserver), type)):
         appname = app.__name__
@@ -227,15 +210,15 @@ def devserver(app=EventTracker, port=config._DEVSERVER_PORT, host=config._DEVSER
 
         try:
             import pycallgraph; _CALLGRAPH = True
-        except ImportError as e:
+        except ImportError:
             _CALLGRAPH = False
         else:
             print "Callgrapher enabled..."
 
-
         if _CALLGRAPH:
+
             ## define runnable that injects callgrapher
-            def application(*args, **kwargs):
+            def callgraphed_application(*args, **kwargs):
 
                 ''' Start measuring the callgraph and dispatch. '''
 
@@ -252,18 +235,21 @@ def devserver(app=EventTracker, port=config._DEVSERVER_PORT, host=config._DEVSER
                 pycallgraph.make_dot_graph('/'.join(prefix + ['.profile', '%s-%s-callgraph.png' % (appname, _runcount)]))
                 raise StopIteration()
 
+            application = callgraphed_application
+
     elif (config.debug and sysconfig.get('hooks', {}).get('profiler', {}).get('enabled', False)):  # enable profiler?
 
         print "Running devserver with profiler enabled..."
 
         # profiler + inspector
         try:
-            import cProfile as profile
-        except ImportError as e:
+            import cProfile
+            profile = cProfile
+        except ImportError:
             import profile
 
         ## define runnable that injects profiler
-        def application(*args, **kwargs):
+        def profiled_application(*args, **kwargs):
 
             ''' Run application, instrumented with cProfile. '''
 
@@ -280,6 +266,8 @@ def devserver(app=EventTracker, port=config._DEVSERVER_PORT, host=config._DEVSER
             print "Dumped profiler stats."
             raise StopIteration()
 
+        application = profiled_application
+
     else:
         application = app  # no shim
 
@@ -292,13 +280,4 @@ def devserver(app=EventTracker, port=config._DEVSERVER_PORT, host=config._DEVSER
 
 ## Handle full-listener debug spawn
 if __name__ == "__main__":
-
-    # Select app and run devserver
-    app = EventTracker
-    if len(sys.argv) > 1:
-        if sys.argv[1] == 'tracker':
-            app = EventTracker
-        elif sys.argv[1] == 'api':
-            app = APIServer
-
-    devserver(app)
+    devserver(APIServer)

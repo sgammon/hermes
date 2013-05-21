@@ -13,9 +13,6 @@ to `TrackedEvent` or `Profile`/`Tracker` objects.
 # apptools models
 from apptools import model
 
-# tracker protocol
-from components.protocol import param
-
 
 ## Parameter
 # Represents a parameter that may be present as part of a `TrackedEvent`.
@@ -27,6 +24,6 @@ class Parameter(model.Model):
     name = basestring, {'required': True, 'indexed': True}  # profile shortname for use in URLs/keys
     label = basestring, {'required': True, 'indexed': True}  # profile longname for use in UI/reporting
 
-    # == Field/Value Information == #
-    policy = param.ParameterPolicy, {'default': param.ParameterPolicy.OPTIONAL, 'indexed': True}  # default to an optional param
-    basetype = param.ParameterBasetype, {'default': param.ParameterBasetype.STRING, 'indexed': True}  # map basetype for parameter value
+    # == Field/Value Information == #  # @TODO: Change strings to full enum types.
+    policy = str, {'default': 'OPTIONAL', 'indexed': True}  # default to an optional param
+    basetype = str, {'default': 'STRING', 'indexed': True}  # map basetype for parameter value
