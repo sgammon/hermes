@@ -132,7 +132,6 @@ class AppBootstrapper(object):
 
         # === AppTools Services === #
         from apptools import services
-        from apptools.services import direct
         from apptools.services import builtin
         from apptools.services import gateway
         from apptools.services import mappers
