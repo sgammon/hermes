@@ -16,12 +16,9 @@ import webapp2
 # Platform Parent
 from api.platform import Platform
 
-# Model Adapters
-from apptools.model.adapter import redis
-from apptools.model.adapter import inmemory
-
 # Platform Bridges
 from api.platform.ampush.tracker import stream
+from api.platform.ampush.tracker import storage
 
 
 ## Tracker - version one of the `EventTracker` platform
@@ -32,16 +29,6 @@ class Tracker(Platform):
     # Class Constants
     _config_path = 'platform.ampush.tracker.Tracker'
 
-    ## DatastoreEngine - static, encapsulated adapter import.
-    class DatastoreEngine(object):
-
-        ''' Encapsulated attachment of symbols to
-            :py:mod:`model.adapter.redis` and
-            :py:mod:`model.adapter.inmemory`. '''
-
-        redis = redis.RedisAdapter
-        memory = inmemory.InMemoryAdapter
-
     def initialize(self):
 
         ''' Initialize the ``Tracker`` platform, and attach
@@ -51,6 +38,7 @@ class Tracker(Platform):
 
         # Platform Bridges
         self.stream = stream.EventStream(self)
+        self.storage = storage.EventStorage(self)
 
         return self
 
