@@ -1,8 +1,0 @@
-uwsgi:
-  app_id: tracker
-  module: apps.hermes.app:EventTracker
-  hostname: amp.sh
-  hostname: track.amp.sh
-  chdir: /ampush/apps/hermes/app
-  include: /ampush/platform/conf/uwsgi/vassal.ini
-  include: /ampush/platform/conf/uwsgi/runtime/gevent.ini

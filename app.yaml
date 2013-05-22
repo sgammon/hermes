@@ -1,6 +1,7 @@
 uwsgi:
   app_id: hermes
   module: apps.hermes.app:APIServer
+  hostname: amp.sh
   hostname: api.amp.sh
   chdir: /ampush/apps/hermes/app
   include: /ampush/platform/conf/uwsgi/vassal.ini

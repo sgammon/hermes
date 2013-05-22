@@ -42,4 +42,4 @@ class Landing(WebHandler):
         ''' HTTP GET
             :returns: Rendered template ``harness/landing.html``. '''
 
-        return self.render('harness/landing.html')
+	return self.render('harness/landing.html')
