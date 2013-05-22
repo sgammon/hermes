@@ -32,7 +32,7 @@ _config = {}
 _compiled_config = None
 
 ## Check if we're running on top of the appengine devserver
-force_debug = False  # toggle debug mode
+force_debug = True  # toggle debug mode
 strict = False  # toggle strict mode
 verbose = True  # toggle verbose logging
 production = (os.environ.get('APPFACTORY') == 'production') or (os.environ.get('SERVER_SOFTWARE', 'Not Google').startswith('Google'))

@@ -1,23 +1,9 @@
 uwsgi:
-  chdir: /ampush/apps/hermes/app
-  socket: /ns/runtime/sock/wsgi/hermes.sock
+  app_id: hermes
   module: apps.hermes.app:APIServer
-  chmod: 775
-  chown: appfactory
-  uid: appfactory
-  gid: runtime
-  master: on
-  cheaper: on
-  processes: 1
-  enable-threads: on
-  threads: 40
-  pcre-jit: on
-  touch-reload: /ns/runtime/trigger/hermes.uwsgi
-  tcp-fast-open: on
-  pymodule-alias: app=/ampush/apps/hermes/app
-  pythonpath: /ampush/apps/hermes
-  pythonpath: /ampush/apps/hermes/app
-  pythonpath: /ampush/apps/hermes/app/lib
-  pythonpath: /ampush/apps/hermes/app/lib/dist
-  pythonpath: /momentum
-  pythonpath: /momentum/google/appengine/lib/protorpc
+  hostname: amp.sh
+  hostname: api.amp.sh
+  hostname: track.amp.sh
+  chdir: /ampush/apps/hermes/app
+  include: /ampush/platform/conf/uwsgi/vassal.ini
+  include: /ampush/platform/conf/uwsgi/runtime/gevent.ini
