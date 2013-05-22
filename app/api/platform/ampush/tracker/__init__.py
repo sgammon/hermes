@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''
+"""
 This package contains platform-specific code for `EventTracker`, and
 is the primary location for app-wide business logic.
 
@@ -8,13 +8,20 @@ is the primary location for app-wide business logic.
 :copyright: (c) 2013 Ampush.
 :license: This is private source code - all rights are reserved. For details about
           embedded licenses and other legalese, see `LICENSE.md`.
-'''
+"""
 
 # Base Imports
 import webapp2
 
 # Platform Parent
 from api.platform import Platform
+
+# Model Adapters
+from apptools.model.adapter import redis
+from apptools.model.adapter import inmemory
+
+# Platform Bridges
+from api.platform.ampush.tracker import stream
 
 
 ## Tracker - version one of the `EventTracker` platform
@@ -24,6 +31,28 @@ class Tracker(Platform):
 
     # Class Constants
     _config_path = 'platform.ampush.tracker.Tracker'
+
+    ## DatastoreEngine - static, encapsulated adapter import.
+    class DatastoreEngine(object):
+
+        ''' Encapsulated attachment of symbols to
+            :py:mod:`model.adapter.redis` and
+            :py:mod:`model.adapter.inmemory`. '''
+
+        redis = redis.RedisAdapter
+        memory = inmemory.InMemoryAdapter
+
+    def initialize(self):
+
+        ''' Initialize the ``Tracker`` platform, and attach
+            any encapsulated classes.
+
+            :returns: The currently-active :py:class:`Tracker`, for chainability. '''
+
+        # Platform Bridges
+        self.stream = stream.EventStream(self)
+
+        return self
 
     @classmethod
     def check_environment(cls, environ, config):
@@ -73,6 +102,18 @@ class Tracker(Platform):
             return context
 
         return inject_tracker
+
+    ## == Tracker Internals == ##
+    def resolve(self, raw_event):
+
+        ''' Resolves a ``model.Tracker`` for a given
+            ``model.RawEvent``.
+
+            :param raw_event: Object :py:class:`model.RawEvent` to
+                              resolve a :py:class:`model.Tracker` for.
+            :returns: An inflated ``model.Tracker`` object. '''
+
+        pass
 
     ## == Dispatch Hooks == ##
     def pre_dispatch(self, handler):

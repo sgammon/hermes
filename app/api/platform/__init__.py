@@ -189,6 +189,13 @@ class Platform(object):
 
     ''' Root abstract class for platform objects. '''
 
+    def __init__(self):
+
+        ''' Initialize this ``Platform`. '''
+
+        if hasattr(self, 'initialize'):
+            self.initialize()
+
     @decorators.classproperty
     def _config_path(cls):
 
