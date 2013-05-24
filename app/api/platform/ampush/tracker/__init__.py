@@ -17,8 +17,10 @@ import webapp2
 from api.platform import Platform
 
 # Platform Bridges
+from api.platform.ampush.tracker import event
 from api.platform.ampush.tracker import stream
-from api.platform.ampush.tracker import storage
+from api.platform.ampush.tracker import engine
+from api.platform.ampush.tracker import policy
 
 
 ## Tracker - version one of the `EventTracker` platform
@@ -26,7 +28,8 @@ class Tracker(Platform):
 
     ''' Version 1 of `EventTracker` platform. '''
 
-    # Class Constants
+    # Constants
+    vesion = (0, 1)
     _config_path = 'platform.ampush.tracker.Tracker'
 
     def initialize(self):
@@ -37,8 +40,10 @@ class Tracker(Platform):
             :returns: The currently-active :py:class:`Tracker`, for chainability. '''
 
         # Platform Bridges
-        self.stream = stream.EventStream(self)
-        self.storage = storage.EventStorage(self)
+        self.event = event.EventBuilder(self)  # event inflator/intake
+        self.stream = stream.EventStream(self)  # eventstream pubsub tools
+        self.engine = engine.EventEngine(self)  # low-level IO engine
+        self.policy = policy.PolicyEngine(self)  # policy enforcement engine
 
         return self
 

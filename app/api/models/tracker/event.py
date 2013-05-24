@@ -82,7 +82,7 @@ class TrackedEvent(model.Model):
         :param created: Timestamp ``datetime`` of when this :py:class:`TrackedEvent` was recorded. '''
 
     ## == Raw Event == ##
-    raw = raw.RawEvent, {'required': True, 'indexed': True}  # linked raw event that generated this `TrackedEvent`
+    raw = raw.Event, {'required': True, 'indexed': True}  # linked raw event that generated this `TrackedEvent`
     params = dict, {'required': True, 'default': {}, 'indexed': False}  # raw paramset that came through with URL
 
     ## == Type/Provider/Tracker == ##  # @TODO: Change string types to enums.
@@ -91,6 +91,7 @@ class TrackedEvent(model.Model):
     provider = str, {'indexed': True, 'default': 'CLIENT'}  # event provider: who dispatched this event
 
     ## == Linked Objects == ##
+    integrations = EventAction, {'repeated': True, 'indexed': True}  # linked, invoked integrations
     aggregations = aggregation.Aggregation, {'repeated': True, 'indexed': True}  # linked, updated aggregations
     attributions = attribution.Attribution, {'repeated': True, 'indexed': True}  # linked, attributed events/objects
 

@@ -28,4 +28,5 @@ class AttributionGroup(model.Model):
 
     ''' Represents a group of bucketed, attributed events. '''
 
-    pass
+    name = basestring
+    hashkey = basestring, {'repeated': True, 'indexed': True}

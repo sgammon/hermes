@@ -11,16 +11,15 @@ into full `TrackedEvent` entities.
 '''
 
 # stdlib
-import time
 import datetime
 
 # apptools models
 from apptools import model
 
 
-## RawEvent
+## Event
 # Represents a raw hit to a tracker URL.
-class RawEvent(model.Model):
+class Event(model.Model):
 
     ''' Raw record of a `TrackedEvent`. '''
 
@@ -29,5 +28,25 @@ class RawEvent(model.Model):
     session = bool, {'default': False, 'indexed': True}  # whether the request came in with a session (True) or one was created (False)
     processed = bool, {'default': False, 'indexed': True}  # whether this `RawEvent` has been processed into a `TrackedEvent` yet
     cookie = basestring, {'indexed': True, 'indexed': True}  # plaintext value of the cookie in this event
+    error = bool, {'default': False, 'indexed': True}  # flag indicating this might be an error
     modified = datetime.datetime, {'required': True, 'auto_now': True}  # timestamp for when this record was last modified
     timestamp = datetime.datetime, {'required': True, 'auto_now_add': True}  # timestamp for when this record was created
+
+    @classmethod
+    def inflate(cls, request):
+
+        ''' Build a new :py:class:`Event` from a :py:class:`webapp2.Request`,
+            or a similar-style context object. '''
+
+
+## Error
+# Represents an error event that occurred.
+class Error(model.Model):
+
+    ''' Primitive record of an error event. '''
+
+    code = basestring  # error code, if any
+    event = Event, {'indexed': True}  # raw event that generated this error
+    message = basestring  # message associated with error
+    exception = basestring  # exception name associated with error
+    unhandled = bool, {'default': False}  # whether this was unexpected
