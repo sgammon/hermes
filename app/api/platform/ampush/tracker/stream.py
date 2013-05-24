@@ -21,6 +21,32 @@ class EventStream(PlatformBridge):
     ''' Manages state for global (and contextual) event
         streams in ``EventTracker``. '''
 
+    def _generate_channels(self, message, error=False):
+
+        ''' Generate a set of channels to publish to, given
+            a blobbed message to publish.
+
+            :param message: ``protorpc.Message``, due to be
+                            published via pub/sub.
+
+            :yields: A list of channels to publish the given
+                     ``message`` to. '''
+
+        pass
+
+    def _build_envelope(self, message):
+
+        ''' Build and serialize an envelope and wrapped event,
+            such that it is suitable for publishing via pub/sub.
+
+            :param message: ``protorpc.Message``, due to be
+                            published via pub/sub.
+
+            :returns: A ``dict`` representing the wrapped,
+                      serialized ``protorpc.Message``. '''
+
+        pass
+
     def stats(self):
 
         ''' Retrieve statistics about the desired *Event Stream*.
