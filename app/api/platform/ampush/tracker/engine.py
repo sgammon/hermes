@@ -57,8 +57,7 @@ class EventEngine(PlatformBridge):
         pass
 
     ## === Bindings === ##
-    @property
-    def adapter(self, engine, *args, **kwargs):
+    def adapter(self, engine, kind=None, **kwargs):
 
         ''' Acquire a write-capable driver for ``engine``, constructing
             if needed. Available options for ``engine`` are enumerated
@@ -67,9 +66,6 @@ class EventEngine(PlatformBridge):
             :param engine: Engine :py:class:`model.adapter.ModelAdapter`
                            to acquire an adapter to.
 
-            :param *args: Positional arguments to pass to the newly-
-                          acquired adapter.
-
             :param **kwargs: Keyword arguments to pass to the newly-
                              acquired adapter.
 
@@ -77,34 +73,65 @@ class EventEngine(PlatformBridge):
                       :py:class:`MemcacheAdapter`, or :py:class:`InMemoryAdapter`,
                       depending on the value passed in at ``engine``. '''
 
-        pass
+        e = engine(**kwargs)
+        if kind:
+            return e.channel(kind)
+        return e
 
     ## === Public Methods === ##
-    def pipeline(self):
+    def pipeline(self, engine=Datastore.redis, kind='Realtime'):
 
         ''' Begin execution buffering in the context of an existing
             or newly-created ``Redis`` pipeline.
 
+            :param kind: String ``kind`` name to pass to adapter
+                         methods like :py:meth:`adapter.channel()`.
+
             :returns: :py:class:`redis.client.StrictPipeline`. '''
 
-        pass
+        return self.adapter(engine, kind).pipeline()
 
-    def publish(self, channel, value):
+    def publish(self, channels, value):
 
         ''' Low-level method to publish a message to
             ``Redis`` pub/sub.
 
-            :param channel: Either a ``str`` name for a channel
+            :param channels: Either a ``str`` name for a channel
                             to publish this value on, or an
                             iterable of ``str`` channel names.
 
-            :param value: Dictionary to be encoded and published
-                          via ``pubsub``.
+            :param value: ``protorpc.Message`` class, ``dict``,
+                          or raw string to publish.
 
             :returns: The result of the low-level publish
                       operation. '''
 
-        pass
+        from protorpc import messages
+        from apptools.services import mappers
+
+        # first, resolve value
+        if not isinstance(value, (dict, messages.Message, basestring)):
+            raise ValueError('Can only pubsub strings, `protorpc.Message` and `dict`.')
+
+        elif isinstance(value, (dict, messages.Message)):
+            encoded = mappers._MessageJSONEncoder().encode(value)
+        else:
+            encoded = value  # must be a string
+
+        if isinstance(channels, (tuple, list)):
+
+            # for multiple channels, start a pipeline
+            with self.pipeline(self.Datastore.redis) as pipeline:
+                for channel in channels:
+                    pipeline.publish(channel, encoded)
+
+                # execute pipeline
+                result = pipeline.execute()
+            return result
+
+        else:
+            channel = channels
+            return self.adapter(self.Datastore.redis, 'Realtime').publish(channel, encoded)
 
     def subscribe(self, channel, pattern=False):
 

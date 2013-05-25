@@ -26,7 +26,7 @@ class EventBuilder(PlatformBridge):
     ''' Manages the inflation, construction, and
         interpretation of ``TrackedEvent`` entities. '''
 
-    def raw(self, request, live=True, propagate=True):
+    def raw(self, request, propagate=True):
 
         ''' Entrypoint for recording raw events and producing
             :py:class:`model.raw.Event`.
@@ -40,14 +40,6 @@ class EventBuilder(PlatformBridge):
                             valid :py:class:`model.raw.Event` to inject
                             directly into the raw eventstream.
 
-            :keyword live: Flag indicating the request flow that produced
-                           this raw event is currently happening, and
-                           would kindly like a response as soon as possible.
-                           Turning this on will cause :py:meth:`raw` to
-                           produce a guess as to how ``EventTracker``
-                           should respond to the request.
-                           Defaults to ``True``.
-
             :keyword propagate: Flag indicating that this event should be
                                 propagated to the global eventstream.
                                 Defaults to ``True``.
@@ -56,15 +48,8 @@ class EventBuilder(PlatformBridge):
                       and, if requested via ``live``, a guess about how to
                       handle the request, like: ``tuple(<event>, <guess>)``. '''
 
-        # inflate raw event
-        raw = Event.inflate(request)
-
-        if live:
-            # ``guess`` for response flow requested
-            return raw, False
-
-        # no ``guess`` requested - out-of-band publish
-        return raw
+        # inflate raw event & publish to pubsub
+        return self.bus.stream.publish(Event.inflate(request), propagate=propagate)
 
     def error(self, event, reason="Unknown reason.", propagate=True):
 

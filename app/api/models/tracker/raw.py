@@ -11,6 +11,7 @@ into full `TrackedEvent` entities.
 '''
 
 # stdlib
+import hashlib
 import datetime
 
 # apptools models
@@ -23,8 +24,10 @@ class Event(model.Model):
 
     ''' Raw record of a `TrackedEvent`. '''
 
-    id = basestring, {'required': True, 'indexed': False}  # unique request ID from routing infrastructure
+    __adapter__ = "RedisAdapter"
+
     url = basestring, {'required': True, 'indexed': False}  # full text of URL hit (including params + hash, if any)
+    method = basestring, {'required': True, 'indexed': True}  # request method used to hit the URL that was invoked
     session = bool, {'default': False, 'indexed': True}  # whether the request came in with a session (True) or one was created (False)
     processed = bool, {'default': False, 'indexed': True}  # whether this `RawEvent` has been processed into a `TrackedEvent` yet
     cookie = basestring, {'indexed': True, 'indexed': True}  # plaintext value of the cookie in this event
@@ -37,6 +40,30 @@ class Event(model.Model):
 
         ''' Build a new :py:class:`Event` from a :py:class:`webapp2.Request`,
             or a similar-style context object. '''
+
+        # provision empty event
+        now = datetime.datetime.now()
+
+        # resolve unique event ID
+        eid = request.headers.get('XAF-Hash')
+        if not eid:
+            eid = request.headers.get('XAF-Request-ID')
+            if not eid:
+                eid = hashlib.sha256(str(id(request))).hexdigest()  # bad news: hopefully we're in ``debug``
+
+        event = cls(**{
+            'key': model.Key(cls.kind(), eid),
+            'method': request.method,
+            'url': request.url,
+            'modified': now,
+            'timestamp': now
+        })
+
+        # resolve _AMP cookie, or explicit session
+        if '_amp' in request.cookies:
+            event.cookie = request.cookies.get('_amp')
+
+        return event
 
 
 ## Error

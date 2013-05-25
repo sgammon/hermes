@@ -11,6 +11,13 @@ from ``EventTracker``.
           embedded licenses and other legalese, see `LICENSE.md`.
 '''
 
+# stdlib
+import hashlib
+
+# Models
+from api.models.tracker import raw
+from api.models.tracker import event
+
 # Platform Parent
 from api.platform import PlatformBridge
 
@@ -21,20 +28,7 @@ class EventStream(PlatformBridge):
     ''' Manages state for global (and contextual) event
         streams in ``EventTracker``. '''
 
-    def _generate_channels(self, message, error=False):
-
-        ''' Generate a set of channels to publish to, given
-            a blobbed message to publish.
-
-            :param message: ``protorpc.Message``, due to be
-                            published via pub/sub.
-
-            :yields: A list of channels to publish the given
-                     ``message`` to. '''
-
-        pass
-
-    def _build_envelope(self, message):
+    def _build_envelope(self, message, error=False):
 
         ''' Build and serialize an envelope and wrapped event,
             such that it is suitable for publishing via pub/sub.
@@ -42,10 +36,81 @@ class EventStream(PlatformBridge):
             :param message: ``protorpc.Message``, due to be
                             published via pub/sub.
 
+            :keyword error: Flag indicating this message is
+                            an error. Defaults to ``False``.
+
             :returns: A ``dict`` representing the wrapped,
                       serialized ``protorpc.Message``. '''
 
-        pass
+        if hasattr(message, 'id') and message.id is not None:
+            id = message.id
+        else:
+            if hasattr(message, 'key'):
+                id = message.key.id
+            else:
+                id = str(id(message))
+
+        return {
+            'id': hashlib.sha512(id).hexdigest(),
+            'type': 'error' if error else message.__class__.__name__,
+            'payload': message
+        }
+
+    def _generate_channels(self, blob, context=tuple(), error=False, propagate=True):
+
+        ''' Generate a set of channels to publish to, given
+            a blobbed blob to publish.
+
+            :param blob: ``dict``, due to be published
+                         via pub/sub.
+
+            :param context: Iterable containing key=>value pairs
+                            for other channel permutations to
+                            publish on.
+
+            :keyword error: Flag ``bool`` that indicates whether
+                            we are generating error channels.
+                            Defaults to ``False``.
+
+            :keyword propagate: Flag ``bool`` that indicates
+                                whether we should propagate
+                                this event to higher-order
+                                eventstreams. Defaults to
+                                ``True``.
+
+            :returns: A list of channels to publish the given
+                      ``blob`` to. '''
+
+        channels = []
+        channel_template = ['__channel__']
+        blobtype = blob.get('type', 'msg')
+
+        if error:
+            stream_type = 'error'  # publish to error stream for errors
+        else:
+            stream_type = 'stream'  # publish to regular stream for non-errors
+
+        # first, zoom in
+        if context:
+            bundles = []
+            for bundle in context:
+                if isinstance(bundle, tuple):  # it's a key=>value pair
+                    bundle = '-'.join(bundle)
+                bundles.append('::'.join([bundle, stream_type]))
+
+            for bundle in bundles:
+                channels.append('::'.join(channel_template + [blobtype, bundle]))
+
+        # now zoom out
+        if propagate:
+
+            # type-scoped channel
+            channels.append('::'.join(channel_template + [blobtype, stream_type]))
+
+            # global stream-scoped channel
+            channels.append('::'.join(channel_template + ['__global__', stream_type]))
+
+        return channels
 
     def stats(self):
 
@@ -65,7 +130,7 @@ class EventStream(PlatformBridge):
 
         pass
 
-    def publish(self, event, error=False, propagate=True):
+    def publish(self, ev, error=False, propagate=True):
 
         ''' Publish an event to one or more streams. Descendents of
             both :py:class:`models.tracker.event.RawEvent` and
@@ -83,13 +148,25 @@ class EventStream(PlatformBridge):
             :param propagate: Boolean (defaulting to ``True``) indicating
                               whether this publish should propagate globally.
 
-            :returns: Result of the low-level ``publish`` routine. '''
+            :returns: The ``event`` that was handed in and published. '''
 
         # convert event to a message
-        event = event.to_message()
+        blobbed_event = self._build_envelope(ev.to_message(), error)
 
-        # wrap in an event message and publish
-        self.bus.engine.publish()
+        # build context
+        if isinstance(ev, raw.Event):
+            context = ['raw']
+
+        elif isinstance(ev, event.TrackedEvent):
+            context = [('stream', 'full')]
+
+        else:
+            context = tuple()
+
+        # distribute to appropriate channels
+        self.bus.engine.publish(self._generate_channels(blobbed_event, context, error, propagate), blobbed_event)
+
+        return ev
 
     def subscribe(self, stream=None, _start=True):
 
