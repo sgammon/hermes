@@ -194,9 +194,8 @@ class AppBootstrapper(object):
         try:
             # === API Platforms === #
             from api import platform
-            from api.platform import ampush
-            from api.platform.ampush import hermes
-            from api.platform.ampush import tracker
+            from api.platform import hermes
+            from api.platform import tracker
         except:
             if _DEBUG:
                 raise

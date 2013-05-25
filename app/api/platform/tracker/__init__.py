@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
-'''
-This package contains platform-specific code for Hermes, and
+"""
+This package contains platform-specific code for `EventTracker`, and
 is the primary location for app-wide business logic.
 
 :author: Sam Gammon (sam.gammon@ampush.com)
 :copyright: (c) 2013 Ampush.
 :license: This is private source code - all rights are reserved. For details about
           embedded licenses and other legalese, see `LICENSE.md`.
-'''
+"""
 
 # Base Imports
 import webapp2
@@ -16,14 +16,36 @@ import webapp2
 # Platform Parent
 from api.platform import Platform
 
+# Platform Bridges
+from api.platform.tracker import event
+from api.platform.tracker import stream
+from api.platform.tracker import engine
+from api.platform.tracker import policy
 
-## Hermes - version one of the `Hermes` platform.
-class Hermes(Platform):
+
+## Tracker - version one of the `EventTracker` platform
+class Tracker(Platform):
 
     ''' Version 1 of `EventTracker` platform. '''
 
-    # Class Constants
-    _config_path = 'platform.ampush.tracker.Hermes'
+    # Constants
+    vesion = (0, 1)
+    _config_path = 'platform.tracker.Tracker'
+
+    def initialize(self):
+
+        ''' Initialize the ``Tracker`` platform, and attach
+            any encapsulated classes.
+
+            :returns: The currently-active :py:class:`Tracker`, for chainability. '''
+
+        # Platform Bridges
+        self.event = event.EventBuilder(self)  # event inflator/intake
+        self.stream = stream.EventStream(self)  # eventstream pubsub tools
+        self.engine = engine.EventEngine(self)  # low-level IO engine
+        self.policy = policy.PolicyEngine(self)  # policy enforcement engine
+
+        return self
 
     @classmethod
     def check_environment(cls, environ, config):
@@ -46,7 +68,7 @@ class Hermes(Platform):
 
         # Shortcut exports
         return [
-            ('hermes', self)
+            ('tracker', self)
         ]
 
     @webapp2.cached_property
@@ -73,6 +95,35 @@ class Hermes(Platform):
             return context
 
         return inject_tracker
+
+    ## == Tracker Internals == ##
+    def resolve(self, raw_event):
+
+        ''' Resolves a ``model.Tracker`` for a given
+            ``model.RawEvent``.
+
+            :param raw_event: Object :py:class:`model.RawEvent` to
+                              resolve a :py:class:`model.Tracker` for.
+            :returns: An inflated ``model.Tracker`` object. '''
+
+        pass
+
+    def provision(self, *args, **kwargs):
+
+        ''' Entrypoint for provisioning/creating a new
+            :py:class:`api.models.tracker.endpoint.Tracker`.
+
+            :param *args: Positional arguments to pass to
+                          the :py:class:`endpoint.Tracker`
+                          construction routine.
+
+            :param **kwargs: Keyword arguments to pass to
+                             the :py:class:`endpoint.Tracker`
+                             construction routine.
+
+            :returns: The newly-created :py:class:`endpoint.Tracker`. '''
+
+        pass
 
     ## == Dispatch Hooks == ##
     def pre_dispatch(self, handler):

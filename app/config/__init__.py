@@ -165,8 +165,8 @@ _config['apptools.system.platform'] = {
 
         {'name': 'Generic WSGI', 'path': 'apptools.platform.generic.GenericWSGI'},
         {'name': 'Layer9 AppFactory', 'path': 'apptools.platform.appfactory.AppFactory'},
-        #{'name': 'AmpushHermes', 'path': 'api.platform.ampush.hermes.Hermes'},
-        {'name': 'EventTracker', 'path': 'api.platform.ampush.tracker.Tracker'}
+        {'name': 'AmpushHermes', 'path': 'api.platform.hermes.Hermes'},
+        {'name': 'EventTracker', 'path': 'api.platform.tracker.Tracker'}
 
     ]
 
