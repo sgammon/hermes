@@ -14,9 +14,9 @@ Description coming soon.
 from . import meta
 
 
-## InputChannels
+## InputChannel
 # Maps input channels for `EventTracker`/`Hermes` to discrete values.
-class InputChannels(meta.ProtocolDefinition):
+class InputChannel(meta.ProtocolDefinition):
 
     ''' Maps channels of input to discrete values. '''
 
