@@ -24,6 +24,9 @@ from api.models.tracker import integration
 from api.models.tracker import aggregation
 from api.models.tracker import attribution
 
+# protocol descriptors
+from protocol import event
+
 
 ## EventAction
 # Represents an action taken in response to an event.
@@ -86,9 +89,9 @@ class TrackedEvent(model.Model):
     params = dict, {'required': True, 'default': {}, 'indexed': False}  # raw paramset that came through with URL
 
     ## == Type/Provider/Tracker == ##  # @TODO: Change string types to enums.
-    type = str, {'indexed': True, 'default': 'CUSTOM'}  # event type: impression, click, etc.
+    type = event.EventType, {'indexed': True, 'default': 'CUSTOM'}  # event type: impression, click, etc.
     tracker = endpoint.Tracker, {'required': True, 'indexed': True}  # provisioned tracker that this event came through
-    provider = str, {'indexed': True, 'default': 'CLIENT'}  # event provider: who dispatched this event
+    provider = event.EventProvider, {'indexed': True, 'default': 'CLIENT'}  # event provider: who dispatched this event
 
     ## == Linked Objects == ##
     integrations = EventAction, {'repeated': True, 'indexed': True}  # linked, invoked integrations

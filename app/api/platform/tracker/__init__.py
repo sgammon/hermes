@@ -26,7 +26,7 @@ from api.platform.tracker import policy
 ## Tracker - version one of the `EventTracker` platform
 class Tracker(Platform):
 
-    ''' Version 1 of `EventTracker` platform. '''
+    ''' Version 0.1 of `EventTracker` platform. '''
 
     # Constants
     vesion = (0, 1)

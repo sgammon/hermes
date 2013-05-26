@@ -14,19 +14,21 @@ linked to `TrackedEvent`(s).
 from apptools import model
 
 
-## Aggregation
-# Represents an aggregation "matched-to" a `TrackedEvent`.
-class Aggregation(model.Model):
-
-    ''' Represents a single aggregation match from an event=>property or event=>object. '''
-
-    pass
-
-
 ## AggregationGroup
 # Represents a group of aggregations linked to a value or `Tracker`/`Profile`.
 class AggregationGroup(model.Model):
 
     ''' Represents a group of `Aggregation` objects linked to a `Tracker` or `Profile`. '''
 
-    pass
+    name = basestring, {'indexed': True}  # name of the property being aggregated
+    basekind = basestring, {'indexed': True}  # name of the kind owning this property
+
+
+## Aggregation
+# Represents an aggregation "matched-to" a `TrackedEvent`.
+class Aggregation(model.Model):
+
+    ''' Represents a single aggregation match from an event=>property or event=>object. '''
+
+    value = float, {'required': True, 'indexed': True}
+    group = AggregationGroup, {'required': True, 'indexed': True}

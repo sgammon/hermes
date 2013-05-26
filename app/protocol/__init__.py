@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Components: Protocol
+Hermes: Protocol
 
 :author: Sam Gammon (sam.gammon@ampush.com)
 :copyright: (c) 2013 Ampush.
@@ -9,21 +9,17 @@ Components: Protocol
           embedded licenses and other legalese, see `LICENSE.md`.
 """
 
-__doc__ = "Protocol definition suite for Ampush Tracker API."
+__doc__ = "Protocol definition suite for Ampush Hermes."
 __version__ = (0, 5)
+
 
 # Top-level protocol extensions
 from . import meta
+from . import http
+from . import event
+from . import param
+from . import intake
+from . import builtin
 
-# Meta Bindings
-from .meta import Definition
-from .meta import ProtocolDefinition
 
-__extensions__ = [meta]
-
-__bindings__ = [
-    Definition,
-    ProtocolDefinition
-]
-
-__all__ = __extensions__ + __bindings__
+__extensions__ = __all__ = [meta, http, event, param, intake, builtin]
