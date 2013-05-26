@@ -180,7 +180,7 @@ class AppBootstrapper(object):
             from api.models.tracker import event
             from api.models.tracker import pubsub
             from api.models.tracker import profile
-            from api.models.tracker import tracker
+            from api.models.tracker import endpoint
             from api.models.tracker import parameter
             from api.models.tracker import integration
             from api.models.tracker import attribution
