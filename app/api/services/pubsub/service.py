@@ -55,23 +55,23 @@ class PubSubService(APIService):
         path = self._config_path.split('.')
         return debug.AppToolsLogger(path='.'.join(path[0:-1]), name=path[-1])._setcondition(self.config.get('debug'))
 
-    @services.rpcmethod(messages.Publish, messages.TrackedEvent)
+    @services.rpcmethod(messages.BatchPublish, message_types.VoidMessage)
     def publish(self, request):
 
-        ''' Publish a `TrackedEvent` to the global eventstream. '''
+        ''' Publish a message to the global eventstream. '''
 
         pass
 
-    @services.rpcmethod(messages.Subscription, messages.Subscription)
+    @services.rpcmethod(messages.BatchSubscription, messages.BatchSubscription)
     def subscribe(self, request):
 
-        ''' Subscribe  '''
+        ''' Establish a new subscription to a channel. '''
 
         pass
 
     @services.rpcmethod(messages.Subscription, message_types.VoidMessage)
     def unsubscribe(self, request):
 
-        '''  '''
+        ''' Close and destroy an existing subscription. '''
 
         pass
