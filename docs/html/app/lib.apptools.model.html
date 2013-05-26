@@ -112,6 +112,7 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dt id="lib.apptools.model.builtin.ContentArea">
 <em class="property">class </em><tt class="descclassname">lib.apptools.model.builtin.</tt><tt class="descname">ContentArea</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/builtin.html#ContentArea"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.builtin.ContentArea" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
+<p>Represents a content area that can be edited for a certain datapoint.</p>
 <dl class="attribute">
 <dt id="lib.apptools.model.builtin.ContentArea.html">
 <tt class="descname">html</tt><em class="property"> = None</em><a class="headerlink" href="#lib.apptools.model.builtin.ContentArea.html" title="Permalink to this definition">¶</a></dt>
@@ -143,6 +144,7 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dt id="lib.apptools.model.builtin.ContentNamespace">
 <em class="property">class </em><tt class="descclassname">lib.apptools.model.builtin.</tt><tt class="descname">ContentNamespace</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/builtin.html#ContentNamespace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.builtin.ContentNamespace" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
+<p>Represents a group of ContentAreas namespaced by something other than a datastore key (otherwise they are put under that and just correlated here).</p>
 <dl class="attribute">
 <dt id="lib.apptools.model.builtin.ContentNamespace.areas">
 <tt class="descname">areas</tt><em class="property"> = None</em><a class="headerlink" href="#lib.apptools.model.builtin.ContentNamespace.areas" title="Permalink to this definition">¶</a></dt>
@@ -164,6 +166,7 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dt id="lib.apptools.model.builtin.ContentSnippet">
 <em class="property">class </em><tt class="descclassname">lib.apptools.model.builtin.</tt><tt class="descname">ContentSnippet</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/builtin.html#ContentSnippet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.builtin.ContentSnippet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
+<p>Represents a versioned content value of a content area.</p>
 <dl class="attribute">
 <dt id="lib.apptools.model.builtin.ContentSnippet.area">
 <tt class="descname">area</tt><em class="property"> = None</em><a class="headerlink" href="#lib.apptools.model.builtin.ContentSnippet.area" title="Permalink to this definition">¶</a></dt>
@@ -190,6 +193,7 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dt id="lib.apptools.model.builtin.ContentSummary">
 <em class="property">class </em><tt class="descclassname">lib.apptools.model.builtin.</tt><tt class="descname">ContentSummary</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/builtin.html#ContentSummary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.builtin.ContentSummary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
+<p>Represents a summary of content in a content area.</p>
 <dl class="attribute">
 <dt id="lib.apptools.model.builtin.ContentSummary.html">
 <tt class="descname">html</tt><em class="property"> = None</em><a class="headerlink" href="#lib.apptools.model.builtin.ContentSummary.html" title="Permalink to this definition">¶</a></dt>
@@ -211,6 +215,7 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dt id="lib.apptools.model.builtin.PushSession">
 <em class="property">class </em><tt class="descclassname">lib.apptools.model.builtin.</tt><tt class="descname">PushSession</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/builtin.html#PushSession"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.builtin.PushSession" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
+<p>This model keeps track of async sessions established by the service layer.</p>
 <dl class="attribute">
 <dt id="lib.apptools.model.builtin.PushSession.active">
 <tt class="descname">active</tt><em class="property"> = True</em><a class="headerlink" href="#lib.apptools.model.builtin.PushSession.active" title="Permalink to this definition">¶</a></dt>
@@ -232,6 +237,7 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dt id="lib.apptools.model.builtin.StoredAsset">
 <em class="property">class </em><tt class="descclassname">lib.apptools.model.builtin.</tt><tt class="descname">StoredAsset</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/builtin.html#StoredAsset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.builtin.StoredAsset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
+<p>This model keeps track of a single item uploaded to the Blobstore or Cloud Storage.</p>
 <dl class="attribute">
 <dt id="lib.apptools.model.builtin.StoredAsset.blobkey">
 <tt class="descname">blobkey</tt><em class="property"> = None</em><a class="headerlink" href="#lib.apptools.model.builtin.StoredAsset.blobkey" title="Permalink to this definition">¶</a></dt>
@@ -263,6 +269,7 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dt id="lib.apptools.model.builtin.UploadSession">
 <em class="property">class </em><tt class="descclassname">lib.apptools.model.builtin.</tt><tt class="descname">UploadSession</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/builtin.html#UploadSession"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.builtin.UploadSession" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
+<p>This model keeps track of blobstore upload sessions.</p>
 <dl class="attribute">
 <dt id="lib.apptools.model.builtin.UploadSession.assets">
 <tt class="descname">assets</tt><em class="property"> = None</em><a class="headerlink" href="#lib.apptools.model.builtin.UploadSession.assets" title="Permalink to this definition">¶</a></dt>

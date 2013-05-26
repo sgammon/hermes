@@ -23,3 +23,14 @@ class Aggregation(meta.ProtocolBinding):
         ''' Initialize this ``Aggregation``. '''
 
         print "Aggregation(%s, %s)" % (args, kwargs)
+
+
+## CompoundAggregation
+#
+class CompoundAggregation(meta.ProtocolBinding):
+
+    def __init__(self, *args, **kwargs):
+
+        ''' Initialize this ``CompoundAggregation``. '''
+
+        print "CompoundAggregation(%s, %s)" % (args, kwargs)

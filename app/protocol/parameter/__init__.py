@@ -13,6 +13,9 @@ Description coming soon.
 # Protocol
 from protocol import meta
 
+# Parameter
+from protocol.parameter.group import ParameterGroup
+
 
 ## ParameterBasetype - maps basetypes available for parameters.
 class ParameterBasetype(meta.ProtocolDefinition):

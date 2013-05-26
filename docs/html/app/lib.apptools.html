@@ -105,7 +105,7 @@ into a contiguous structure that resembles a framework. Also hosts BaseHandler.<
 <p>Top-level parent class for request handlers in AppTools.</p>
 <dl class="attribute">
 <dt id="lib.apptools.core.BaseHandler.appfactory">
-<tt class="descname">appfactory</tt><em class="property"> = &lt;apptools.util.datastructures.DictProxy object at 0x10b2ae410&gt;</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.appfactory" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">appfactory</tt><em class="property"> = &lt;apptools.util.datastructures.DictProxy object at 0x10bfe6d10&gt;</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.appfactory" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -120,7 +120,7 @@ into a contiguous structure that resembles a framework. Also hosts BaseHandler.<
 
 <dl class="attribute">
 <dt id="lib.apptools.core.BaseHandler.context_injectors">
-<tt class="descname">context_injectors</tt><em class="property"> = [&lt;function inject at 0x10aa05f50&gt;, &lt;function inject at 0x10c181578&gt;, &lt;function inject_tracker at 0x10c181320&gt;]</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.context_injectors" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">context_injectors</tt><em class="property"> = [&lt;function inject at 0x10a919b90&gt;, &lt;function inject at 0x10c01c5f0&gt;, &lt;function inject_hermes at 0x10c01c398&gt;, &lt;function inject_tracker at 0x10c01c410&gt;]</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.context_injectors" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -141,7 +141,7 @@ into a contiguous structure that resembles a framework. Also hosts BaseHandler.<
 
 <dl class="attribute">
 <dt id="lib.apptools.core.BaseHandler.ext">
-<tt class="descname">ext</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x10b2ae290&gt;</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.ext" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">ext</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x10bfe6590&gt;</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.ext" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -156,13 +156,18 @@ into a contiguous structure that resembles a framework. Also hosts BaseHandler.<
 </dd></dl>
 
 <dl class="attribute">
+<dt id="lib.apptools.core.BaseHandler.hermes">
+<tt class="descname">hermes</tt><em class="property"> = &lt;api.platform.hermes.Hermes object at 0x10bfe66d0&gt;</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.hermes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="lib.apptools.core.BaseHandler.injected_config">
 <tt class="descname">injected_config</tt><em class="property"> = [('upstreamConfig', {'debug': False, 'spdy': {'push': {'assets': {'force_priority': False, 'default_priority': 7}}}, 'preloading': {'enable_spdy_push': False, 'enable_link_fallback': False, 'gather_assets': False}, 'enabled': True}), ('frontlineConfig', {'debug': False, 'enabled': True}), ('controllerConfig', {'debug': False, 'enabled': True})]</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.injected_config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="lib.apptools.core.BaseHandler.injected_shortcuts">
-<tt class="descname">injected_shortcuts</tt><em class="property"> = [('tracker', &lt;api.platform.ampush.tracker.Tracker object at 0x10b2aef10&gt;)]</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.injected_shortcuts" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">injected_shortcuts</tt><em class="property"> = [('tracker', &lt;api.platform.tracker.Tracker object at 0x10bfe6650&gt;)]</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.injected_shortcuts" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -173,12 +178,12 @@ into a contiguous structure that resembles a framework. Also hosts BaseHandler.<
 
 <dl class="attribute">
 <dt id="lib.apptools.core.BaseHandler.platform_index">
-<tt class="descname">platform_index</tt><em class="property"> = set(['apptools.platform.appfactory.AppFactory', 'api.platform.ampush.tracker.Tracker', 'apptools.platform.generic.GenericWSGI'])</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.platform_index" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">platform_index</tt><em class="property"> = set(['apptools.platform.appfactory.AppFactory', 'api.platform.hermes.Hermes', 'apptools.platform.generic.GenericWSGI', 'api.platform.tracker.Tracker'])</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.platform_index" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="lib.apptools.core.BaseHandler.platforms">
-<tt class="descname">platforms</tt><em class="property"> = [&lt;apptools.platform.generic.GenericWSGI object at 0x10b2ae810&gt;, &lt;apptools.platform.appfactory.AppFactory object at 0x10b2aed50&gt;, &lt;api.platform.ampush.tracker.Tracker object at 0x10b2aef10&gt;]</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.platforms" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">platforms</tt><em class="property"> = [&lt;apptools.platform.generic.GenericWSGI object at 0x10bfe6750&gt;, &lt;apptools.platform.appfactory.AppFactory object at 0x10bfe65d0&gt;, &lt;api.platform.hermes.Hermes object at 0x10bfe66d0&gt;, &lt;api.platform.tracker.Tracker object at 0x10bfe6650&gt;]</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.platforms" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -189,7 +194,7 @@ into a contiguous structure that resembles a framework. Also hosts BaseHandler.<
 
 <dl class="attribute">
 <dt id="lib.apptools.core.BaseHandler.tracker">
-<tt class="descname">tracker</tt><em class="property"> = &lt;api.platform.ampush.tracker.Tracker object at 0x10b2aef10&gt;</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.tracker" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">tracker</tt><em class="property"> = &lt;api.platform.tracker.Tracker object at 0x10bfe6650&gt;</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.tracker" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -204,7 +209,7 @@ into a contiguous structure that resembles a framework. Also hosts BaseHandler.<
 
 <dl class="attribute">
 <dt id="lib.apptools.core.BaseHandler.util">
-<tt class="descname">util</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x10b2aed10&gt;</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.util" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">util</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x10bfe6390&gt;</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.util" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

@@ -87,6 +87,7 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dt id="api.models.TrackerModel">
 <em class="property">class </em><tt class="descclassname">api.models.</tt><tt class="descname">TrackerModel</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/api/models.html#TrackerModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.models.TrackerModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
+<p>Abstract parent for all <cite>EventTracker</cite> models.</p>
 </dd></dl>
 
 </div>
@@ -117,6 +118,23 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dt id="api.models.client.Client">
 <em class="property">class </em><tt class="descclassname">api.models.client.</tt><tt class="descname">Client</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/api/models/client.html#Client"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.models.client.Client" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#api.models.TrackerModel" title="api.models.TrackerModel"><tt class="xref py py-class docutils literal"><span class="pre">api.models.TrackerModel</span></tt></a></p>
+<p>Represents an Ampush client with active contracts.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; String shortname for a client - must be all lowercase and
+absent of any special symbols, as it will be used in URLs
+and unique IDs (this is used as the key name for a
+<a class="reference internal" href="#api.models.client.Client" title="api.models.client.Client"><tt class="xref py py-class docutils literal"><span class="pre">Client</span></tt></a>)</li>
+<li><strong>label</strong> &#8211; Longer, human-readable name for a client. Casing and
+symbols are allowed, as this value is used in UIs.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="attribute">
 <dt id="api.models.client.Client.label">
 <tt class="descname">label</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.client.Client.label" title="Permalink to this definition">¶</a></dt>
@@ -133,6 +151,21 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dt id="api.models.client.Contract">
 <em class="property">class </em><tt class="descclassname">api.models.client.</tt><tt class="descname">Contract</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/api/models/client.html#Contract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.models.client.Contract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#api.models.TrackerModel" title="api.models.TrackerModel"><tt class="xref py py-class docutils literal"><span class="pre">api.models.TrackerModel</span></tt></a></p>
+<p>Represents a contract held by an Ampush client.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>active</strong> &#8211; Boolean indicating whether this <a class="reference internal" href="#api.models.client.Contract" title="api.models.client.Contract"><tt class="xref py py-class docutils literal"><span class="pre">Contract</span></tt></a> is
+currently active. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>.</li>
+<li><strong>client</strong> &#8211; Reference <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Key</span></tt> to the owner
+<a class="reference internal" href="#api.models.client.Client" title="api.models.client.Client"><tt class="xref py py-class docutils literal"><span class="pre">Client</span></tt></a> for this <a class="reference internal" href="#api.models.client.Contract" title="api.models.client.Contract"><tt class="xref py py-class docutils literal"><span class="pre">Contract</span></tt></a>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="attribute">
 <dt id="api.models.client.Contract.active">
 <tt class="descname">active</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.client.Contract.active" title="Permalink to this definition">¶</a></dt>

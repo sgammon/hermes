@@ -16,15 +16,14 @@ from protocol import http
 from protocol import intake
 from protocol import builtin
 from protocol import timedelta
-from protocol import parameter
 from protocol import environment
 
 ## protocol extensions
+from protocol import parameter
 from protocol import decorators
-from protocol.integration import Integration
-from protocol.attribution import Attribution
-from protocol.aggregation import Aggregation
-from protocol.parameter.group import ParameterGroup
+from protocol import integration
+from protocol import attribution
+from protocol import aggregation
 
 
 ## Constants
@@ -80,9 +79,7 @@ class Profile(type):
                 print "---%s:" % k
                 for bundle in v:
                     spec, flag = bundle
-                    for prop, cfg in spec.iteritems():
-                        basetype, opts = cfg
-                        print "   ---%s: %s, %s opts" % (prop, basetype, len(opts))
+                    print "   ---%s" % spec
                 print ""
 
         def _build_paramgroup(self, group, inline=True):
@@ -166,10 +163,10 @@ class Profile(type):
             return spec
 
         _builders = {
-            Integration: ('integrations', _build_integration),
-            Attribution: ('attributions', _build_attribution),
-            Aggregation: ('aggregations', _build_aggregation),
-            ParameterGroup: ('parameters', _build_paramgroup)
+            integration.Integration: ('integrations', _build_integration),
+            attribution.Attribution: ('attributions', _build_attribution),
+            aggregation.Aggregation: ('aggregations', _build_aggregation),
+            parameter.ParameterGroup: ('parameters', _build_paramgroup)
         }
 
         ## == Public Methods == ##
@@ -228,7 +225,7 @@ class Profile(type):
                 if isinstance(spec_klass, type) and issubclass(spec_klass, meta.ProtocolBinding):
 
                     # pluck parent and specification structure
-                    parent, subspec = spec_klass.__bases__[0], spec_klass.__serialize__()
+                    parent, subspec = spec_klass.__bases__[0], spec_klass
 
                     # add to specs, initializing the parent as we go
                     if parent not in spec:
@@ -291,7 +288,7 @@ class EventProfile(AbstractProfile):
         the eventual inheritance target for all ``EventProfile``
         classes. '''
 
-    class Base(ParameterGroup):
+    class Base(parameter.ParameterGroup):
 
         ''' Parameter group for base tracker parameters. '''
 
@@ -310,7 +307,7 @@ class EventProfile(AbstractProfile):
             'name': builtin.TrackerProtocol.TYPE,
             'category': parameter.ParameterType.INTERNAL,
             'aggregations': [
-                Aggregation(name='events-by-type', interval=_DEFAULT_LOOKBACK)
+                aggregation.Aggregation(name='events-by-type', interval=_DEFAULT_LOOKBACK)
             ]
         }
 
@@ -321,7 +318,7 @@ class EventProfile(AbstractProfile):
             'name': builtin.TrackerProtocol.TRACKER,
             'category': parameter.ParameterType.AMPUSH,
             'aggregations': [
-                Aggregation(name='events-by-tracker', interval=_DEFAULT_LOOKBACK)
+                aggregation.Aggregation(name='events-by-tracker', interval=_DEFAULT_LOOKBACK)
             ]
         }
 
@@ -332,7 +329,7 @@ class EventProfile(AbstractProfile):
             'name': builtin.TrackerProtocol.PROVIDER,
             'category': parameter.ParameterType.INTERNAL,
             'aggregations': [
-                Aggregation(name='events-by-provider', interval=_DEFAULT_LOOKBACK)
+                aggregation.Aggregation(name='events-by-provider', interval=_DEFAULT_LOOKBACK)
             ]
         }
 
@@ -343,11 +340,11 @@ class EventProfile(AbstractProfile):
             'name': builtin.TrackerProtocol.CONTRACT,
             'category': parameter.ParameterType.AMPUSH,
             'aggregations': [
-                Aggregation(name='events-by-contract', interval=_DEFAULT_LOOKBACK)
+                aggregation.Aggregation(name='events-by-contract', interval=_DEFAULT_LOOKBACK)
             ]
         }
 
-    class Environment(ParameterGroup):
+    class Environment(parameter.ParameterGroup):
 
         ''' Parameter group for client browser environment. '''
 
@@ -358,7 +355,7 @@ class EventProfile(AbstractProfile):
             'name': environment.BrowserEnvironment.OS,
             'category': parameter.ParameterType.DATA,
             'aggregations': [
-                Aggregation(name='hits-by-os', interval=_DEFAULT_LOOKBACK)
+                aggregation.Aggregation(name='hits-by-os', interval=_DEFAULT_LOOKBACK)
             ]
         }
 
@@ -385,11 +382,11 @@ class EventProfile(AbstractProfile):
             'name': environment.BrowserEnvironment.BROWSER,
             'category': parameter.ParameterType.DATA,
             'aggregations': [
-                Aggregation(name='hits-by-browser', interval=_DEFAULT_LOOKBACK)
+                aggregation.Aggregation(name='hits-by-browser', interval=_DEFAULT_LOOKBACK)
             ]
         }
 
-    class Consumer(ParameterGroup):
+    class Consumer(parameter.ParameterGroup):
 
         ''' Parameter group for identifying unique consumers. '''
 
@@ -400,11 +397,11 @@ class EventProfile(AbstractProfile):
             'name': _DEFAULT_COOKIE_NAME,
             'category': parameter.ParameterType.INTERNAL,
             'attributions': [
-                Attribution(name='hits-to-cookies')
+                attribution.Attribution(name='hits-to-cookies')
             ]
         }
 
-    class System(ParameterGroup):
+    class System(parameter.ParameterGroup):
 
         ''' Parameter group for system state/configuration. '''
 

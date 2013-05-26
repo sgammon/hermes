@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from protocol.parameter.group import ParamDeclarationMode
+
 # Parameter decorators
 
 
@@ -13,4 +15,6 @@ def values(group):
         :param group:
         :returns: '''
 
+    ## mark group as a values block
+    group.__mode__ = ParamDeclarationMode.VALUES
     return group

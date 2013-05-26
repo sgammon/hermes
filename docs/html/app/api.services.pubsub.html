@@ -229,6 +229,21 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dd><p>alias of <a class="reference internal" href="#api.services.pubsub.service.PubSubService" title="api.services.pubsub.service.PubSubService"><tt class="xref py py-class docutils literal"><span class="pre">PubSubService</span></tt></a></p>
 </dd></dl>
 
+<dl class="method">
+<dt id="api.services.pubsub.service.PubSubService.AsyncStub.publish">
+<tt class="descname">publish</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#api.services.pubsub.service.PubSubService.AsyncStub.publish" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="api.services.pubsub.service.PubSubService.AsyncStub.subscribe">
+<tt class="descname">subscribe</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#api.services.pubsub.service.PubSubService.AsyncStub.subscribe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="api.services.pubsub.service.PubSubService.AsyncStub.unsubscribe">
+<tt class="descname">unsubscribe</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#api.services.pubsub.service.PubSubService.AsyncStub.unsubscribe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -241,6 +256,66 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dd><p>alias of <a class="reference internal" href="#api.services.pubsub.service.PubSubService" title="api.services.pubsub.service.PubSubService"><tt class="xref py py-class docutils literal"><span class="pre">PubSubService</span></tt></a></p>
 </dd></dl>
 
+<dl class="method">
+<dt id="api.services.pubsub.service.PubSubService.Stub.publish">
+<tt class="descname">publish</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#api.services.pubsub.service.PubSubService.Stub.publish" title="Permalink to this definition">¶</a></dt>
+<dd><p>Synchronous remote method.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">self: Instance of StubBase.Async subclass.
+args: Tuple (request,):</p>
+<blockquote>
+<div>request: Request object.</div></blockquote>
+<dl class="last docutils">
+<dt>kwargs: Field values for request.  Must be empty if request object</dt>
+<dd>is provided.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Response message from synchronized RPC.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.services.pubsub.service.PubSubService.Stub.subscribe">
+<tt class="descname">subscribe</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#api.services.pubsub.service.PubSubService.Stub.subscribe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Synchronous remote method.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">self: Instance of StubBase.Async subclass.
+args: Tuple (request,):</p>
+<blockquote>
+<div>request: Request object.</div></blockquote>
+<dl class="last docutils">
+<dt>kwargs: Field values for request.  Must be empty if request object</dt>
+<dd>is provided.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Response message from synchronized RPC.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.services.pubsub.service.PubSubService.Stub.unsubscribe">
+<tt class="descname">unsubscribe</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#api.services.pubsub.service.PubSubService.Stub.unsubscribe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Synchronous remote method.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">self: Instance of StubBase.Async subclass.
+args: Tuple (request,):</p>
+<blockquote>
+<div>request: Request object.</div></blockquote>
+<dl class="last docutils">
+<dt>kwargs: Field values for request.  Must be empty if request object</dt>
+<dd>is provided.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Response message from synchronized RPC.</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="attribute">
@@ -251,7 +326,7 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 
 <dl class="attribute">
 <dt id="api.services.pubsub.service.PubSubService.exceptions">
-<tt class="descclassname">PubSubService.</tt><tt class="descname">exceptions</tt><em class="property"> = &lt;apptools.util.datastructures.DictProxy object at 0x10b06ae90&gt;</em><a class="headerlink" href="#api.services.pubsub.service.PubSubService.exceptions" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">PubSubService.</tt><tt class="descname">exceptions</tt><em class="property"> = &lt;apptools.util.datastructures.DictProxy object at 0x10af1d290&gt;</em><a class="headerlink" href="#api.services.pubsub.service.PubSubService.exceptions" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -260,22 +335,76 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dd><p>Cached access to dedicated log pipe.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="api.services.pubsub.service.PubSubService.publish">
-<tt class="descclassname">PubSubService.</tt><tt class="descname">publish</tt><a class="reference internal" href="_modules/api/services/pubsub/service.html#PubSubService.publish"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.pubsub.service.PubSubService.publish" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">Publish</span></tt></p>
+<tt class="descclassname">PubSubService.</tt><tt class="descname">publish</tt><big>(</big><em>service_instance</em>, <em>request</em><big>)</big><a class="reference internal" href="_modules/api/services/pubsub/service.html#PubSubService.publish"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.pubsub.service.PubSubService.publish" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function used to replace original method.</p>
+<p>Invoke wrapped remote method.  Checks to ensure that request and
+response objects are the correct types.</p>
+<p>Does not check whether messages are initialized.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>service_instance: The service object whose method is being invoked.</dt>
+<dd>This is passed to &#8216;self&#8217; during the invocation of the original
+method.</dd>
+</dl>
+<p class="last">request: Request message.</p>
+</dd>
+<dt>Returns:</dt>
+<dd>Results of calling wrapped remote method.</dd>
+<dt>Raises:</dt>
+<dd>RequestError: Request object is not of the correct type.
+ServerError: Response object is not of the correct type.</dd>
+</dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="api.services.pubsub.service.PubSubService.subscribe">
-<tt class="descclassname">PubSubService.</tt><tt class="descname">subscribe</tt><a class="reference internal" href="_modules/api/services/pubsub/service.html#PubSubService.subscribe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.pubsub.service.PubSubService.subscribe" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">Subscription</span></tt></p>
+<tt class="descclassname">PubSubService.</tt><tt class="descname">subscribe</tt><big>(</big><em>service_instance</em>, <em>request</em><big>)</big><a class="reference internal" href="_modules/api/services/pubsub/service.html#PubSubService.subscribe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.pubsub.service.PubSubService.subscribe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function used to replace original method.</p>
+<p>Invoke wrapped remote method.  Checks to ensure that request and
+response objects are the correct types.</p>
+<p>Does not check whether messages are initialized.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>service_instance: The service object whose method is being invoked.</dt>
+<dd>This is passed to &#8216;self&#8217; during the invocation of the original
+method.</dd>
+</dl>
+<p class="last">request: Request message.</p>
+</dd>
+<dt>Returns:</dt>
+<dd>Results of calling wrapped remote method.</dd>
+<dt>Raises:</dt>
+<dd>RequestError: Request object is not of the correct type.
+ServerError: Response object is not of the correct type.</dd>
+</dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="api.services.pubsub.service.PubSubService.unsubscribe">
-<tt class="descclassname">PubSubService.</tt><tt class="descname">unsubscribe</tt><a class="reference internal" href="_modules/api/services/pubsub/service.html#PubSubService.unsubscribe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.pubsub.service.PubSubService.unsubscribe" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">Subscription</span></tt></p>
+<tt class="descclassname">PubSubService.</tt><tt class="descname">unsubscribe</tt><big>(</big><em>service_instance</em>, <em>request</em><big>)</big><a class="reference internal" href="_modules/api/services/pubsub/service.html#PubSubService.unsubscribe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.pubsub.service.PubSubService.unsubscribe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function used to replace original method.</p>
+<p>Invoke wrapped remote method.  Checks to ensure that request and
+response objects are the correct types.</p>
+<p>Does not check whether messages are initialized.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>service_instance: The service object whose method is being invoked.</dt>
+<dd>This is passed to &#8216;self&#8217; during the invocation of the original
+method.</dd>
+</dl>
+<p class="last">request: Request message.</p>
+</dd>
+<dt>Returns:</dt>
+<dd>Results of calling wrapped remote method.</dd>
+<dt>Raises:</dt>
+<dd>RequestError: Request object is not of the correct type.
+ServerError: Response object is not of the correct type.</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

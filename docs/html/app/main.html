@@ -59,16 +59,15 @@
 <span id="main-module"></span><h1>main Module<a class="headerlink" href="#module-main" title="Permalink to this headline">¶</a></h1>
 <p>This is where it all begins... ah, the wonderful <em>main.py</em>.
 From here, we stitch together <tt class="xref py py-mod docutils literal"><span class="pre">apptools</span></tt> and <tt class="xref py py-mod docutils literal"><span class="pre">gevent</span></tt>
-to provide an entrypoint for both <tt class="xref py py-class docutils literal"><span class="pre">components.tracker.EventTracker</span></tt> and
-<tt class="xref py py-mod docutils literal"><span class="pre">apptools.dispatch</span></tt>.</p>
+to provide an entrypoint for <tt class="xref py py-mod docutils literal"><span class="pre">apptools.dispatch</span></tt>.</p>
 <p>In addition to being the WSGI entrypoint for AppFactory (and any other WSGI-compliant
 platform), this is also where you run the devserver...</p>
 <div class="section" id="running-the-devserver">
 <h2>Running the devserver<a class="headerlink" href="#running-the-devserver" title="Permalink to this headline">¶</a></h2>
 <p>Only one WSGI application can be run at a time, and running <tt class="docutils literal"><span class="pre">Hermes</span></tt>
-or <tt class="xref py py-class docutils literal"><span class="pre">EventTracker</span></tt> can easily be done from the same tool.</p>
+can easily be done from the command line.</p>
 <p>From the root of your project (the folder outside <em>app/</em>):</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> tools/devserver tracker
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> tools/devserver
 
 <span class="go">==== Hermes Devserver ====</span>
 <span class="go">Preloaded module bundle: &quot;apptools&quot;.</span>
@@ -81,11 +80,8 @@ or <tt class="xref py py-class docutils literal"><span class="pre">EventTracker<
 <span class="go">!! Started listener for app &lt;components.tracker.EventTracker&gt; on host/port :8080. !!</span>
 </pre></div>
 </div>
-<p>This runs <tt class="docutils literal"><span class="pre">EventTracker</span></tt> on the default devserver port, which is defined at
-<tt class="xref py py-attr docutils literal"><span class="pre">config._DEVSERVER_PORT</span></tt> and defaults to 8080.</p>
-<p>If you&#8217;d like to start up <tt class="docutils literal"><span class="pre">Hermes</span></tt>, perhaps on port 80 instead, just replace
-<em>tracker</em> with <em>api</em>, like so:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> sudo tools/devserver api --port<span class="o">=</span>80
+<p>If you&#8217;d like to start up on port 80 instead:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> sudo tools/devserver --port<span class="o">=</span>80
 </pre></div>
 </div>
 <div class="admonition note">
@@ -164,7 +160,7 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 </table>
 <dl class="function">
 <dt id="main.devserver">
-<tt class="descclassname">main.</tt><tt class="descname">devserver</tt><big>(</big><em>app=&lt;function gateway at 0x10eca7230&gt;</em>, <em>port=8080</em>, <em>host=''</em><big>)</big><a class="reference internal" href="_modules/main.html#devserver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#main.devserver" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">main.</tt><tt class="descname">devserver</tt><big>(</big><em>app=&lt;function gateway at 0x110215b90&gt;</em>, <em>port=8080</em>, <em>host=''</em><big>)</big><a class="reference internal" href="_modules/main.html#devserver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#main.devserver" title="Permalink to this definition">¶</a></dt>
 <dd><p>Start a local listener for development, using <tt class="xref py py-mod docutils literal"><span class="pre">gevent.pywsgi</span></tt>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

@@ -23,3 +23,14 @@ class Attribution(meta.ProtocolBinding):
         ''' Initialize this ``Attribution``. '''
 
         print "Attribution(%s, %s)" % (args, kwargs)
+
+
+## CompoundAttribution
+#
+class CompoundAttribution(meta.ProtocolBinding):
+
+    def __init__(self, *args, **kwargs):
+
+        ''' Initialize this ``CompoundAttribution``. '''
+
+        print "CompoundAttribution(%s, %s)" % (args, kwargs)

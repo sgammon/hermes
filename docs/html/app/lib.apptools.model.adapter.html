@@ -266,7 +266,7 @@ generated via <a class="reference internal" href="#lib.apptools.model.adapter.ab
 <p>Abstract parent for detecting and registering <cite>Mixin</cite> classes.</p>
 <dl class="attribute">
 <dt id="lib.apptools.model.adapter.abstract.Mixin.components">
-<tt class="descname">components</tt><em class="property"> = &lt;generator object components at 0x10f0525a0&gt;</em><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#Mixin.components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.Mixin.components" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">components</tt><em class="property"> = &lt;generator object components at 0x10afa1cd0&gt;</em><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#Mixin.components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.Mixin.components" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -277,7 +277,7 @@ generated via <a class="reference internal" href="#lib.apptools.model.adapter.ab
 
 <dl class="attribute">
 <dt id="lib.apptools.model.adapter.abstract.Mixin.methods">
-<tt class="descname">methods</tt><em class="property"> = &lt;generator object methods at 0x10f034320&gt;</em><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#Mixin.methods"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.Mixin.methods" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">methods</tt><em class="property"> = &lt;generator object methods at 0x109ec3b90&gt;</em><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#Mixin.methods"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.Mixin.methods" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -427,7 +427,7 @@ implementors of <a class="reference internal" href="#lib.apptools.model.adapter.
 
 <dl class="attribute">
 <dt id="lib.apptools.model.adapter.abstract.ModelAdapter.logging">
-<tt class="descname">logging</tt><em class="property"> = &lt;apptools.util.debug.AppToolsLogger object at 0x10f3fee90&gt;</em><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#ModelAdapter.logging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.ModelAdapter.logging" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">logging</tt><em class="property"> = &lt;apptools.util.debug.AppToolsLogger object at 0x10a9033d0&gt;</em><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#ModelAdapter.logging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.ModelAdapter.logging" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -617,25 +617,6 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dt id="lib.apptools.model.adapter.core.JSONMixin.to_json_schema">
 <em class="property">classmethod </em><tt class="descname">to_json_schema</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/core.html#JSONMixin.to_json_schema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.core.JSONMixin.to_json_schema" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a model or entity&#8217;s schema to a dictionary, where keys=&gt;values map to JSON Schema representing properties=&gt;descriptors.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="lib.apptools.model.adapter.core.MsgpackMixin">
-<em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.core.</tt><tt class="descname">MsgpackMixin</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/core.html#MsgpackMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.core.MsgpackMixin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.adapter.abstract.KeyMixin" title="lib.apptools.model.adapter.abstract.KeyMixin"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.KeyMixin</span></tt></a>, <a class="reference internal" href="#lib.apptools.model.adapter.abstract.ModelMixin" title="lib.apptools.model.adapter.abstract.ModelMixin"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.ModelMixin</span></tt></a></p>
-<p>Provides Msgpack serialization/deserialization support to <cite>model.Model</cite> and <cite>model.Key</cite>.</p>
-<dl class="method">
-<dt id="lib.apptools.model.adapter.core.MsgpackMixin.to_msgpack">
-<tt class="descname">to_msgpack</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/core.html#MsgpackMixin.to_msgpack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.core.MsgpackMixin.to_msgpack" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert an entity to a Msgpack structure, where keys=&gt;values map to properties=&gt;values.</p>
-</dd></dl>
-
-<dl class="classmethod">
-<dt id="lib.apptools.model.adapter.core.MsgpackMixin.to_msgpack_schema">
-<em class="property">classmethod </em><tt class="descname">to_msgpack_schema</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/core.html#MsgpackMixin.to_msgpack_schema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.core.MsgpackMixin.to_msgpack_schema" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert a model or entity&#8217;s schema to a dictionary, where keys=&gt;values map to internal symbols representing properties=&gt;descriptors.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1010,7 +991,7 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dl class="class">
 <dt id="lib.apptools.model.adapter.redis.RedisAdapter">
 <em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.redis.</tt><tt class="descname">RedisAdapter</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.adapter.abstract.IndexedModelAdapter" title="lib.apptools.model.adapter.abstract.IndexedModelAdapter"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.IndexedModelAdapter</span></tt></a></p>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.adapter.abstract.ModelAdapter" title="lib.apptools.model.adapter.abstract.ModelAdapter"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.ModelAdapter</span></tt></a></p>
 <p>Adapt model classes to Redis.</p>
 <dl class="class">
 <dt id="lib.apptools.model.adapter.redis.RedisAdapter.EngineConfig">
@@ -1619,7 +1600,38 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dl class="classmethod">
 <dt id="lib.apptools.model.adapter.redis.RedisAdapter.acquire">
 <em class="property">classmethod </em><tt class="descclassname">RedisAdapter.</tt><tt class="descname">acquire</tt><big>(</big><em>name</em>, <em>bases</em>, <em>properties</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.acquire"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.acquire" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform first initialization.</p>
+<dd><p>Perform first initialization. This method overrides a
+hook by the same name in <tt class="xref py py-class docutils literal"><span class="pre">model.adapter.ModelAdapter</span></tt>,
+and is invoked during <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt> class construction
+before the final call to <tt class="docutils literal"><span class="pre">type</span></tt>.</p>
+<p>Because this method is invoked <em>before</em> there is actually
+an existing <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt>, it must accept the same
+parameter signature as <tt class="docutils literal"><span class="pre">type</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> &#8211; Name of the <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt> to resolve
+an adapter for.</li>
+<li><strong>bases</strong> &#8211; Tupled base parents for the <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt>
+class-to-be.</li>
+<li><strong>properties</strong> &#8211; Map of defined <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt> data
+properties.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Raises ValueError:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body"><p class="first">In the case that <tt class="docutils literal"><span class="pre">config</span></tt> requests a <tt class="docutils literal"><span class="pre">Redis</span></tt>
+connection profile which is invalid or missing.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The acquired adapter, or <tt class="docutils literal"><span class="pre">None</span></tt> in the case of an empty
+set of server profiles.</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
@@ -1630,19 +1642,72 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dl class="classmethod">
 <dt id="lib.apptools.model.adapter.redis.RedisAdapter.allocate_ids">
 <em class="property">classmethod </em><tt class="descclassname">RedisAdapter.</tt><tt class="descname">allocate_ids</tt><big>(</big><em>key_class</em>, <em>kind</em>, <em>count=1</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.allocate_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.allocate_ids" title="Permalink to this definition">¶</a></dt>
-<dd><p>Allocate new Key IDs up to <cite>count</cite>.</p>
+<dd><p>Allocate new <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt> IDs up to <tt class="docutils literal"><span class="pre">count</span></tt>. Allocated
+IDs are guaranteed not to be provisioned or otherwise used by the
+underlying persistence engine, and thus can be used for uniquely
+identifying non-deterministic data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>key_class</strong> &#8211; Descendent of <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt>
+to allocate IDs for.</li>
+<li><strong>kind</strong> &#8211; String <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt> kind name.</li>
+<li><strong>count</strong> &#8211; The number of IDs to generate, which <strong>must</strong>
+be greater than 1. Defaults to <tt class="docutils literal"><span class="pre">1</span></tt>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Raises ValueError:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body"><p class="first">In the case the <tt class="docutils literal"><span class="pre">count</span></tt> is less than <tt class="docutils literal"><span class="pre">1</span></tt>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">If <strong>only one</strong> ID is requested, an <strong>integer ID</strong>
+suitable for use in a <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt> directly.
+If <strong>more than one</strong> ID is requested, a <strong>generator</strong>
+is returned, which <tt class="docutils literal"><span class="pre">yields</span></tt> a set of provisioned
+integer IDs, each suitable for use in a
+<tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt> directly.</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="lib.apptools.model.adapter.redis.RedisAdapter.channel">
 <em class="property">classmethod </em><tt class="descclassname">RedisAdapter.</tt><tt class="descname">channel</tt><big>(</big><em>kind</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.channel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.channel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieve a write channel to Redis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>kind</strong> &#8211; String <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt> kind to retrieve a channel for.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Acquired <tt class="docutils literal"><span class="pre">Redis</span></tt> client connection, potentially specific to the
+handed-in <tt class="docutils literal"><span class="pre">kind</span></tt>.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="lib.apptools.model.adapter.redis.RedisAdapter.clean_indexes">
 <tt class="descclassname">RedisAdapter.</tt><tt class="descname">clean_indexes</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.clean_indexes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.clean_indexes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Clean indexes and index entries matching a key.</p>
+<dd><p>Clean indexes and index entries matching a particular
+<tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt>, and generated via the adapter method
+<tt class="xref py py-meth docutils literal"><span class="pre">RedisAdapter.generate_indexes()</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> &#8211; Target <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt> to clean from <tt class="docutils literal"><span class="pre">Redis</span></tt> indexes.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises :</th><td class="field-body"><tt class="xref py py-exc docutils literal"><span class="pre">NotImplementedError</span></tt>, as this method is not yet implemented.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
@@ -1654,53 +1719,162 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dt id="lib.apptools.model.adapter.redis.RedisAdapter.delete">
 <em class="property">classmethod </em><tt class="descclassname">RedisAdapter.</tt><tt class="descname">delete</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.delete" title="Permalink to this definition">¶</a></dt>
 <dd><p>Delete an entity by Key from Redis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> &#8211; Target <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt>, whose associated
+<tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt> is being deleted.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The result of the low-level delete operation.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="lib.apptools.model.adapter.redis.RedisAdapter.encode_key">
 <em class="property">classmethod </em><tt class="descclassname">RedisAdapter.</tt><tt class="descname">encode_key</tt><big>(</big><em>joined</em>, <em>flattened</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.encode_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.encode_key" title="Permalink to this definition">¶</a></dt>
-<dd><p>Encode a Key for storage in Redis.</p>
+<dd><p>Encode a Key for storage in <tt class="docutils literal"><span class="pre">Redis</span></tt>. Since we don&#8217;t need to
+do anything fancy, just delegate this to the abstract (default)
+encoder, which is <tt class="docutils literal"><span class="pre">base64</span></tt>.</p>
+<p>If <tt class="xref py py-attr docutils literal"><span class="pre">RedisEngine.EngineConfig.encoding</span></tt> is disabled, this
+simply returns the <tt class="docutils literal"><span class="pre">joined</span></tt> <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt> (for reference,
+see <tt class="xref py py-meth docutils literal"><span class="pre">model.Key.flatten()</span></tt>).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>joined</strong> &#8211; String-joined <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt>.</li>
+<li><strong>flattened</strong> &#8211; Tupled (&#8220;raw format&#8221;) <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">In the case that <tt class="docutils literal"><span class="pre">encoding</span></tt> is <em>on</em>, the encoded string
+<tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt>, suitable for storage in <tt class="docutils literal"><span class="pre">Redis</span></tt>.
+Otherwise (<tt class="docutils literal"><span class="pre">encoding</span></tt> is <em>off</em>), the cleartext <tt class="docutils literal"><span class="pre">joined</span></tt>
+key.</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="lib.apptools.model.adapter.redis.RedisAdapter.execute">
 <em class="property">classmethod </em><tt class="descclassname">RedisAdapter.</tt><tt class="descname">execute</tt><big>(</big><em>operation</em>, <em>kind</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.execute" title="Permalink to this definition">¶</a></dt>
 <dd><p>Acquire a channel and execute an operation, optionally buffering the command.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>operation</strong> &#8211; Operation name to execute (from <a class="reference internal" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations" title="lib.apptools.model.adapter.redis.RedisAdapter.Operations"><tt class="xref py py-attr docutils literal"><span class="pre">RedisAdapter.Operations</span></tt></a>).</li>
+<li><strong>kind</strong> &#8211; String <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt> kind to acquire the channel for.</li>
+<li><strong>*args</strong> &#8211; <p>Positional arguments to pass to the low-level operation selected.</p>
+</li>
+<li><strong>**kwargs</strong> &#8211; <p>Keyword arguments to pass to the low-level operation selected.</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Result of the selected low-level operation,</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="lib.apptools.model.adapter.redis.RedisAdapter.execute_query">
 <tt class="descclassname">RedisAdapter.</tt><tt class="descname">execute_query</tt><big>(</big><em>spec</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.execute_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.execute_query" title="Permalink to this definition">¶</a></dt>
-<dd><p>Execute a query across one (or multiple) indexed properties.</p>
+<dd><p>Execute a <tt class="xref py py-class docutils literal"><span class="pre">model.Query</span></tt> across one (or multiple)
+indexed properties.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>spec</strong> &#8211; Descendent of <tt class="xref py py-class docutils literal"><span class="pre">model.Query</span></tt> specifying the query to satisfy.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises :</th><td class="field-body"><tt class="xref py py-exc docutils literal"><span class="pre">NotImplementedError</span></tt>, as this method is not yet implemented.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="lib.apptools.model.adapter.redis.RedisAdapter.get">
 <em class="property">classmethod </em><tt class="descclassname">RedisAdapter.</tt><tt class="descname">get</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieve an entity by Key from Redis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> &#8211; Target <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt> to retrieve from storage.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The deserialized and decompressed entity associated with
+the target <tt class="docutils literal"><span class="pre">key</span></tt>.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="lib.apptools.model.adapter.redis.RedisAdapter.is_supported">
 <em class="property">classmethod </em><tt class="descclassname">RedisAdapter.</tt><tt class="descname">is_supported</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.is_supported"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.is_supported" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check whether this adapter is supported in the current environment.</p>
+<dd><p>Check whether this adapter is supported in the current environment.
+:returns: The imported <tt class="docutils literal"><span class="pre">Redis</span></tt> driver, or <tt class="docutils literal"><span class="pre">False</span></tt> if it could not be found.</p>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="lib.apptools.model.adapter.redis.RedisAdapter.put">
 <em class="property">classmethod </em><tt class="descclassname">RedisAdapter.</tt><tt class="descname">put</tt><big>(</big><em>key</em>, <em>entity</em>, <em>model</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.put"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.put" title="Permalink to this definition">¶</a></dt>
 <dd><p>Persist an entity to storage in Redis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>key</strong> &#8211; New (and potentially empty) <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt> for
+<tt class="docutils literal"><span class="pre">entity</span></tt>. Must be assigned an <tt class="docutils literal"><span class="pre">ID</span></tt> by the driver
+through <a class="reference internal" href="#lib.apptools.model.adapter.redis.RedisAdapter.allocate_ids" title="lib.apptools.model.adapter.redis.RedisAdapter.allocate_ids"><tt class="xref py py-meth docutils literal"><span class="pre">RedisAdapter.allocate_ids()</span></tt></a> in the case
+of an empty (non-deterministic) <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt>.</li>
+<li><strong>entity</strong> &#8211; Object entity <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt> to persist in
+<tt class="docutils literal"><span class="pre">Redis</span></tt>.</li>
+<li><strong>model</strong> &#8211; Schema <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt> associated with the
+target <tt class="docutils literal"><span class="pre">entity</span></tt> being persisted.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Result of the lower-level write operation.</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="lib.apptools.model.adapter.redis.RedisAdapter.serializer">
-<tt class="descclassname">RedisAdapter.</tt><tt class="descname">serializer</tt><em class="property"> = &lt;module 'msgpack' from '/Library/Python/2.7/site-packages/msgpack/__init__.pyc'&gt;</em><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.serializer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.serializer" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<tt class="descclassname">RedisAdapter.</tt><tt class="descname">serializer</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.serializer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.serializer" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">JSONWrapper</span></tt></p>
+</dd></dl>
 
 <dl class="method">
 <dt id="lib.apptools.model.adapter.redis.RedisAdapter.write_indexes">
 <tt class="descclassname">RedisAdapter.</tt><tt class="descname">write_indexes</tt><big>(</big><em>writes</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.write_indexes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.write_indexes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Write a batch of index updates generated earlier via the method above.</p>
+<dd><p>Write a batch of index updates generated earlier via
+<tt class="xref py py-meth docutils literal"><span class="pre">RedisAdapter.generate_indexes()</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>writes</strong> &#8211; Batch of writes to commit to <tt class="docutils literal"><span class="pre">Redis</span></tt>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises :</th><td class="field-body"><tt class="xref py py-exc docutils literal"><span class="pre">NotImplementedError</span></tt>, as this method is not yet implemented.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
