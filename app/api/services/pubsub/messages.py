@@ -56,7 +56,7 @@ class Publish(messages.Message):
         # name and channel flags
         name = messages.StringField(1, required=True)  # name of the channel being specified
         data = messages.BooleanField(2, default=True)  # whether to publish the key or full data blob
-        flags = messages.EnumField(ChannelFlags, 3, repeated=True, default=(ChannelFlags.GLOBAL, ChannelFlags.PROPAGATE))
+        flags = messages.EnumField(ChannelFlags, 3, repeated=True)
 
     ## basic details
     kind = messages.EnumField(PayloadType, 1, default=PayloadType.LOG)

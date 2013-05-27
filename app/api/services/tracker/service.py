@@ -55,21 +55,6 @@ class TrackerService(APIService):
         'generic': exceptions.Error
     })
 
-    @webapp2.cached_property
-    def config(self):
-
-        ''' Cached access to `TrackerService` config. '''
-
-        return config.config.get(self._config_path, {'debug': False})
-
-    @webapp2.cached_property
-    def logging(self):
-
-        ''' Cached access to dedicated log pipe. '''
-
-        path = self._config_path.split('.')
-        return debug.AppToolsLogger(path='.'.join(path[0:-1]), name=path[-1])._setcondition(self.config.get('debug'))
-
     @remote.method(Echo, Echo)
     def echo(self, request):
 

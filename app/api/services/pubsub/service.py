@@ -9,10 +9,6 @@ PubSub API: Service
           embedded licenses and other legalese, see `LICENSE.md`.
 '''
 
-# Base Imports
-import config
-import webapp2
-
 # Local Imports
 from . import messages
 from . import exceptions
@@ -22,7 +18,6 @@ from apptools import services
 from protorpc import message_types
 
 # apptools util
-from apptools.util import debug
 from apptools.util import datastructures
 
 # API Service
@@ -40,21 +35,6 @@ class PubSubService(APIService):
         'generic': exceptions.Error
     })
 
-    @webapp2.cached_property
-    def config(self):
-
-        ''' Cached access to `PubSubService` config. '''
-
-        return config.config.get(self._config_path, {'debug': False})
-
-    @webapp2.cached_property
-    def logging(self):
-
-        ''' Cached access to dedicated log pipe. '''
-
-        path = self._config_path.split('.')
-        return debug.AppToolsLogger(path='.'.join(path[0:-1]), name=path[-1])._setcondition(self.config.get('debug'))
-
     @services.rpcmethod(messages.BatchPublish, message_types.VoidMessage)
     def publish(self, request):
 
@@ -62,7 +42,7 @@ class PubSubService(APIService):
 
         pass
 
-    @services.rpcmethod(messages.BatchSubscription, messages.BatchSubscription)
+    @services.rpcmethod(messages.BatchSubscribe, messages.BatchSubscribe)
     def subscribe(self, request):
 
         ''' Establish a new subscription to a channel. '''

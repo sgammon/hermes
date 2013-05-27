@@ -130,12 +130,10 @@ class AppBootstrapper(object):
         from apptools.platform import appengine
         from apptools.platform import appfactory
 
-        # === AppTools Services === #
-        from apptools import services
-        from apptools.services import builtin
-        from apptools.services import gateway
-        from apptools.services import mappers
-        from apptools.services import middleware
+        # === AppTools RPC === #
+        from apptools import rpc
+        from apptools.rpc import mappers
+        from apptools.rpc import dispatch
 
         return cls
 
