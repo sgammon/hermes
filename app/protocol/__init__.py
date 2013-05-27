@@ -28,9 +28,4 @@ from . import decorators
 from . import attribution
 from . import aggregation
 
-
-__extensions__ = [meta, http, event, intake,
-                  builtin, timedelta, environment,
-                  parameter, attribution, aggregation]
-
-__all__ = __extensions__ + [decorators]
+__extensions__ = __all__ = ['meta', 'http', 'event', 'param', 'intake', 'builtin']

@@ -9,16 +9,12 @@ Protocol: Meta Bindings
           embedded licenses and other legalese, see `LICENSE.md`.
 """
 
-# stdlib
-import abc
+"""pylint option block-disable"""
 
 try:
     import config; _APPCONFIG = True
-except ImportError as e:
-    _APPCONFIG = False
-
-# apptools model
-from apptools import model
+except ImportError:
+    _APPCONFIG = False  # pragma: no cover
 
 # apptools util
 from apptools.util import debug
@@ -47,7 +43,8 @@ class Definition(object):
             ''' Initialize this :py:class:`Definition`. '''
 
             # split up properties
-            _original_definition, _nonspecial_properties = frozenset(properties.keys()), {k: v for k, v in properties.iteritems() if not k.startswith('_')}
+            _original_definition = frozenset(properties.keys())
+            _nonspecial_properties = {k: v for k, v in properties.iteritems() if not k.startswith('_')}
             _prop_lookup, _value_lookup, _prop_data, _value_data, _binding_config = set(), set(), [], [], {}
             _special_properties = {k: v for k, v in properties.iteritems() if k.startswith('_')}
 
@@ -108,15 +105,20 @@ class Definition(object):
             # construct new `Definition` class on-the-fly
             klass = super(cls, cls).__new__(cls, name, bases, mapping)
             datastructures.BidirectionalEnum.register(klass)
-            return klass
 
-        def _register_definition(self, target):
+            # preload config / logging
+            klass._config, klass._logging
+
+            return cls._register_definition(klass)
+
+        @classmethod
+        def _register_definition(cls, target):
 
             ''' Register a given definition in the definition registry. '''
 
             # register in local registry
-            self._definition_registry[self.__name__] = (self.__dict__['__parent__'], self)
-            return self
+            cls._definition_registry[target.__name__] = (target.__dict__['__parent__'], target)
+            return target
 
         def __repr__(self):
 
@@ -138,6 +140,7 @@ class Definition(object):
 
             return dict(zip(self.__forward__, self.__reverse__))
 
+    @decorators.memoize
     @decorators.classproperty
     def _config(cls):
 
@@ -147,6 +150,7 @@ class Definition(object):
             return config.config.get(cls._config_path, {'debug': True})
         return {'debug': True}
 
+    @decorators.memoize
     @decorators.classproperty
     def _logging(cls):
 
@@ -155,7 +159,7 @@ class Definition(object):
         _psplit = cls._config_path.split('.')
         return debug.AppToolsLogger(**{
             'path': '.'.join(_psplit[0:-1]),
-            'name': _psplit[-1]})._setcondition(cls.config.get('debug', True))
+            'name': _psplit[-1]})._setcondition(cls._config.get('debug', True))
 
 
 class ProtocolBinding(Definition):
@@ -176,7 +180,7 @@ class ProtocolDefinition(Definition):
 
         ''' Resolve an enumerated key by value. '''
 
-        if value in cls.__value_lookup__:
+        if value in cls.__value_lookup__:  # pylint: disable-msg=E1101
             return cls.__forward__[cls.__reverse__.index(value)]
         raise KeyError('Definition has no binding for value "%s".' % value)
 

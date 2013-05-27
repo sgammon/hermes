@@ -151,6 +151,9 @@ import apptools
 # apptools central dispatch
 from apptools import dispatch
 
+# pragma: no cover
+# (coverage disabled - this is mostly a runfile)
+
 # Globals
 _DEBUG = True  # DANGER: core debug flag, use with caution
 _patched = False  # init flag for monkey patching via gevent
@@ -165,7 +168,7 @@ bootstrapper.preload(_DEBUG)
 _APIServer = APIServer = dispatch.gateway
 
 
-def devserver(app, args, port=config._DEVSERVER_PORT, host=config._DEVSERVER_HOST):
+def devserver(app, args, port=config._DEVSERVER_PORT, host=config._DEVSERVER_HOST):  # pragma: no cover
 
     ''' Start a local listener for development, using :py:mod:`gevent.pywsgi`.
 
@@ -313,7 +316,7 @@ def devserver(app, args, port=config._DEVSERVER_PORT, host=config._DEVSERVER_HOS
 
 
 ## Handle full-listener debug spawn
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     if len(sys.argv) > 1:
         args = sys.argv[1:]
     else:
