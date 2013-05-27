@@ -60,7 +60,7 @@ class WebHandler(core.BaseHandler):
 
     ## Debug Pipe
     @webapp2.cached_property
-    def debug(self):
+    def debug(self):  # pragma: no cover
 
         ''' Shortcut to AppTools debugging utilities.
             :returns: Boolean value indicating whether debug mode is active. '''
@@ -69,7 +69,7 @@ class WebHandler(core.BaseHandler):
 
     ## Logging Pipe
     @webapp2.cached_property
-    def logging(self):
+    def logging(self):  # pragma: no cover
 
         ''' Named logging pipe / shortcut.
 
@@ -80,7 +80,7 @@ class WebHandler(core.BaseHandler):
 
     ## Config Shortcuts
     @webapp2.cached_property
-    def config(self):
+    def config(self):  # pragma: no cover
 
         ''' Cached access to main config for this handler.
 
@@ -90,7 +90,7 @@ class WebHandler(core.BaseHandler):
         return self._webHandlerConfig
 
     @webapp2.cached_property
-    def _webHandlerConfig(self):
+    def _webHandlerConfig(self):  # pragma: no cover
 
         ''' Cached access to this handler's config.
 
@@ -99,7 +99,7 @@ class WebHandler(core.BaseHandler):
         return config.config.get(self._handler_config_path)
 
     @webapp2.cached_property
-    def _jinjaConfig(self):
+    def _jinjaConfig(self):  # pragma: no cover
 
         ''' Cached access to Jinja2 base config.
 
@@ -109,7 +109,7 @@ class WebHandler(core.BaseHandler):
         return config.config.get(self._jinja2_config_path)
 
     @webapp2.cached_property
-    def _integrationConfig(self):
+    def _integrationConfig(self):  # pragma: no cover
 
         ''' Cached access to this handler's integration config.
 
@@ -120,7 +120,7 @@ class WebHandler(core.BaseHandler):
         return self._webHandlerConfig.get('integrations')
 
     @webapp2.cached_property
-    def _outputConfig(self):
+    def _outputConfig(self):  # pragma: no cover
 
         ''' Cached access to base output config.
 
