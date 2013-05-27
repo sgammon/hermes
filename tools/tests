@@ -1,0 +1,3 @@
+#!/bin/bash
+coverage erase
+coverage run --branch --source=app/api,app/protocol,app/policy,app/util,app/tools,app/lib/apptools,app/lib/apptools/model,app/lib/appfactory tools/testrunner.py
