@@ -17,9 +17,6 @@ from . import exceptions
 from apptools import rpc
 from apptools import model
 
-# API Service
-from api.services import APIService
-
 
 ## Echo
 # Sample message.
@@ -32,7 +29,7 @@ class Echo(model.Model):
 
 ## TrackerService - exposes methods for managing config for `EventTracker`.
 @rpc.service
-class TrackerService(APIService):
+class TrackerService(rpc.Service):
 
     ''' Exposes methods for managing the `EventTracker`. '''
 

@@ -23,7 +23,6 @@ from api.models.tracker import profile
 
 
 ## Tracker
-# Represents a URL that may be hit with tracking events.
 class Tracker(model.Model):
 
     ''' A discrete endpoint for `EventTracker`. '''

@@ -16,22 +16,16 @@ from . import exceptions
 # apptools services
 from apptools import rpc
 
-# apptools util
-from apptools.util import datastructures
-
-# API Service
-from api.services import APIService
-
 
 ## RawDataService - exposes methods for retrieving raw data from `EventTracker`.
 @rpc.service
-class RawDataService(APIService):
+class RawDataService(rpc.Service):
 
     ''' Exposes methods for retrieving raw data from `EventTracker`. '''
 
     _config_path = 'hermes.api.tracker.RawDataAPI'
 
-    exceptions = datastructures.DictProxy(**{
+    exceptions = rpc.Exceptions(**{
         'generic': exceptions.Error
     })
 

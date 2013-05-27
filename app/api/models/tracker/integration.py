@@ -10,10 +10,6 @@ expressing configuration and audit for integrated systems.
           embedded licenses and other legalese, see `LICENSE.md`.
 '''
 
-# stdlib
-import time
-import datetime
-
 # apptools models
 from apptools import model
 

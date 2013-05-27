@@ -14,7 +14,6 @@ from apptools import model
 
 
 ## AttributionGroup
-# Represents a group of attributed events.
 class AttributionGroup(model.Model):
 
     ''' Represents a group of bucketed, attributed events. '''
@@ -28,7 +27,6 @@ class AttributionGroup(model.Model):
 
 
 ## Attribution
-# Represents a single attribution between an event and another event or datapoint.
 class Attribution(model.Model):
 
     ''' Represents a single attribution from event=>event or event=>datapoint. '''

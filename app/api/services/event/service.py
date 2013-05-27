@@ -10,27 +10,22 @@ Event Data API: Service
 '''
 
 # Local Imports
+from . import messages
 from . import exceptions
 
 # apptools rpc
 from apptools import rpc
 
-# apptools util
-from apptools.util import datastructures
-
-# API Service
-from api.services import APIService
-
 
 ## EventDataService - exposes methods for extracting data from `EventTracker`.
 @rpc.service
-class EventDataService(APIService):
+class EventDataService(rpc.Service):
 
     ''' Exposes methods for interacting with & extracting data from `EventTracker`. '''
 
     _config_path = 'hermes.api.tracker.EventDataAPI'
 
-    exceptions = datastructures.DictProxy(**{
+    exceptions = rpc.Exceptions(**{
         'generic': exceptions.Error
     })
 

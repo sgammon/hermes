@@ -15,4 +15,5 @@ from main import devserver
 from main import APIServer
 
 if __name__ == '__main__':
-    devserver()  # if in doubt, run the devserver.
+    # if in doubt, run the devserver.
+    devserver()  # pragma: no cover

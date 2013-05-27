@@ -11,10 +11,6 @@ and service methods.
           embedded licenses and other legalese, see `LICENSE.md`.-sam (<sam.gammon@ampush.com>)
 '''
 
-# stdlib
-import os
-import sys
-
 # WebHandler
 from api.handlers import WebHandler
 
@@ -42,4 +38,4 @@ class Landing(WebHandler):
         ''' HTTP GET
             :returns: Rendered template ``harness/landing.html``. '''
 
-	return self.render('harness/landing.html')
+        return self.render('harness/landing.html')

@@ -10,11 +10,11 @@ is the primary location for app-wide business logic.
           embedded licenses and other legalese, see `LICENSE.md`.
 '''
 
-# Base Imports
-import webapp2
-
 # Platform Parent
 from api.platform import Platform
+
+# apptools util
+from apptools.util import decorators
 
 
 ## Hermes - version one of the `Hermes` platform.
@@ -37,7 +37,7 @@ class Hermes(Platform):
 
         return True
 
-    @webapp2.cached_property
+    @decorators.memoize
     def shortcut_exports(self):
 
         ''' Return shortcuts.
@@ -49,7 +49,7 @@ class Hermes(Platform):
             ('hermes', self)
         ]
 
-    @webapp2.cached_property
+    @decorators.memoize
     def template_context(self):
 
         ''' Inject Hermes-specific template context.
