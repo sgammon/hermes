@@ -9,3 +9,6 @@ htmlcov/*
 .coverage
 coverage.xml
 .profile/*
+.doctrees/*
+docs/app/.doctrees/*
+docs/api/.doctrees/*
