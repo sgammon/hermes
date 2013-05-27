@@ -159,9 +159,7 @@ class WebHandler(core.BaseHandler):
             'endpoint': self.hostname,
             'consumer': 'apptools-sandbox',
             'scope': 'readonly',
-            'realtime': {
-                'enabled': False
-            },
+            'realtime': {'enabled': False},
             'make_object': lambda x: self._make_services_object(x)
         }
 
