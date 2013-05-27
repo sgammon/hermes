@@ -58,7 +58,7 @@ class WebHandler(core.BaseHandler, rpc.ConfiguredClass):
     ## ++ Internal Shortcuts ++ ##
     @decorators.memoize
     @decorators.classproperty
-    def _outputConfig(cls):  # pragma: no cover
+    def _outputConfig(cls):
 
         ''' Cached access to base output config.
 
@@ -66,11 +66,11 @@ class WebHandler(core.BaseHandler, rpc.ConfiguredClass):
                       *Core Output API*, which provides integration with
                       :py:mod:`jinja2`, among other things. '''
 
-        return config.config.get(cls._p_output_config_path)
+        return config.config.get(cls._p_output_config_path, {'debug': True})  # pragma: no cover
 
     @decorators.memoize
     @decorators.classproperty
-    def _jinjaConfig(cls):  # pragma: no cover
+    def _jinjaConfig(cls):
 
         ''' Cached access to base output config.
 
@@ -78,7 +78,7 @@ class WebHandler(core.BaseHandler, rpc.ConfiguredClass):
                       *Core Output API*, which provides integration with
                       :py:mod:`jinja2`, among other things. '''
 
-        return config.config.get(cls._jinja2_config_path)
+        return config.config.get(cls._jinja2_config_path)  # pragma: no cover
 
     ## Internals
     @decorators.memoize

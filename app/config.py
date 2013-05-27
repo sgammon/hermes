@@ -16,7 +16,6 @@ AppTools ships with a few other config files in this folder.
 
 import os
 import hashlib
-import logging
 
 ## Globals
 _config = {}
@@ -593,29 +592,5 @@ _config['apptools.classes.WebHandler'] = {
     }
 
 }
-
-
-
-"""
-###    === Don't modify below this line... ===
-"""
-
-
-def systemLog(message, _type='debug'):
-
-    ''' Logging shortcut. '''
-
-    global debug
-    global _config
-    if _config['apptools.system']['debug'] is True or _type in ('error', 'critical'):
-        prefix = '[CORE_SYSTEM]: '
-        if _type == 'debug' or debug is True:
-            logging.debug(prefix + message)
-        elif _type == 'info':
-            logging.info(prefix + message)
-        elif _type == 'error':
-            logging.error(prefix + message)
-        elif _type == 'critical':
-            logging.critical(prefix + message)
 
 config = _config

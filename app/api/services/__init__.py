@@ -33,7 +33,7 @@ from apptools.util import debug
 # apptools services
 try:
     # new, service layer 2.0
-    from apptools import rpc
+    from apptools import rpc  # pragma: no cover
 except:
     # fallback to old apptools servicelayer
-    from apptools import services as rpc
+    from apptools import services as rpc  # pragma: no cover

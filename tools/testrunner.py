@@ -33,6 +33,7 @@ def main(test_path='app', mode='text', output='../.tests'):  # pragma: no cover
     import bootstrap
     bootstrap.AppBootstrapper.prepareImports()
 
+    from apptools import rpc
     from apptools import tests
 
     loader = unittest.loader.TestLoader()
