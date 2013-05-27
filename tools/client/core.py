@@ -1,11 +1,11 @@
 from protorpc import message_types
-from apptools import services
+from apptools import rpc
 from protorpc import messages
 package = 'core'
 
 
 class Key(messages.Message):
   
-  id = services.VariantField(1)
-  kind = services.VariantField(2)
-  encoded = services.VariantField(3)
+  id = rpc.VariantField(1)
+  kind = rpc.VariantField(2)
+  encoded = rpc.VariantField(3)

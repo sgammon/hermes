@@ -9,24 +9,13 @@ Tracker API: Service
           embedded licenses and other legalese, see `LICENSE.md`.
 '''
 
-# Base Imports
-import config
-import webapp2
-
 # Local Imports
 from . import messages
 from . import exceptions
 
-# protorpc
-from protorpc import remote
-
-# apptools services
+# apptools rpc + model
+from apptools import rpc
 from apptools import model
-from apptools import services
-
-# apptools util
-from apptools.util import debug
-from apptools.util import datastructures
 
 # API Service
 from api.services import APIService
@@ -41,21 +30,19 @@ class Echo(model.Model):
     message = basestring, {'default': 'Hello, world!'}
 
 
-Echo = Echo.to_message_model()
-
-
 ## TrackerService - exposes methods for managing config for `EventTracker`.
+@rpc.service
 class TrackerService(APIService):
 
     ''' Exposes methods for managing the `EventTracker`. '''
 
     _config_path = 'hermes.api.tracker.TrackerAPI'
 
-    exceptions = datastructures.DictProxy(**{
+    exceptions = rpc.Exceptions(**{
         'generic': exceptions.Error
     })
 
-    @remote.method(Echo, Echo)
+    @rpc.method(Echo, Echo)
     def echo(self, request):
 
         ''' Echo back what we get. '''
