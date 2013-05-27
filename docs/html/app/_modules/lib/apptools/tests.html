@@ -1,0 +1,291 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.apptools.tests &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../index.html" />
+    <link rel="up" title="lib.apptools" href="../apptools.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../apptools.html" accesskey="U">lib.apptools</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.apptools.tests</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">--------------------</span>
+<span class="sd">apptools2: testsuite</span>
+<span class="sd">--------------------</span>
+
+<span class="sd">this package contains base classes for writing tests</span>
+<span class="sd">for apps built with apptools. it also contains apptools&#39;</span>
+<span class="sd">own testsuite, and tools for running/gathering tests.</span>
+
+<span class="sd">:author: Sam Gammon (sam@momentum.io)</span>
+<span class="sd">:copyright: (c) 2013 momentum labs.</span>
+<span class="sd">:license: This is private source code - Ampush has been granted an</span>
+<span class="sd">          unlimited, exclusive license for embedded use. For details</span>
+<span class="sd">          about embedded licenses and other legalese, see `LICENSE.md`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c"># Base Imports</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">webapp2</span>
+<span class="kn">import</span> <span class="nn">unittest</span>
+
+<span class="c"># App Engine API Imports</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">google.appengine.ext</span> <span class="kn">import</span> <span class="n">testbed</span>
+
+<span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="n">_APPENGINE</span> <span class="o">=</span> <span class="bp">False</span>
+
+<span class="k">else</span><span class="p">:</span>  <span class="c"># pragma: no cover</span>
+    <span class="n">_APPENGINE</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="c">## GAE Constants</span>
+    <span class="n">_APPENGINE_SERVICE_BINDINGS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;mail&#39;</span><span class="p">:</span> <span class="s">&#39;mail&#39;</span><span class="p">,</span>
+        <span class="s">&#39;user&#39;</span><span class="p">:</span> <span class="s">&#39;user&#39;</span><span class="p">,</span>
+        <span class="s">&#39;xmpp&#39;</span><span class="p">:</span> <span class="s">&#39;xmpp&#39;</span><span class="p">,</span>
+        <span class="s">&#39;images&#39;</span><span class="p">:</span> <span class="s">&#39;images&#39;</span><span class="p">,</span>
+        <span class="s">&#39;channel&#39;</span><span class="p">:</span> <span class="s">&#39;channel&#39;</span><span class="p">,</span>
+        <span class="s">&#39;urlfetch&#39;</span><span class="p">:</span> <span class="s">&#39;urlfetch&#39;</span><span class="p">,</span>
+        <span class="s">&#39;memcache&#39;</span><span class="p">:</span> <span class="s">&#39;memcache&#39;</span><span class="p">,</span>
+        <span class="s">&#39;blobstore&#39;</span><span class="p">:</span> <span class="s">&#39;blobstore&#39;</span><span class="p">,</span>
+        <span class="s">&#39;taskqueue&#39;</span><span class="p">:</span> <span class="s">&#39;taskqueue&#39;</span><span class="p">,</span>
+        <span class="s">&#39;identity&#39;</span><span class="p">:</span> <span class="s">&#39;app_identity&#39;</span><span class="p">,</span>
+        <span class="s">&#39;capability&#39;</span><span class="p">:</span> <span class="s">&#39;capability&#39;</span><span class="p">,</span>
+        <span class="s">&#39;logservice&#39;</span><span class="p">:</span> <span class="s">&#39;logservice&#39;</span><span class="p">,</span>
+        <span class="s">&#39;datastore&#39;</span><span class="p">:</span> <span class="s">&#39;datastore_v3&#39;</span>
+    <span class="p">}</span>
+    <span class="n">_APPENGINE_SERVICES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">_APPENGINE_SERVICE_BINDINGS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+
+<span class="c"># Builtin Test Paths</span>
+<span class="n">_TEST_PATHS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">&#39;apptools.tests.test_model&#39;</span><span class="p">,</span>  <span class="c"># Model API testsuite</span>
+    <span class="s">&#39;apptools.tests.test_model.test_adapters&#39;</span><span class="p">,</span>  <span class="c"># Model Adapter API testsuite</span>
+    <span class="s">&#39;apptools.tests.test_model.test_adapters.test_core&#39;</span><span class="p">,</span>  <span class="c"># Core Adapter testsuite</span>
+    <span class="s">&#39;apptools.tests.test_model.test_adapters.test_abstract&#39;</span><span class="p">,</span>  <span class="c"># Abstract Adapter testsuite</span>
+    <span class="s">&#39;apptools.tests.test_model.test_adapters.test_inmemory&#39;</span>  <span class="c"># In-Memory Adapter testsuite</span>
+<span class="p">]</span>
+
+
+<span class="c">## AppToolsTestCase - Parent class for AppTools and Application-level tests.</span>
+<div class="viewcode-block" id="AppToolsTestCase"><a class="viewcode-back" href="../../../lib.apptools.tests.html#lib.apptools.tests.AppToolsTestCase">[docs]</a><span class="k">class</span> <span class="nc">AppToolsTestCase</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; A test case compatible with vanilla WSGI or GAE. &#39;&#39;&#39;</span>
+
+    <span class="c">## == Testbed / APIs == ##</span>
+    <span class="n">testbed</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="c">## == Request / Handler == ##</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="s">&#39;/&#39;</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">handler</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="c">## == Services / Flags == ##</span>
+    <span class="n">services</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;datastore&#39;</span><span class="p">,</span> <span class="s">&#39;memcache&#39;</span><span class="p">,</span> <span class="s">&#39;urlfetch&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AppToolsTestCase.setUp"><a class="viewcode-back" href="../../../lib.apptools.tests.html#lib.apptools.tests.AppToolsTestCase.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Set up an App Engine testbed, with related tools. &#39;&#39;&#39;</span>
+
+        <span class="c">## Construct + activate testbed</span>
+        <span class="k">if</span> <span class="n">_APPENGINE</span><span class="p">:</span>  <span class="c"># pragma: no cover</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;services&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">testbed</span> <span class="o">=</span> <span class="n">testbed</span><span class="o">.</span><span class="n">Testbed</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">testbed</span><span class="o">.</span><span class="n">activate</span><span class="p">()</span>
+
+            <span class="c">## Construct stubs</span>
+            <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">_APPENGINE_SERVICES</span><span class="p">:</span>
+                    <span class="n">stub_init</span> <span class="o">=</span> <span class="s">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
+                        <span class="s">&#39;init&#39;</span><span class="p">,</span>
+                        <span class="n">_APPENGINE_SERVICE_BINDINGS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">service</span><span class="p">),</span>
+                        <span class="s">&#39;stub&#39;</span>
+                    <span class="p">])</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">testbed</span><span class="p">,</span> <span class="n">stub_init</span><span class="p">):</span>
+                        <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">testbed</span><span class="p">,</span> <span class="n">stub_init</span><span class="p">)()</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&#39;Could not init API &quot;</span><span class="si">%s</span><span class="s">&quot;.&#39;</span> <span class="o">%</span> <span class="n">service</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&#39;Could not resolve API &quot;</span><span class="si">%s</span><span class="s">&quot;.&#39;</span> <span class="o">%</span> <span class="n">service</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">request</span> <span class="o">=</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">Request</span><span class="o">.</span><span class="n">blank</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="AppToolsTestCase.tearDown"><a class="viewcode-back" href="../../../lib.apptools.tests.html#lib.apptools.tests.AppToolsTestCase.tearDown">[docs]</a>    <span class="k">def</span> <span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Tear down App Engine testbed stuff. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">_APPENGINE</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">testbed</span><span class="p">:</span>  <span class="c"># pragma: no cover</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">testbed</span><span class="o">.</span><span class="n">deactivate</span><span class="p">()</span>
+
+
+<span class="c">## AppTest - Test case that originates from a concrete App.</span></div></div>
+<div class="viewcode-block" id="AppTest"><a class="viewcode-back" href="../../../lib.apptools.tests.html#lib.apptools.tests.AppTest">[docs]</a><span class="k">class</span> <span class="nc">AppTest</span><span class="p">(</span><span class="n">AppToolsTestCase</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<span class="c">## AppToolsTest - Test case for a test that is part of AppTools.</span></div>
+<div class="viewcode-block" id="AppToolsTest"><a class="viewcode-back" href="../../../lib.apptools.tests.html#lib.apptools.tests.AppToolsTest">[docs]</a><span class="k">class</span> <span class="nc">AppToolsTest</span><span class="p">(</span><span class="n">AppToolsTestCase</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<span class="c">## SampleTest - Example test case that uses the App Engine testbed.</span></div>
+<div class="viewcode-block" id="SampleTest"><a class="viewcode-back" href="../../../lib.apptools.tests.html#lib.apptools.tests.SampleTest">[docs]</a><span class="k">class</span> <span class="nc">SampleTest</span><span class="p">(</span><span class="n">AppToolsTest</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Sample test that demonstrates usage of AppToolsTest. &#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="SampleTest.test_multiply"><a class="viewcode-back" href="../../../lib.apptools.tests.html#lib.apptools.tests.SampleTest.test_multiply">[docs]</a>    <span class="k">def</span> <span class="nf">test_multiply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">((</span><span class="mi">10</span> <span class="o">*</span> <span class="mi">10</span><span class="p">),</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="k">return</span>
+
+
+<span class="c">## `load_module` - Load a single testsuite module.</span></div></div>
+<div class="viewcode-block" id="load_module"><a class="viewcode-back" href="../../../lib.apptools.tests.html#lib.apptools.tests.load_module">[docs]</a><span class="k">def</span> <span class="nf">load_module</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; __main__ testing entrypoint for `apptools.model`. &#39;&#39;&#39;</span>
+
+    <span class="n">suite</span> <span class="o">=</span> <span class="n">unittest</span><span class="o">.</span><span class="n">TestSuite</span><span class="p">()</span>
+    <span class="n">suite</span><span class="o">.</span><span class="n">addTest</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestLoader</span><span class="p">()</span><span class="o">.</span><span class="n">loadTestsFromName</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">suite</span>
+
+
+<span class="c">## `load_testsuite` - Gather AppTools testsuites.</span></div>
+<div class="viewcode-block" id="load"><a class="viewcode-back" href="../../../lib.apptools.tests.html#lib.apptools.tests.load">[docs]</a><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">paths</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; __main__ entrypoint &#39;&#39;&#39;</span>
+
+    <span class="n">AppToolsTests</span> <span class="o">=</span> <span class="n">unittest</span><span class="o">.</span><span class="n">TestSuite</span><span class="p">()</span>
+    <span class="n">AppToolsTests</span><span class="o">.</span><span class="n">addTest</span><span class="p">(</span><span class="n">SampleTest</span><span class="p">(</span><span class="s">&#39;test_multiply&#39;</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">paths</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="n">_TEST_PATHS</span><span class="p">[:]</span>
+
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+        <span class="n">AppToolsTests</span><span class="o">.</span><span class="n">addTest</span><span class="p">(</span><span class="n">load_module</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">AppToolsTests</span>
+
+
+<span class="c">## `run_testsuite` - Run a suite of tests loaded via `_load_testsuite`.</span></div>
+<div class="viewcode-block" id="run"><a class="viewcode-back" href="../../../lib.apptools.tests.html#lib.apptools.tests.run">[docs]</a><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">suite</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Optionally allow switching between XML or text output, if supported. &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">suite</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">suite</span> <span class="o">=</span> <span class="n">load_testsuite</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>  <span class="c"># slice off invocation</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c"># &lt;format&gt;, &lt;output location&gt;</span>
+            <span class="n">format</span><span class="p">,</span> <span class="n">output</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">format</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#39;xml&#39;</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="kn">import</span> <span class="nn">xmlrunner</span>
+                <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+                    <span class="k">print</span> <span class="s">&quot;ERROR! XML testrunner (py module `xmlrunner`) could not be imported. Please run in text-only mode.&quot;</span>
+                    <span class="nb">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">xmlrunner</span><span class="o">.</span><span class="n">XMLTestRunner</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="n">output</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">suite</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">format</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#39;text&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">unittest</span><span class="o">.</span><span class="n">TestRunner</span><span class="p">(</span><span class="n">verbosity</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">output</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">suite</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">unittest</span><span class="o">.</span><span class="n">TestRunner</span><span class="p">(</span><span class="n">verbosity</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">output</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">suite</span><span class="p">)</span>  <span class="c"># text mode with</span>
+
+    <span class="k">return</span> <span class="n">unittest</span><span class="o">.</span><span class="n">TestRunner</span><span class="p">(</span><span class="n">verbosity</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">suite</span><span class="p">)</span>
+
+</div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>  <span class="c"># pragma: no cover</span>
+    <span class="n">run</span><span class="p">(</span><span class="n">load</span><span class="p">())</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../apptools.html" >lib.apptools</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

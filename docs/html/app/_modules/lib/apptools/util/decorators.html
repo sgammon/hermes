@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.apptools.util.decorators &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../../index.html" />
+    <link rel="up" title="lib.apptools" href="../../apptools.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../apptools.html" accesskey="U">lib.apptools</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.apptools.util.decorators</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">-----------------------------</span>
+<span class="sd">apptools2: utility decorators</span>
+<span class="sd">-----------------------------</span>
+
+<span class="sd">this package provides useful decorators that crosscut the regular</span>
+<span class="sd">functional bounds of apptools&#39; main packages. stuff in here is</span>
+<span class="sd">generally used everywhere.</span>
+
+<span class="sd">:author: Sam Gammon (sam@momentum.io)</span>
+<span class="sd">:copyright: (c) 2013 momentum labs.</span>
+<span class="sd">:license: This is private source code - Ampush has been granted an</span>
+<span class="sd">          unlimited, exclusive license for embedded use. For details</span>
+<span class="sd">          about embedded licenses and other legalese, see `LICENSE.md`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="c">## ``classproperty`` - use like ``@property``, but at the class-level.</span>
+<div class="viewcode-block" id="classproperty"><a class="viewcode-back" href="../../../../lib.apptools.util.html#lib.apptools.util.decorators.classproperty">[docs]</a><span class="k">class</span> <span class="nc">classproperty</span><span class="p">(</span><span class="nb">property</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Custom decorator for class-level property getters.</span>
+<span class="sd">        Usable like ``@property`` and chainable with</span>
+<span class="sd">        ``@memoize``, as long as ``@memoize`` is used as</span>
+<span class="sd">        the inner decorator. &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Return the property value at the class level.</span>
+
+<span class="sd">            :param instance: Current encapsulating object</span>
+<span class="sd">                             dispatching via the descriptor</span>
+<span class="sd">                             protocol, ``None`` if we are</span>
+<span class="sd">                             being dispatched from the</span>
+<span class="sd">                             class level.</span>
+
+<span class="sd">            :param owner: Corresponding owner type, available</span>
+<span class="sd">                          whether we&#39;re dispatching at the</span>
+<span class="sd">                          class or instance level.</span>
+
+<span class="sd">            :returns: Result of a ``classmethod``-wrapped,</span>
+<span class="sd">                      ``property``-decorated method. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="nb">classmethod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fget</span><span class="p">)</span><span class="o">.</span><span class="n">__get__</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">owner</span><span class="p">)()</span>
+
+
+<span class="c">## ``memoize`` - cache the output of a property descriptor call</span></div>
+<div class="viewcode-block" id="memoize"><a class="viewcode-back" href="../../../../lib.apptools.util.html#lib.apptools.util.decorators.memoize">[docs]</a><span class="k">class</span> <span class="nc">memoize</span><span class="p">(</span><span class="nb">property</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Custom decorator for property memoization. Usable</span>
+<span class="sd">        like ``@property`` and chainable with ``@classproperty``,</span>
+<span class="sd">        the utility decorator above. &#39;&#39;&#39;</span>
+
+    <span class="n">_value</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">__initialized__</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; If we have a cached value attached to this</span>
+<span class="sd">            context, return it.</span>
+
+<span class="sd">            :param instance: Current encapsulating object</span>
+<span class="sd">                             dispatching via the descriptor</span>
+<span class="sd">                             protocol, or ``None`` if we</span>
+<span class="sd">                             are being dispatched from the</span>
+<span class="sd">                             class level.</span>
+
+<span class="sd">            :param owner: Owner type for encapsulating</span>
+<span class="sd">                          object, if dispatched at the</span>
+<span class="sd">                          instance level.</span>
+
+<span class="sd">            :raises: Re-raises all exceptions encountered</span>
+<span class="sd">                     in the case of an unexpected state during</span>
+<span class="sd">                     delegated property dispatch.</span>
+
+<span class="sd">            :returns: Cached value, if any. If there is</span>
+<span class="sd">                      no cached value, defers to decorated</span>
+<span class="sd">                      method. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__initialized__</span><span class="p">:</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fget</span><span class="p">,</span> <span class="n">classproperty</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="nb">classmethod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fget</span><span class="o">.</span><span class="n">fget</span><span class="p">)</span><span class="o">.</span><span class="n">__get__</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">owner</span><span class="p">)()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fget</span><span class="o">.</span><span class="n">__get__</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">)()</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">raise</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__initialized__</span> <span class="o">=</span> <span class="bp">True</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../index.html">
+              <img class="logo" src="../../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../apptools.html" >lib.apptools</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.apptools.tests.test_model.test_adapters.test_redis &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../../../../index.html" />
+    <link rel="up" title="lib.apptools.tests.test_model.test_adapters" href="../test_adapters.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../../../apptools.html" >lib.apptools</a> &raquo;</li>
+          <li><a href="../../../tests.html" >lib.apptools.tests</a> &raquo;</li>
+          <li><a href="../../test_model.html" >lib.apptools.tests.test_model</a> &raquo;</li>
+          <li><a href="../test_adapters.html" accesskey="U">lib.apptools.tests.test_model.test_adapters</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.apptools.tests.test_model.test_adapters.test_redis</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">    apptools2: redis adapter tests</span>
+<span class="sd">    -------------------------------------------------</span>
+<span class="sd">    |                                               |</span>
+<span class="sd">    |   `apptools.tests.model.adapter.redis`        |</span>
+<span class="sd">    |                                               |</span>
+<span class="sd">    |   this package contains test cases for the    |</span>
+<span class="sd">    |   `RedisAdapter` model adapter class.         |</span>
+<span class="sd">    |                                               |</span>
+<span class="sd">    -------------------------------------------------</span>
+<span class="sd">    |   authors:                                    |</span>
+<span class="sd">    |       -- sam gammon (sam@momentum.io)         |</span>
+<span class="sd">    -------------------------------------------------</span>
+<span class="sd">    |   changelog:                                  |</span>
+<span class="sd">    |       -- apr 1, 2013: initial draft           |</span>
+<span class="sd">    -------------------------------------------------</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c"># stdlib</span>
+<span class="kn">import</span> <span class="nn">unittest</span>
+
+<span class="c"># apptools test</span>
+<span class="kn">from</span> <span class="nn">apptools.tests</span> <span class="kn">import</span> <span class="n">AppToolsTest</span>
+
+<span class="c"># apptools model API</span>
+<span class="kn">from</span> <span class="nn">apptools</span> <span class="kn">import</span> <span class="n">model</span>
+<span class="kn">from</span> <span class="nn">apptools.model</span> <span class="kn">import</span> <span class="n">adapter</span>
+
+
+<span class="c">## RedisAdapterTests</span>
+<span class="c"># Tests builtin core model adapters (JSON/dict/msgpack).</span>
+<div class="viewcode-block" id="RedisAdapterTests"><a class="viewcode-back" href="../../../../../../lib.apptools.tests.test_model.test_adapters.html#lib.apptools.tests.test_model.test_adapters.test_redis.RedisAdapterTests">[docs]</a><span class="k">class</span> <span class="nc">RedisAdapterTests</span><span class="p">(</span><span class="n">AppToolsTest</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Tests `model.adapter.core`. &#39;&#39;&#39;</span>
+
+    <span class="k">pass</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../../../index.html">
+              <img class="logo" src="../../../../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../../../apptools.html" >lib.apptools</a> &raquo;</li>
+          <li><a href="../../../tests.html" >lib.apptools.tests</a> &raquo;</li>
+          <li><a href="../../test_model.html" >lib.apptools.tests.test_model</a> &raquo;</li>
+          <li><a href="../test_adapters.html" >lib.apptools.tests.test_model.test_adapters</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

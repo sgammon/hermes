@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.apptools.api.push &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../../index.html" />
+    <link rel="up" title="lib.apptools.api" href="../api.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../apptools.html" >lib.apptools</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">lib.apptools.api</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.apptools.api.push</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">API: Push</span>
+
+<span class="sd">Bridges the AppEngine Channel API into base classes via `PushMixin`.</span>
+<span class="sd">This adds the methods + properties:</span>
+
+<span class="sd">    - _servicesConfig: Shortcut to project services config.</span>
+<span class="sd">    - _globalServicesConfig: Shortcut to global Service Layer settings.</span>
+<span class="sd">    - make_services_manifest: Generate a datastructure of installed + enabled services, suitable for</span>
+<span class="sd">        mapping to URLs or printing to a template.</span>
+
+<span class="sd">-sam (&lt;sam@momentum.io&gt;)</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c"># Base Imports</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">datastructures</span>
+
+<span class="c"># Mixin Imports</span>
+<span class="kn">from</span> <span class="nn">apptools.api</span> <span class="kn">import</span> <span class="n">CoreAPI</span>
+<span class="kn">from</span> <span class="nn">apptools.api</span> <span class="kn">import</span> <span class="n">HandlerMixin</span>
+
+
+<span class="c">## CorePushAPI</span>
+<span class="c"># Ties together all the pieces needed for proper server =&gt; client push communications.</span>
+<div class="viewcode-block" id="CorePushAPI"><a class="viewcode-back" href="../../../../lib.apptools.api.html#lib.apptools.api.push.CorePushAPI">[docs]</a><span class="k">class</span> <span class="nc">CorePushAPI</span><span class="p">(</span><span class="n">CoreAPI</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Contains core server=&gt;client push features. &#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="CorePushAPI.create_channel"><a class="viewcode-back" href="../../../../lib.apptools.api.html#lib.apptools.api.push.CorePushAPI.create_channel">[docs]</a>    <span class="k">def</span> <span class="nf">create_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cid</span><span class="p">,</span> <span class="n">duration</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Just pass-through to Channel API for now. &#39;&#39;&#39;</span>
+
+        <span class="kn">from</span> <span class="nn">google.appengine.api</span> <span class="kn">import</span> <span class="n">channel</span>
+        <span class="k">return</span> <span class="n">channel</span><span class="o">.</span><span class="n">create_channel</span><span class="p">(</span><span class="n">cid</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
+</div></div>
+<span class="n">_api</span> <span class="o">=</span> <span class="n">CorePushAPI</span><span class="p">()</span>
+
+
+<span class="c">## PushMixin</span>
+<span class="c"># Used as an addon class to base classes to bridge in access to Push API functionality.</span>
+<div class="viewcode-block" id="PushMixin"><a class="viewcode-back" href="../../../../lib.apptools.api.html#lib.apptools.api.push.PushMixin">[docs]</a><span class="k">class</span> <span class="nc">PushMixin</span><span class="p">(</span><span class="n">HandlerMixin</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Bridges the AppEngine Channel API and base classes. &#39;&#39;&#39;</span>
+
+    <span class="n">_push_api</span> <span class="o">=</span> <span class="n">_api</span>
+    <span class="n">push</span> <span class="o">=</span> <span class="n">datastructures</span><span class="o">.</span><span class="n">ObjectProxy</span><span class="p">({</span>
+
+        <span class="s">&#39;cid&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;token&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;session&#39;</span><span class="p">:</span> <span class="bp">None</span>
+
+    <span class="p">})</span>
+
+<div class="viewcode-block" id="PushMixin.preload"><a class="viewcode-back" href="../../../../lib.apptools.api.html#lib.apptools.api.push.PushMixin.preload">[docs]</a>    <span class="k">def</span> <span class="nf">preload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mi">120</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Preloads the session + template contexts with either a given or generated Channel token. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">token</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">cid</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">cid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;REQUEST_ID_HASH&#39;</span><span class="p">,</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">*</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">())</span>
+            <span class="n">token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_push_api</span><span class="o">.</span><span class="n">create_channel</span><span class="p">(</span><span class="n">cid</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">push</span><span class="o">.</span><span class="n">cid</span> <span class="o">=</span> <span class="n">cid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">push</span><span class="o">.</span><span class="n">token</span> <span class="o">=</span> <span class="n">token</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">push</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="bp">True</span>
+
+        <span class="k">return</span> <span class="n">cid</span><span class="p">,</span> <span class="n">token</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../index.html">
+              <img class="logo" src="../../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../apptools.html" >lib.apptools</a> &raquo;</li>
+          <li><a href="../api.html" >lib.apptools.api</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

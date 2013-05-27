@@ -1,0 +1,338 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>integration Package &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="index.html" />
+    <link rel="up" title="appfactory Package" href="lib.appfactory.html" />
+    <link rel="next" title="internal Package" href="lib.appfactory.internal.html" />
+    <link rel="prev" title="decorators Package" href="lib.appfactory.decorators.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lib.appfactory.internal.html" title="internal Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="lib.appfactory.decorators.html" title="decorators Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
+          <li><a href="lib.html" >lib Package</a> &raquo;</li>
+          <li><a href="lib.appfactory.html" accesskey="U">appfactory Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="integration-package">
+<h1>integration Package<a class="headerlink" href="#integration-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">integration</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-lib.appfactory.integration"></span><dl class="class">
+<dt id="lib.appfactory.integration.AppFactoryMixin">
+<em class="property">class </em><tt class="descclassname">lib.appfactory.integration.</tt><tt class="descname">AppFactoryMixin</tt><a class="reference internal" href="_modules/lib/appfactory/integration.html#AppFactoryMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.appfactory.integration.AppFactoryMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Mixes in AppFactory properties and functionality.</p>
+<dl class="attribute">
+<dt id="lib.appfactory.integration.AppFactoryMixin.broker">
+<tt class="descname">broker</tt><em class="property"> = None</em><a class="headerlink" href="#lib.appfactory.integration.AppFactoryMixin.broker" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.appfactory.integration.AppFactoryMixin.entrypoint">
+<tt class="descname">entrypoint</tt><em class="property"> = None</em><a class="headerlink" href="#lib.appfactory.integration.AppFactoryMixin.entrypoint" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.appfactory.integration.AppFactoryMixin.flags">
+<tt class="descname">flags</tt><em class="property"> = &lt;apptools.util.datastructures.DictProxy object at 0x107c700d0&gt;</em><a class="headerlink" href="#lib.appfactory.integration.AppFactoryMixin.flags" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.appfactory.integration.AppFactoryMixin.force_absolute_assets">
+<tt class="descname">force_absolute_assets</tt><em class="property"> = False</em><a class="headerlink" href="#lib.appfactory.integration.AppFactoryMixin.force_absolute_assets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.appfactory.integration.AppFactoryMixin.force_hostname">
+<tt class="descname">force_hostname</tt><em class="property"> = False</em><a class="headerlink" href="#lib.appfactory.integration.AppFactoryMixin.force_hostname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.appfactory.integration.AppFactoryMixin.force_https">
+<tt class="descname">force_https</tt><em class="property"> = False</em><a class="headerlink" href="#lib.appfactory.integration.AppFactoryMixin.force_https" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.appfactory.integration.AppFactoryMixin.force_https_assets">
+<tt class="descname">force_https_assets</tt><em class="property"> = False</em><a class="headerlink" href="#lib.appfactory.integration.AppFactoryMixin.force_https_assets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.appfactory.integration.AppFactoryMixin.force_remoteip">
+<tt class="descname">force_remoteip</tt><em class="property"> = False</em><a class="headerlink" href="#lib.appfactory.integration.AppFactoryMixin.force_remoteip" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.appfactory.integration.AppFactoryMixin.frontline">
+<tt class="descname">frontline</tt><em class="property"> = None</em><a class="headerlink" href="#lib.appfactory.integration.AppFactoryMixin.frontline" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.appfactory.integration.AppFactoryMixin.i">
+<tt class="descname">i</tt><em class="property"> = 'WSP'</em><a class="headerlink" href="#lib.appfactory.integration.AppFactoryMixin.i" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.appfactory.integration.AppFactoryMixin.push_channel">
+<tt class="descname">push_channel</tt><em class="property"> = None</em><a class="headerlink" href="#lib.appfactory.integration.AppFactoryMixin.push_channel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.appfactory.integration.AppFactoryMixin.request_hash">
+<tt class="descname">request_hash</tt><em class="property"> = None</em><a class="headerlink" href="#lib.appfactory.integration.AppFactoryMixin.request_hash" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.appfactory.integration.abstract">
+<span id="abstract-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">abstract</span></tt> Module<a class="headerlink" href="#module-lib.appfactory.integration.abstract" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="lib.appfactory.integration.abstract.CommandBus">
+<em class="property">class </em><tt class="descclassname">lib.appfactory.integration.abstract.</tt><tt class="descname">CommandBus</tt><a class="reference internal" href="_modules/lib/appfactory/integration/abstract.html#CommandBus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.appfactory.integration.abstract.CommandBus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Abstract parent for integration classes that add methods to trigger or respond to AppFactory-specific functionality.</p>
+<dl class="attribute">
+<dt id="lib.appfactory.integration.abstract.CommandBus.flags">
+<tt class="descname">flags</tt><em class="property"> = frozenset(['OPT', 'SPDY', 'PS', 'PRI', 'INS', 'OFR', 'AP', 'WSP'])</em><a class="headerlink" href="#lib.appfactory.integration.abstract.CommandBus.flags" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.appfactory.integration.controller">
+<span id="controller-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">controller</span></tt> Module<a class="headerlink" href="#module-lib.appfactory.integration.controller" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="lib.appfactory.integration.controller.ControllerBus">
+<em class="property">class </em><tt class="descclassname">lib.appfactory.integration.controller.</tt><tt class="descname">ControllerBus</tt><a class="reference internal" href="_modules/lib/appfactory/integration/controller.html#ControllerBus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.appfactory.integration.controller.ControllerBus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">appfactory.integration.abstract.CommandBus</span></tt></p>
+<p>Controller layer command bus.</p>
+<dl class="attribute">
+<dt id="lib.appfactory.integration.controller.ControllerBus.config">
+<tt class="descname">config</tt><a class="reference internal" href="_modules/lib/appfactory/integration/controller.html#ControllerBus.config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.appfactory.integration.controller.ControllerBus.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Named config pipe.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.appfactory.integration.controller.ControllerBus.dump">
+<tt class="descname">dump</tt><big>(</big><em>handler</em>, <em>result</em><big>)</big><a class="reference internal" href="_modules/lib/appfactory/integration/controller.html#ControllerBus.dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.appfactory.integration.controller.ControllerBus.dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump controller state to memcache for later statistics generation.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.appfactory.integration.controller.ControllerBus.logging">
+<tt class="descname">logging</tt><a class="reference internal" href="_modules/lib/appfactory/integration/controller.html#ControllerBus.logging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.appfactory.integration.controller.ControllerBus.logging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Named logging pipe.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.appfactory.integration.frontline">
+<span id="frontline-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">frontline</span></tt> Module<a class="headerlink" href="#module-lib.appfactory.integration.frontline" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="lib.appfactory.integration.frontline.FrontlineBus">
+<em class="property">class </em><tt class="descclassname">lib.appfactory.integration.frontline.</tt><tt class="descname">FrontlineBus</tt><a class="reference internal" href="_modules/lib/appfactory/integration/frontline.html#FrontlineBus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.appfactory.integration.frontline.FrontlineBus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">appfactory.integration.abstract.CommandBus</span></tt></p>
+<p>AppFactory Frontline management and integration code.</p>
+<dl class="attribute">
+<dt id="lib.appfactory.integration.frontline.FrontlineBus.config">
+<tt class="descname">config</tt><a class="reference internal" href="_modules/lib/appfactory/integration/frontline.html#FrontlineBus.config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.appfactory.integration.frontline.FrontlineBus.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Named config pipe.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.appfactory.integration.frontline.FrontlineBus.dump">
+<tt class="descname">dump</tt><big>(</big><em>handler</em>, <em>result</em><big>)</big><a class="reference internal" href="_modules/lib/appfactory/integration/frontline.html#FrontlineBus.dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.appfactory.integration.frontline.FrontlineBus.dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump the upstream state to memcache, so stats and realtime operations can be introspected and displayed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.appfactory.integration.frontline.FrontlineBus.logging">
+<tt class="descname">logging</tt><a class="reference internal" href="_modules/lib/appfactory/integration/frontline.html#FrontlineBus.logging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.appfactory.integration.frontline.FrontlineBus.logging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Named logging pipe.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.appfactory.integration.frontline.FrontlineBus.sniff">
+<tt class="descname">sniff</tt><big>(</big><em>handler</em><big>)</big><a class="reference internal" href="_modules/lib/appfactory/integration/frontline.html#FrontlineBus.sniff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.appfactory.integration.frontline.FrontlineBus.sniff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sniff a request for headers that were added by the AppFactory upstream servers.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.appfactory.integration.frontline.FrontlineBus.trigger">
+<tt class="descname">trigger</tt><em class="property"> = &lt;apptools.util.datastructures.DictProxy object at 0x107b39e10&gt;</em><a class="headerlink" href="#lib.appfactory.integration.frontline.FrontlineBus.trigger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.appfactory.integration.upstream">
+<span id="upstream-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">upstream</span></tt> Module<a class="headerlink" href="#module-lib.appfactory.integration.upstream" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="lib.appfactory.integration.upstream.UpstreamBus">
+<em class="property">class </em><tt class="descclassname">lib.appfactory.integration.upstream.</tt><tt class="descname">UpstreamBus</tt><a class="reference internal" href="_modules/lib/appfactory/integration/upstream.html#UpstreamBus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.appfactory.integration.upstream.UpstreamBus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">appfactory.integration.abstract.CommandBus</span></tt></p>
+<p>AppFactory upstream layer integration.</p>
+<dl class="attribute">
+<dt id="lib.appfactory.integration.upstream.UpstreamBus.config">
+<tt class="descname">config</tt><a class="reference internal" href="_modules/lib/appfactory/integration/upstream.html#UpstreamBus.config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.appfactory.integration.upstream.UpstreamBus.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Named config access.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.appfactory.integration.upstream.UpstreamBus.dispatch">
+<tt class="descname">dispatch</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="_modules/lib/appfactory/integration/upstream.html#UpstreamBus.dispatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.appfactory.integration.upstream.UpstreamBus.dispatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dispatch internal functions to change aspects of the environment or request based on a sniffed header.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.appfactory.integration.upstream.UpstreamBus.dump">
+<tt class="descname">dump</tt><big>(</big><em>handler</em>, <em>result</em><big>)</big><a class="reference internal" href="_modules/lib/appfactory/integration/upstream.html#UpstreamBus.dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.appfactory.integration.upstream.UpstreamBus.dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump the upstream state to memcache, so stats and realtime operations can be introspected and displayed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.appfactory.integration.upstream.UpstreamBus.hint">
+<tt class="descname">hint</tt><big>(</big><em>handler</em>, <em>result</em><big>)</big><a class="reference internal" href="_modules/lib/appfactory/integration/upstream.html#UpstreamBus.hint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.appfactory.integration.upstream.UpstreamBus.hint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add headers to a response indicating associated static content, to allow the browser to preload/the server to push via SPDY, if enabled.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.appfactory.integration.upstream.UpstreamBus.logging">
+<tt class="descname">logging</tt><a class="reference internal" href="_modules/lib/appfactory/integration/upstream.html#UpstreamBus.logging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.appfactory.integration.upstream.UpstreamBus.logging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Named logging pipe.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.appfactory.integration.upstream.UpstreamBus.sniff">
+<tt class="descname">sniff</tt><big>(</big><em>handler</em><big>)</big><a class="reference internal" href="_modules/lib/appfactory/integration/upstream.html#UpstreamBus.sniff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.appfactory.integration.upstream.UpstreamBus.sniff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sniff a request for headers that were added by the AppFactory upstream servers, to pull partial content or perform other transforms.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">integration Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">integration</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-lib.appfactory.integration.abstract"><tt class="docutils literal"><span class="pre">abstract</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.appfactory.integration.controller"><tt class="docutils literal"><span class="pre">controller</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.appfactory.integration.frontline"><tt class="docutils literal"><span class="pre">frontline</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.appfactory.integration.upstream"><tt class="docutils literal"><span class="pre">upstream</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="lib.appfactory.decorators.html"
+                        title="previous chapter">decorators Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="lib.appfactory.internal.html"
+                        title="next chapter">internal Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/lib.appfactory.integration.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lib.appfactory.internal.html" title="internal Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="lib.appfactory.decorators.html" title="decorators Package"
+             >previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
+          <li><a href="lib.html" >lib Package</a> &raquo;</li>
+          <li><a href="lib.appfactory.html" >appfactory Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

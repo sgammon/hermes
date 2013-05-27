@@ -1,0 +1,592 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.apptools.util.appconfig &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../../index.html" />
+    <link rel="up" title="lib.apptools" href="../../apptools.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../apptools.html" accesskey="U">lib.apptools</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.apptools.util.appconfig</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">Util: Config</span>
+
+<span class="sd">Holds utilities for dealing with application config, and the default config set.</span>
+
+<span class="sd">-sam (&lt;sam@momentum.io&gt;)</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c"># Base Imports</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">webapp2</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+
+<span class="c"># Logging Imports</span>
+<span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">handlers</span>
+
+
+<span class="c">## Constants</span>
+<span class="n">debug</span> <span class="o">=</span> <span class="nb">any</span><span class="p">([</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;SERVER_SOFTWARE&#39;</span><span class="p">,</span> <span class="s">&#39;Default&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">frozenset</span><span class="p">((</span><span class="s">&#39;Develop&#39;</span><span class="p">,</span> <span class="s">&#39;Sandbox&#39;</span><span class="p">))])</span>
+
+<span class="c">## Constants</span>
+<span class="n">_DEFAULT_CONFIG</span> <span class="o">=</span> <span class="p">{</span>
+
+    <span class="s">&#39;webapp2&#39;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="p">},</span>
+
+    <span class="s">&#39;webapp2_extras.jinja2&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;template_path&#39;</span><span class="p">:</span> <span class="s">&#39;templates/source&#39;</span><span class="p">,</span>
+        <span class="s">&#39;compiled_path&#39;</span><span class="p">:</span> <span class="s">&#39;templates.compiled&#39;</span><span class="p">,</span>
+        <span class="s">&#39;force_compiled&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+        <span class="s">&#39;environment_args&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;optimized&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+            <span class="s">&#39;autoescape&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+            <span class="s">&#39;trim_blocks&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+            <span class="s">&#39;auto_reload&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+            <span class="s">&#39;extensions&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;jinja2.ext.autoescape&#39;</span><span class="p">,</span> <span class="s">&#39;jinja2.ext.with_&#39;</span><span class="p">,</span> <span class="s">&#39;jinja2.ext.loopcontrols&#39;</span><span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+
+    <span class="s">&#39;apptools&#39;</span><span class="p">:</span> <span class="p">{</span>
+
+    <span class="p">},</span>
+
+    <span class="s">&#39;logging&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;version&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s">&#39;handlers&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;dev&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;logging.StreamHandler&#39;</span><span class="p">,</span>
+                <span class="s">&#39;level&#39;</span><span class="p">:</span> <span class="s">&#39;DEBUG&#39;</span><span class="p">,</span>
+                <span class="s">&#39;stream&#39;</span><span class="p">:</span> <span class="s">&#39;sys.stdout&#39;</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s">&#39;root&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;handlers&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;dev&#39;</span><span class="p">]</span>
+        <span class="p">},</span>
+        <span class="s">&#39;loggers&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;apptools&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;handlers&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;dev&#39;</span><span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+
+    <span class="s">&#39;apptools.system&#39;</span><span class="p">:</span> <span class="p">{</span>
+
+        <span class="s">&#39;config&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;debug&#39;</span><span class="p">:</span> <span class="bp">False</span>
+        <span class="p">}</span>
+
+    <span class="p">},</span>
+
+    <span class="s">&#39;apptools.model&#39;</span><span class="p">:</span> <span class="p">{</span>
+
+        <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="s">&#39;ndb&#39;</span><span class="p">,</span>  <span class="c"># default storage engine</span>
+
+        <span class="s">&#39;engines&#39;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;NDB&#39;</span><span class="p">,</span> <span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="s">&#39;apptools.model.adapter.ndb.NDB&#39;</span><span class="p">},</span>
+            <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;Redis&#39;</span><span class="p">,</span> <span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="s">&#39;apptools.model.adapter.redis.Redis&#39;</span><span class="p">},</span>
+            <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;Memcache&#39;</span><span class="p">,</span> <span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="s">&#39;apptools.model.adapter.memcache.Memcache&#39;</span><span class="p">}</span>
+        <span class="p">]</span>
+
+    <span class="p">},</span>
+
+    <span class="s">&#39;apptools.system.platform&#39;</span><span class="p">:</span> <span class="p">{</span>
+
+        <span class="s">&#39;installed_platforms&#39;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;Generic WSGI&#39;</span><span class="p">,</span> <span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="s">&#39;apptools.platform.generic.GenericWSGI&#39;</span><span class="p">},</span>
+            <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;Layer9/AppFactory&#39;</span><span class="p">,</span> <span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="s">&#39;apptools.platform.appfactory.AppFactory&#39;</span><span class="p">},</span>
+            <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;Google AppEngine&#39;</span><span class="p">,</span> <span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="s">&#39;apptools.platform.appengine.GoogleAppEngine&#39;</span><span class="p">}</span>
+        <span class="p">]</span>
+
+    <span class="p">},</span>
+
+    <span class="s">&#39;apptools.services&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;logging&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="s">&#39;hooks&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;appstats&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">},</span>
+            <span class="s">&#39;apptrace&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">},</span>
+            <span class="s">&#39;profiler&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">}</span>
+        <span class="p">},</span>
+
+        <span class="s">&#39;mappers&#39;</span><span class="p">:</span> <span class="p">[</span>
+
+            <span class="c"># Feed-Format Mappers</span>
+            <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;RSS&#39;</span><span class="p">,</span> <span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="s">&#39;apptools.services.mappers.RSSRPCMapper&#39;</span><span class="p">},</span>
+            <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;ATOM&#39;</span><span class="p">,</span> <span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="s">&#39;apptools.services.mappers.ATOMRPCMapper&#39;</span><span class="p">},</span>
+
+            <span class="c"># RPC Protocol Format Mappers</span>
+            <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;XMLRPC&#39;</span><span class="p">,</span> <span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="s">&#39;apptools.services.mappers.XMLRPCMapper&#39;</span><span class="p">},</span>
+            <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;JSONRPC&#39;</span><span class="p">,</span> <span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="s">&#39;apptools.services.mappers.JSONRPCMapper&#39;</span><span class="p">},</span>
+
+            <span class="c"># Encoded Protocol Format Mappers</span>
+            <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;Protobuf&#39;</span><span class="p">,</span> <span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="s">&#39;apptools.services.mappers.ProtobufRPCMapper&#39;</span><span class="p">},</span>
+            <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;URLEncoded&#39;</span><span class="p">,</span> <span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="s">&#39;apptools.services.mappers.URLEncodedRPCMapper&#39;</span><span class="p">}</span>
+
+        <span class="p">],</span>
+
+        <span class="s">&#39;middleware&#39;</span><span class="p">:</span> <span class="p">[</span>
+
+            <span class="p">(</span><span class="s">&#39;authentication&#39;</span><span class="p">,</span> <span class="p">{</span>
+
+                <span class="c">## Configuration for authentication middleware</span>
+                <span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                <span class="s">&#39;debug&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                <span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="s">&#39;apptools.services.middleware.AuthenticationMiddleware&#39;</span><span class="p">,</span>
+                <span class="s">&#39;args&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="p">}</span>
+            <span class="p">}),</span>
+
+            <span class="p">(</span><span class="s">&#39;monitoring&#39;</span><span class="p">,</span> <span class="p">{</span>
+
+                <span class="c">## Configuration for monitoring middleware</span>
+                <span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                <span class="s">&#39;debug&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                <span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="s">&#39;apptools.services.middleware.MonitoringMiddleware&#39;</span><span class="p">,</span>
+                <span class="s">&#39;args&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="p">}</span>
+            <span class="p">}),</span>
+
+            <span class="p">(</span><span class="s">&#39;authorization&#39;</span><span class="p">,</span> <span class="p">{</span>
+
+                <span class="c">## Configuration for authorization middleware</span>
+                <span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                <span class="s">&#39;debug&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                <span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="s">&#39;apptools.services.middleware.AuthorizationMiddleware&#39;</span><span class="p">,</span>
+                <span class="s">&#39;args&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="p">}</span>
+            <span class="p">}),</span>
+
+            <span class="p">(</span><span class="s">&#39;caching&#39;</span><span class="p">,</span> <span class="p">{</span>
+
+                <span class="c">## Configuration for caching middleware</span>
+                <span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                <span class="s">&#39;debug&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                <span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="s">&#39;apptools.services.middleware.CachingMiddleware&#39;</span><span class="p">,</span>
+                <span class="s">&#39;args&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="p">}</span>
+            <span class="p">})</span>
+
+        <span class="p">],</span>
+
+        <span class="s">&#39;middleware_config&#39;</span><span class="p">:</span> <span class="p">{</span>
+
+            <span class="s">&#39;caching&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;profiles&#39;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s">&#39;none&#39;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s">&#39;localize&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+                        <span class="s">&#39;default_ttl&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                        <span class="s">&#39;activate&#39;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s">&#39;local&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+                            <span class="s">&#39;request&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+                            <span class="s">&#39;internal&#39;</span><span class="p">:</span> <span class="bp">False</span>
+                        <span class="p">}</span>
+                    <span class="p">},</span>
+                    <span class="s">&#39;lazy&#39;</span><span class="p">:</span> <span class="p">{},</span>
+                    <span class="s">&#39;safe&#39;</span><span class="p">:</span> <span class="p">{},</span>
+                    <span class="s">&#39;aggressive&#39;</span><span class="p">:</span> <span class="p">{},</span>
+                <span class="p">},</span>
+
+                <span class="s">&#39;default_profile&#39;</span><span class="p">:</span> <span class="s">&#39;none&#39;</span>
+
+            <span class="p">},</span>
+
+            <span class="s">&#39;security&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;profiles&#39;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s">&#39;none&#39;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s">&#39;expose&#39;</span><span class="p">:</span> <span class="s">&#39;all&#39;</span><span class="p">,</span>
+                        <span class="s">&#39;authentication&#39;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">False</span>
+                        <span class="p">},</span>
+                        <span class="s">&#39;authorization&#39;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">False</span>
+                        <span class="p">}</span>
+                    <span class="p">},</span>
+                    <span class="s">&#39;public&#39;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s">&#39;expose&#39;</span><span class="p">:</span> <span class="s">&#39;all&#39;</span><span class="p">,</span>
+                        <span class="s">&#39;authentication&#39;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+                            <span class="s">&#39;mode&#39;</span><span class="p">:</span> <span class="bp">None</span>
+                        <span class="p">},</span>
+                        <span class="s">&#39;authorization&#39;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+                            <span class="s">&#39;mode&#39;</span><span class="p">:</span> <span class="bp">None</span>
+                        <span class="p">}</span>
+                    <span class="p">},</span>
+                    <span class="s">&#39;private&#39;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s">&#39;expose&#39;</span><span class="p">:</span> <span class="s">&#39;admin&#39;</span><span class="p">,</span>
+                        <span class="s">&#39;authentication&#39;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+                            <span class="s">&#39;mode&#39;</span><span class="p">:</span> <span class="bp">None</span>
+                        <span class="p">},</span>
+                        <span class="s">&#39;authorization&#39;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+                            <span class="s">&#39;mode&#39;</span><span class="p">:</span> <span class="bp">None</span>
+                        <span class="p">}</span>
+                    <span class="p">}</span>
+                <span class="p">},</span>
+
+                <span class="s">&#39;default_profile&#39;</span><span class="p">:</span> <span class="s">&#39;none&#39;</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+
+        <span class="s">&#39;defaults&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;module&#39;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s">&#39;service&#39;</span><span class="p">:</span> <span class="p">{</span>
+
+                <span class="s">&#39;config&#39;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s">&#39;caching&#39;</span><span class="p">:</span> <span class="s">&#39;none&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;security&#39;</span><span class="p">:</span> <span class="s">&#39;none&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;recording&#39;</span><span class="p">:</span> <span class="s">&#39;none&#39;</span>
+                <span class="p">},</span>
+                <span class="s">&#39;args&#39;</span><span class="p">:</span> <span class="p">{}</span>
+
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+
+    <span class="s">&#39;apptools.project&#39;</span><span class="p">:</span> <span class="p">{</span>
+
+        <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;AppTools&#39;</span><span class="p">,</span>
+        <span class="s">&#39;version&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;major&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s">&#39;minor&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s">&#39;micro&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s">&#39;build&#39;</span><span class="p">:</span> <span class="mi">20111111</span><span class="p">,</span>
+            <span class="s">&#39;release&#39;</span><span class="p">:</span> <span class="s">&#39;ALPHA&#39;</span>
+        <span class="p">}</span>
+
+    <span class="p">},</span>
+
+    <span class="s">&#39;apptools.project.services&#39;</span><span class="p">:</span> <span class="p">{</span>
+
+        <span class="s">&#39;debug&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+        <span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="s">&#39;logging&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+
+        <span class="s">&#39;config&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&#39;hmac_hash&#39;</span><span class="p">:</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha512</span><span class="p">,</span>
+            <span class="s">&#39;url_prefix&#39;</span><span class="p">:</span> <span class="s">&#39;/_api/rpc&#39;</span><span class="p">,</span>
+            <span class="s">&#39;secret_key&#39;</span><span class="p">:</span> <span class="s">&#39;VNDIvnbB80gh@!H!)@*HJBXCVPOIUCNbi9j0-9u)!U(@)!N&#39;</span>
+        <span class="p">},</span>
+
+        <span class="s">&#39;services&#39;</span><span class="p">:</span> <span class="p">{</span>
+
+            <span class="c">## System API - for testing/dev</span>
+            <span class="s">&#39;system&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                <span class="s">&#39;service&#39;</span><span class="p">:</span> <span class="s">&#39;apptools.services.builtin.SystemService&#39;</span><span class="p">,</span>
+                <span class="s">&#39;methods&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;echo&#39;</span><span class="p">,</span> <span class="s">&#39;hello&#39;</span><span class="p">,</span> <span class="s">&#39;whoareyou&#39;</span><span class="p">,</span> <span class="s">&#39;manifest&#39;</span><span class="p">],</span>
+
+                <span class="s">&#39;config&#39;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s">&#39;caching&#39;</span><span class="p">:</span> <span class="s">&#39;none&#39;</span><span class="p">,</span>
+                        <span class="s">&#39;security&#39;</span><span class="p">:</span> <span class="s">&#39;none&#39;</span><span class="p">,</span>
+                        <span class="s">&#39;recording&#39;</span><span class="p">:</span> <span class="s">&#39;none&#39;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+
+        <span class="p">}</span>
+
+    <span class="p">},</span>
+
+    <span class="s">&#39;apptools.project.output&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="c"># Output Configuration</span>
+        <span class="s">&#39;minify&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>      <span class="c"># whether to minify page output or not</span>
+        <span class="s">&#39;optimize&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>     <span class="c"># whether to use the async script loader or not</span>
+        <span class="s">&#39;standalone&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>  <span class="c"># whether to render only the current template, or the whole context (ignores &quot;extends&quot;)</span>
+
+        <span class="s">&#39;analytics&#39;</span><span class="p">:</span> <span class="p">{</span>  <span class="c"># Analytics Settings</span>
+            <span class="s">&#39;enable&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>              <span class="c"># whether to insert analytics code</span>
+            <span class="s">&#39;multitrack&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>          <span class="c"># whether to enable support for multiple trackers</span>
+            <span class="s">&#39;anonymize&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>          <span class="c"># whether to anonymize IPs before analytics</span>
+            <span class="s">&#39;account_id&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;dev&#39;</span><span class="p">:</span> <span class="s">&#39;UA-25133943-6&#39;</span><span class="p">,</span>         <span class="c"># used when running from the devserver</span>
+                <span class="s">&#39;staging&#39;</span><span class="p">:</span> <span class="s">&#39;UA-25133943-6&#39;</span><span class="p">,</span>    <span class="c"># used on the staging version of the site</span>
+                <span class="s">&#39;production&#39;</span><span class="p">:</span> <span class="s">&#39;UA-25133943-6&#39;</span>  <span class="c"># used on the production version of the site</span>
+            <span class="p">},</span>
+            <span class="s">&#39;sitespeed&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;enable&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>           <span class="c"># enable google analytics&#39; site speed tracking</span>
+                <span class="s">&#39;sample&#39;</span><span class="p">:</span> <span class="mi">100</span>            <span class="c"># set the sitespeed sample rate</span>
+            <span class="p">},</span>
+            <span class="s">&#39;webclient&#39;</span><span class="p">:{</span>
+                <span class="s">&#39;dev&#39;</span><span class="p">:</span> <span class="s">&#39;https://ssl.google-analytics.com/u/ga_debug.js&#39;</span><span class="p">,</span>
+                <span class="s">&#39;http&#39;</span><span class="p">:</span> <span class="s">&#39;https://deliver.lyr9.net/analytics/ga.js&#39;</span><span class="p">,</span>
+                <span class="s">&#39;https&#39;</span><span class="p">:</span> <span class="s">&#39;https://deliver.lyr9.net/analytics/ga.js&#39;</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+
+        <span class="s">&#39;appcache&#39;</span><span class="p">:</span> <span class="p">{</span>  <span class="c"># HTML5 appcaching</span>
+            <span class="s">&#39;enable&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>                       <span class="c"># whether to enable</span>
+            <span class="s">&#39;manifest&#39;</span><span class="p">:</span> <span class="s">&#39;scaffolding-v1.appcache&#39;</span>  <span class="c"># manifest to link to</span>
+        <span class="p">},</span>
+
+        <span class="s">&#39;assets&#39;</span><span class="p">:</span> <span class="p">{</span>  <span class="c"># Asset API</span>
+            <span class="s">&#39;minified&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>        <span class="c"># whether to switch to minified assets or not</span>
+            <span class="s">&#39;serving_mode&#39;</span><span class="p">:</span> <span class="s">&#39;local&#39;</span><span class="p">,</span>  <span class="c"># &#39;local&#39; or &#39;cdn&#39; (CDN prefixes all assets with an absolute URL)</span>
+            <span class="s">&#39;cdn_prefix&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;deliver.lyr9.net&#39;</span><span class="p">]</span>  <span class="c"># CDN prefix/prefixes - a string is used globally, a list of hostnames is selected from randomly for each asset</span>
+        <span class="p">},</span>
+
+        <span class="s">&#39;headers&#39;</span><span class="p">:</span> <span class="p">{</span>  <span class="c"># Default Headers (only supported headers are shown)</span>
+            <span class="s">&#39;Cache-Control&#39;</span><span class="p">:</span> <span class="s">&#39;private,max-age=3600&#39;</span><span class="p">,</span>  <span class="c"># default to not caching dynamic content</span>
+            <span class="s">&#39;X-UA-Compatible&#39;</span><span class="p">:</span> <span class="s">&#39;IE=edge,chrome=1&#39;</span><span class="p">,</span>  <span class="c"># http://code.google.com/chrome/chromeframe/</span>
+            <span class="s">&#39;XAF-Origin&#39;</span><span class="p">:</span> <span class="s">&#39;GAE_FCM_SANDBOX&#39;</span><span class="p">,</span>
+            <span class="s">&#39;Access-Control-Allow-Origin&#39;</span><span class="p">:</span> <span class="s">&#39;*&#39;</span><span class="p">,</span>
+            <span class="s">&#39;Access-Control-Allow-Methods&#39;</span><span class="p">:</span> <span class="s">&#39;GET, POST, OPTIONS&#39;</span><span class="p">,</span>
+            <span class="s">&#39;Access-Control-Allow-Headers&#39;</span><span class="p">:</span> <span class="s">&#39;XAF-Session, XAF-Token, XAF-Channel, XAF-Socket, X-ServiceClient, Content-Type, X-ServiceTransport&#39;</span><span class="p">,</span>
+            <span class="s">&#39;Access-Control-Expose-Headers&#39;</span><span class="p">:</span> <span class="s">&#39;XAF-Session, XAF-Token, XAF-Channel, XAF-Socket, X-Platform, Content-Type&#39;</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+
+    <span class="s">&#39;apptools.project.output.template_loader&#39;</span><span class="p">:</span> <span class="p">{</span>
+
+        <span class="s">&#39;force&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="s">&#39;debug&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+        <span class="s">&#39;use_memcache&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+        <span class="s">&#39;use_memory_cache&#39;</span><span class="p">:</span> <span class="bp">False</span>
+
+    <span class="p">},</span>
+
+    <span class="s">&#39;layer9.appfactory&#39;</span><span class="p">:</span> <span class="p">{</span>
+
+    <span class="p">}</span>
+
+<span class="p">}</span>
+
+
+<span class="c">## ConfigProxy</span>
+<span class="c"># Wraps app configuration, enabling log messages on config access/write.</span>
+<div class="viewcode-block" id="ConfigProxy"><a class="viewcode-back" href="../../../../lib.apptools.util.html#lib.apptools.util.appconfig.ConfigProxy">[docs]</a><span class="k">class</span> <span class="nc">ConfigProxy</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Wraps app configuration to enable debug features. &#39;&#39;&#39;</span>
+
+    <span class="n">_i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">_oc</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">debug</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">strict</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">_config</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">_lookup</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Initialize this object. &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lookup</span> <span class="o">=</span> <span class="n">config</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="nb">set</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="ConfigProxy.logging"><a class="viewcode-back" href="../../../../lib.apptools.util.html#lib.apptools.util.appconfig.ConfigProxy.logging">[docs]</a>    <span class="k">def</span> <span class="nf">logging</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Named logging pipe. &#39;&#39;&#39;</span>
+
+        <span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">debug</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apptools.system&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;config&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;debug&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">debug</span><span class="o">.</span><span class="n">AppToolsLogger</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s">&#39;app&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;Config&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">_setcondition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Return raw config for iteration. &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_i</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c"># reset iteration index</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+<div class="viewcode-block" id="ConfigProxy.next"><a class="viewcode-back" href="../../../../lib.apptools.util.html#lib.apptools.util.appconfig.ConfigProxy.next">[docs]</a>    <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Return the next item in this iteration. &#39;&#39;&#39;</span>
+
+        <span class="c"># proxy iteration to our encapsulated config dictionary</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_oc</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_i</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">raise</span> <span class="ne">StopIteration</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_i</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_i</span><span class="p">]</span>
+</div>
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Return an item in config. &#39;&#39;&#39;</span>
+
+        <span class="c"># redirect config access to dictionary</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Config access: &#39;</span><span class="si">%s</span><span class="s">&#39;.&quot;</span> <span class="o">%</span> <span class="n">item</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lookup</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&quot;No config entry by the name &#39;</span><span class="si">%s</span><span class="s">&#39;.&quot;</span> <span class="o">%</span> <span class="n">item</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Set an item in config. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">item</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lookup</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lookup</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Config write: &#39;</span><span class="si">%s</span><span class="s">&#39;=&gt;&#39;</span><span class="si">%s</span><span class="s">&#39;.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_oc</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">item</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Contains redirect. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lookup</span>
+
+    <span class="k">def</span> <span class="nf">_overlay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">rov</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Recursively update config, from target `mapping`. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">mapping</span>
+        <span class="k">if</span> <span class="n">rov</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">rov</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">items</span><span class="p">()[:])</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">mapping</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">rov</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rov</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">rov</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_overlay</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">rov</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rov</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">return</span> <span class="n">rov</span>
+
+<div class="viewcode-block" id="ConfigProxy.overlay"><a class="viewcode-back" href="../../../../lib.apptools.util.html#lib.apptools.util.appconfig.ConfigProxy.overlay">[docs]</a>    <span class="k">def</span> <span class="nf">overlay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mapping</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Exported method for recursively updating config. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">ConfigProxy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_overlay</span><span class="p">(</span><span class="n">mapping</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="ConfigProxy.get"><a class="viewcode-back" href="../../../../lib.apptools.util.html#lib.apptools.util.appconfig.ConfigProxy.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Retrieve an item from config without raising an AttributeError. &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Config access: &#39;</span><span class="si">%s</span><span class="s">&#39;.&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ConfigProxy.items"><a class="viewcode-back" href="../../../../lib.apptools.util.html#lib.apptools.util.appconfig.ConfigProxy.items">[docs]</a>    <span class="k">def</span> <span class="nf">items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Retrieve a set of (key, value) tuples. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oc</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="ConfigProxy.iteritems"><a class="viewcode-back" href="../../../../lib.apptools.util.html#lib.apptools.util.appconfig.ConfigProxy.iteritems">[docs]</a>    <span class="k">def</span> <span class="nf">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Generate a set of (key, value) tuples. &#39;&#39;&#39;</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oc</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">i</span>
+</div>
+<div class="viewcode-block" id="ConfigProxy.keys"><a class="viewcode-back" href="../../../../lib.apptools.util.html#lib.apptools.util.appconfig.ConfigProxy.keys">[docs]</a>    <span class="k">def</span> <span class="nf">keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Retrieve a set of this config&#39;s keys. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lookup</span>
+</div>
+<div class="viewcode-block" id="ConfigProxy.iterkeys"><a class="viewcode-back" href="../../../../lib.apptools.util.html#lib.apptools.util.appconfig.ConfigProxy.iterkeys">[docs]</a>    <span class="k">def</span> <span class="nf">iterkeys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Generate a set of this config&#39;s keys. &#39;&#39;&#39;</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lookup</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">i</span>
+</div>
+<div class="viewcode-block" id="ConfigProxy.values"><a class="viewcode-back" href="../../../../lib.apptools.util.html#lib.apptools.util.appconfig.ConfigProxy.values">[docs]</a>    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Retrieve a set of this config&#39;s values. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oc</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="ConfigProxy.itervalues"><a class="viewcode-back" href="../../../../lib.apptools.util.html#lib.apptools.util.appconfig.ConfigProxy.itervalues">[docs]</a>    <span class="k">def</span> <span class="nf">itervalues</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Generate a set of this config&#39;s values. &#39;&#39;&#39;</span>
+
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oc</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">v</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../index.html">
+              <img class="logo" src="../../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../apptools.html" >lib.apptools</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,450 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.webapp2_extras.routes &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.webapp2_extras.routes</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    webapp2_extras.routes</span>
+<span class="sd">    =====================</span>
+
+<span class="sd">    Extra route classes for webapp2.</span>
+
+<span class="sd">    :copyright: 2011 by tipfy.org.</span>
+<span class="sd">    :license: Apache Sotware License, see LICENSE for details.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">urllib</span>
+
+<span class="kn">from</span> <span class="nn">webob</span> <span class="kn">import</span> <span class="n">exc</span>
+
+<span class="kn">import</span> <span class="nn">webapp2</span>
+
+
+<div class="viewcode-block" id="MultiRoute"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.routes.MultiRoute">[docs]</a><span class="k">class</span> <span class="nc">MultiRoute</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for routes with nested routes.&quot;&quot;&quot;</span>
+
+    <span class="n">routes</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">children</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">match_children</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">build_children</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">routes</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">routes</span> <span class="o">=</span> <span class="n">routes</span>
+
+<div class="viewcode-block" id="MultiRoute.get_children"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.routes.MultiRoute.get_children">[docs]</a>    <span class="k">def</span> <span class="nf">get_children</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">route</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">routes</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">route</span><span class="o">.</span><span class="n">get_routes</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">rv</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">rv</span>
+</div>
+<div class="viewcode-block" id="MultiRoute.get_match_children"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.routes.MultiRoute.get_match_children">[docs]</a>    <span class="k">def</span> <span class="nf">get_match_children</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">match_children</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">match_children</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">route</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_children</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">route</span><span class="o">.</span><span class="n">get_match_routes</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">match_children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">rv</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">match_children</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">rv</span>
+</div>
+<div class="viewcode-block" id="MultiRoute.get_build_children"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.routes.MultiRoute.get_build_children">[docs]</a>    <span class="k">def</span> <span class="nf">get_build_children</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_children</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">build_children</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">route</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_children</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">route</span><span class="o">.</span><span class="n">get_build_routes</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">build_children</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">r</span>
+
+        <span class="k">for</span> <span class="n">rv</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_children</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">yield</span> <span class="n">rv</span>
+</div>
+    <span class="n">get_routes</span> <span class="o">=</span> <span class="n">get_children</span>
+    <span class="n">get_match_routes</span> <span class="o">=</span> <span class="n">get_match_children</span>
+    <span class="n">get_build_routes</span> <span class="o">=</span> <span class="n">get_build_children</span>
+
+</div>
+<div class="viewcode-block" id="DomainRoute"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.routes.DomainRoute">[docs]</a><span class="k">class</span> <span class="nc">DomainRoute</span><span class="p">(</span><span class="n">MultiRoute</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A route used to restrict route matches to a given domain or subdomain.</span>
+
+<span class="sd">    For example, to restrict routes to a subdomain of the appspot domain::</span>
+
+<span class="sd">        app = WSGIApplication([</span>
+<span class="sd">            DomainRoute(&#39;&lt;subdomain&gt;.app-id.appspot.com&#39;, [</span>
+<span class="sd">                Route(&#39;/foo&#39;, &#39;FooHandler&#39;, &#39;subdomain-thing&#39;),</span>
+<span class="sd">            ]),</span>
+<span class="sd">            Route(&#39;/bar&#39;, &#39;BarHandler&#39;, &#39;normal-thing&#39;),</span>
+<span class="sd">        ])</span>
+
+<span class="sd">    The template follows the same syntax used by :class:`webapp2.Route` and</span>
+<span class="sd">    must define named groups if any value must be added to the match results.</span>
+<span class="sd">    In the example above, an extra `subdomain` keyword is passed to the</span>
+<span class="sd">    handler, but if the regex didn&#39;t define any named groups, nothing would</span>
+<span class="sd">    be added.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">routes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes a URL route.</span>
+
+<span class="sd">        :param template:</span>
+<span class="sd">            A route template to match against ``environ[&#39;SERVER_NAME&#39;]``.</span>
+<span class="sd">            See a syntax description in :meth:`webapp2.Route.__init__`.</span>
+<span class="sd">        :param routes:</span>
+<span class="sd">            A list of :class:`webapp2.Route` instances.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DomainRoute</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">routes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">template</span> <span class="o">=</span> <span class="n">template</span>
+
+<div class="viewcode-block" id="DomainRoute.get_match_routes"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.routes.DomainRoute.get_match_routes">[docs]</a>    <span class="k">def</span> <span class="nf">get_match_routes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># This route will do pre-matching before matching the nested routes!</span>
+        <span class="k">yield</span> <span class="bp">self</span>
+</div>
+<div class="viewcode-block" id="DomainRoute.match"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.routes.DomainRoute.match">[docs]</a>    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="c"># Use SERVER_NAME to ignore port number that comes with request.host?</span>
+        <span class="c"># host_match = self.regex.match(request.host.split(&#39;:&#39;, 1)[0])</span>
+        <span class="n">host_match</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;SERVER_NAME&#39;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">host_match</span><span class="p">:</span>
+            <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">_get_route_variables</span><span class="p">(</span><span class="n">host_match</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">_match_routes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_match_children</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span>
+                                 <span class="n">kwargs</span><span class="p">)</span>
+</div>
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="DomainRoute.regex"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.routes.DomainRoute.regex">[docs]</a>    <span class="k">def</span> <span class="nf">regex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">regex</span><span class="p">,</span> <span class="n">reverse_template</span><span class="p">,</span> <span class="n">args_count</span><span class="p">,</span> <span class="n">kwargs_count</span><span class="p">,</span> <span class="n">variables</span> <span class="o">=</span> \
+            <span class="n">webapp2</span><span class="o">.</span><span class="n">_parse_route_template</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="p">,</span>
+                                          <span class="n">default_sufix</span><span class="o">=</span><span class="s">&#39;[^\.]+&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">regex</span>
+
+</div></div>
+<div class="viewcode-block" id="NamePrefixRoute"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.routes.NamePrefixRoute">[docs]</a><span class="k">class</span> <span class="nc">NamePrefixRoute</span><span class="p">(</span><span class="n">MultiRoute</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The idea of this route is to set a base name for other routes::</span>
+
+<span class="sd">        app = WSGIApplication([</span>
+<span class="sd">            NamePrefixRoute(&#39;user-&#39;, [</span>
+<span class="sd">                Route(&#39;/users/&lt;user:\w+&gt;/&#39;, UserOverviewHandler, &#39;overview&#39;),</span>
+<span class="sd">                Route(&#39;/users/&lt;user:\w+&gt;/profile&#39;, UserProfileHandler,</span>
+<span class="sd">                      &#39;profile&#39;),</span>
+<span class="sd">                Route(&#39;/users/&lt;user:\w+&gt;/projects&#39;, UserProjectsHandler,</span>
+<span class="sd">                      &#39;projects&#39;),</span>
+<span class="sd">            ]),</span>
+<span class="sd">        ])</span>
+
+<span class="sd">    The example above is the same as setting the following routes, just more</span>
+<span class="sd">    convenient as you can reuse the name prefix::</span>
+
+<span class="sd">        app = WSGIApplication([</span>
+<span class="sd">            Route(&#39;/users/&lt;user:\w+&gt;/&#39;, UserOverviewHandler, &#39;user-overview&#39;),</span>
+<span class="sd">            Route(&#39;/users/&lt;user:\w+&gt;/profile&#39;, UserProfileHandler,</span>
+<span class="sd">                  &#39;user-profile&#39;),</span>
+<span class="sd">            Route(&#39;/users/&lt;user:\w+&gt;/projects&#39;, UserProjectsHandler,</span>
+<span class="sd">                  &#39;user-projects&#39;),</span>
+<span class="sd">        ])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_attr</span> <span class="o">=</span> <span class="s">&#39;name&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">routes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes a URL route.</span>
+
+<span class="sd">        :param prefix:</span>
+<span class="sd">            The prefix to be prepended.</span>
+<span class="sd">        :param routes:</span>
+<span class="sd">            A list of :class:`webapp2.Route` instances.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">NamePrefixRoute</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">routes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">=</span> <span class="n">prefix</span>
+        <span class="c"># Prepend a prefix to a route attribute.</span>
+        <span class="k">for</span> <span class="n">route</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_routes</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">route</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attr</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">route</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attr</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="HandlerPrefixRoute"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.routes.HandlerPrefixRoute">[docs]</a><span class="k">class</span> <span class="nc">HandlerPrefixRoute</span><span class="p">(</span><span class="n">NamePrefixRoute</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Same as :class:`NamePrefixRoute`, but prefixes the route handler.&quot;&quot;&quot;</span>
+
+    <span class="n">_attr</span> <span class="o">=</span> <span class="s">&#39;handler&#39;</span>
+
+</div>
+<div class="viewcode-block" id="PathPrefixRoute"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.routes.PathPrefixRoute">[docs]</a><span class="k">class</span> <span class="nc">PathPrefixRoute</span><span class="p">(</span><span class="n">NamePrefixRoute</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Same as :class:`NamePrefixRoute`, but prefixes the route path.</span>
+
+<span class="sd">    For example, imagine we have these routes::</span>
+
+<span class="sd">        app = WSGIApplication([</span>
+<span class="sd">            Route(&#39;/users/&lt;user:\w+&gt;/&#39;, UserOverviewHandler,</span>
+<span class="sd">                  &#39;user-overview&#39;),</span>
+<span class="sd">            Route(&#39;/users/&lt;user:\w+&gt;/profile&#39;, UserProfileHandler,</span>
+<span class="sd">                  &#39;user-profile&#39;),</span>
+<span class="sd">            Route(&#39;/users/&lt;user:\w+&gt;/projects&#39;, UserProjectsHandler,</span>
+<span class="sd">                  &#39;user-projects&#39;),</span>
+<span class="sd">        ])</span>
+
+<span class="sd">    We could refactor them to reuse the common path prefix::</span>
+
+<span class="sd">        app = WSGIApplication([</span>
+<span class="sd">            PathPrefixRoute(&#39;/users/&lt;user:\w+&gt;&#39;, [</span>
+<span class="sd">                Route(&#39;/&#39;, UserOverviewHandler, &#39;user-overview&#39;),</span>
+<span class="sd">                Route(&#39;/profile&#39;, UserProfileHandler, &#39;user-profile&#39;),</span>
+<span class="sd">                Route(&#39;/projects&#39;, UserProjectsHandler, &#39;user-projects&#39;),</span>
+<span class="sd">            ]),</span>
+<span class="sd">        ])</span>
+
+<span class="sd">    This is not only convenient, but also performs better: the nested routes</span>
+<span class="sd">    will only be tested if the path prefix matches.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_attr</span> <span class="o">=</span> <span class="s">&#39;template&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">routes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes a URL route.</span>
+
+<span class="sd">        :param prefix:</span>
+<span class="sd">            The prefix to be prepended. It must start with a slash but not</span>
+<span class="sd">            end with a slash.</span>
+<span class="sd">        :param routes:</span>
+<span class="sd">            A list of :class:`webapp2.Route` instances.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">prefix</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">prefix</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">),</span> \
+            <span class="s">&#39;Path prefixes must start with a slash but not end with a slash.&#39;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PathPrefixRoute</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">routes</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PathPrefixRoute.get_match_routes"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.routes.PathPrefixRoute.get_match_routes">[docs]</a>    <span class="k">def</span> <span class="nf">get_match_routes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># This route will do pre-matching before matching the nested routes!</span>
+        <span class="k">yield</span> <span class="bp">self</span>
+</div>
+<div class="viewcode-block" id="PathPrefixRoute.match"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.routes.PathPrefixRoute.match">[docs]</a>    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">urllib</span><span class="o">.</span><span class="n">unquote</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="bp">None</span>
+
+        <span class="k">return</span> <span class="n">_match_routes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_match_children</span><span class="p">,</span> <span class="n">request</span><span class="p">)</span>
+</div>
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="PathPrefixRoute.regex"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.routes.PathPrefixRoute.regex">[docs]</a>    <span class="k">def</span> <span class="nf">regex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">regex</span><span class="p">,</span> <span class="n">reverse_template</span><span class="p">,</span> <span class="n">args_count</span><span class="p">,</span> <span class="n">kwargs_count</span><span class="p">,</span> <span class="n">variables</span> <span class="o">=</span> \
+            <span class="n">webapp2</span><span class="o">.</span><span class="n">_parse_route_template</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="s">&#39;&lt;:/.*&gt;&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">regex</span>
+
+</div></div>
+<div class="viewcode-block" id="RedirectRoute"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.routes.RedirectRoute">[docs]</a><span class="k">class</span> <span class="nc">RedirectRoute</span><span class="p">(</span><span class="n">webapp2</span><span class="o">.</span><span class="n">Route</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A convenience route class for easy redirects.</span>
+
+<span class="sd">    It adds redirect_to, redirect_to_name and strict_slash options to</span>
+<span class="sd">    :class:`webapp2.Route`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">handler</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">defaults</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">build_only</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">handler_method</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">schemes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">redirect_to</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">redirect_to_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">strict_slash</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes a URL route. Extra arguments compared to</span>
+<span class="sd">        :meth:`webapp2.Route.__init__`:</span>
+
+<span class="sd">        :param redirect_to:</span>
+<span class="sd">            A URL string or a callable that returns a URL. If set, this route</span>
+<span class="sd">            is used to redirect to it. The callable is called passing</span>
+<span class="sd">            ``(handler, *args, **kwargs)`` as arguments. This is a</span>
+<span class="sd">            convenience to use :class:`RedirectHandler`. These two are</span>
+<span class="sd">            equivalent::</span>
+
+<span class="sd">                route = Route(&#39;/foo&#39;, handler=webapp2.RedirectHandler,</span>
+<span class="sd">                              defaults={&#39;_uri&#39;: &#39;/bar&#39;})</span>
+<span class="sd">                route = Route(&#39;/foo&#39;, redirect_to=&#39;/bar&#39;)</span>
+
+<span class="sd">        :param redirect_to_name:</span>
+<span class="sd">            Same as `redirect_to`, but the value is the name of a route to</span>
+<span class="sd">            redirect to. In the example below, accessing &#39;/hello-again&#39; will</span>
+<span class="sd">            redirect to the route named &#39;hello&#39;::</span>
+
+<span class="sd">                route = Route(&#39;/hello&#39;, handler=HelloHandler, name=&#39;hello&#39;)</span>
+<span class="sd">                route = Route(&#39;/hello-again&#39;, redirect_to_name=&#39;hello&#39;)</span>
+
+<span class="sd">        :param strict_slash:</span>
+<span class="sd">            If True, redirects access to the same URL with different trailing</span>
+<span class="sd">            slash to the strict path defined in the route. For example, take</span>
+<span class="sd">            these routes::</span>
+
+<span class="sd">                route = Route(&#39;/foo&#39;, FooHandler, strict_slash=True)</span>
+<span class="sd">                route = Route(&#39;/bar/&#39;, BarHandler, strict_slash=True)</span>
+
+<span class="sd">            Because **strict_slash** is True, this is what will happen:</span>
+
+<span class="sd">            - Access to ``/foo`` will execute ``FooHandler`` normally.</span>
+<span class="sd">            - Access to ``/bar/`` will execute ``BarHandler`` normally.</span>
+<span class="sd">            - Access to ``/foo/`` will redirect to ``/foo``.</span>
+<span class="sd">            - Access to ``/bar`` will redirect to ``/bar/``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">RedirectRoute</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+            <span class="n">template</span><span class="p">,</span> <span class="n">handler</span><span class="o">=</span><span class="n">handler</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">defaults</span><span class="o">=</span><span class="n">defaults</span><span class="p">,</span>
+            <span class="n">build_only</span><span class="o">=</span><span class="n">build_only</span><span class="p">,</span> <span class="n">handler_method</span><span class="o">=</span><span class="n">handler_method</span><span class="p">,</span>
+            <span class="n">methods</span><span class="o">=</span><span class="n">methods</span><span class="p">,</span> <span class="n">schemes</span><span class="o">=</span><span class="n">schemes</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">strict_slash</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Routes with strict_slash must have a name.&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">strict_slash</span> <span class="o">=</span> <span class="n">strict_slash</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">redirect_to_name</span> <span class="o">=</span> <span class="n">redirect_to_name</span>
+
+        <span class="k">if</span> <span class="n">redirect_to</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">redirect_to_name</span> <span class="ow">is</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">handler</span> <span class="o">=</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">RedirectHandler</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span><span class="p">[</span><span class="s">&#39;_uri&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">redirect_to</span>
+
+<div class="viewcode-block" id="RedirectRoute.get_match_routes"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.routes.RedirectRoute.get_match_routes">[docs]</a>    <span class="k">def</span> <span class="nf">get_match_routes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generator to get all routes that can be matched from a route.</span>
+
+<span class="sd">        :yields:</span>
+<span class="sd">            This route or all nested routes that can be matched.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">redirect_to_name</span><span class="p">:</span>
+            <span class="n">main_route</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_redirect_route</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">redirect_to_name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">main_route</span> <span class="o">=</span> <span class="bp">self</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_only</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strict_slash</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">):</span>
+                    <span class="n">template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">template</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span>
+
+                <span class="k">yield</span> <span class="n">main_route</span>
+                <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_redirect_route</span><span class="p">(</span><span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">main_route</span>
+</div>
+    <span class="k">def</span> <span class="nf">_get_redirect_route</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">template</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">template</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">defaults</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">defaults</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s">&#39;_uri&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_redirect</span><span class="p">,</span>
+            <span class="s">&#39;_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+        <span class="p">})</span>
+        <span class="n">new_route</span> <span class="o">=</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">Route</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">RedirectHandler</span><span class="p">,</span>
+                                  <span class="n">defaults</span><span class="o">=</span><span class="n">defaults</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_route</span>
+
+    <span class="k">def</span> <span class="nf">_redirect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c"># Get from request because args is empty if named routes are set?</span>
+        <span class="c"># args, kwargs = (handler.request.route_args,</span>
+        <span class="c">#                 handler.request.route_kwargs)</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;_uri&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;_code&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">handler</span><span class="o">.</span><span class="n">uri_for</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;_name&#39;</span><span class="p">),</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_match_routes</span><span class="p">(</span><span class="n">iter_func</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">extra_args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extra_kwargs</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Tries to match a route given an iterator.&quot;&quot;&quot;</span>
+    <span class="n">method_not_allowed</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">for</span> <span class="n">route</span> <span class="ow">in</span> <span class="n">iter_func</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                <span class="n">route</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">match</span>
+                <span class="k">if</span> <span class="n">extra_args</span><span class="p">:</span>
+                    <span class="n">args</span> <span class="o">+=</span> <span class="n">extra_args</span>
+
+                <span class="k">if</span> <span class="n">extra_kwargs</span><span class="p">:</span>
+                    <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">extra_kwargs</span><span class="p">)</span>
+
+                <span class="k">return</span> <span class="n">route</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span>
+        <span class="k">except</span> <span class="n">exc</span><span class="o">.</span><span class="n">HTTPMethodNotAllowed</span><span class="p">:</span>
+            <span class="n">method_not_allowed</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">if</span> <span class="n">method_not_allowed</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">exc</span><span class="o">.</span><span class="n">HTTPMethodNotAllowed</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

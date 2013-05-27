@@ -1,0 +1,310 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.apptools.platform.generic &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../../index.html" />
+    <link rel="up" title="lib.apptools.platform" href="../platform.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../apptools.html" >lib.apptools</a> &raquo;</li>
+          <li><a href="../platform.html" accesskey="U">lib.apptools.platform</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.apptools.platform.generic</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">Platform: Generic WSGI</span>
+
+<span class="sd">Base platform functionality that is enabled in every supported environment.</span>
+<span class="sd">Provides utils and shortcuts that should always be available in AppTools.</span>
+
+<span class="sd">-sam (&lt;sam@momentum.io&gt;)</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c"># Base Imports</span>
+<span class="kn">import</span> <span class="nn">webapp2</span>
+
+<span class="c"># Appconfig</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">config</span><span class="p">;</span> <span class="n">_APPCONFIG</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">_APPCONFIG</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="c"># build fake config</span>
+    <span class="k">class</span> <span class="nc">FakeConfig</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        <span class="n">debug</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;debug&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="n">FakeConfig</span><span class="p">()</span>
+
+<span class="c"># Util Imports</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">_loadModule</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">datastructures</span>
+
+<span class="c"># Platform Imports</span>
+<span class="kn">from</span> <span class="nn">apptools.platform</span> <span class="kn">import</span> <span class="n">Platform</span>
+<span class="kn">from</span> <span class="nn">apptools.platform</span> <span class="kn">import</span> <span class="n">PlatformBridge</span>
+
+
+<span class="c">## AppToolsExtBridge</span>
+<span class="c"># This class provides shortcuts to AppTools extensions and APIs.</span>
+<div class="viewcode-block" id="AppToolsExtBridge"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.generic.AppToolsExtBridge">[docs]</a><span class="k">class</span> <span class="nc">AppToolsExtBridge</span><span class="p">(</span><span class="n">PlatformBridge</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Bridge to AppTools APIs and extensions. &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Offers shortcuts to installed AppTools APIs/extensions. &#39;&#39;&#39;</span>
+
+        <span class="c"># Return CallbackProxy to lazy-load module access</span>
+        <span class="k">return</span> <span class="n">datastructures</span><span class="o">.</span><span class="n">CallbackProxy</span><span class="p">(</span><span class="n">_loadModule</span><span class="p">,</span> <span class="p">{</span>
+
+            <span class="s">&#39;assets&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;apptools.api.assets&#39;</span><span class="p">,</span> <span class="s">&#39;_api&#39;</span><span class="p">),</span>
+            <span class="s">&#39;output&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;apptools.api.output&#39;</span><span class="p">,</span> <span class="s">&#39;_api&#39;</span><span class="p">),</span>
+            <span class="s">&#39;push&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;apptools.api.push&#39;</span><span class="p">,</span> <span class="s">&#39;_api&#39;</span><span class="p">),</span>
+            <span class="s">&#39;services&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;apptools.api.services&#39;</span><span class="p">,</span> <span class="s">&#39;_api&#39;</span><span class="p">)</span>
+
+        <span class="p">})</span>
+
+
+<span class="c">## AppToolsUtilBridge</span>
+<span class="c"># This class provides shortcuts to builtin/common 3rd party libraries.</span></div>
+<div class="viewcode-block" id="AppToolsUtilBridge"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.generic.AppToolsUtilBridge">[docs]</a><span class="k">class</span> <span class="nc">AppToolsUtilBridge</span><span class="p">(</span><span class="n">PlatformBridge</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Offers shortcuts to installed third-party libraries. &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
+
+        <span class="c"># Return CallbackProxy to lazy-load module access</span>
+        <span class="k">return</span> <span class="n">datastructures</span><span class="o">.</span><span class="n">CallbackProxy</span><span class="p">(</span><span class="n">_loadModule</span><span class="p">,</span> <span class="p">{</span>
+
+            <span class="s">&#39;timesince&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;apptools.util.timesince&#39;</span><span class="p">,</span> <span class="s">&#39;timesince&#39;</span><span class="p">),</span>
+            <span class="s">&#39;byteconvert&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;apptools.util.byteconvert&#39;</span><span class="p">,</span> <span class="s">&#39;humanize_bytes&#39;</span><span class="p">),</span>
+            <span class="s">&#39;httpagentparser&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;apptools.util.httpagentparser&#39;</span><span class="p">,</span> <span class="s">&#39;detect&#39;</span><span class="p">)</span>
+
+        <span class="p">})</span>
+
+
+<span class="c">## GenericWSGI</span>
+<span class="c"># This Platform class provides base utilities, shortcuts, and config access for all environments.</span></div>
+<div class="viewcode-block" id="GenericWSGI"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.generic.GenericWSGI">[docs]</a><span class="k">class</span> <span class="nc">GenericWSGI</span><span class="p">(</span><span class="n">Platform</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Platform-specific features and exports for Google App Engine. &#39;&#39;&#39;</span>
+
+    <span class="n">ext</span> <span class="o">=</span> <span class="n">AppToolsExtBridge</span><span class="p">()</span>
+    <span class="n">util</span> <span class="o">=</span> <span class="n">AppToolsUtilBridge</span><span class="p">()</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="GenericWSGI.check_environment"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.generic.GenericWSGI.check_environment">[docs]</a>    <span class="k">def</span> <span class="nf">check_environment</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">environ</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Always enable generic environment. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">True</span>  <span class="c"># Always enable GenericWSGI</span>
+</div>
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="GenericWSGI.config"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.generic.GenericWSGI.config">[docs]</a>    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Cached shortcut to global config. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span>
+</div>
+    <span class="nd">@webapp2.cached_property</span>
+    <span class="k">def</span> <span class="nf">_sysConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Cached shortcut to system config. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apptools.system&#39;</span><span class="p">)</span>
+
+    <span class="nd">@webapp2.cached_property</span>
+    <span class="k">def</span> <span class="nf">_globalServicesConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Cached shortcut to global (AppTools) service config. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apptools.services&#39;</span><span class="p">)</span>
+
+    <span class="nd">@webapp2.cached_property</span>
+    <span class="k">def</span> <span class="nf">_servicesConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Cached shortcut to project services config. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apptools.project.services&#39;</span><span class="p">)</span>
+
+    <span class="nd">@webapp2.cached_property</span>
+    <span class="k">def</span> <span class="nf">_projectConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Cached shortcut to project config. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apptools.project&#39;</span><span class="p">)</span>
+
+    <span class="nd">@webapp2.cached_property</span>
+    <span class="k">def</span> <span class="nf">_projectOutput</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Cached shortcut to project output config. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apptools.project.output&#39;</span><span class="p">)</span>
+
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="GenericWSGI.shortcut_exports"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.generic.GenericWSGI.shortcut_exports">[docs]</a>    <span class="k">def</span> <span class="nf">shortcut_exports</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Return shortcuts. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="p">[</span>
+
+            <span class="c"># Lib, Ext &amp; Util</span>
+            <span class="p">(</span><span class="s">&#39;ext&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ext</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;util&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">util</span><span class="p">)</span>
+
+        <span class="p">]</span>
+</div>
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="GenericWSGI.config_shortcuts"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.generic.GenericWSGI.config_shortcuts">[docs]</a>    <span class="k">def</span> <span class="nf">config_shortcuts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Return config shortcuts only. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="c"># Main Config</span>
+            <span class="p">(</span><span class="s">&#39;_sysConfig&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sysConfig</span><span class="p">),</span>
+
+            <span class="c"># Services Config</span>
+            <span class="p">(</span><span class="s">&#39;_globalServicesConfig&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_globalServicesConfig</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;_servicesConfig&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_servicesConfig</span><span class="p">),</span>
+
+            <span class="c"># Project Config</span>
+            <span class="p">(</span><span class="s">&#39;_projectConfig&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_projectConfig</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;_projectOutput&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_projectOutput</span><span class="p">)</span>
+        <span class="p">]</span>
+</div>
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="GenericWSGI.template_context"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.generic.GenericWSGI.template_context">[docs]</a>    <span class="k">def</span> <span class="nf">template_context</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Inject generic + apptools stuff into the template context. &#39;&#39;&#39;</span>
+
+        <span class="k">def</span> <span class="nf">inject</span><span class="p">(</span><span class="n">handler</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+
+            <span class="sd">&#39;&#39;&#39; Add AppTools-related stuff. &#39;&#39;&#39;</span>
+
+            <span class="n">context</span><span class="p">[</span><span class="s">&#39;asset&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>  <span class="c"># Bridge to the Assets API</span>
+
+                <span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="n">handler</span><span class="o">.</span><span class="n">get_asset</span><span class="p">,</span>  <span class="c"># generate a URL for an asset (low level method)</span>
+                <span class="s">&#39;image&#39;</span><span class="p">:</span> <span class="n">handler</span><span class="o">.</span><span class="n">get_img_asset</span><span class="p">,</span>  <span class="c"># generate a URL for an image asset</span>
+                <span class="s">&#39;style&#39;</span><span class="p">:</span> <span class="n">handler</span><span class="o">.</span><span class="n">get_style_asset</span><span class="p">,</span>  <span class="c"># generate a URL for a stylesheet asset</span>
+                <span class="s">&#39;script&#39;</span><span class="p">:</span> <span class="n">handler</span><span class="o">.</span><span class="n">get_script_asset</span>  <span class="c"># generate a URL for a javascript asset</span>
+
+            <span class="p">}</span>
+
+            <span class="n">context</span><span class="p">[</span><span class="s">&#39;assets&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>  <span class="c"># Settings/details for ALL assets</span>
+
+                <span class="s">&#39;force_https&#39;</span><span class="p">:</span> <span class="n">handler</span><span class="o">.</span><span class="n">force_https_assets</span><span class="p">,</span>
+                <span class="s">&#39;force_absolute&#39;</span><span class="p">:</span> <span class="n">handler</span><span class="o">.</span><span class="n">force_absolute_assets</span>
+
+            <span class="p">}</span>
+
+            <span class="n">context</span><span class="p">[</span><span class="s">&#39;util&#39;</span><span class="p">][</span><span class="s">&#39;config&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>  <span class="c"># Main Config</span>
+
+                    <span class="s">&#39;get&#39;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">,</span>
+                    <span class="s">&#39;debug&#39;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span>
+                    <span class="s">&#39;system&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sysConfig</span><span class="p">,</span>
+                    <span class="s">&#39;project&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_projectConfig</span><span class="p">,</span>
+
+                    <span class="s">&#39;services&#39;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s">&#39;global&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_globalServicesConfig</span><span class="p">,</span>
+                        <span class="s">&#39;project&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_servicesConfig</span>
+                    <span class="p">}</span>
+
+            <span class="p">}</span>
+
+            <span class="n">context</span><span class="p">[</span><span class="s">&#39;converters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">context</span><span class="p">[</span><span class="s">&#39;converters&#39;</span><span class="p">][</span><span class="s">&#39;timesince&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">timesince</span>  <span class="c"># Util library for &quot;15 minutes ago&quot;-type text from datetimes</span>
+            <span class="n">context</span><span class="p">[</span><span class="s">&#39;converters&#39;</span><span class="p">][</span><span class="s">&#39;byteconvert&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">byteconvert</span>  <span class="c"># Util library for formatting data storage amounts</span>
+
+            <span class="k">return</span> <span class="n">context</span>
+
+        <span class="k">return</span> <span class="n">inject</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../index.html">
+              <img class="logo" src="../../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../apptools.html" >lib.apptools</a> &raquo;</li>
+          <li><a href="../platform.html" >lib.apptools.platform</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

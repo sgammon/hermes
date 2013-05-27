@@ -1,0 +1,331 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>tracker Package &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="index.html" />
+    <link rel="up" title="services Package" href="api.services.html" />
+    <link rel="next" title="templates Package" href="api.templates.html" />
+    <link rel="prev" title="raw Package" href="api.services.raw.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.templates.html" title="templates Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="api.services.raw.html" title="raw Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
+          <li><a href="api.html" >api Package</a> &raquo;</li>
+          <li><a href="api.services.html" accesskey="U">services Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="tracker-package">
+<h1>tracker Package<a class="headerlink" href="#tracker-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">tracker</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-api.services.tracker"></span><p>API: Tracker</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 Ampush.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - all rights are reserved. For details about
+embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="module-api.services.tracker.exceptions">
+<span id="exceptions-module"></span><h2><a class="reference external" href="http://docs.python.org/2.7/library/exceptions.html#exceptions" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">exceptions</span></tt></a> Module<a class="headerlink" href="#module-api.services.tracker.exceptions" title="Permalink to this headline">¶</a></h2>
+<p>Tracker API: Exceptions</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 Ampush.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - all rights are reserved. For details about
+embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="exception">
+<dt id="api.services.tracker.exceptions.Error">
+<em class="property">exception </em><tt class="descclassname">api.services.tracker.exceptions.</tt><tt class="descname">Error</tt><a class="reference internal" href="_modules/api/services/tracker/exceptions.html#Error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.tracker.exceptions.Error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="api.services.html#api.services.exceptions.Error" title="api.services.exceptions.Error"><tt class="xref py py-class docutils literal"><span class="pre">api.services.exceptions.Error</span></tt></a></p>
+<p>Root, abstract <cite>TrackerService</cite> error class.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-api.services.tracker.messages">
+<span id="messages-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">messages</span></tt> Module<a class="headerlink" href="#module-api.services.tracker.messages" title="Permalink to this headline">¶</a></h2>
+<p>Tracker API: Messages</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 Ampush.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - all rights are reserved. For details about
+embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="module-api.services.tracker.service">
+<span id="service-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">service</span></tt> Module<a class="headerlink" href="#module-api.services.tracker.service" title="Permalink to this headline">¶</a></h2>
+<p>Tracker API: Service</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 Ampush.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - all rights are reserved. For details about
+embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="api.services.tracker.service.Echo">
+<em class="property">class </em><tt class="descclassname">api.services.tracker.service.</tt><tt class="descname">Echo</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/api/services/tracker/service.html#Echo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.tracker.service.Echo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
+<p>Sample model =&gt; message.</p>
+<dl class="attribute">
+<dt id="api.services.tracker.service.Echo.message">
+<tt class="descname">message</tt><em class="property"> = 'Hello, world!'</em><a class="headerlink" href="#api.services.tracker.service.Echo.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.services.tracker.service.TrackerService">
+<em class="property">class </em><tt class="descclassname">api.services.tracker.service.</tt><tt class="descname">TrackerService</tt><a class="reference internal" href="_modules/api/services/tracker/service.html#TrackerService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.tracker.service.TrackerService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="api.services.html#api.services.APIService" title="api.services.APIService"><tt class="xref py py-class docutils literal"><span class="pre">api.services.APIService</span></tt></a></p>
+<p>Exposes methods for managing the <cite>EventTracker</cite>.</p>
+<dl class="class">
+<dt id="api.services.tracker.service.TrackerService.AsyncStub">
+<em class="property">class </em><tt class="descname">AsyncStub</tt><big>(</big><em>transport</em><big>)</big><a class="headerlink" href="#api.services.tracker.service.TrackerService.AsyncStub" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">protorpc.remote.StubBase</span></tt>, <a class="reference internal" href="#api.services.tracker.service.TrackerService" title="api.services.tracker.service.TrackerService"><tt class="xref py py-class docutils literal"><span class="pre">api.services.tracker.service.TrackerService</span></tt></a></p>
+<dl class="attribute">
+<dt id="api.services.tracker.service.TrackerService.AsyncStub.Service">
+<tt class="descname">Service</tt><a class="headerlink" href="#api.services.tracker.service.TrackerService.AsyncStub.Service" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#api.services.tracker.service.TrackerService" title="api.services.tracker.service.TrackerService"><tt class="xref py py-class docutils literal"><span class="pre">TrackerService</span></tt></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.services.tracker.service.TrackerService.AsyncStub.echo">
+<tt class="descname">echo</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#api.services.tracker.service.TrackerService.AsyncStub.echo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.services.tracker.service.TrackerService.Stub">
+<em class="property">class </em><tt class="descclassname">TrackerService.</tt><tt class="descname">Stub</tt><big>(</big><em>transport</em><big>)</big><a class="headerlink" href="#api.services.tracker.service.TrackerService.Stub" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">protorpc.remote.StubBase</span></tt>, <a class="reference internal" href="#api.services.tracker.service.TrackerService" title="api.services.tracker.service.TrackerService"><tt class="xref py py-class docutils literal"><span class="pre">api.services.tracker.service.TrackerService</span></tt></a></p>
+<dl class="attribute">
+<dt id="api.services.tracker.service.TrackerService.Stub.Service">
+<tt class="descname">Service</tt><a class="headerlink" href="#api.services.tracker.service.TrackerService.Stub.Service" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#api.services.tracker.service.TrackerService" title="api.services.tracker.service.TrackerService"><tt class="xref py py-class docutils literal"><span class="pre">TrackerService</span></tt></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.services.tracker.service.TrackerService.Stub.echo">
+<tt class="descname">echo</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#api.services.tracker.service.TrackerService.Stub.echo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Synchronous remote method.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">self: Instance of StubBase.Async subclass.
+args: Tuple (request,):</p>
+<blockquote>
+<div>request: Request object.</div></blockquote>
+<dl class="last docutils">
+<dt>kwargs: Field values for request.  Must be empty if request object</dt>
+<dd>is provided.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Response message from synchronized RPC.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="method">
+<dt id="api.services.tracker.service.TrackerService.echo">
+<tt class="descclassname">TrackerService.</tt><tt class="descname">echo</tt><big>(</big><em>service_instance</em>, <em>request</em><big>)</big><a class="reference internal" href="_modules/api/services/tracker/service.html#TrackerService.echo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.tracker.service.TrackerService.echo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function used to replace original method.</p>
+<p>Invoke wrapped remote method.  Checks to ensure that request and
+response objects are the correct types.</p>
+<p>Does not check whether messages are initialized.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>service_instance: The service object whose method is being invoked.</dt>
+<dd>This is passed to &#8216;self&#8217; during the invocation of the original
+method.</dd>
+</dl>
+<p class="last">request: Request message.</p>
+</dd>
+<dt>Returns:</dt>
+<dd>Results of calling wrapped remote method.</dd>
+<dt>Raises:</dt>
+<dd>RequestError: Request object is not of the correct type.
+ServerError: Response object is not of the correct type.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.services.tracker.service.TrackerService.exceptions">
+<tt class="descclassname">TrackerService.</tt><tt class="descname">exceptions</tt><em class="property"> = &lt;apptools.util.datastructures.DictProxy object at 0x107756710&gt;</em><a class="headerlink" href="#api.services.tracker.service.TrackerService.exceptions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">tracker Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">tracker</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-api.services.tracker.exceptions"><tt class="docutils literal"><span class="pre">exceptions</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-api.services.tracker.messages"><tt class="docutils literal"><span class="pre">messages</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-api.services.tracker.service"><tt class="docutils literal"><span class="pre">service</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="api.services.raw.html"
+                        title="previous chapter">raw Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="api.templates.html"
+                        title="next chapter">templates Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/api.services.tracker.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.templates.html" title="templates Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="api.services.raw.html" title="raw Package"
+             >previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
+          <li><a href="api.html" >api Package</a> &raquo;</li>
+          <li><a href="api.services.html" >services Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

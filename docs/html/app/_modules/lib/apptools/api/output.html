@@ -1,0 +1,762 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.apptools.api.output &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../../index.html" />
+    <link rel="up" title="lib.apptools.api" href="../api.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../apptools.html" >lib.apptools</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">lib.apptools.api</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.apptools.api.output</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">API: Output</span>
+
+<span class="sd">Responsible for the task of finding and compiling templates to be sent to the browser.</span>
+<span class="sd">Two levels of caching are implemented here - in-memory handler caching and memcache.</span>
+
+<span class="sd">According to settings in the config.py, this module will attempt to load compiled</span>
+<span class="sd">template code from the handler first, memcache second, and at last resort will compile</span>
+<span class="sd">the template and store it in the cache.</span>
+
+<span class="sd">-sam (&lt;sam@momentum.io&gt;)</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c">## Base Imports</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">pprint</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">import</span> <span class="nn">webapp2</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">config</span><span class="p">;</span> <span class="n">_APPCONFIG</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="n">_APPCONFIG</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="c"># build fake config</span>
+    <span class="k">class</span> <span class="nc">FakeConfig</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        <span class="n">debug</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;debug&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="n">FakeConfig</span><span class="p">()</span>
+
+
+<span class="c">## API Mixins</span>
+<span class="kn">from</span> <span class="nn">apptools.api</span> <span class="kn">import</span> <span class="n">CoreAPI</span>
+<span class="kn">from</span> <span class="nn">apptools.api</span> <span class="kn">import</span> <span class="n">HandlerMixin</span>
+
+<span class="c">## Utils</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">json</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">AppToolsJSONEncoder</span>
+
+<span class="c">## Log + Exceptions</span>
+<span class="kn">from</span> <span class="nn">apptools.exceptions</span> <span class="kn">import</span> <span class="n">AppException</span>
+<span class="kn">from</span> <span class="nn">apptools.util.debug</span> <span class="kn">import</span> <span class="n">AppToolsLogger</span>
+
+<span class="c">## Webapp2 Imports</span>
+<span class="kn">from</span> <span class="nn">webapp2</span> <span class="kn">import</span> <span class="n">cached_property</span>
+<span class="kn">from</span> <span class="nn">webapp2_extras</span> <span class="kn">import</span> <span class="n">jinja2</span>
+
+<span class="c">## Jinja2 Imports</span>
+<span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">FileSystemLoader</span> <span class="k">as</span> <span class="n">JFileSystemLoader</span>
+<span class="kn">from</span> <span class="nn">jinja2.exceptions</span> <span class="kn">import</span> <span class="n">TemplateNotFound</span>
+
+<span class="c">## Globals</span>
+<span class="n">t_data</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">logging</span> <span class="o">=</span> <span class="n">AppToolsLogger</span><span class="p">(</span><span class="s">&#39;apptools.core&#39;</span><span class="p">,</span> <span class="s">&#39;OutputAPI&#39;</span><span class="p">)</span>
+
+
+<span class="c">## CoreOutputAPIException</span>
+<span class="c"># Root exception class for all Output API-related exceptions.</span>
+<div class="viewcode-block" id="CoreOutputAPIException"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.CoreOutputAPIException">[docs]</a><span class="k">class</span> <span class="nc">CoreOutputAPIException</span><span class="p">(</span><span class="n">AppException</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Root exception class for all Output API-related exceptions. &#39;&#39;&#39;</span>
+
+    <span class="k">pass</span>
+
+
+<span class="c">## ModuleLoader</span>
+<span class="c"># Loader that resolves templates compiled into Python modules.</span></div>
+<div class="viewcode-block" id="ModuleLoader"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.ModuleLoader">[docs]</a><span class="k">class</span> <span class="nc">ModuleLoader</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Loads templates that have been compiled into Python modules. &#39;&#39;&#39;</span>
+
+    <span class="n">has_source_access</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="nd">@cached_property</span>
+<div class="viewcode-block" id="ModuleLoader.loaderConfig"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.ModuleLoader.loaderConfig">[docs]</a>    <span class="k">def</span> <span class="nf">loaderConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Cached template loader configuration. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apptools.project.output.template_loader&#39;</span><span class="p">)</span>
+</div>
+    <span class="nd">@cached_property</span>
+<div class="viewcode-block" id="ModuleLoader.logging"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.ModuleLoader.logging">[docs]</a>    <span class="k">def</span> <span class="nf">logging</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Log pipe. &#39;&#39;&#39;</span>
+
+        <span class="k">global</span> <span class="n">logging</span>
+        <span class="k">return</span> <span class="n">logging</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;ModuleLoader&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">_setcondition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loaderConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;loaders&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;logging&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">))</span>
+</div>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">templatemodule</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Loads a template from a module. &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">modules</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Loading templatemodule: &quot;</span><span class="si">%s</span><span class="s">&quot;.&#39;</span> <span class="o">%</span> <span class="n">templatemodule</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">templatemodule</span> <span class="o">=</span> <span class="n">templatemodule</span>
+
+<div class="viewcode-block" id="ModuleLoader.prepare_template"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.ModuleLoader.prepare_template">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">tpl_vars</span><span class="p">,</span> <span class="nb">globals</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Prepare a template to be returned after it has been loaded. &#39;&#39;&#39;</span>
+
+        <span class="n">t</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">environment</span><span class="o">.</span><span class="n">template_class</span><span class="p">)</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">environment</span> <span class="o">=</span> <span class="n">environment</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">globals</span> <span class="o">=</span> <span class="nb">globals</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">tpl_vars</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">blocks</span> <span class="o">=</span> <span class="n">tpl_vars</span><span class="p">[</span><span class="s">&#39;blocks&#39;</span><span class="p">]</span>
+
+        <span class="c"># render function and module</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">root_render_func</span> <span class="o">=</span> <span class="n">tpl_vars</span><span class="p">[</span><span class="s">&#39;root&#39;</span><span class="p">]</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">_module</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="c"># debug and loader helpers</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">_debug_info</span> <span class="o">=</span> <span class="n">tpl_vars</span><span class="p">[</span><span class="s">&#39;debug_info&#39;</span><span class="p">]</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">_uptodate</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">True</span>
+
+        <span class="k">return</span> <span class="n">t</span>
+</div>
+<div class="viewcode-block" id="ModuleLoader.load"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.ModuleLoader.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="nb">globals</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">prepare</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Loads a pre-compiled template, stored as Python code in a template module. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">globals</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="nb">globals</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c"># Strip &#39;/&#39; and remove extension.</span>
+        <span class="n">filename</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Loading template at path &quot;</span><span class="si">%s</span><span class="s">&quot; with extension &quot;</span><span class="si">%s</span><span class="s">&quot;.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">ext</span><span class="p">))</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">filename</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
+                <span class="c"># Store module to avoid unnecessary repeated imports.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_module</span><span class="p">(</span><span class="n">environment</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">prepare</span><span class="p">:</span>
+                <span class="n">tpl_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">environment</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s">&#39;Encountered exception during template module import: &quot;</span><span class="si">%s</span><span class="s">&quot;.&#39;</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">e</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">prepare</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_template</span><span class="p">(</span><span class="n">environment</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">tpl_vars</span><span class="p">,</span> <span class="nb">globals</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="ModuleLoader.get_module"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.ModuleLoader.get_module">[docs]</a>    <span class="k">def</span> <span class="nf">get_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">template</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Converts a template path to a package path and attempts import, or else raises Jinja2&#39;s TemplateNotFound. &#39;&#39;&#39;</span>
+
+        <span class="c"># Convert the path to a module name.</span>
+        <span class="n">module_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">templatemodule</span> <span class="o">+</span> <span class="s">&#39;.&#39;</span> <span class="o">+</span> <span class="n">template</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="s">&#39;.&#39;</span><span class="p">)</span>
+        <span class="n">prefix</span><span class="p">,</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">module_name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Template module at path &quot;</span><span class="si">%s</span><span class="s">&quot; for template path &quot;</span><span class="si">%s</span><span class="s">&quot; was found and is valid.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="n">template</span><span class="p">))</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="nb">__import__</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;environment&#39;</span><span class="p">:</span> <span class="n">environment</span><span class="p">},</span> <span class="p">[</span><span class="n">obj</span><span class="p">]),</span> <span class="n">obj</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">TemplateNotFound</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;Template module at path &quot;</span><span class="si">%s</span><span class="s">&quot; for template path &quot;</span><span class="si">%s</span><span class="s">&quot; could not be found or is not valid.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="n">template</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s">&#39;TemplateNotFound exception was thrown: &quot;</span><span class="si">%s</span><span class="s">&quot;.&#39;</span> <span class="o">%</span> <span class="n">t</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">t</span>
+
+
+<span class="c"># Source caching</span></div></div>
+<div class="viewcode-block" id="get_tdata_from_fastcache"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.get_tdata_from_fastcache">[docs]</a><span class="k">def</span> <span class="nf">get_tdata_from_fastcache</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">do_log</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Get template data from fastcache (instance memory). &#39;&#39;&#39;</span>
+
+    <span class="k">global</span> <span class="n">t_data</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">t_data</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">do_log</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;OUTPUT_LOADER: Found bytecode in fastcache memory under key </span><span class="se">\&#39;</span><span class="s">&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">name</span><span class="p">))</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\&#39;</span><span class="s">.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">t_data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">None</span>
+
+</div>
+<div class="viewcode-block" id="set_tdata_to_fastcache"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.set_tdata_to_fastcache">[docs]</a><span class="k">def</span> <span class="nf">set_tdata_to_fastcache</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">do_log</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Save template data to fastcache (instance memory). &#39;&#39;&#39;</span>
+
+    <span class="k">global</span> <span class="n">t_data</span>
+    <span class="n">t_data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
+    <span class="k">if</span> <span class="n">do_log</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;OUTPUT_LOADER: Set template </span><span class="se">\&#39;</span><span class="s">&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\&#39;</span><span class="s"> to fastcache memory.&#39;</span><span class="p">)</span>
+
+
+<span class="c"># Memcache API loader</span></div>
+<div class="viewcode-block" id="get_tdata_from_memcache"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.get_tdata_from_memcache">[docs]</a><span class="k">def</span> <span class="nf">get_tdata_from_memcache</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">do_log</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Get template data from memcache. &#39;&#39;&#39;</span>
+
+    <span class="kn">from</span> <span class="nn">apptools.core</span> <span class="kn">import</span> <span class="n">_apibridge</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">_apibridge</span><span class="o">.</span><span class="n">memcache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;Core//Output//Template-&#39;</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">do_log</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;OUTPUT_LOADER: Found bytecode in memcache under key </span><span class="se">\&#39;</span><span class="s">tdata-&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\&#39;</span><span class="s">.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">None</span>
+
+</div>
+<div class="viewcode-block" id="set_tdata_to_memcache"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.set_tdata_to_memcache">[docs]</a><span class="k">def</span> <span class="nf">set_tdata_to_memcache</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">do_log</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Set template data to memcache. &#39;&#39;&#39;</span>
+
+    <span class="kn">from</span> <span class="nn">apptools.core</span> <span class="kn">import</span> <span class="n">_apibridge</span>
+    <span class="n">_apibridge</span><span class="o">.</span><span class="n">memcache</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;Core//Output//Template-&#39;</span> <span class="o">+</span> <span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">do_log</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;OUTPUT_LOADER: Set template </span><span class="se">\&#39;</span><span class="s">&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\&#39;</span><span class="s"> to memcache under key </span><span class="se">\&#39;</span><span class="s">Core//Output//Template-&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\&#39;</span><span class="s">.&#39;</span><span class="p">)</span>
+
+
+<span class="c">## CoreOutputLoader</span>
+<span class="c"># Main, filesystem-based template loader, backed by instance/thread memory and memcache.</span></div>
+<div class="viewcode-block" id="CoreOutputLoader"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.CoreOutputLoader">[docs]</a><span class="k">class</span> <span class="nc">CoreOutputLoader</span><span class="p">(</span><span class="n">JFileSystemLoader</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Loads templates and automatically inserts bytecode caching logic for both fastcache (instance memory) and memcache. &#39;&#39;&#39;</span>
+
+    <span class="n">has_source_access</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="nd">@cached_property</span>
+<div class="viewcode-block" id="CoreOutputLoader.logging"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.CoreOutputLoader.logging">[docs]</a>    <span class="k">def</span> <span class="nf">logging</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Log pipe. &#39;&#39;&#39;</span>
+
+        <span class="k">global</span> <span class="n">logging</span>
+        <span class="k">return</span> <span class="n">logging</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;FileSystemLoader&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">_setcondition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loaderConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;loaders&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;logging&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">))</span>
+</div>
+    <span class="nd">@cached_property</span>
+<div class="viewcode-block" id="CoreOutputLoader.devConfig"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.CoreOutputLoader.devConfig">[docs]</a>    <span class="k">def</span> <span class="nf">devConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Cached dev configuration. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apptools.system.dev&#39;</span><span class="p">)</span>
+</div>
+    <span class="nd">@cached_property</span>
+<div class="viewcode-block" id="CoreOutputLoader.loaderConfig"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.CoreOutputLoader.loaderConfig">[docs]</a>    <span class="k">def</span> <span class="nf">loaderConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Cached template loader configuration. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apptools.project.output.template_loader&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="CoreOutputLoader.get_source"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.CoreOutputLoader.get_source">[docs]</a>    <span class="k">def</span> <span class="nf">get_source</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Overrides Jinja&#39;s default FileSystemLoader get_source to provide it via memcache or instance memory, if available. &#39;&#39;&#39;</span>
+
+        <span class="c"># Load config</span>
+        <span class="n">y_cfg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loaderConfig</span>
+
+        <span class="c"># Encode in Base64</span>
+        <span class="n">b64_name</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="c"># Debug logging</span>
+        <span class="k">if</span> <span class="n">y_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;debug&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">do_log</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">do_log</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">if</span> <span class="n">do_log</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Template requested for name </span><span class="se">\&#39;</span><span class="s">&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\&#39;</span><span class="s">.&#39;</span><span class="p">)</span>
+
+        <span class="c"># Don&#39;t do caching if we&#39;re in dev mode</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">debug</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">loaderConfig</span><span class="p">[</span><span class="s">&#39;force&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+
+            <span class="c"># Try the in-memory supercache</span>
+            <span class="k">if</span> <span class="n">y_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;use_memory_cache&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="n">source</span> <span class="o">=</span> <span class="n">get_tdata_from_fastcache</span><span class="p">(</span><span class="n">b64_name</span><span class="p">,</span> <span class="n">do_log</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">source</span> <span class="o">=</span> <span class="bp">None</span>
+
+            <span class="k">if</span> <span class="n">source</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>  <span class="c"># Not found in fastcache</span>
+
+                <span class="k">if</span> <span class="n">do_log</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Template not found in fastcache.&#39;</span><span class="p">)</span>
+
+                <span class="c"># Fallback to memcache</span>
+                <span class="k">if</span> <span class="n">y_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;use_memcache&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+                    <span class="n">source</span> <span class="o">=</span> <span class="n">get_tdata_from_memcache</span><span class="p">(</span><span class="n">b64_name</span><span class="p">,</span> <span class="n">do_log</span><span class="p">)</span>
+
+                <span class="c"># Fallback to regular loader, then cache</span>
+                <span class="k">if</span> <span class="n">source</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>  <span class="c"># Not found in memcache</span>
+
+                    <span class="k">if</span> <span class="n">do_log</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Template not found in memcache.&#39;</span><span class="p">)</span>
+                    <span class="n">source</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">uptodate</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">CoreOutputLoader</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_source</span><span class="p">(</span><span class="n">environment</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">y_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;use_memcache&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">False</span><span class="p">:</span>
+                        <span class="n">set_tdata_to_memcache</span><span class="p">(</span><span class="n">b64_name</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">do_log</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">y_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;use_memory_cache&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">False</span><span class="p">:</span>
+                        <span class="n">set_tdata_to_fastcache</span><span class="p">(</span><span class="n">b64_name</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">do_log</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>  <span class="c"># In dev mode, compile everything every time</span>
+
+            <span class="n">source</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">uptodate</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">CoreOutputLoader</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_source</span><span class="p">(</span><span class="n">environment</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">source</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">uptodate</span>
+
+        <span class="c"># Return compiled template code</span>
+        <span class="k">return</span> <span class="n">source</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">True</span>
+
+
+<span class="c">## CoreOutputAPI</span>
+<span class="c"># Used to tie together everything needed for proper output abstraction.</span></div></div>
+<div class="viewcode-block" id="CoreOutputAPI"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.CoreOutputAPI">[docs]</a><span class="k">class</span> <span class="nc">CoreOutputAPI</span><span class="p">(</span><span class="n">CoreAPI</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Contains utils, methods and properties related to outputting data with AppTools. &#39;&#39;&#39;</span>
+
+    <span class="c"># Cached access to Jinja2</span>
+<div class="viewcode-block" id="CoreOutputAPI.get_jinja"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.CoreOutputAPI.get_jinja">[docs]</a>    <span class="k">def</span> <span class="nf">get_jinja</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">factory</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Cached access to Jinja2. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">jinja2</span><span class="o">.</span><span class="n">get_jinja2</span><span class="p">(</span><span class="n">app</span><span class="o">=</span><span class="n">app</span><span class="p">,</span> <span class="n">factory</span><span class="o">=</span><span class="n">factory</span><span class="p">)</span>
+</div></div>
+<span class="n">_api</span> <span class="o">=</span> <span class="n">CoreOutputAPI</span><span class="p">()</span>
+
+
+<span class="c">## OutputMixin</span>
+<span class="c"># Used as an addon class for base classes like BaseHandler to bridge in access to the Core Output API.</span>
+<div class="viewcode-block" id="OutputMixin"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.OutputMixin">[docs]</a><span class="k">class</span> <span class="nc">OutputMixin</span><span class="p">(</span><span class="n">HandlerMixin</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Bridge the Core Output API to methods on a handler. &#39;&#39;&#39;</span>
+
+    <span class="n">minify</span> <span class="o">=</span> <span class="nb">unicode</span>
+    <span class="n">_output_api</span> <span class="o">=</span> <span class="n">_api</span>
+    <span class="n">_response_headers</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">json_encoder</span> <span class="o">=</span> <span class="n">AppToolsJSONEncoder</span>
+
+    <span class="c"># Cached access to Jinja2</span>
+    <span class="nd">@cached_property</span>
+<div class="viewcode-block" id="OutputMixin.jinja2"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.OutputMixin.jinja2">[docs]</a>    <span class="k">def</span> <span class="nf">jinja2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Cached access to Jinja2. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_api</span><span class="o">.</span><span class="n">get_jinja</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">jinja2EnvironmentFactory</span><span class="p">)</span>
+</div>
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">_outputConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Cached shortcut to output config. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configPath</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="s">&#39;output&#39;</span><span class="p">]))</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">_jinjaConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Cached shortcut to Jinja2 config. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;webapp2_extras.jinja2&#39;</span><span class="p">)</span>
+
+    <span class="c"># Base HTTP response headers</span>
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="OutputMixin.baseHeaders"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.OutputMixin.baseHeaders">[docs]</a>    <span class="k">def</span> <span class="nf">baseHeaders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Base HTTP response headers - returned with every request. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="s">&#39;X-AppFactory-Frontline&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_response_headers</span><span class="p">[</span><span class="s">&#39;X-Platform&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;X-AppFactory-Frontline&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_response_headers</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s">&#39;Cache-Control&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outputConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;headers&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;Cache-Control&#39;</span><span class="p">,</span> <span class="s">&#39;no-cache&#39;</span><span class="p">),</span>  <span class="c"># Stop caching of responses from Python, by default</span>
+            <span class="s">&#39;X-Powered-By&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outputConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;headers&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;X-Powered-By&#39;</span><span class="p">,</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="p">[</span>
+                <span class="s">&#39;Google AppEngine/1.7.4&#39;</span><span class="p">,</span>
+                <span class="s">&#39;AppFactory/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">appfactory</span><span class="o">.</span><span class="n">version</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;appfactory&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
+                <span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_projectConfig</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">],</span> <span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_projectConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;version&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;major&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_projectConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;version&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;minor &#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_projectConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;version&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;micro&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="p">])))</span>
+            <span class="p">]))),</span>
+            <span class="s">&#39;X-UA-Compatible&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outputConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;headers&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;X-UA-Compatible&#39;</span><span class="p">,</span> <span class="s">&#39;IE=edge,chrome=1&#39;</span><span class="p">),</span>
+            <span class="s">&#39;Access-Control-Allow-Origin&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outputConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;headers&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;Access-Control-Allow-Origin&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+            <span class="s">&#39;X-Debug&#39;</span><span class="p">:</span> <span class="s">&#39;True&#39;</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">debug</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s">&#39;Vary&#39;</span><span class="p">:</span> <span class="s">&#39;Accept,Cookie&#39;</span>
+        <span class="p">}</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_headers</span>
+
+    <span class="c"># Base template context - available to every template, including macros (injected into Jinja2 globals)</span></div>
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="OutputMixin.baseContext"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.OutputMixin.baseContext">[docs]</a>    <span class="k">def</span> <span class="nf">baseContext</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Base template context - available to every template at runtime. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">injectContext</span><span class="p">({</span>
+
+            <span class="c"># Python Builtins</span>
+            <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="nb">all</span><span class="p">,</span> <span class="s">&#39;any&#39;</span><span class="p">:</span> <span class="nb">any</span><span class="p">,</span>
+            <span class="s">&#39;int&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s">&#39;str&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="s">&#39;len&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">,</span> <span class="s">&#39;map&#39;</span><span class="p">:</span> <span class="nb">map</span><span class="p">,</span>
+            <span class="s">&#39;max&#39;</span><span class="p">:</span> <span class="nb">max</span><span class="p">,</span> <span class="s">&#39;min&#39;</span><span class="p">:</span> <span class="nb">min</span><span class="p">,</span>
+            <span class="s">&#39;enumerate&#39;</span><span class="p">:</span> <span class="nb">enumerate</span><span class="p">,</span>
+            <span class="s">&#39;zip&#39;</span><span class="p">:</span> <span class="nb">zip</span><span class="p">,</span> <span class="s">&#39;bool&#39;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+            <span class="s">&#39;list&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="s">&#39;dict&#39;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+            <span class="s">&#39;tuple&#39;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span> <span class="s">&#39;range&#39;</span><span class="p">:</span> <span class="nb">range</span><span class="p">,</span>
+            <span class="s">&#39;round&#39;</span><span class="p">:</span> <span class="nb">round</span><span class="p">,</span> <span class="s">&#39;slice&#39;</span><span class="p">:</span> <span class="nb">slice</span><span class="p">,</span>
+            <span class="s">&#39;xrange&#39;</span><span class="p">:</span> <span class="nb">xrange</span><span class="p">,</span> <span class="s">&#39;filter&#39;</span><span class="p">:</span> <span class="nb">filter</span><span class="p">,</span>
+            <span class="s">&#39;reduce&#39;</span><span class="p">:</span> <span class="nb">reduce</span><span class="p">,</span> <span class="s">&#39;sorted&#39;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">,</span>
+            <span class="s">&#39;unicode&#39;</span><span class="p">:</span> <span class="nb">unicode</span><span class="p">,</span> <span class="s">&#39;reversed&#39;</span><span class="p">:</span> <span class="nb">reversed</span><span class="p">,</span>
+            <span class="s">&#39;isinstance&#39;</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">,</span> <span class="s">&#39;issubclass&#39;</span><span class="p">:</span> <span class="nb">issubclass</span><span class="p">,</span>
+
+            <span class="s">&#39;link&#39;</span><span class="p">:</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">uri_for</span><span class="p">,</span>  <span class="c"># Standalone uri_for shortcut</span>
+
+            <span class="s">&#39;util&#39;</span><span class="p">:</span> <span class="p">{</span>  <span class="c"># Utility stuff</span>
+
+                <span class="s">&#39;handler&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="p">,</span>
+                <span class="s">&#39;logging&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="s">&#39;apptools.templates&#39;</span><span class="p">,</span> <span class="s">&#39;Context&#39;</span><span class="p">),</span>  <span class="c"># Handy logging bridge</span>
+
+                <span class="s">&#39;request&#39;</span><span class="p">:</span> <span class="p">{</span>  <span class="c"># Request Object</span>
+
+                    <span class="s">&#39;env&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">environ</span><span class="p">,</span>  <span class="c"># request environment variables</span>
+                    <span class="s">&#39;body&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">,</span>  <span class="c"># request body</span>
+                    <span class="s">&#39;headers&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">,</span>  <span class="c"># request HTTP headers</span>
+                    <span class="s">&#39;method&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>  <span class="c"># request HTTP method</span>
+                    <span class="s">&#39;scheme&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">scheme</span><span class="p">,</span>  <span class="c"># request scheme (HTTP/HTTPS)</span>
+                    <span class="s">&#39;remote_user&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">remote_user</span><span class="p">,</span>  <span class="c"># request remote user</span>
+                    <span class="s">&#39;remote_addr&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">remote_addr</span><span class="p">,</span>  <span class="c"># request remote IP</span>
+                    <span class="s">&#39;host&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>  <span class="c"># request hostname</span>
+                    <span class="s">&#39;host_url&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">host_url</span><span class="p">,</span>  <span class="c"># request host URL</span>
+                    <span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>  <span class="c"># request HTTP path</span>
+                    <span class="s">&#39;query_string&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">query_string</span><span class="p">,</span>  <span class="c"># request query string</span>
+
+                <span class="p">},</span>
+
+                <span class="s">&#39;env&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">,</span>  <span class="c"># Main Environ</span>
+                <span class="s">&#39;config&#39;</span><span class="p">:</span> <span class="p">{</span>  <span class="c"># Main Config</span>
+
+                    <span class="s">&#39;get&#39;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">,</span>
+                    <span class="s">&#39;debug&#39;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span>
+                    <span class="s">&#39;system&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sysConfig</span><span class="p">,</span>
+                    <span class="s">&#39;project&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_projectConfig</span><span class="p">,</span>
+
+                    <span class="s">&#39;services&#39;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s">&#39;global&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_globalServicesConfig</span><span class="p">,</span>
+                        <span class="s">&#39;project&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_servicesConfig</span>
+                    <span class="p">}</span>
+
+                <span class="p">},</span>
+
+                <span class="s">&#39;converters&#39;</span><span class="p">:</span> <span class="p">{</span>  <span class="c"># Converters</span>
+
+                    <span class="s">&#39;json&#39;</span><span class="p">:</span> <span class="n">json</span><span class="p">,</span>  <span class="c"># SimpleJSON or Py2.7 JSON</span>
+                    <span class="s">&#39;time&#39;</span><span class="p">:</span> <span class="n">time</span><span class="p">,</span>  <span class="c"># Builtin time tools</span>
+                    <span class="s">&#39;base64&#39;</span><span class="p">:</span> <span class="n">base64</span><span class="p">,</span>  <span class="c"># Utilities for B64 encoding/decoding</span>
+                    <span class="s">&#39;hashlib&#39;</span><span class="p">:</span> <span class="n">hashlib</span><span class="p">,</span>  <span class="c"># Hash utilities (MD5/SHA etc)</span>
+                    <span class="s">&#39;datetime&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span>  <span class="c"># Builtin date/time tools</span>
+                    <span class="s">&#39;timesince&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">timesince</span><span class="p">,</span>  <span class="c"># Util library for &quot;15 minutes ago&quot;-type text from datetimes</span>
+                    <span class="s">&#39;byteconvert&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">byteconvert</span>  <span class="c"># Util library for formatting data storage amounts</span>
+
+                <span class="p">},</span>
+
+                <span class="s">&#39;random&#39;</span><span class="p">:</span> <span class="p">{</span>  <span class="c"># Random</span>
+
+                    <span class="s">&#39;random&#39;</span><span class="p">:</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">,</span>
+                    <span class="s">&#39;randint&#39;</span><span class="p">:</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">,</span>
+                    <span class="s">&#39;randrange&#39;</span><span class="p">:</span> <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">,</span>
+                    <span class="s">&#39;choice&#39;</span><span class="p">:</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span>
+
+                <span class="p">},</span>
+
+                <span class="s">&#39;pprint&#39;</span><span class="p">:</span> <span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">,</span>
+            <span class="p">},</span>
+
+            <span class="s">&#39;page&#39;</span><span class="p">:</span> <span class="p">{</span>  <span class="c"># Page flags</span>
+                <span class="s">&#39;ie&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>  <span class="c"># when set to True, will serve an (ie.css)[assets/style/source/ie.html] stylesheet</span>
+                <span class="s">&#39;mobile&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>  <span class="c"># when set to True, will serve a (mobile.css)[assets/style/source/mobile.html] stylesheet</span>
+                <span class="s">&#39;appcache&#39;</span><span class="p">:</span> <span class="p">{</span>  <span class="c"># enable/disable HTML5 appcaching</span>
+
+                    <span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+                    <span class="s">&#39;location&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+
+                <span class="p">}</span>
+            <span class="p">},</span>
+
+            <span class="s">&#39;asset&#39;</span><span class="p">:</span> <span class="p">{</span>  <span class="c"># Bridge to the Assets API</span>
+
+                <span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_asset</span><span class="p">,</span>  <span class="c"># generate a URL for an asset (low level method)</span>
+                <span class="s">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_img_asset</span><span class="p">,</span>  <span class="c"># generate a URL for an image asset</span>
+                <span class="s">&#39;style&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_style_asset</span><span class="p">,</span>  <span class="c"># generate a URL for a stylesheet asset</span>
+                <span class="s">&#39;script&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_script_asset</span>  <span class="c"># generate a URL for a javascript asset</span>
+
+            <span class="p">},</span>
+
+            <span class="s">&#39;sys&#39;</span><span class="p">:</span> <span class="p">{</span>
+
+                <span class="s">&#39;debug&#39;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span>  <span class="c"># dev_appserver/production flag (if true, you&#39;re running on localhost)</span>
+                <span class="s">&#39;version&#39;</span><span class="p">:</span>  <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_projectConfig</span><span class="p">[</span><span class="s">&#39;version&#39;</span><span class="p">][</span><span class="s">&#39;major&#39;</span><span class="p">],</span> <span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_projectConfig</span><span class="p">[</span><span class="s">&#39;version&#39;</span><span class="p">][</span><span class="s">&#39;minor&#39;</span><span class="p">],</span> <span class="s">&#39; &#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_projectConfig</span><span class="p">[</span><span class="s">&#39;version&#39;</span><span class="p">][</span><span class="s">&#39;release&#39;</span><span class="p">]]))</span>
+
+            <span class="p">},</span>
+        <span class="p">})</span>
+
+    <span class="c"># Cached access to the current template environment</span></div>
+    <span class="nd">@cached_property</span>
+<div class="viewcode-block" id="OutputMixin.template_environment"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.OutputMixin.template_environment">[docs]</a>    <span class="k">def</span> <span class="nf">template_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Return a new environment, because if we&#39;re already here it&#39;s not cached. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">jinja2EnvironmentFactory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">app</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="OutputMixin.injectContext"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.OutputMixin.injectContext">[docs]</a>    <span class="k">def</span> <span class="nf">injectContext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Run attached context injectors. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;context_injectors&#39;</span><span class="p">):</span>
+            <span class="c">## Consider context injectors</span>
+            <span class="k">for</span> <span class="n">injector</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">context_injectors</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">injector</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                        <span class="k">for</span> <span class="n">sub_i</span> <span class="ow">in</span> <span class="n">injector</span><span class="p">:</span>
+                            <span class="n">newcontext</span> <span class="o">=</span> <span class="n">sub_i</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">newcontext</span> <span class="o">=</span> <span class="n">injector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&#39;Context injector &quot;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">injector</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;&quot; encountered an unhandled exception. &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+                        <span class="k">raise</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">context</span> <span class="o">=</span> <span class="n">newcontext</span>
+
+        <span class="k">return</span> <span class="n">context</span>
+</div>
+    <span class="k">def</span> <span class="nf">_setcontext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Take a data structure (list of tuples, dict, or kwargs) and assign the appropriate k, v to the template context. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">):</span>
+                        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">arg</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">arg</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">return</span>
+
+    <span class="c"># Returns a prepared Jinja2 environment.</span>
+<div class="viewcode-block" id="OutputMixin.jinja2EnvironmentFactory"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.OutputMixin.jinja2EnvironmentFactory">[docs]</a>    <span class="k">def</span> <span class="nf">jinja2EnvironmentFactory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Returns a prepared Jinja2 environment. &#39;&#39;&#39;</span>
+
+        <span class="n">templates_compiled_target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jinjaConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;compiled_path&#39;</span><span class="p">)</span>
+        <span class="n">use_compiled</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">debug</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jinjaConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;force_compiled&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">templates_compiled_target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">use_compiled</span><span class="p">:</span>
+            <span class="c"># Use precompiled templates loaded from a module or zip.</span>
+            <span class="n">loader</span> <span class="o">=</span> <span class="n">ModuleLoader</span><span class="p">(</span><span class="n">templates_compiled_target</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">loader</span> <span class="o">=</span> <span class="n">CoreOutputLoader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jinjaConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;template_path&#39;</span><span class="p">))</span>
+
+        <span class="n">j2cfg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jinjaConfig</span>
+        <span class="n">j2cfg</span><span class="p">[</span><span class="s">&#39;environment_args&#39;</span><span class="p">][</span><span class="s">&#39;loader&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">loader</span>
+
+        <span class="c"># Inject python builtins as globals, so they are available to macros</span>
+
+        <span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">timesince</span><span class="p">,</span> <span class="n">byteconvert</span>
+
+        <span class="c"># **Ever wanted your favorite Python builtins available in your template?** Look ma!</span>
+        <span class="n">j2cfg</span><span class="p">[</span><span class="s">&#39;globals&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseContext</span>
+        <span class="n">j2cfg</span><span class="p">[</span><span class="s">&#39;filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;json&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">json_encoder</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">f</span><span class="p">),</span> <span class="s">&#39;timesince&#39;</span><span class="p">:</span> <span class="n">timesince</span><span class="o">.</span><span class="n">timesince</span><span class="p">,</span> <span class="s">&#39;humanize&#39;</span><span class="p">:</span> <span class="n">byteconvert</span><span class="o">.</span><span class="n">humanize_bytes</span><span class="p">}</span>
+
+        <span class="n">environment</span> <span class="o">=</span> <span class="n">jinja2</span><span class="o">.</span><span class="n">Jinja2</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">j2cfg</span><span class="p">)</span>  <span class="c"># Make &amp; return template environment</span>
+        <span class="k">return</span> <span class="n">environment</span>
+
+    <span class="c"># Minify</span></div>
+<div class="viewcode-block" id="OutputMixin.minify"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.OutputMixin.minify">[docs]</a>    <span class="k">def</span> <span class="nf">minify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rendered_template</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="s">&#39;text/html&#39;</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Minify rendered template output. Override for custom minification function or monkeypatch to &#39;unicode&#39; to disable completely. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">content_type</span> <span class="o">!=</span> <span class="s">&#39;application/json&#39;</span><span class="p">:</span>
+            <span class="n">minify</span> <span class="o">=</span> <span class="nb">unicode</span>  <span class="c"># default to unicode</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">minify</span> <span class="o">=</span> <span class="nb">basestring</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">slimmer</span>
+
+        <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Module `slimmer` not found. Skipping output minification.&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">minify</span><span class="p">(</span><span class="n">rendered_template</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="c"># Read minification config + setup minification handler</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outputConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;minify&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">content_type</span> <span class="o">==</span> <span class="s">&#39;text/html&#39;</span><span class="p">:</span>
+                    <span class="n">minify</span> <span class="o">=</span> <span class="n">slimmer</span><span class="o">.</span><span class="n">html_slimmer</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Minifying with HTMLSlimmer...&#39;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">content_type</span> <span class="o">==</span> <span class="s">&#39;text/javascript&#39;</span><span class="p">:</span>
+                    <span class="kn">from</span> <span class="nn">slimmer.js_function_slimmer</span> <span class="kn">import</span> <span class="n">slim</span> <span class="k">as</span> <span class="n">slimjs</span>
+                    <span class="n">minify</span> <span class="o">=</span> <span class="n">slimjs</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Minifying with SlimJS...&#39;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">content_type</span> <span class="o">==</span> <span class="s">&#39;text/css&#39;</span><span class="p">:</span>
+                    <span class="n">minify</span> <span class="o">=</span> <span class="n">slimmer</span><span class="o">.</span><span class="n">css_slimmer</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Minifying with SlimCSS...&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;No minification enabled.&#39;</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">minify</span><span class="p">(</span><span class="n">rendered_template</span><span class="p">)</span>
+
+    <span class="c"># Render a template, given a context, with Jinja2</span></div>
+<div class="viewcode-block" id="OutputMixin.render"><a class="viewcode-back" href="../../../../lib.apptools.api.output.html#lib.apptools.api.output.OutputMixin.render">[docs]</a>    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="p">{},</span> <span class="n">elements</span><span class="o">=</span><span class="p">{},</span> <span class="n">content_type</span><span class="o">=</span><span class="s">&#39;text/html&#39;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{},</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Return a response containing a rendered Jinja2 template. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">tmp_context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseContext</span>
+            <span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_setcontext</span><span class="p">,</span> <span class="n">tmp_context</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseContext</span>
+
+        <span class="c"># Build response HTTP headers</span>
+        <span class="n">response_headers</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseHeaders</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">response_headers</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">headers</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">headers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">response_headers</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="c"># Consider kwargs</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+        <span class="c"># Bind runtime-level template context</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bindRuntimeTemplateContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">e</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">pass</span>  <span class="c"># in production, the show must go on...</span>
+
+        <span class="c"># Bind elements</span>
+        <span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_setcontext</span><span class="p">,</span> <span class="n">elements</span><span class="p">)</span>
+
+        <span class="c"># Render template and write</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minify</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jinja2</span><span class="o">.</span><span class="n">render_template</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">)))</span>
+
+        <span class="c"># Set response headers &amp; content type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">response_headers</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">content_type</span> <span class="o">=</span> <span class="n">content_type</span>
+
+        <span class="c"># Finished!</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">response</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../index.html">
+              <img class="logo" src="../../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../apptools.html" >lib.apptools</a> &raquo;</li>
+          <li><a href="../api.html" >lib.apptools.api</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,429 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>api Package &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="index.html" />
+    <link rel="up" title="apptools Package" href="lib.apptools.html" />
+    <link rel="next" title="output Package" href="lib.apptools.api.output.html" />
+    <link rel="prev" title="apptools Package" href="lib.apptools.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lib.apptools.api.output.html" title="output Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="lib.apptools.html" title="apptools Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
+          <li><a href="lib.html" >lib Package</a> &raquo;</li>
+          <li><a href="lib.apptools.html" accesskey="U">apptools Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="api-package">
+<h1>api Package<a class="headerlink" href="#api-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><a class="reference internal" href="api.html#module-api" title="api"><tt class="xref py py-mod docutils literal"><span class="pre">api</span></tt></a> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-lib.apptools.api"></span><p>AppTools APIs</p>
+<p>Holds Core APIs and abstract API/Mixin classes to enable the creation of plugins,
+extensions, mixins, and all sorts of other integration points.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>&gt;)</p>
+<dl class="class">
+<dt id="lib.apptools.api.APIMixin">
+<em class="property">class </em><tt class="descclassname">lib.apptools.api.</tt><tt class="descname">APIMixin</tt><a class="reference internal" href="_modules/lib/apptools/api.html#APIMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.APIMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Used to bridge between a Core API and any other class.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.api.BaseObject">
+<em class="property">class </em><tt class="descclassname">lib.apptools.api.</tt><tt class="descname">BaseObject</tt><a class="reference internal" href="_modules/lib/apptools/api.html#BaseObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.BaseObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Provides AppTools and platform-specific features to Base object classes.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.api.CoreAPI">
+<em class="property">class </em><tt class="descclassname">lib.apptools.api.</tt><tt class="descname">CoreAPI</tt><a class="reference internal" href="_modules/lib/apptools/api.html#CoreAPI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.CoreAPI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Used as a controller for a core feature of the AppTools framework.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.api.HandlerMixin">
+<em class="property">class </em><tt class="descclassname">lib.apptools.api.</tt><tt class="descname">HandlerMixin</tt><a class="reference internal" href="_modules/lib/apptools/api.html#HandlerMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.HandlerMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.api.APIMixin" title="lib.apptools.api.APIMixin"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.api.APIMixin</span></tt></a></p>
+<p>Used to bridge between a Core API and a Handler, via Python&#8217;s awesome support for multi-inheritance.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.api.ModelMixin">
+<em class="property">class </em><tt class="descclassname">lib.apptools.api.</tt><tt class="descname">ModelMixin</tt><a class="reference internal" href="_modules/lib/apptools/api.html#ModelMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.ModelMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.api.APIMixin" title="lib.apptools.api.APIMixin"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.api.APIMixin</span></tt></a></p>
+<p>Used to bridge between a Core API and a Model, via Python&#8217;s awesome support for multi-inheritance.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.api.PipelineMixin">
+<em class="property">class </em><tt class="descclassname">lib.apptools.api.</tt><tt class="descname">PipelineMixin</tt><a class="reference internal" href="_modules/lib/apptools/api.html#PipelineMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.PipelineMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.api.APIMixin" title="lib.apptools.api.APIMixin"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.api.APIMixin</span></tt></a></p>
+<p>Used to bridge between a Core API and a Handler, via Python&#8217;s awesome support for multi-inheritance.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.api.PluginMixin">
+<em class="property">class </em><tt class="descclassname">lib.apptools.api.</tt><tt class="descname">PluginMixin</tt><a class="reference internal" href="_modules/lib/apptools/api.html#PluginMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.PluginMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.api.APIMixin" title="lib.apptools.api.APIMixin"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.api.APIMixin</span></tt></a></p>
+<p>Used to bridge between a Core API and a Plugin, via Python&#8217;s awesome support for multi-inheritance.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.api.ServiceMixin">
+<em class="property">class </em><tt class="descclassname">lib.apptools.api.</tt><tt class="descname">ServiceMixin</tt><a class="reference internal" href="_modules/lib/apptools/api.html#ServiceMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.ServiceMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.api.APIMixin" title="lib.apptools.api.APIMixin"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.api.APIMixin</span></tt></a></p>
+<p>Used to bridge between a Core API and a Handler, via Python&#8217;s awesome support for multi-inheritance.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.apptools.api.assets">
+<span id="assets-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">assets</span></tt> Module<a class="headerlink" href="#module-lib.apptools.api.assets" title="Permalink to this headline">¶</a></h2>
+<p>API: Assets</p>
+<p>Responsible for reading the assets config (see config/assets.py) and outputting asset
+URLs based on the config &amp; resource requested. There is support for switching the
+absolute URL base to a CDN hostname, or multiple CDN hostnames. There&#8217;s also support
+for cachebusting via key value pairs, and switching to minified assets.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>&gt;)</p>
+<dl class="exception">
+<dt id="lib.apptools.api.assets.AssetException">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.api.assets.</tt><tt class="descname">AssetException</tt><a class="reference internal" href="_modules/lib/apptools/api/assets.html#AssetException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.assets.AssetException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.api.output.CoreOutputAPIException</span></tt></p>
+<p>Top-level exception for all Asset API-related exceptions.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.api.assets.AssetsMixin">
+<em class="property">class </em><tt class="descclassname">lib.apptools.api.assets.</tt><tt class="descname">AssetsMixin</tt><a class="reference internal" href="_modules/lib/apptools/api/assets.html#AssetsMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.assets.AssetsMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.api.HandlerMixin</span></tt></p>
+<p>Bridge the Core Assets API to methods on a handler.</p>
+<dl class="method">
+<dt id="lib.apptools.api.assets.AssetsMixin.get_asset">
+<tt class="descname">get_asset</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/assets.html#AssetsMixin.get_asset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.assets.AssetsMixin.get_asset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Proxy in the current handler.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.assets.AssetsMixin.get_img_asset">
+<tt class="descname">get_img_asset</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/assets.html#AssetsMixin.get_img_asset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.assets.AssetsMixin.get_img_asset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Proxy in the current handler.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.assets.AssetsMixin.get_script_asset">
+<tt class="descname">get_script_asset</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/assets.html#AssetsMixin.get_script_asset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.assets.AssetsMixin.get_script_asset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Proxy in the current handler.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.assets.AssetsMixin.get_style_asset">
+<tt class="descname">get_style_asset</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/assets.html#AssetsMixin.get_style_asset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.assets.AssetsMixin.get_style_asset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Proxy in the current handler.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.api.assets.CoreAssetsAPI">
+<em class="property">class </em><tt class="descclassname">lib.apptools.api.assets.</tt><tt class="descname">CoreAssetsAPI</tt><a class="reference internal" href="_modules/lib/apptools/api/assets.html#CoreAssetsAPI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.assets.CoreAssetsAPI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.api.CoreAPI</span></tt></p>
+<p>Responds to requests for image and asset URLs, reads asset configuration &amp; manages caching of asset URLs.</p>
+<dl class="method">
+<dt id="lib.apptools.api.assets.CoreAssetsAPI.asset_url">
+<tt class="descname">asset_url</tt><big>(</big><em>handler</em>, <em>_type</em>, <em>name</em>, <em>module</em>, <em>prefix</em>, <em>version</em>, <em>minify</em>, <em>version_by_getvar</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/assets.html#CoreAssetsAPI.asset_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.assets.CoreAssetsAPI.asset_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a URL for an asset, according to the current configuration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.assets.CoreAssetsAPI.ext_url">
+<tt class="descname">ext_url</tt><big>(</big><em>handler</em>, <em>name</em>, <em>module=None</em>, <em>prefix='static'</em>, <em>version=None</em>, <em>minify=False</em>, <em>version_by_getvar=False</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/assets.html#CoreAssetsAPI.ext_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.assets.CoreAssetsAPI.ext_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a URL for a nonregular asset.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.assets.CoreAssetsAPI.img_url">
+<tt class="descname">img_url</tt><big>(</big><em>handler</em>, <em>path</em>, <em>name</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/assets.html#CoreAssetsAPI.img_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.assets.CoreAssetsAPI.img_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a simple URL for an image. (Note: does not use assets config - images are not registered assets)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.api.assets.CoreAssetsAPI.methods">
+<tt class="descname">methods</tt><em class="property"> = ['script_url', 'style_url', 'asset_url']</em><a class="headerlink" href="#lib.apptools.api.assets.CoreAssetsAPI.methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.assets.CoreAssetsAPI.script_url">
+<tt class="descname">script_url</tt><big>(</big><em>handler</em>, <em>name</em>, <em>module=None</em>, <em>prefix='static'</em>, <em>version=None</em>, <em>minify=False</em>, <em>version_by_getvar=False</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/assets.html#CoreAssetsAPI.script_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.assets.CoreAssetsAPI.script_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a URL for a script.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.api.assets.CoreAssetsAPI.style_url">
+<tt class="descname">style_url</tt><big>(</big><em>handler</em>, <em>name</em>, <em>module=None</em>, <em>prefix='static'</em>, <em>version=None</em>, <em>minify=False</em>, <em>version_by_getvar=False</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/assets.html#CoreAssetsAPI.style_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.assets.CoreAssetsAPI.style_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a URL for a stylesheet.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.apptools.api.assets.InvalidAssetEntry">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.api.assets.</tt><tt class="descname">InvalidAssetEntry</tt><a class="reference internal" href="_modules/lib/apptools/api/assets.html#InvalidAssetEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.assets.InvalidAssetEntry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.api.assets.AssetException" title="lib.apptools.api.assets.AssetException"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.api.assets.AssetException</span></tt></a></p>
+<p>Raised when a given asset type is valid, but an asset could not be found at the given identifier.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.apptools.api.assets.InvalidAssetType">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.api.assets.</tt><tt class="descname">InvalidAssetType</tt><a class="reference internal" href="_modules/lib/apptools/api/assets.html#InvalidAssetType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.assets.InvalidAssetType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.apptools.api.assets.AssetException" title="lib.apptools.api.assets.AssetException"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.api.assets.AssetException</span></tt></a></p>
+<p>Raised when a given asset type is not recognized.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.apptools.api.push">
+<span id="push-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">push</span></tt> Module<a class="headerlink" href="#module-lib.apptools.api.push" title="Permalink to this headline">¶</a></h2>
+<p>API: Push</p>
+<p>Bridges the AppEngine Channel API into base classes via <cite>PushMixin</cite>.
+This adds the methods + properties:</p>
+<blockquote>
+<div><ul>
+<li><p class="first">_servicesConfig: Shortcut to project services config.</p>
+</li>
+<li><p class="first">_globalServicesConfig: Shortcut to global Service Layer settings.</p>
+</li>
+<li><dl class="first docutils">
+<dt>make_services_manifest: Generate a datastructure of installed + enabled services, suitable for</dt>
+<dd><p class="first last">mapping to URLs or printing to a template.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>&gt;)</p>
+<dl class="class">
+<dt id="lib.apptools.api.push.CorePushAPI">
+<em class="property">class </em><tt class="descclassname">lib.apptools.api.push.</tt><tt class="descname">CorePushAPI</tt><a class="reference internal" href="_modules/lib/apptools/api/push.html#CorePushAPI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.push.CorePushAPI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.api.CoreAPI</span></tt></p>
+<p>Contains core server=&gt;client push features.</p>
+<dl class="method">
+<dt id="lib.apptools.api.push.CorePushAPI.create_channel">
+<tt class="descname">create_channel</tt><big>(</big><em>cid</em>, <em>duration</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/push.html#CorePushAPI.create_channel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.push.CorePushAPI.create_channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Just pass-through to Channel API for now.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.api.push.PushMixin">
+<em class="property">class </em><tt class="descclassname">lib.apptools.api.push.</tt><tt class="descname">PushMixin</tt><a class="reference internal" href="_modules/lib/apptools/api/push.html#PushMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.push.PushMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.api.HandlerMixin</span></tt></p>
+<p>Bridges the AppEngine Channel API and base classes.</p>
+<dl class="method">
+<dt id="lib.apptools.api.push.PushMixin.preload">
+<tt class="descname">preload</tt><big>(</big><em>cid=None</em>, <em>token=None</em>, <em>duration=120</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/push.html#PushMixin.preload"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.push.PushMixin.preload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preloads the session + template contexts with either a given or generated Channel token.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.api.push.PushMixin.push">
+<tt class="descname">push</tt><em class="property"> = &lt;apptools.util.datastructures.ObjectProxy object at 0x107a52210&gt;</em><a class="headerlink" href="#lib.apptools.api.push.PushMixin.push" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.apptools.api.services">
+<span id="services-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">services</span></tt> Module<a class="headerlink" href="#module-lib.apptools.api.services" title="Permalink to this headline">¶</a></h2>
+<p>API: Services</p>
+<p>Bridges the AppTools service layer to base classes via <cite>ServicesMixin</cite>.
+This adds the methods + properties:</p>
+<blockquote>
+<div><ul>
+<li><p class="first">_servicesConfig: Shortcut to project services config.</p>
+</li>
+<li><p class="first">_globalServicesConfig: Shortcut to global Service Layer settings.</p>
+</li>
+<li><dl class="first docutils">
+<dt>make_services_manifest: Generate a datastructure of installed + enabled services, suitable for</dt>
+<dd><p class="first last">mapping to URLs or printing to a template.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>&gt;)</p>
+<dl class="class">
+<dt id="lib.apptools.api.services.CoreServicesAPI">
+<em class="property">class </em><tt class="descclassname">lib.apptools.api.services.</tt><tt class="descname">CoreServicesAPI</tt><a class="reference internal" href="_modules/lib/apptools/api/services.html#CoreServicesAPI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.services.CoreServicesAPI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.api.CoreAPI</span></tt></p>
+<p>Ties together parts required to bridge the ServiceLayer and base classes.</p>
+<dl class="method">
+<dt id="lib.apptools.api.services.CoreServicesAPI.preload">
+<tt class="descname">preload</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/services.html#CoreServicesAPI.preload"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.services.CoreServicesAPI.preload" title="Permalink to this definition">¶</a></dt>
+<dd><p>NotImplemented</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.api.services.ServicesMixin">
+<em class="property">class </em><tt class="descclassname">lib.apptools.api.services.</tt><tt class="descname">ServicesMixin</tt><a class="reference internal" href="_modules/lib/apptools/api/services.html#ServicesMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.services.ServicesMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.api.HandlerMixin</span></tt></p>
+<p>Exposes service-related methods to BaseHandler.</p>
+<dl class="method">
+<dt id="lib.apptools.api.services.ServicesMixin.make_services_manifest">
+<tt class="descname">make_services_manifest</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/api/services.html#ServicesMixin.make_services_manifest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.api.services.ServicesMixin.make_services_manifest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a struct we can pass to the page in JSON that describes API services.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="lib.apptools.api.output.html">output Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.api.output.html#id1"><tt class="docutils literal"><span class="pre">output</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.api.output.html#module-lib.apptools.api.output.content"><tt class="docutils literal"><span class="pre">content</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.api.output.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lib.apptools.api.output.extensions.html">extensions Package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.api.output.extensions.html#id1"><tt class="docutils literal"><span class="pre">extensions</span></tt> Package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.api.output.extensions.html#module-lib.apptools.api.output.extensions.bytecache"><tt class="docutils literal"><span class="pre">bytecache</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.api.output.extensions.html#module-lib.apptools.api.output.extensions.fragment"><tt class="docutils literal"><span class="pre">fragment</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.api.output.extensions.html#module-lib.apptools.api.output.extensions.memcached"><tt class="docutils literal"><span class="pre">memcached</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">api Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">api</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.api.assets"><tt class="docutils literal"><span class="pre">assets</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.api.push"><tt class="docutils literal"><span class="pre">push</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.api.services"><tt class="docutils literal"><span class="pre">services</span></tt> Module</a></li>
+<li><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="lib.apptools.html"
+                        title="previous chapter">apptools Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="lib.apptools.api.output.html"
+                        title="next chapter">output Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/lib.apptools.api.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lib.apptools.api.output.html" title="output Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="lib.apptools.html" title="apptools Package"
+             >previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
+          <li><a href="lib.html" >lib Package</a> &raquo;</li>
+          <li><a href="lib.apptools.html" >apptools Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

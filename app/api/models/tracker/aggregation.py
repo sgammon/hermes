@@ -2,7 +2,7 @@
 
 '''
 Holds model classes designed to express aggregation groups and aggregations
-linked to `TrackedEvent`(s).
+linked to ``TrackedEvent``.
 
 :author: Sam Gammon (sam.gammon@ampush.com)
 :copyright: (c) 2013 Ampush.

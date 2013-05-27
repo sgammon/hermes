@@ -1,0 +1,278 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>services Package &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="index.html" />
+    <link rel="up" title="api Package" href="api.html" />
+    <link rel="next" title="event Package" href="api.services.event.html" />
+    <link rel="prev" title="tracker Package" href="api.platform.tracker.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.services.event.html" title="event Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="api.platform.tracker.html" title="tracker Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
+          <li><a href="api.html" accesskey="U">api Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="services-package">
+<h1>services Package<a class="headerlink" href="#services-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">services</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-api.services"></span><p>API: Services</p>
+<p>This package exports classes for use as ProtoRPC services. Services defined
+here and registered in config at <cite>config.services</cite> will automatically appear
+(unless hidden) in the JavaScript context.</p>
+<p>The AppTools service layer is integrated with AppTools JS and uses a simple,
+custom JSON-wire format to dispatch RPC services. ProtoRPC (the underlying
+plumbing for API dispatch and serialization) allows compatibility outside
+of standard HTTP scope - so, service methods could theoretically be dispatched
+over WebSockets or other exotic transports without code changes.</p>
+<p>The services listed here are dependent on Message classes, that structure
+the Request/Response flow. AppTools models happen to make great Message classes.
+Messages that must be custom-built live in <cite>messages</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 Ampush.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - all rights are reserved. For details about
+embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="api.services.APIService">
+<em class="property">class </em><tt class="descclassname">api.services.</tt><tt class="descname">APIService</tt><a class="reference internal" href="_modules/api/services.html#APIService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.APIService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.rpc.Service</span></tt></p>
+<p>Abstract parent class for all Hermes API services.</p>
+<dl class="class">
+<dt id="api.services.APIService.AsyncStub">
+<em class="property">class </em><tt class="descname">AsyncStub</tt><big>(</big><em>transport</em><big>)</big><a class="headerlink" href="#api.services.APIService.AsyncStub" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">protorpc.remote.StubBase</span></tt>, <a class="reference internal" href="#api.services.APIService" title="api.services.APIService"><tt class="xref py py-class docutils literal"><span class="pre">api.services.APIService</span></tt></a></p>
+<dl class="attribute">
+<dt id="api.services.APIService.AsyncStub.Service">
+<tt class="descname">Service</tt><a class="headerlink" href="#api.services.APIService.AsyncStub.Service" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#api.services.APIService" title="api.services.APIService"><tt class="xref py py-class docutils literal"><span class="pre">APIService</span></tt></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.services.APIService.Stub">
+<em class="property">class </em><tt class="descclassname">APIService.</tt><tt class="descname">Stub</tt><big>(</big><em>transport</em><big>)</big><a class="headerlink" href="#api.services.APIService.Stub" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">protorpc.remote.StubBase</span></tt>, <a class="reference internal" href="#api.services.APIService" title="api.services.APIService"><tt class="xref py py-class docutils literal"><span class="pre">api.services.APIService</span></tt></a></p>
+<dl class="attribute">
+<dt id="api.services.APIService.Stub.Service">
+<tt class="descname">Service</tt><a class="headerlink" href="#api.services.APIService.Stub.Service" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#api.services.APIService" title="api.services.APIService"><tt class="xref py py-class docutils literal"><span class="pre">APIService</span></tt></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.services.APIService.config">
+<tt class="descclassname">APIService.</tt><tt class="descname">config</tt><a class="reference internal" href="_modules/api/services.html#APIService.config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.APIService.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cached access to <cite>PubSubService</cite> config.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.services.APIService.logging">
+<tt class="descclassname">APIService.</tt><tt class="descname">logging</tt><a class="reference internal" href="_modules/api/services.html#APIService.logging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.APIService.logging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cached access to dedicated log pipe.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-api.services.exceptions">
+<span id="exceptions-module"></span><h2><a class="reference external" href="http://docs.python.org/2.7/library/exceptions.html#exceptions" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">exceptions</span></tt></a> Module<a class="headerlink" href="#module-api.services.exceptions" title="Permalink to this headline">¶</a></h2>
+<p>API Services: Exceptions</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 Ampush.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - all rights are reserved. For details about
+embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="exception">
+<dt id="api.services.exceptions.Error">
+<em class="property">exception </em><tt class="descclassname">api.services.exceptions.</tt><tt class="descname">Error</tt><a class="reference internal" href="_modules/api/services/exceptions.html#Error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.exceptions.Error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="api.html#api.exceptions.Error" title="api.exceptions.Error"><tt class="xref py py-class docutils literal"><span class="pre">api.exceptions.Error</span></tt></a></p>
+<p>Root, abstract <cite>APIService</cite> error class.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.services.event.html">event Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api.services.event.html#id1"><tt class="docutils literal"><span class="pre">event</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.services.event.html#module-api.services.event.exceptions"><tt class="docutils literal"><span class="pre">exceptions</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.services.event.html#module-api.services.event.messages"><tt class="docutils literal"><span class="pre">messages</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.services.event.html#module-api.services.event.service"><tt class="docutils literal"><span class="pre">service</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.services.pubsub.html">pubsub Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api.services.pubsub.html#id1"><tt class="docutils literal"><span class="pre">pubsub</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.services.pubsub.html#module-api.services.pubsub.exceptions"><tt class="docutils literal"><span class="pre">exceptions</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.services.pubsub.html#module-api.services.pubsub.messages"><tt class="docutils literal"><span class="pre">messages</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.services.pubsub.html#module-api.services.pubsub.service"><tt class="docutils literal"><span class="pre">service</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.services.raw.html">raw Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api.services.raw.html#id1"><tt class="docutils literal"><span class="pre">raw</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.services.raw.html#module-api.services.raw.exceptions"><tt class="docutils literal"><span class="pre">exceptions</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.services.raw.html#module-api.services.raw.messages"><tt class="docutils literal"><span class="pre">messages</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.services.raw.html#module-api.services.raw.service"><tt class="docutils literal"><span class="pre">service</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.services.tracker.html">tracker Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api.services.tracker.html#id1"><tt class="docutils literal"><span class="pre">tracker</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.services.tracker.html#module-api.services.tracker.exceptions"><tt class="docutils literal"><span class="pre">exceptions</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.services.tracker.html#module-api.services.tracker.messages"><tt class="docutils literal"><span class="pre">messages</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.services.tracker.html#module-api.services.tracker.service"><tt class="docutils literal"><span class="pre">service</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">services Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">services</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-api.services.exceptions"><tt class="docutils literal"><span class="pre">exceptions</span></tt> Module</a></li>
+<li><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="api.platform.tracker.html"
+                        title="previous chapter">tracker Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="api.services.event.html"
+                        title="next chapter">event Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/api.services.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.services.event.html" title="event Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="api.platform.tracker.html" title="tracker Package"
+             >previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
+          <li><a href="api.html" >api Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,422 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.atom.mock_http_core &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../index.html" />
+    <link rel="up" title="lib.atom" href="../atom.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../atom.html" accesskey="U">lib.atom</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.atom.mock_http_core</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c">#</span>
+<span class="c"># Copyright (C) 2009 Google Inc.</span>
+<span class="c">#</span>
+<span class="c"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c"># you may not use this file except in compliance with the License.</span>
+<span class="c"># You may obtain a copy of the License at</span>
+<span class="c">#</span>
+<span class="c">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c"># See the License for the specific language governing permissions and</span>
+<span class="c"># limitations under the License.</span>
+
+
+<span class="c"># This module is used for version 2 of the Google Data APIs.</span>
+
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;j.s@google.com (Jeff Scudder)&#39;</span>
+
+
+<span class="kn">import</span> <span class="nn">StringIO</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">atom.http_core</span>
+
+
+<div class="viewcode-block" id="Error"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.mock_http_core.Error">[docs]</a><span class="k">class</span> <span class="nc">Error</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+  <span class="k">pass</span>
+
+</div>
+<div class="viewcode-block" id="NoRecordingFound"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.mock_http_core.NoRecordingFound">[docs]</a><span class="k">class</span> <span class="nc">NoRecordingFound</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
+  <span class="k">pass</span>
+
+</div>
+<div class="viewcode-block" id="MockHttpClient"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.mock_http_core.MockHttpClient">[docs]</a><span class="k">class</span> <span class="nc">MockHttpClient</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="n">debug</span> <span class="o">=</span> <span class="bp">None</span>
+  <span class="n">real_client</span> <span class="o">=</span> <span class="bp">None</span>
+  <span class="n">last_request_was_live</span> <span class="o">=</span> <span class="bp">False</span>
+
+  <span class="c"># The following members are used to construct the session cache temp file</span>
+  <span class="c"># name.</span>
+  <span class="c"># These are combined to form the file name</span>
+  <span class="c"># /tmp/cache_prefix.cache_case_name.cache_test_name</span>
+  <span class="n">cache_name_prefix</span> <span class="o">=</span> <span class="s">&#39;gdata_live_test&#39;</span>
+  <span class="n">cache_case_name</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+  <span class="n">cache_test_name</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recordings</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">real_client</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_recordings</span> <span class="o">=</span> <span class="n">recordings</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">real_client</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">real_client</span> <span class="o">=</span> <span class="n">real_client</span>
+
+<div class="viewcode-block" id="MockHttpClient.add_response"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.mock_http_core.MockHttpClient.add_response">[docs]</a>  <span class="k">def</span> <span class="nf">add_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http_request</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">reason</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">body</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">MockHttpResponse</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">reason</span><span class="p">,</span> <span class="n">headers</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+    <span class="c"># TODO Scrub the request and the response.</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_recordings</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">http_request</span><span class="o">.</span><span class="n">_copy</span><span class="p">(),</span> <span class="n">response</span><span class="p">))</span>
+</div>
+  <span class="n">AddResponse</span> <span class="o">=</span> <span class="n">add_response</span>
+
+<div class="viewcode-block" id="MockHttpClient.request"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.mock_http_core.MockHttpClient.request">[docs]</a>  <span class="k">def</span> <span class="nf">request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http_request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Provide a recorded response, or record a response for replay.</span>
+
+<span class="sd">    If the real_client is set, the request will be made using the</span>
+<span class="sd">    real_client, and the response from the server will be recorded.</span>
+<span class="sd">    If the real_client is None (the default), this method will examine</span>
+<span class="sd">    the recordings and find the first which matches.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="n">http_request</span><span class="o">.</span><span class="n">_copy</span><span class="p">()</span>
+    <span class="n">_scrub_request</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_client</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">last_request_was_live</span> <span class="o">=</span> <span class="bp">False</span>
+      <span class="k">for</span> <span class="n">recording</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recordings</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">_match_request</span><span class="p">(</span><span class="n">recording</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">request</span><span class="p">):</span>
+          <span class="k">return</span> <span class="n">recording</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="c"># Pass along the debug settings to the real client.</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">real_client</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span>
+      <span class="c"># Make an actual request since we can use the real HTTP client.</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">last_request_was_live</span> <span class="o">=</span> <span class="bp">True</span>
+      <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_client</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">http_request</span><span class="p">)</span>
+      <span class="n">scrubbed_response</span> <span class="o">=</span> <span class="n">_scrub_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">add_response</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">scrubbed_response</span><span class="o">.</span><span class="n">status</span><span class="p">,</span>
+                        <span class="n">scrubbed_response</span><span class="o">.</span><span class="n">reason</span><span class="p">,</span>
+                        <span class="nb">dict</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">http_core</span><span class="o">.</span><span class="n">get_headers</span><span class="p">(</span><span class="n">scrubbed_response</span><span class="p">)),</span>
+                        <span class="n">scrubbed_response</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+      <span class="c"># Return the recording which we just added.</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recordings</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">raise</span> <span class="n">NoRecordingFound</span><span class="p">(</span><span class="s">&#39;No recoding was found for request: </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">uri</span><span class="p">)))</span>
+</div>
+  <span class="n">Request</span> <span class="o">=</span> <span class="n">request</span>
+
+  <span class="k">def</span> <span class="nf">_save_recordings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="n">recording_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="n">filename</span><span class="p">),</span>
+                          <span class="s">&#39;wb&#39;</span><span class="p">)</span>
+    <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_recordings</span><span class="p">,</span> <span class="n">recording_file</span><span class="p">)</span>
+    <span class="n">recording_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+  <span class="k">def</span> <span class="nf">_load_recordings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="n">recording_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="n">filename</span><span class="p">),</span>
+                          <span class="s">&#39;rb&#39;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_recordings</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">recording_file</span><span class="p">)</span>
+    <span class="n">recording_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+  <span class="k">def</span> <span class="nf">_delete_recordings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="n">full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">full_path</span><span class="p">):</span>
+      <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_load_or_use_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">http_client</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="n">filename</span><span class="p">)):</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_load_recordings</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">real_client</span> <span class="o">=</span> <span class="n">http_client</span>
+
+<div class="viewcode-block" id="MockHttpClient.use_cached_session"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.mock_http_core.MockHttpClient.use_cached_session">[docs]</a>  <span class="k">def</span> <span class="nf">use_cached_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">real_http_client</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Attempts to load recordings from a previous live request.</span>
+
+<span class="sd">    If a temp file with the recordings exists, then it is used to fulfill</span>
+<span class="sd">    requests. If the file does not exist, then a real client is used to</span>
+<span class="sd">    actually make the desired HTTP requests. Requests and responses are</span>
+<span class="sd">    recorded and will be written to the desired temprary cache file when</span>
+<span class="sd">    close_session is called.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      name: str (optional) The file name of session file to be used. The file</span>
+<span class="sd">            is loaded from the temporary directory of this machine. If no name</span>
+<span class="sd">            is passed in, a default name will be constructed using the</span>
+<span class="sd">            cache_name_prefix, cache_case_name, and cache_test_name of this</span>
+<span class="sd">            object.</span>
+<span class="sd">      real_http_client: atom.http_core.HttpClient the real client to be used</span>
+<span class="sd">                        if the cached recordings are not found. If the default</span>
+<span class="sd">                        value is used, this will be an</span>
+<span class="sd">                        atom.http_core.HttpClient.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">real_http_client</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">real_http_client</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">http_core</span><span class="o">.</span><span class="n">HttpClient</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_recordings_cache_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cache_file_name</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_recordings_cache_name</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_load_or_use_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_recordings_cache_name</span><span class="p">,</span> <span class="n">real_http_client</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MockHttpClient.close_session"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.mock_http_core.MockHttpClient.close_session">[docs]</a>  <span class="k">def</span> <span class="nf">close_session</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Saves recordings in the temporary file named in use_cached_session.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_client</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_save_recordings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_recordings_cache_name</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MockHttpClient.delete_session"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.mock_http_core.MockHttpClient.delete_session">[docs]</a>  <span class="k">def</span> <span class="nf">delete_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Removes recordings from a previous live request.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_delete_recordings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_recordings_cache_name</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_delete_recordings</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MockHttpClient.get_cache_file_name"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.mock_http_core.MockHttpClient.get_cache_file_name">[docs]</a>  <span class="k">def</span> <span class="nf">get_cache_file_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_name_prefix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_case_name</span><span class="p">,</span>
+                         <span class="bp">self</span><span class="o">.</span><span class="n">cache_test_name</span><span class="p">)</span>
+</div>
+  <span class="k">def</span> <span class="nf">_dump</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Provides debug information in a string.&quot;&quot;&quot;</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="s">&#39;MockHttpClient</span><span class="se">\n</span><span class="s">  real_client: </span><span class="si">%s</span><span class="se">\n</span><span class="s">  cache file name: </span><span class="si">%s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">real_client</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cache_file_name</span><span class="p">())</span>
+    <span class="n">output</span> <span class="o">+=</span> <span class="s">&#39;  recordings:</span><span class="se">\n</span><span class="s">&#39;</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">recording</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recordings</span><span class="p">:</span>
+      <span class="n">output</span> <span class="o">+=</span> <span class="s">&#39;    recording </span><span class="si">%i</span><span class="s"> is for: </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+          <span class="n">i</span><span class="p">,</span> <span class="n">recording</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">recording</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">uri</span><span class="p">))</span>
+      <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">output</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_match_request</span><span class="p">(</span><span class="n">http_request</span><span class="p">,</span> <span class="n">stored_request</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Determines whether a request is similar enough to a stored request</span>
+<span class="sd">     to cause the stored response to be returned.&quot;&quot;&quot;</span>
+  <span class="c"># Check to see if the host names match.</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">host</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span>
+      <span class="ow">and</span> <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">host</span> <span class="o">!=</span> <span class="n">stored_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">host</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">False</span>
+  <span class="c"># Check the request path in the URL (/feeds/private/full/x)</span>
+  <span class="k">elif</span> <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">path</span> <span class="o">!=</span> <span class="n">stored_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+    <span class="k">return</span> <span class="bp">False</span>
+  <span class="c"># Check the method used in the request (GET, POST, etc.)</span>
+  <span class="k">elif</span> <span class="n">http_request</span><span class="o">.</span><span class="n">method</span> <span class="o">!=</span> <span class="n">stored_request</span><span class="o">.</span><span class="n">method</span><span class="p">:</span>
+    <span class="k">return</span> <span class="bp">False</span>
+  <span class="c"># If there is a gsession ID in either request, make sure that it is matched</span>
+  <span class="c"># exactly.</span>
+  <span class="k">elif</span> <span class="p">(</span><span class="s">&#39;gsessionid&#39;</span> <span class="ow">in</span> <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">query</span>
+        <span class="ow">or</span> <span class="s">&#39;gsessionid&#39;</span> <span class="ow">in</span> <span class="n">stored_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">query</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s">&#39;gsessionid&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stored_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">query</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">elif</span> <span class="s">&#39;gsessionid&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">query</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">query</span><span class="p">[</span><span class="s">&#39;gsessionid&#39;</span><span class="p">]</span>
+          <span class="o">!=</span> <span class="n">stored_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">query</span><span class="p">[</span><span class="s">&#39;gsessionid&#39;</span><span class="p">]):</span>
+      <span class="k">return</span> <span class="bp">False</span>
+  <span class="c"># Ignores differences in the query params (?start-index=5&amp;max-results=20),</span>
+  <span class="c"># the body of the request, the port number, HTTP headers, just to name a</span>
+  <span class="c"># few.</span>
+  <span class="k">return</span> <span class="bp">True</span>
+
+
+<span class="k">def</span> <span class="nf">_scrub_request</span><span class="p">(</span><span class="n">http_request</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot; Removes email address and password from a client login request.</span>
+
+<span class="sd">  Since the mock server saves the request and response in plantext, sensitive</span>
+<span class="sd">  information like the password should be removed before saving the</span>
+<span class="sd">  recordings. At the moment only requests sent to a ClientLogin url are</span>
+<span class="sd">  scrubbed.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">http_request</span> <span class="ow">and</span> <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span> <span class="ow">and</span> <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">path</span> <span class="ow">and</span>
+      <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;ClientLogin&#39;</span><span class="p">)):</span>
+    <span class="c"># Remove the email and password from a ClientLogin request.</span>
+    <span class="n">http_request</span><span class="o">.</span><span class="n">_body_parts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">http_request</span><span class="o">.</span><span class="n">add_form_inputs</span><span class="p">(</span>
+        <span class="p">{</span><span class="s">&#39;form_data&#39;</span><span class="p">:</span> <span class="s">&#39;client login request has been scrubbed&#39;</span><span class="p">})</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="c"># We can remove the body of the post from the recorded request, since</span>
+    <span class="c"># the request body is not used when finding a matching recording.</span>
+    <span class="n">http_request</span><span class="o">.</span><span class="n">_body_parts</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="k">return</span> <span class="n">http_request</span>
+
+
+<span class="k">def</span> <span class="nf">_scrub_response</span><span class="p">(</span><span class="n">http_response</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">http_response</span>
+
+
+<div class="viewcode-block" id="EchoHttpClient"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.mock_http_core.EchoHttpClient">[docs]</a><span class="k">class</span> <span class="nc">EchoHttpClient</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Sends the request data back in the response.</span>
+
+<span class="sd">  Used to check the formatting of the request as it was sent. Always responds</span>
+<span class="sd">  with a 200 OK, and some information from the HTTP request is returned in</span>
+<span class="sd">  special Echo-X headers in the response. The following headers are added</span>
+<span class="sd">  in the response:</span>
+<span class="sd">  &#39;Echo-Host&#39;: The host name and port number to which the HTTP connection is</span>
+<span class="sd">               made. If no port was passed in, the header will contain</span>
+<span class="sd">               host:None.</span>
+<span class="sd">  &#39;Echo-Uri&#39;: The path portion of the URL being requested. /example?x=1&amp;y=2</span>
+<span class="sd">  &#39;Echo-Scheme&#39;: The beginning of the URL, usually &#39;http&#39; or &#39;https&#39;</span>
+<span class="sd">  &#39;Echo-Method&#39;: The HTTP method being used, &#39;GET&#39;, &#39;POST&#39;, &#39;PUT&#39;, etc.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="EchoHttpClient.request"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.mock_http_core.EchoHttpClient.request">[docs]</a>  <span class="k">def</span> <span class="nf">request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http_request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http_request</span><span class="p">(</span><span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="p">,</span> <span class="n">http_request</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
+                              <span class="n">http_request</span><span class="o">.</span><span class="n">headers</span><span class="p">,</span> <span class="n">http_request</span><span class="o">.</span><span class="n">_body_parts</span><span class="p">)</span>
+</div>
+  <span class="k">def</span> <span class="nf">_http_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">body_parts</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="n">StringIO</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">http_core</span><span class="o">.</span><span class="n">HttpResponse</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s">&#39;OK&#39;</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">body</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">headers</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">response</span><span class="o">.</span><span class="n">_headers</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="c"># Copy headers from the request to the response but convert values to</span>
+      <span class="c"># strings. Server response headers always come in as strings, so an int</span>
+      <span class="c"># should be converted to a corresponding string when echoing.</span>
+      <span class="k">for</span> <span class="n">header</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">headers</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">_headers</span><span class="p">[</span><span class="n">header</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">_headers</span><span class="p">[</span><span class="s">&#39;Echo-Host&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">:</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">uri</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">uri</span><span class="o">.</span><span class="n">port</span><span class="p">))</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">_headers</span><span class="p">[</span><span class="s">&#39;Echo-Uri&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">uri</span><span class="o">.</span><span class="n">_get_relative_path</span><span class="p">()</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">_headers</span><span class="p">[</span><span class="s">&#39;Echo-Scheme&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">uri</span><span class="o">.</span><span class="n">scheme</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">_headers</span><span class="p">[</span><span class="s">&#39;Echo-Method&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">method</span>
+    <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">body_parts</span><span class="p">:</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">body</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
+      <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="s">&#39;read&#39;</span><span class="p">):</span>
+        <span class="n">body</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">part</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+    <span class="n">body</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">response</span>
+
+</div>
+<div class="viewcode-block" id="SettableHttpClient"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.mock_http_core.SettableHttpClient">[docs]</a><span class="k">class</span> <span class="nc">SettableHttpClient</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;An HTTP Client which responds with the data given in set_response.&quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">reason</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">headers</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Configures the response for the server.</span>
+
+<span class="sd">    See set_response for details on the arguments to the constructor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">set_response</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">reason</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">headers</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">last_request</span> <span class="o">=</span> <span class="bp">None</span>
+
+<div class="viewcode-block" id="SettableHttpClient.set_response"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.mock_http_core.SettableHttpClient.set_response">[docs]</a>  <span class="k">def</span> <span class="nf">set_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">reason</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">headers</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Determines the response which will be sent for each request.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      status: An int for the HTTP status code, example: 200, 404, etc.</span>
+<span class="sd">      reason: String for the HTTP reason, example: OK, NOT FOUND, etc.</span>
+<span class="sd">      body: The body of the HTTP response as a string or a file-like</span>
+<span class="sd">            object (something with a read method).</span>
+<span class="sd">      headers: dict of strings containing the HTTP headers in the response.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">http_core</span><span class="o">.</span><span class="n">HttpResponse</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="n">reason</span><span class="p">,</span>
+        <span class="n">body</span><span class="o">=</span><span class="n">body</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">_headers</span> <span class="o">=</span> <span class="n">headers</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="SettableHttpClient.request"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.mock_http_core.SettableHttpClient.request">[docs]</a>  <span class="k">def</span> <span class="nf">request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http_request</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">last_request</span> <span class="o">=</span> <span class="n">http_request</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">response</span>
+
+</div></div>
+<div class="viewcode-block" id="MockHttpResponse"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.mock_http_core.MockHttpResponse">[docs]</a><span class="k">class</span> <span class="nc">MockHttpResponse</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">http_core</span><span class="o">.</span><span class="n">HttpResponse</span><span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span> <span class="o">=</span> <span class="n">headers</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">status</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">status</span>
+    <span class="k">if</span> <span class="n">reason</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">reason</span> <span class="o">=</span> <span class="n">reason</span>
+    <span class="k">if</span> <span class="n">body</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="c"># Instead of using a file-like object for the body, store as a string</span>
+      <span class="c"># so that reads can be repeated.</span>
+      <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;read&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_body</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_body</span> <span class="o">=</span> <span class="n">body</span>
+
+<div class="viewcode-block" id="MockHttpResponse.read"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.mock_http_core.MockHttpResponse.read">[docs]</a>  <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_body</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../atom.html" >lib.atom</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

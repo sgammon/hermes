@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.apptools.model.adapter.sql &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../../../index.html" />
+    <link rel="up" title="lib.apptools" href="../../../apptools.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../../apptools.html" accesskey="U">lib.apptools</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.apptools.model.adapter.sql</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">allows apptools models to be used across</span>
+<span class="sd">SQL tables, with enhanced mySQL support.</span>
+
+<span class="sd">:author: Sam Gammon (sam@momentum.io)</span>
+<span class="sd">:copyright: (c) 2013 momentum labs.</span>
+<span class="sd">:license: This is private source code - Ampush has been granted an</span>
+<span class="sd">          unlimited, exclusive license for embedded use. For details</span>
+<span class="sd">          about embedded licenses and other legalese, see `LICENSE.md`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c"># adapter API</span>
+<span class="kn">from</span> <span class="nn">.abstract</span> <span class="kn">import</span> <span class="n">ModelAdapter</span>
+
+
+<span class="c">## SQLAdapter</span>
+<span class="c"># Adapt apptools models to SQL-like engines.</span>
+<div class="viewcode-block" id="SQLAdapter"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.sql.SQLAdapter">[docs]</a><span class="k">class</span> <span class="nc">SQLAdapter</span><span class="p">(</span><span class="n">ModelAdapter</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Adapt model classes to SQL. &#39;&#39;&#39;</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="SQLAdapter.is_supported"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.sql.SQLAdapter.is_supported">[docs]</a>    <span class="k">def</span> <span class="nf">is_supported</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Check whether this adapter is supported in the current environment. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">False</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../../index.html">
+              <img class="logo" src="../../../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../../apptools.html" >lib.apptools</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

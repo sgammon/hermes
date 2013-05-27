@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.apptools.pipelines.builtin &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../../index.html" />
+    <link rel="up" title="lib.apptools.pipelines" href="../pipelines.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../apptools.html" >lib.apptools</a> &raquo;</li>
+          <li><a href="../pipelines.html" accesskey="U">lib.apptools.pipelines</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.apptools.pipelines.builtin</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">apptools.pipelines</span> <span class="kn">import</span> <span class="n">BasePipeline</span>
+
+
+<span class="c">## ContentPipeline</span>
+<span class="c"># Base pipeline class for dynamic content.</span>
+<div class="viewcode-block" id="ContentPipeline"><a class="viewcode-back" href="../../../../lib.apptools.pipelines.html#lib.apptools.pipelines.builtin.ContentPipeline">[docs]</a><span class="k">class</span> <span class="nc">ContentPipeline</span><span class="p">(</span><span class="n">BasePipeline</span><span class="p">):</span> <span class="k">pass</span>
+
+
+<span class="c">## ContentAreaPipeline</span>
+<span class="c"># Operates on ContentArea entities.</span></div>
+<div class="viewcode-block" id="ContentAreaPipeline"><a class="viewcode-back" href="../../../../lib.apptools.pipelines.html#lib.apptools.pipelines.builtin.ContentAreaPipeline">[docs]</a><span class="k">class</span> <span class="nc">ContentAreaPipeline</span><span class="p">(</span><span class="n">ContentPipeline</span><span class="p">):</span> <span class="k">pass</span>
+
+
+<span class="c">## ContentSnippetPipeline</span>
+<span class="c"># Operates on ContentSnippet entities.</span></div>
+<div class="viewcode-block" id="ContentSnippetPipeline"><a class="viewcode-back" href="../../../../lib.apptools.pipelines.html#lib.apptools.pipelines.builtin.ContentSnippetPipeline">[docs]</a><span class="k">class</span> <span class="nc">ContentSnippetPipeline</span><span class="p">(</span><span class="n">ContentPipeline</span><span class="p">):</span> <span class="k">pass</span>
+
+
+<span class="c">## ContentSummaryPipeline</span>
+<span class="c"># Operates on ContentSummary entities.</span></div>
+<div class="viewcode-block" id="ContentSummaryPipeline"><a class="viewcode-back" href="../../../../lib.apptools.pipelines.html#lib.apptools.pipelines.builtin.ContentSummaryPipeline">[docs]</a><span class="k">class</span> <span class="nc">ContentSummaryPipeline</span><span class="p">(</span><span class="n">ContentPipeline</span><span class="p">):</span> <span class="k">pass</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../index.html">
+              <img class="logo" src="../../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../apptools.html" >lib.apptools</a> &raquo;</li>
+          <li><a href="../pipelines.html" >lib.apptools.pipelines</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

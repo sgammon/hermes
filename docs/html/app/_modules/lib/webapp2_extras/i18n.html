@@ -1,0 +1,1012 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.webapp2_extras.i18n &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.webapp2_extras.i18n</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    webapp2_extras.i18n</span>
+<span class="sd">    ===================</span>
+
+<span class="sd">    Internationalization support for webapp2.</span>
+
+<span class="sd">    Several ideas borrowed from tipfy.i18n and Flask-Babel.</span>
+
+<span class="sd">    :copyright: 2011 by tipfy.org.</span>
+<span class="sd">    :license: Apache Sotware License, see LICENSE for details.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">gettext</span> <span class="kn">as</span> <span class="nn">gettext_stdlib</span>
+
+<span class="kn">import</span> <span class="nn">babel</span>
+<span class="kn">from</span> <span class="nn">babel</span> <span class="kn">import</span> <span class="n">dates</span>
+<span class="kn">from</span> <span class="nn">babel</span> <span class="kn">import</span> <span class="n">numbers</span>
+<span class="kn">from</span> <span class="nn">babel</span> <span class="kn">import</span> <span class="n">support</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="c"># Monkeypatches pytz for gae.</span>
+    <span class="kn">import</span> <span class="nn">pytz.gae</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>  <span class="c"># pragma: no cover</span>
+    <span class="k">pass</span>
+
+<span class="kn">import</span> <span class="nn">pytz</span>
+
+<span class="kn">import</span> <span class="nn">webapp2</span>
+
+<span class="c">#: Default configuration values for this module. Keys are:</span>
+<span class="c">#:</span>
+<span class="c">#: translations_path</span>
+<span class="c">#:     Path to the translations directory. Default is `locale`.</span>
+<span class="c">#:</span>
+<span class="c">#: domains</span>
+<span class="c">#:     List of gettext domains to be used. Default is ``[&#39;messages&#39;]``.</span>
+<span class="c">#:</span>
+<span class="c">#: default_locale</span>
+<span class="c">#:     A locale code to be used as fallback. Default is ``&#39;en_US&#39;``.</span>
+<span class="c">#:</span>
+<span class="c">#: default_timezone</span>
+<span class="c">#:     The application default timezone according to the Olson</span>
+<span class="c">#:     database. Default is ``&#39;UTC&#39;``.</span>
+<span class="c">#:</span>
+<span class="c">#: locale_selector</span>
+<span class="c">#:     A function that receives (store, request) and returns a locale</span>
+<span class="c">#:     to be used for a request. If not defined, uses `default_locale`.</span>
+<span class="c">#:     Can also be a string in dotted notation to be imported.</span>
+<span class="c">#:</span>
+<span class="c">#: timezone_selector</span>
+<span class="c">#:     A function that receives (store, request) and returns a timezone</span>
+<span class="c">#:     to be used for a request. If not defined, uses `default_timezone`.</span>
+<span class="c">#:     Can also be a string in dotted notation to be imported.</span>
+<span class="c">#:</span>
+<span class="c">#: date_formats</span>
+<span class="c">#:     Default date formats for datetime, date and time.</span>
+<span class="n">default_config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;translations_path&#39;</span><span class="p">:</span>   <span class="s">&#39;locale&#39;</span><span class="p">,</span>
+    <span class="s">&#39;domains&#39;</span><span class="p">:</span>             <span class="p">[</span><span class="s">&#39;messages&#39;</span><span class="p">],</span>
+    <span class="s">&#39;default_locale&#39;</span><span class="p">:</span>      <span class="s">&#39;en_US&#39;</span><span class="p">,</span>
+    <span class="s">&#39;default_timezone&#39;</span><span class="p">:</span>    <span class="s">&#39;UTC&#39;</span><span class="p">,</span>
+    <span class="s">&#39;locale_selector&#39;</span><span class="p">:</span>     <span class="bp">None</span><span class="p">,</span>
+    <span class="s">&#39;timezone_selector&#39;</span><span class="p">:</span>   <span class="bp">None</span><span class="p">,</span>
+    <span class="s">&#39;date_formats&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;time&#39;</span><span class="p">:</span>            <span class="s">&#39;medium&#39;</span><span class="p">,</span>
+        <span class="s">&#39;date&#39;</span><span class="p">:</span>            <span class="s">&#39;medium&#39;</span><span class="p">,</span>
+        <span class="s">&#39;datetime&#39;</span><span class="p">:</span>        <span class="s">&#39;medium&#39;</span><span class="p">,</span>
+        <span class="s">&#39;time.short&#39;</span><span class="p">:</span>      <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;time.medium&#39;</span><span class="p">:</span>     <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;time.full&#39;</span><span class="p">:</span>       <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;time.long&#39;</span><span class="p">:</span>       <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;time.iso&#39;</span><span class="p">:</span>        <span class="s">&quot;HH&#39;:&#39;mm&#39;:&#39;ss&quot;</span><span class="p">,</span>
+        <span class="s">&#39;date.short&#39;</span><span class="p">:</span>      <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;date.medium&#39;</span><span class="p">:</span>     <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;date.full&#39;</span><span class="p">:</span>       <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;date.long&#39;</span><span class="p">:</span>       <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;date.iso&#39;</span><span class="p">:</span>        <span class="s">&quot;yyyy&#39;-&#39;MM&#39;-&#39;dd&quot;</span><span class="p">,</span>
+        <span class="s">&#39;datetime.short&#39;</span><span class="p">:</span>  <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;datetime.medium&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;datetime.full&#39;</span><span class="p">:</span>   <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;datetime.long&#39;</span><span class="p">:</span>   <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;datetime.iso&#39;</span><span class="p">:</span>    <span class="s">&quot;yyyy&#39;-&#39;MM&#39;-&#39;dd&#39;T&#39;HH&#39;:&#39;mm&#39;:&#39;ssZ&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="n">NullTranslations</span> <span class="o">=</span> <span class="n">gettext_stdlib</span><span class="o">.</span><span class="n">NullTranslations</span>
+
+
+<div class="viewcode-block" id="I18nStore"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18nStore">[docs]</a><span class="k">class</span> <span class="nc">I18nStore</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Internalization store.</span>
+
+<span class="sd">    Caches loaded translations and configuration to be used between requests.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c">#: Configuration key.</span>
+    <span class="n">config_key</span> <span class="o">=</span> <span class="n">__name__</span>
+    <span class="c">#: A dictionary with all loaded translations.</span>
+    <span class="n">translations</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="c">#: Path to where traslations are stored.</span>
+    <span class="n">translations_path</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="c">#: Translation domains to merge.</span>
+    <span class="n">domains</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="c">#: Default locale code.</span>
+    <span class="n">default_locale</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="c">#: Default timezone code.</span>
+    <span class="n">default_timezone</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="c">#: Dictionary of default date formats.</span>
+    <span class="n">date_formats</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="c">#: A callable that returns the locale for a request.</span>
+    <span class="n">locale_selector</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="c">#: A callable that returns the timezone for a request.</span>
+    <span class="n">timezone_selector</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the i18n store.</span>
+
+<span class="sd">        :param app:</span>
+<span class="sd">            A :class:`webapp2.WSGIApplication` instance.</span>
+<span class="sd">        :param config:</span>
+<span class="sd">            A dictionary of configuration values to be overridden. See</span>
+<span class="sd">            the available keys in :data:`default_config`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">load_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_key</span><span class="p">,</span>
+            <span class="n">default_values</span><span class="o">=</span><span class="n">default_config</span><span class="p">,</span> <span class="n">user_values</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">required_keys</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">translations</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">translations_path</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s">&#39;translations_path&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">domains</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s">&#39;domains&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_locale</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s">&#39;default_locale&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_timezone</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s">&#39;default_timezone&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">date_formats</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s">&#39;date_formats&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_locale_selector</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;locale_selector&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_timezone_selector</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;timezone_selector&#39;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="I18nStore.set_locale_selector"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18nStore.set_locale_selector">[docs]</a>    <span class="k">def</span> <span class="nf">set_locale_selector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets the function that defines the locale for a request.</span>
+
+<span class="sd">        :param func:</span>
+<span class="sd">            A callable that receives (store, request) and returns the locale</span>
+<span class="sd">            for a request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">func</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">locale_selector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_locale_selector</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+                <span class="n">func</span> <span class="o">=</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">import_string</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+
+            <span class="c"># Functions are descriptors, so bind it to this instance with</span>
+            <span class="c"># __get__.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">locale_selector</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="I18nStore.set_timezone_selector"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18nStore.set_timezone_selector">[docs]</a>    <span class="k">def</span> <span class="nf">set_timezone_selector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets the function that defines the timezone for a request.</span>
+
+<span class="sd">        :param func:</span>
+<span class="sd">            A callable that receives (store, request) and returns the timezone</span>
+<span class="sd">            for a request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">func</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timezone_selector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_timezone_selector</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+                <span class="n">func</span> <span class="o">=</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">import_string</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">timezone_selector</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="I18nStore.default_locale_selector"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18nStore.default_locale_selector">[docs]</a>    <span class="k">def</span> <span class="nf">default_locale_selector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_locale</span>
+</div>
+<div class="viewcode-block" id="I18nStore.default_timezone_selector"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18nStore.default_timezone_selector">[docs]</a>    <span class="k">def</span> <span class="nf">default_timezone_selector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_timezone</span>
+</div>
+<div class="viewcode-block" id="I18nStore.get_translations"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18nStore.get_translations">[docs]</a>    <span class="k">def</span> <span class="nf">get_translations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">locale</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a translation catalog for a locale.</span>
+
+<span class="sd">        :param locale:</span>
+<span class="sd">            A locale code.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            A ``babel.support.Translations`` instance, or</span>
+<span class="sd">            ``gettext.NullTranslations`` if none was found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">trans</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">translations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">locale</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">trans</span><span class="p">:</span>
+            <span class="n">locales</span> <span class="o">=</span> <span class="p">(</span><span class="n">locale</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_locale</span><span class="p">)</span>
+            <span class="n">trans</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_translations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">translations_path</span><span class="p">,</span> <span class="n">locales</span><span class="p">,</span>
+                                           <span class="bp">self</span><span class="o">.</span><span class="n">domains</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">get_app</span><span class="p">()</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">translations</span><span class="p">[</span><span class="n">locale</span><span class="p">]</span> <span class="o">=</span> <span class="n">trans</span>
+
+        <span class="k">return</span> <span class="n">trans</span>
+</div>
+<div class="viewcode-block" id="I18nStore.load_translations"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18nStore.load_translations">[docs]</a>    <span class="k">def</span> <span class="nf">load_translations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">locales</span><span class="p">,</span> <span class="n">domains</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Loads a translation catalog.</span>
+
+<span class="sd">        :param dirname:</span>
+<span class="sd">            Path to where translations are stored.</span>
+<span class="sd">        :param locales:</span>
+<span class="sd">            A list of locale codes.</span>
+<span class="sd">        :param domains:</span>
+<span class="sd">            A list of domains to be merged.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            A ``babel.support.Translations`` instance, or</span>
+<span class="sd">            ``gettext.NullTranslations`` if none was found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">trans</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">trans_null</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">:</span>
+            <span class="n">_trans</span> <span class="o">=</span> <span class="n">support</span><span class="o">.</span><span class="n">Translations</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">locales</span><span class="p">,</span> <span class="n">domain</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_trans</span><span class="p">,</span> <span class="n">NullTranslations</span><span class="p">):</span>
+                <span class="n">trans_null</span> <span class="o">=</span> <span class="n">_trans</span>
+                <span class="k">continue</span>
+            <span class="k">elif</span> <span class="n">trans</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">trans</span> <span class="o">=</span> <span class="n">_trans</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">trans</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">_trans</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">trans</span> <span class="ow">or</span> <span class="n">trans_null</span> <span class="ow">or</span> <span class="n">NullTranslations</span><span class="p">()</span>
+
+</div></div>
+<div class="viewcode-block" id="I18n"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18n">[docs]</a><span class="k">class</span> <span class="nc">I18n</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Internalization provider for a single request.&quot;&quot;&quot;</span>
+
+    <span class="c">#: A reference to :class:`I18nStore`.</span>
+    <span class="n">store</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="c">#: The current locale code.</span>
+    <span class="n">locale</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="c">#: The current translations.</span>
+    <span class="n">translations</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="c">#: The current timezone code.</span>
+    <span class="n">timezone</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="c">#: The current tzinfo object.</span>
+    <span class="n">tzinfo</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the i18n provider for a request.</span>
+
+<span class="sd">        :param request:</span>
+<span class="sd">            A :class:`webapp2.Request` instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store</span> <span class="o">=</span> <span class="n">store</span> <span class="o">=</span> <span class="n">get_store</span><span class="p">(</span><span class="n">app</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">app</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_locale</span><span class="p">(</span><span class="n">store</span><span class="o">.</span><span class="n">locale_selector</span><span class="p">(</span><span class="n">request</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_timezone</span><span class="p">(</span><span class="n">store</span><span class="o">.</span><span class="n">timezone_selector</span><span class="p">(</span><span class="n">request</span><span class="p">))</span>
+
+<div class="viewcode-block" id="I18n.set_locale"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18n.set_locale">[docs]</a>    <span class="k">def</span> <span class="nf">set_locale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">locale</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets the locale code for this request.</span>
+
+<span class="sd">        :param locale:</span>
+<span class="sd">            A locale code.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">locale</span> <span class="o">=</span> <span class="n">locale</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">translations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">get_translations</span><span class="p">(</span><span class="n">locale</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="I18n.set_timezone"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18n.set_timezone">[docs]</a>    <span class="k">def</span> <span class="nf">set_timezone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timezone</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets the timezone code for this request.</span>
+
+<span class="sd">        :param timezone:</span>
+<span class="sd">            A timezone code.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timezone</span> <span class="o">=</span> <span class="n">timezone</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tzinfo</span> <span class="o">=</span> <span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="n">timezone</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="I18n.gettext"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18n.gettext">[docs]</a>    <span class="k">def</span> <span class="nf">gettext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="p">,</span> <span class="o">**</span><span class="n">variables</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Translates a given string according to the current locale.</span>
+
+<span class="sd">        :param string:</span>
+<span class="sd">            The string to be translated.</span>
+<span class="sd">        :param variables:</span>
+<span class="sd">            Variables to format the returned string.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            The translated string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">variables</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">translations</span><span class="o">.</span><span class="n">ugettext</span><span class="p">(</span><span class="n">string</span><span class="p">)</span> <span class="o">%</span> <span class="n">variables</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">translations</span><span class="o">.</span><span class="n">ugettext</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="I18n.ngettext"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18n.ngettext">[docs]</a>    <span class="k">def</span> <span class="nf">ngettext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">singular</span><span class="p">,</span> <span class="n">plural</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="o">**</span><span class="n">variables</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Translates a possible pluralized string according to the current</span>
+<span class="sd">        locale.</span>
+
+<span class="sd">        :param singular:</span>
+<span class="sd">            The singular for of the string to be translated.</span>
+<span class="sd">        :param plural:</span>
+<span class="sd">            The plural for of the string to be translated.</span>
+<span class="sd">        :param n:</span>
+<span class="sd">            An integer indicating if this is a singular or plural. If greater</span>
+<span class="sd">            than 1, it is a plural.</span>
+<span class="sd">        :param variables:</span>
+<span class="sd">            Variables to format the returned string.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            The translated string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">variables</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">translations</span><span class="o">.</span><span class="n">ungettext</span><span class="p">(</span><span class="n">singular</span><span class="p">,</span> <span class="n">plural</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="o">%</span> <span class="n">variables</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">translations</span><span class="o">.</span><span class="n">ungettext</span><span class="p">(</span><span class="n">singular</span><span class="p">,</span> <span class="n">plural</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="I18n.to_local_timezone"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18n.to_local_timezone">[docs]</a>    <span class="k">def</span> <span class="nf">to_local_timezone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datetime</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a datetime object converted to the local timezone.</span>
+
+<span class="sd">        :param datetime:</span>
+<span class="sd">            A ``datetime`` object.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            A ``datetime`` object normalized to a timezone.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">datetime</span><span class="o">.</span><span class="n">tzinfo</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">datetime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="n">pytz</span><span class="o">.</span><span class="n">UTC</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tzinfo</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tzinfo</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="I18n.to_utc"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18n.to_utc">[docs]</a>    <span class="k">def</span> <span class="nf">to_utc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datetime</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a datetime object converted to UTC and without tzinfo.</span>
+
+<span class="sd">        :param datetime:</span>
+<span class="sd">            A ``datetime`` object.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            A naive ``datetime`` object (no timezone), converted to UTC.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">datetime</span><span class="o">.</span><span class="n">tzinfo</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">datetime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tzinfo</span><span class="o">.</span><span class="n">localize</span><span class="p">(</span><span class="n">datetime</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">pytz</span><span class="o">.</span><span class="n">UTC</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_get_format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">format</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A helper for the datetime formatting functions. Returns a format</span>
+<span class="sd">        name or pattern to be used by Babel date format functions.</span>
+
+<span class="sd">        :param key:</span>
+<span class="sd">            A format key to be get from config. Valid values are &quot;date&quot;,</span>
+<span class="sd">            &quot;datetime&quot; or &quot;time&quot;.</span>
+<span class="sd">        :param format:</span>
+<span class="sd">            The format to be returned. Valid values are &quot;short&quot;, &quot;medium&quot;,</span>
+<span class="sd">            &quot;long&quot;, &quot;full&quot; or a custom date/time pattern.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            A format name or pattern to be used by Babel date format functions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">format</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">format</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">date_formats</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">format</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;short&#39;</span><span class="p">,</span> <span class="s">&#39;medium&#39;</span><span class="p">,</span> <span class="s">&#39;full&#39;</span><span class="p">,</span> <span class="s">&#39;long&#39;</span><span class="p">,</span> <span class="s">&#39;iso&#39;</span><span class="p">):</span>
+            <span class="n">rv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">date_formats</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">format</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">rv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">format</span> <span class="o">=</span> <span class="n">rv</span>
+
+        <span class="k">return</span> <span class="n">format</span>
+
+<div class="viewcode-block" id="I18n.format_date"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18n.format_date">[docs]</a>    <span class="k">def</span> <span class="nf">format_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">rebase</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a date formatted according to the given pattern and</span>
+<span class="sd">        following the current locale.</span>
+
+<span class="sd">        :param date:</span>
+<span class="sd">            A ``date`` or ``datetime`` object. If None, the current date in</span>
+<span class="sd">            UTC is used.</span>
+<span class="sd">        :param format:</span>
+<span class="sd">            The format to be returned. Valid values are &quot;short&quot;, &quot;medium&quot;,</span>
+<span class="sd">            &quot;long&quot;, &quot;full&quot; or a custom date/time pattern. Example outputs:</span>
+
+<span class="sd">            - short:  11/10/09</span>
+<span class="sd">            - medium: Nov 10, 2009</span>
+<span class="sd">            - long:   November 10, 2009</span>
+<span class="sd">            - full:   Tuesday, November 10, 2009</span>
+
+<span class="sd">        :param rebase:</span>
+<span class="sd">            If True, converts the date to the current :attr:`timezone`.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            A formatted date in unicode.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">format</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_format</span><span class="p">(</span><span class="s">&#39;date&#39;</span><span class="p">,</span> <span class="n">format</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">rebase</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">):</span>
+            <span class="n">date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_local_timezone</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">dates</span><span class="o">.</span><span class="n">format_date</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">locale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="I18n.format_datetime"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18n.format_datetime">[docs]</a>    <span class="k">def</span> <span class="nf">format_datetime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datetime</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">rebase</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a date and time formatted according to the given pattern</span>
+<span class="sd">        and following the current locale and timezone.</span>
+
+<span class="sd">        :param datetime:</span>
+<span class="sd">            A ``datetime`` object. If None, the current date and time in UTC</span>
+<span class="sd">            is used.</span>
+<span class="sd">        :param format:</span>
+<span class="sd">            The format to be returned. Valid values are &quot;short&quot;, &quot;medium&quot;,</span>
+<span class="sd">            &quot;long&quot;, &quot;full&quot; or a custom date/time pattern. Example outputs:</span>
+
+<span class="sd">            - short:  11/10/09 4:36 PM</span>
+<span class="sd">            - medium: Nov 10, 2009 4:36:05 PM</span>
+<span class="sd">            - long:   November 10, 2009 4:36:05 PM +0000</span>
+<span class="sd">            - full:   Tuesday, November 10, 2009 4:36:05 PM World (GMT) Time</span>
+
+<span class="sd">        :param rebase:</span>
+<span class="sd">            If True, converts the datetime to the current :attr:`timezone`.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            A formatted date and time in unicode.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">format</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_format</span><span class="p">(</span><span class="s">&#39;datetime&#39;</span><span class="p">,</span> <span class="n">format</span><span class="p">)</span>
+
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">rebase</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;tzinfo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tzinfo</span>
+
+        <span class="k">return</span> <span class="n">dates</span><span class="o">.</span><span class="n">format_datetime</span><span class="p">(</span><span class="n">datetime</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">locale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">,</span>
+                                     <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="I18n.format_time"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18n.format_time">[docs]</a>    <span class="k">def</span> <span class="nf">format_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">rebase</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a time formatted according to the given pattern and</span>
+<span class="sd">        following the current locale and timezone.</span>
+
+<span class="sd">        :param time:</span>
+<span class="sd">            A ``time`` or ``datetime`` object. If None, the current</span>
+<span class="sd">            time in UTC is used.</span>
+<span class="sd">        :param format:</span>
+<span class="sd">            The format to be returned. Valid values are &quot;short&quot;, &quot;medium&quot;,</span>
+<span class="sd">            &quot;long&quot;, &quot;full&quot; or a custom date/time pattern. Example outputs:</span>
+
+<span class="sd">            - short:  4:36 PM</span>
+<span class="sd">            - medium: 4:36:05 PM</span>
+<span class="sd">            - long:   4:36:05 PM +0000</span>
+<span class="sd">            - full:   4:36:05 PM World (GMT) Time</span>
+
+<span class="sd">        :param rebase:</span>
+<span class="sd">            If True, converts the time to the current :attr:`timezone`.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            A formatted time in unicode.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">format</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_format</span><span class="p">(</span><span class="s">&#39;time&#39;</span><span class="p">,</span> <span class="n">format</span><span class="p">)</span>
+
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">rebase</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;tzinfo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tzinfo</span>
+
+        <span class="k">return</span> <span class="n">dates</span><span class="o">.</span><span class="n">format_time</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">locale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="I18n.format_timedelta"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18n.format_timedelta">[docs]</a>    <span class="k">def</span> <span class="nf">format_timedelta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datetime_or_timedelta</span><span class="p">,</span> <span class="n">granularity</span><span class="o">=</span><span class="s">&#39;second&#39;</span><span class="p">,</span>
+                         <span class="n">threshold</span><span class="o">=.</span><span class="mi">85</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Formats the elapsed time from the given date to now or the given</span>
+<span class="sd">        timedelta. This currently requires an unreleased development version</span>
+<span class="sd">        of Babel.</span>
+
+<span class="sd">        :param datetime_or_timedelta:</span>
+<span class="sd">            A ``timedelta`` object representing the time difference to format,</span>
+<span class="sd">            or a ``datetime`` object in UTC.</span>
+<span class="sd">        :param granularity:</span>
+<span class="sd">            Determines the smallest unit that should be displayed, the value</span>
+<span class="sd">            can be one of &quot;year&quot;, &quot;month&quot;, &quot;week&quot;, &quot;day&quot;, &quot;hour&quot;, &quot;minute&quot; or</span>
+<span class="sd">            &quot;second&quot;.</span>
+<span class="sd">        :param threshold:</span>
+<span class="sd">            Factor that determines at which point the presentation switches to</span>
+<span class="sd">            the next higher unit.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            A string with the elapsed time.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">datetime_or_timedelta</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">):</span>
+            <span class="n">datetime_or_timedelta</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span> <span class="o">-</span> \
+                <span class="n">datetime_or_timedelta</span>
+
+        <span class="k">return</span> <span class="n">dates</span><span class="o">.</span><span class="n">format_timedelta</span><span class="p">(</span><span class="n">datetime_or_timedelta</span><span class="p">,</span> <span class="n">granularity</span><span class="p">,</span>
+                                      <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">,</span>
+                                      <span class="n">locale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="I18n.format_number"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18n.format_number">[docs]</a>    <span class="k">def</span> <span class="nf">format_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the given number formatted for the current locale. Example::</span>
+
+<span class="sd">            &gt;&gt;&gt; format_number(1099, locale=&#39;en_US&#39;)</span>
+<span class="sd">            u&#39;1,099&#39;</span>
+
+<span class="sd">        :param number:</span>
+<span class="sd">            The number to format.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            The formatted number.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">numbers</span><span class="o">.</span><span class="n">format_number</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">locale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="I18n.format_decimal"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18n.format_decimal">[docs]</a>    <span class="k">def</span> <span class="nf">format_decimal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the given decimal number formatted for the current locale.</span>
+<span class="sd">        Example::</span>
+
+<span class="sd">            &gt;&gt;&gt; format_decimal(1.2345, locale=&#39;en_US&#39;)</span>
+<span class="sd">            u&#39;1.234&#39;</span>
+<span class="sd">            &gt;&gt;&gt; format_decimal(1.2346, locale=&#39;en_US&#39;)</span>
+<span class="sd">            u&#39;1.235&#39;</span>
+<span class="sd">            &gt;&gt;&gt; format_decimal(-1.2346, locale=&#39;en_US&#39;)</span>
+<span class="sd">            u&#39;-1.235&#39;</span>
+<span class="sd">            &gt;&gt;&gt; format_decimal(1.2345, locale=&#39;sv_SE&#39;)</span>
+<span class="sd">            u&#39;1,234&#39;</span>
+<span class="sd">            &gt;&gt;&gt; format_decimal(12345, locale=&#39;de&#39;)</span>
+<span class="sd">            u&#39;12.345&#39;</span>
+
+<span class="sd">        The appropriate thousands grouping and the decimal separator are used</span>
+<span class="sd">        for each locale::</span>
+
+<span class="sd">            &gt;&gt;&gt; format_decimal(12345.5, locale=&#39;en_US&#39;)</span>
+<span class="sd">            u&#39;12,345.5&#39;</span>
+
+<span class="sd">        :param number:</span>
+<span class="sd">            The number to format.</span>
+<span class="sd">        :param format:</span>
+<span class="sd">            Notation format.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            The formatted decimal number.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">numbers</span><span class="o">.</span><span class="n">format_decimal</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="n">format</span><span class="p">,</span>
+                                      <span class="n">locale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="I18n.format_currency"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18n.format_currency">[docs]</a>    <span class="k">def</span> <span class="nf">format_currency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="n">currency</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a formatted currency value. Example::</span>
+
+<span class="sd">            &gt;&gt;&gt; format_currency(1099.98, &#39;USD&#39;, locale=&#39;en_US&#39;)</span>
+<span class="sd">            u&#39;$1,099.98&#39;</span>
+<span class="sd">            &gt;&gt;&gt; format_currency(1099.98, &#39;USD&#39;, locale=&#39;es_CO&#39;)</span>
+<span class="sd">            u&#39;US$\\xa01.099,98&#39;</span>
+<span class="sd">            &gt;&gt;&gt; format_currency(1099.98, &#39;EUR&#39;, locale=&#39;de_DE&#39;)</span>
+<span class="sd">            u&#39;1.099,98\\xa0\\u20ac&#39;</span>
+
+<span class="sd">        The pattern can also be specified explicitly::</span>
+
+<span class="sd">            &gt;&gt;&gt; format_currency(1099.98, &#39;EUR&#39;, u&#39;\\xa4\\xa4 #,##0.00&#39;,</span>
+<span class="sd">            ...                 locale=&#39;en_US&#39;)</span>
+<span class="sd">            u&#39;EUR 1,099.98&#39;</span>
+
+<span class="sd">        :param number:</span>
+<span class="sd">            The number to format.</span>
+<span class="sd">        :param currency:</span>
+<span class="sd">            The currency code.</span>
+<span class="sd">        :param format:</span>
+<span class="sd">            Notation format.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            The formatted currency value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">numbers</span><span class="o">.</span><span class="n">format_currency</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">currency</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="n">format</span><span class="p">,</span>
+                                       <span class="n">locale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="I18n.format_percent"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18n.format_percent">[docs]</a>    <span class="k">def</span> <span class="nf">format_percent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns formatted percent value for the current locale. Example::</span>
+
+<span class="sd">            &gt;&gt;&gt; format_percent(0.34, locale=&#39;en_US&#39;)</span>
+<span class="sd">            u&#39;34%&#39;</span>
+<span class="sd">            &gt;&gt;&gt; format_percent(25.1234, locale=&#39;en_US&#39;)</span>
+<span class="sd">            u&#39;2,512%&#39;</span>
+<span class="sd">            &gt;&gt;&gt; format_percent(25.1234, locale=&#39;sv_SE&#39;)</span>
+<span class="sd">            u&#39;2\\xa0512\\xa0%&#39;</span>
+
+<span class="sd">        The format pattern can also be specified explicitly::</span>
+
+<span class="sd">            &gt;&gt;&gt; format_percent(25.1234, u&#39;#,##0\u2030&#39;, locale=&#39;en_US&#39;)</span>
+<span class="sd">            u&#39;25,123\u2030&#39;</span>
+
+<span class="sd">        :param number:</span>
+<span class="sd">            The percent number to format</span>
+<span class="sd">        :param format:</span>
+<span class="sd">            Notation format.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            The formatted percent number.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">numbers</span><span class="o">.</span><span class="n">format_percent</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="n">format</span><span class="p">,</span>
+                                      <span class="n">locale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="I18n.format_scientific"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18n.format_scientific">[docs]</a>    <span class="k">def</span> <span class="nf">format_scientific</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns value formatted in scientific notation for the current</span>
+<span class="sd">        locale. Example::</span>
+
+<span class="sd">            &gt;&gt;&gt; format_scientific(10000, locale=&#39;en_US&#39;)</span>
+<span class="sd">            u&#39;1E4&#39;</span>
+
+<span class="sd">        The format pattern can also be specified explicitly::</span>
+
+<span class="sd">            &gt;&gt;&gt; format_scientific(1234567, u&#39;##0E00&#39;, locale=&#39;en_US&#39;)</span>
+<span class="sd">            u&#39;1.23E06&#39;</span>
+
+<span class="sd">        :param number:</span>
+<span class="sd">            The number to format.</span>
+<span class="sd">        :param format:</span>
+<span class="sd">            Notation format.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            Value formatted in scientific notation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">numbers</span><span class="o">.</span><span class="n">format_scientific</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="n">format</span><span class="p">,</span>
+                                         <span class="n">locale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="I18n.parse_date"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18n.parse_date">[docs]</a>    <span class="k">def</span> <span class="nf">parse_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parses a date from a string.</span>
+
+<span class="sd">        This function uses the date format for the locale as a hint to</span>
+<span class="sd">        determine the order in which the date fields appear in the string.</span>
+<span class="sd">        Example::</span>
+
+<span class="sd">            &gt;&gt;&gt; parse_date(&#39;4/1/04&#39;, locale=&#39;en_US&#39;)</span>
+<span class="sd">            datetime.date(2004, 4, 1)</span>
+<span class="sd">            &gt;&gt;&gt; parse_date(&#39;01.04.2004&#39;, locale=&#39;de_DE&#39;)</span>
+<span class="sd">            datetime.date(2004, 4, 1)</span>
+
+<span class="sd">        :param string:</span>
+<span class="sd">            The string containing the date.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            The parsed date object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">dates</span><span class="o">.</span><span class="n">parse_date</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">locale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="I18n.parse_datetime"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18n.parse_datetime">[docs]</a>    <span class="k">def</span> <span class="nf">parse_datetime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parses a date and time from a string.</span>
+
+<span class="sd">        This function uses the date and time formats for the locale as a hint</span>
+<span class="sd">        to determine the order in which the time fields appear in the string.</span>
+
+<span class="sd">        :param string:</span>
+<span class="sd">            The string containing the date and time.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            The parsed datetime object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">dates</span><span class="o">.</span><span class="n">parse_datetime</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">locale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="I18n.parse_time"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18n.parse_time">[docs]</a>    <span class="k">def</span> <span class="nf">parse_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parses a time from a string.</span>
+
+<span class="sd">        This function uses the time format for the locale as a hint to</span>
+<span class="sd">        determine the order in which the time fields appear in the string.</span>
+<span class="sd">        Example::</span>
+
+<span class="sd">            &gt;&gt;&gt; parse_time(&#39;15:30:00&#39;, locale=&#39;en_US&#39;)</span>
+<span class="sd">            datetime.time(15, 30)</span>
+
+<span class="sd">        :param string:</span>
+<span class="sd">            The string containing the time.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            The parsed time object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">dates</span><span class="o">.</span><span class="n">parse_time</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">locale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="I18n.parse_number"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18n.parse_number">[docs]</a>    <span class="k">def</span> <span class="nf">parse_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parses localized number string into a long integer. Example::</span>
+
+<span class="sd">            &gt;&gt;&gt; parse_number(&#39;1,099&#39;, locale=&#39;en_US&#39;)</span>
+<span class="sd">            1099L</span>
+<span class="sd">            &gt;&gt;&gt; parse_number(&#39;1.099&#39;, locale=&#39;de_DE&#39;)</span>
+<span class="sd">            1099L</span>
+
+<span class="sd">        When the given string cannot be parsed, an exception is raised::</span>
+
+<span class="sd">            &gt;&gt;&gt; parse_number(&#39;1.099,98&#39;, locale=&#39;de&#39;)</span>
+<span class="sd">            Traceback (most recent call last):</span>
+<span class="sd">               ...</span>
+<span class="sd">            NumberFormatError: &#39;1.099,98&#39; is not a valid number</span>
+
+<span class="sd">        :param string:</span>
+<span class="sd">            The string to parse.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            The parsed number.</span>
+<span class="sd">        :raises:</span>
+<span class="sd">            ``NumberFormatError`` if the string can not be converted to a</span>
+<span class="sd">            number.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">numbers</span><span class="o">.</span><span class="n">parse_number</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">locale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="I18n.parse_decimal"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18n.parse_decimal">[docs]</a>    <span class="k">def</span> <span class="nf">parse_decimal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parses localized decimal string into a float. Example::</span>
+
+<span class="sd">            &gt;&gt;&gt; parse_decimal(&#39;1,099.98&#39;, locale=&#39;en_US&#39;)</span>
+<span class="sd">            1099.98</span>
+<span class="sd">            &gt;&gt;&gt; parse_decimal(&#39;1.099,98&#39;, locale=&#39;de&#39;)</span>
+<span class="sd">            1099.98</span>
+
+<span class="sd">        When the given string cannot be parsed, an exception is raised::</span>
+
+<span class="sd">            &gt;&gt;&gt; parse_decimal(&#39;2,109,998&#39;, locale=&#39;de&#39;)</span>
+<span class="sd">            Traceback (most recent call last):</span>
+<span class="sd">               ...</span>
+<span class="sd">            NumberFormatError: &#39;2,109,998&#39; is not a valid decimal number</span>
+
+<span class="sd">        :param string:</span>
+<span class="sd">            The string to parse.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            The parsed decimal number.</span>
+<span class="sd">        :raises:</span>
+<span class="sd">            ``NumberFormatError`` if the string can not be converted to a</span>
+<span class="sd">            decimal number.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">numbers</span><span class="o">.</span><span class="n">parse_decimal</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">locale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="I18n.get_timezone_location"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.I18n.get_timezone_location">[docs]</a>    <span class="k">def</span> <span class="nf">get_timezone_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt_or_tzinfo</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a representation of the given timezone using &quot;location</span>
+<span class="sd">        format&quot;.</span>
+
+<span class="sd">        The result depends on both the local display name of the country and</span>
+<span class="sd">        the city assocaited with the time zone::</span>
+
+<span class="sd">            &gt;&gt;&gt; from pytz import timezone</span>
+<span class="sd">            &gt;&gt;&gt; tz = timezone(&#39;America/St_Johns&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; get_timezone_location(tz, locale=&#39;de_DE&#39;)</span>
+<span class="sd">            u&quot;Kanada (St. John&#39;s)&quot;</span>
+<span class="sd">            &gt;&gt;&gt; tz = timezone(&#39;America/Mexico_City&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; get_timezone_location(tz, locale=&#39;de_DE&#39;)</span>
+<span class="sd">            u&#39;Mexiko (Mexiko-Stadt)&#39;</span>
+
+<span class="sd">        If the timezone is associated with a country that uses only a single</span>
+<span class="sd">        timezone, just the localized country name is returned::</span>
+
+<span class="sd">            &gt;&gt;&gt; tz = timezone(&#39;Europe/Berlin&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; get_timezone_name(tz, locale=&#39;de_DE&#39;)</span>
+<span class="sd">            u&#39;Deutschland&#39;</span>
+
+<span class="sd">        :param dt_or_tzinfo:</span>
+<span class="sd">            The ``datetime`` or ``tzinfo`` object that determines</span>
+<span class="sd">            the timezone; if None, the current date and time in UTC is assumed.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            The localized timezone name using location format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">dates</span><span class="o">.</span><span class="n">get_timezone_name</span><span class="p">(</span><span class="n">dt_or_tzinfo</span><span class="p">,</span> <span class="n">locale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="gettext"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.gettext">[docs]</a><span class="k">def</span> <span class="nf">gettext</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="o">**</span><span class="n">variables</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;See :meth:`I18n.gettext`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_i18n</span><span class="p">()</span><span class="o">.</span><span class="n">gettext</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="o">**</span><span class="n">variables</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="ngettext"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.ngettext">[docs]</a><span class="k">def</span> <span class="nf">ngettext</span><span class="p">(</span><span class="n">singular</span><span class="p">,</span> <span class="n">plural</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="o">**</span><span class="n">variables</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;See :meth:`I18n.ngettext`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_i18n</span><span class="p">()</span><span class="o">.</span><span class="n">ngettext</span><span class="p">(</span><span class="n">singular</span><span class="p">,</span> <span class="n">plural</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="o">**</span><span class="n">variables</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="to_local_timezone"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.to_local_timezone">[docs]</a><span class="k">def</span> <span class="nf">to_local_timezone</span><span class="p">(</span><span class="n">datetime</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;See :meth:`I18n.to_local_timezone`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_i18n</span><span class="p">()</span><span class="o">.</span><span class="n">to_local_timezone</span><span class="p">(</span><span class="n">datetime</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="to_utc"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.to_utc">[docs]</a><span class="k">def</span> <span class="nf">to_utc</span><span class="p">(</span><span class="n">datetime</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;See :meth:`I18n.to_utc`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_i18n</span><span class="p">()</span><span class="o">.</span><span class="n">to_utc</span><span class="p">(</span><span class="n">datetime</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="format_date"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.format_date">[docs]</a><span class="k">def</span> <span class="nf">format_date</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">rebase</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;See :meth:`I18n.format_date`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_i18n</span><span class="p">()</span><span class="o">.</span><span class="n">format_date</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">rebase</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="format_datetime"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.format_datetime">[docs]</a><span class="k">def</span> <span class="nf">format_datetime</span><span class="p">(</span><span class="n">datetime</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">rebase</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;See :meth:`I18n.format_datetime`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_i18n</span><span class="p">()</span><span class="o">.</span><span class="n">format_datetime</span><span class="p">(</span><span class="n">datetime</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">rebase</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="format_time"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.format_time">[docs]</a><span class="k">def</span> <span class="nf">format_time</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">rebase</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;See :meth:`I18n.format_time`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_i18n</span><span class="p">()</span><span class="o">.</span><span class="n">format_time</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">rebase</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="format_timedelta"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.format_timedelta">[docs]</a><span class="k">def</span> <span class="nf">format_timedelta</span><span class="p">(</span><span class="n">datetime_or_timedelta</span><span class="p">,</span> <span class="n">granularity</span><span class="o">=</span><span class="s">&#39;second&#39;</span><span class="p">,</span>
+    <span class="n">threshold</span><span class="o">=.</span><span class="mi">85</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;See :meth:`I18n.format_timedelta`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_i18n</span><span class="p">()</span><span class="o">.</span><span class="n">format_timedelta</span><span class="p">(</span><span class="n">datetime_or_timedelta</span><span class="p">,</span>
+                                       <span class="n">granularity</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="format_number"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.format_number">[docs]</a><span class="k">def</span> <span class="nf">format_number</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;See :meth:`I18n.format_number`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_i18n</span><span class="p">()</span><span class="o">.</span><span class="n">format_number</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="format_decimal"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.format_decimal">[docs]</a><span class="k">def</span> <span class="nf">format_decimal</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;See :meth:`I18n.format_decimal`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_i18n</span><span class="p">()</span><span class="o">.</span><span class="n">format_decimal</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">format</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="format_currency"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.format_currency">[docs]</a><span class="k">def</span> <span class="nf">format_currency</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">currency</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;See :meth:`I18n.format_currency`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_i18n</span><span class="p">()</span><span class="o">.</span><span class="n">format_currency</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">currency</span><span class="p">,</span> <span class="n">format</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="format_percent"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.format_percent">[docs]</a><span class="k">def</span> <span class="nf">format_percent</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;See :meth:`I18n.format_percent`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_i18n</span><span class="p">()</span><span class="o">.</span><span class="n">format_percent</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">format</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="format_scientific"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.format_scientific">[docs]</a><span class="k">def</span> <span class="nf">format_scientific</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;See :meth:`I18n.format_scientific`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_i18n</span><span class="p">()</span><span class="o">.</span><span class="n">format_scientific</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">format</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="parse_date"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.parse_date">[docs]</a><span class="k">def</span> <span class="nf">parse_date</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;See :meth:`I18n.parse_date`&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_i18n</span><span class="p">()</span><span class="o">.</span><span class="n">parse_date</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="parse_datetime"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.parse_datetime">[docs]</a><span class="k">def</span> <span class="nf">parse_datetime</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;See :meth:`I18n.parse_datetime`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_i18n</span><span class="p">()</span><span class="o">.</span><span class="n">parse_datetime</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="parse_time"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.parse_time">[docs]</a><span class="k">def</span> <span class="nf">parse_time</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;See :meth:`I18n.parse_time`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_i18n</span><span class="p">()</span><span class="o">.</span><span class="n">parse_time</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="parse_number"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.parse_number">[docs]</a><span class="k">def</span> <span class="nf">parse_number</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;See :meth:`I18n.parse_number`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_i18n</span><span class="p">()</span><span class="o">.</span><span class="n">parse_number</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="parse_decimal"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.parse_decimal">[docs]</a><span class="k">def</span> <span class="nf">parse_decimal</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;See :meth:`I18n.parse_decimal`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_i18n</span><span class="p">()</span><span class="o">.</span><span class="n">parse_decimal</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="get_timezone_location"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.get_timezone_location">[docs]</a><span class="k">def</span> <span class="nf">get_timezone_location</span><span class="p">(</span><span class="n">dt_or_tzinfo</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;See :meth:`I18n.get_timezone_location`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_i18n</span><span class="p">()</span><span class="o">.</span><span class="n">get_timezone_location</span><span class="p">(</span><span class="n">dt_or_tzinfo</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="lazy_gettext"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.lazy_gettext">[docs]</a><span class="k">def</span> <span class="nf">lazy_gettext</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="o">**</span><span class="n">variables</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A lazy version of :func:`gettext`.</span>
+
+<span class="sd">    :param string:</span>
+<span class="sd">        The string to be translated.</span>
+<span class="sd">    :param variables:</span>
+<span class="sd">        Variables to format the returned string.</span>
+<span class="sd">    :returns:</span>
+<span class="sd">        A ``babel.support.LazyProxy`` object that when accessed translates</span>
+<span class="sd">        the string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">support</span><span class="o">.</span><span class="n">LazyProxy</span><span class="p">(</span><span class="n">gettext</span><span class="p">,</span> <span class="n">string</span><span class="p">,</span> <span class="o">**</span><span class="n">variables</span><span class="p">)</span>
+
+
+<span class="c"># Aliases.</span></div>
+<span class="n">_</span> <span class="o">=</span> <span class="n">gettext</span>
+<span class="n">_lazy</span> <span class="o">=</span> <span class="n">lazy_gettext</span>
+
+
+<span class="c"># Factories -------------------------------------------------------------------</span>
+
+
+<span class="c">#: Key used to store :class:`I18nStore` in the app registry.</span>
+<span class="n">_store_registry_key</span> <span class="o">=</span> <span class="s">&#39;webapp2_extras.i18n.I18nStore&#39;</span>
+<span class="c">#: Key used to store :class:`I18n` in the request registry.</span>
+<span class="n">_i18n_registry_key</span> <span class="o">=</span> <span class="s">&#39;webapp2_extras.i18n.I18n&#39;</span>
+
+
+<div class="viewcode-block" id="get_store"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.get_store">[docs]</a><span class="k">def</span> <span class="nf">get_store</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="n">I18nStore</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">_store_registry_key</span><span class="p">,</span> <span class="n">app</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns an instance of :class:`I18nStore` from the app registry.</span>
+
+<span class="sd">    It&#39;ll try to get it from the current app registry, and if it is not</span>
+<span class="sd">    registered it&#39;ll be instantiated and registered. A second call to this</span>
+<span class="sd">    function will return the same instance.</span>
+
+<span class="sd">    :param factory:</span>
+<span class="sd">        The callable used to build and register the instance if it is not yet</span>
+<span class="sd">        registered. The default is the class :class:`I18nStore` itself.</span>
+<span class="sd">    :param key:</span>
+<span class="sd">        The key used to store the instance in the registry. A default is used</span>
+<span class="sd">        if it is not set.</span>
+<span class="sd">    :param app:</span>
+<span class="sd">        A :class:`webapp2.WSGIApplication` instance used to store the instance.</span>
+<span class="sd">        The active app is used if it is not set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">app</span> <span class="ow">or</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">get_app</span><span class="p">()</span>
+    <span class="n">store</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">store</span><span class="p">:</span>
+        <span class="n">store</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">registry</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">factory</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">store</span>
+
+</div>
+<div class="viewcode-block" id="set_store"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.set_store">[docs]</a><span class="k">def</span> <span class="nf">set_store</span><span class="p">(</span><span class="n">store</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">_store_registry_key</span><span class="p">,</span> <span class="n">app</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sets an instance of :class:`I18nStore` in the app registry.</span>
+
+<span class="sd">    :param store:</span>
+<span class="sd">        An instance of :class:`I18nStore`.</span>
+<span class="sd">    :param key:</span>
+<span class="sd">        The key used to retrieve the instance from the registry. A default</span>
+<span class="sd">        is used if it is not set.</span>
+<span class="sd">    :param request:</span>
+<span class="sd">        A :class:`webapp2.WSGIApplication` instance used to retrieve the</span>
+<span class="sd">        instance. The active app is used if it is not set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">app</span> <span class="ow">or</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">get_app</span><span class="p">()</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">registry</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">store</span>
+
+</div>
+<div class="viewcode-block" id="get_i18n"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.get_i18n">[docs]</a><span class="k">def</span> <span class="nf">get_i18n</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="n">I18n</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">_i18n_registry_key</span><span class="p">,</span> <span class="n">request</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns an instance of :class:`I18n` from the request registry.</span>
+
+<span class="sd">    It&#39;ll try to get it from the current request registry, and if it is not</span>
+<span class="sd">    registered it&#39;ll be instantiated and registered. A second call to this</span>
+<span class="sd">    function will return the same instance.</span>
+
+<span class="sd">    :param factory:</span>
+<span class="sd">        The callable used to build and register the instance if it is not yet</span>
+<span class="sd">        registered. The default is the class :class:`I18n` itself.</span>
+<span class="sd">    :param key:</span>
+<span class="sd">        The key used to store the instance in the registry. A default is used</span>
+<span class="sd">        if it is not set.</span>
+<span class="sd">    :param request:</span>
+<span class="sd">        A :class:`webapp2.Request` instance used to store the instance. The</span>
+<span class="sd">        active request is used if it is not set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="n">request</span> <span class="ow">or</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">get_request</span><span class="p">()</span>
+    <span class="n">i18n</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">i18n</span><span class="p">:</span>
+        <span class="n">i18n</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">factory</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">i18n</span>
+
+</div>
+<div class="viewcode-block" id="set_i18n"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.i18n.set_i18n">[docs]</a><span class="k">def</span> <span class="nf">set_i18n</span><span class="p">(</span><span class="n">i18n</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">_i18n_registry_key</span><span class="p">,</span> <span class="n">request</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sets an instance of :class:`I18n` in the request registry.</span>
+
+<span class="sd">    :param store:</span>
+<span class="sd">        An instance of :class:`I18n`.</span>
+<span class="sd">    :param key:</span>
+<span class="sd">        The key used to retrieve the instance from the registry. A default</span>
+<span class="sd">        is used if it is not set.</span>
+<span class="sd">    :param request:</span>
+<span class="sd">        A :class:`webapp2.Request` instance used to retrieve the instance. The</span>
+<span class="sd">        active request is used if it is not set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="n">request</span> <span class="ow">or</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">get_request</span><span class="p">()</span>
+    <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">i18n</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

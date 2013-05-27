@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>api.services.pubsub.messages &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../../index.html" />
+    <link rel="up" title="api.services" href="../../services.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../services.html" accesskey="U">api.services</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for api.services.pubsub.messages</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">PubSub API: Messages</span>
+
+<span class="sd">:author: Sam Gammon (sam.gammon@ampush.com)</span>
+<span class="sd">:copyright: (c) 2013 Ampush.</span>
+<span class="sd">:license: This is private source code - all rights are reserved. For details about</span>
+<span class="sd">          embedded licenses and other legalese, see `LICENSE.md`.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c"># ProtoRPC</span>
+<span class="kn">from</span> <span class="nn">protorpc</span> <span class="kn">import</span> <span class="n">messages</span>
+
+<span class="c"># Hermes Models</span>
+<span class="kn">from</span> <span class="nn">api.models.tracker.raw</span> <span class="kn">import</span> <span class="n">Event</span>
+<span class="kn">from</span> <span class="nn">api.models.tracker.event</span> <span class="kn">import</span> <span class="n">TrackedEvent</span>
+<span class="kn">from</span> <span class="nn">api.models.tracker.pubsub</span> <span class="kn">import</span> <span class="n">Subscription</span>
+
+
+<span class="c">## LogMessage - generic message for expressing a string to be published as a log.</span>
+<div class="viewcode-block" id="LogMessage"><a class="viewcode-back" href="../../../../api.services.pubsub.html#api.services.pubsub.messages.LogMessage">[docs]</a><span class="k">class</span> <span class="nc">LogMessage</span><span class="p">(</span><span class="n">messages</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Expresses a generic log message to be published. &#39;&#39;&#39;</span>
+
+    <span class="n">content</span> <span class="o">=</span> <span class="n">messages</span><span class="o">.</span><span class="n">StringField</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="n">messages</span><span class="o">.</span><span class="n">StringField</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s">&#39;Log&#39;</span><span class="p">)</span>
+
+
+<span class="c">## Publish - message that represents a request to publish a `TrackedEvent`.</span></div>
+<div class="viewcode-block" id="Publish"><a class="viewcode-back" href="../../../../api.services.pubsub.html#api.services.pubsub.messages.Publish">[docs]</a><span class="k">class</span> <span class="nc">Publish</span><span class="p">(</span><span class="n">messages</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Expresses a request to manually publish a `TrackedEvent` to the global eventstream. &#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="Publish.PayloadType"><a class="viewcode-back" href="../../../../api.services.pubsub.html#api.services.pubsub.messages.Publish.PayloadType">[docs]</a>    <span class="k">class</span> <span class="nc">PayloadType</span><span class="p">(</span><span class="n">messages</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Enumerates possible :py:class:`Publish` types. &#39;&#39;&#39;</span>
+
+        <span class="n">RAW</span> <span class="o">=</span> <span class="mh">0x1</span>  <span class="c"># indicates a raw event (:py:class:`api.models.tracker.raw.Event`)</span>
+        <span class="n">INTERPRETED</span> <span class="o">=</span> <span class="mh">0x2</span>  <span class="c"># indicates a full event (:py:class:`api.models.tracker.event.TrackedEvent`)</span>
+        <span class="n">LOG</span> <span class="o">=</span> <span class="mh">0x3</span>  <span class="c"># indicates a generic log message to publish</span>
+</div>
+<div class="viewcode-block" id="Publish.ChannelSpec"><a class="viewcode-back" href="../../../../api.services.pubsub.html#api.services.pubsub.messages.Publish.ChannelSpec">[docs]</a>    <span class="k">class</span> <span class="nc">ChannelSpec</span><span class="p">(</span><span class="n">messages</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Specifies a set of channels to publish this message to. &#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="Publish.ChannelSpec.ChannelFlags"><a class="viewcode-back" href="../../../../api.services.pubsub.html#api.services.pubsub.messages.Publish.ChannelSpec.ChannelFlags">[docs]</a>        <span class="k">class</span> <span class="nc">ChannelFlags</span><span class="p">(</span><span class="n">messages</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+
+            <span class="sd">&#39;&#39;&#39; Enumerates flags describing channel publish behavior. &#39;&#39;&#39;</span>
+
+            <span class="n">GLOBAL</span> <span class="o">=</span> <span class="mh">0x1</span>  <span class="c"># in addition to channels specified, publish to the global stream</span>
+            <span class="n">ERROR</span> <span class="o">=</span> <span class="mh">0x2</span>  <span class="c"># mark this published message as an error notification</span>
+            <span class="n">PROPAGATE</span> <span class="o">=</span> <span class="mh">0x3</span>  <span class="c"># propagate this event/raw event to higher-order streams</span>
+            <span class="n">CUSTOM</span> <span class="o">=</span> <span class="mh">0x4</span>  <span class="c"># this publish operation contains explicit, custom channels</span>
+
+        <span class="c"># name and channel flags</span></div>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">messages</span><span class="o">.</span><span class="n">StringField</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>  <span class="c"># name of the channel being specified</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">messages</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>  <span class="c"># whether to publish the key or full data blob</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="n">messages</span><span class="o">.</span><span class="n">EnumField</span><span class="p">(</span><span class="n">ChannelFlags</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">repeated</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="c">## basic details</span></div>
+    <span class="n">kind</span> <span class="o">=</span> <span class="n">messages</span><span class="o">.</span><span class="n">EnumField</span><span class="p">(</span><span class="n">PayloadType</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">PayloadType</span><span class="o">.</span><span class="n">LOG</span><span class="p">)</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">messages</span><span class="o">.</span><span class="n">MessageField</span><span class="p">(</span><span class="n">Event</span><span class="o">.</span><span class="n">to_message_model</span><span class="p">(),</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">event</span> <span class="o">=</span> <span class="n">messages</span><span class="o">.</span><span class="n">MessageField</span><span class="p">(</span><span class="n">TrackedEvent</span><span class="o">.</span><span class="n">to_message_model</span><span class="p">(),</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="n">messages</span><span class="o">.</span><span class="n">MessageField</span><span class="p">(</span><span class="n">LogMessage</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">channels</span> <span class="o">=</span> <span class="n">messages</span><span class="o">.</span><span class="n">MessageField</span><span class="p">(</span><span class="n">ChannelSpec</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">repeated</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">timestamp</span> <span class="o">=</span> <span class="n">messages</span><span class="o">.</span><span class="n">StringField</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+
+
+<span class="c">## BatchPublish - message that represents a batch of publish requests.</span></div>
+<div class="viewcode-block" id="BatchPublish"><a class="viewcode-back" href="../../../../api.services.pubsub.html#api.services.pubsub.messages.BatchPublish">[docs]</a><span class="k">class</span> <span class="nc">BatchPublish</span><span class="p">(</span><span class="n">messages</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Expresses a batch of :py:class:`Publish` requests. &#39;&#39;&#39;</span>
+
+    <span class="n">count</span> <span class="o">=</span> <span class="n">messages</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">payload</span> <span class="o">=</span> <span class="n">messages</span><span class="o">.</span><span class="n">MessageField</span><span class="p">(</span><span class="n">Publish</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">repeated</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+
+<span class="c">## BatchSubscribe - message that represents a batch of subscription requests.</span></div>
+<div class="viewcode-block" id="BatchSubscribe"><a class="viewcode-back" href="../../../../api.services.pubsub.html#api.services.pubsub.messages.BatchSubscribe">[docs]</a><span class="k">class</span> <span class="nc">BatchSubscribe</span><span class="p">(</span><span class="n">messages</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Expresses a batch of :py:class:`Subscription` requests. &#39;&#39;&#39;</span>
+
+    <span class="n">count</span> <span class="o">=</span> <span class="n">messages</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">subscriptions</span> <span class="o">=</span> <span class="n">messages</span><span class="o">.</span><span class="n">MessageField</span><span class="p">(</span><span class="n">Subscription</span><span class="o">.</span><span class="n">to_message_model</span><span class="p">(),</span> <span class="mi">2</span><span class="p">,</span> <span class="n">repeated</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../index.html">
+              <img class="logo" src="../../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../services.html" >api.services</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

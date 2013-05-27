@@ -1,0 +1,648 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.slimmer.slimmer &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.slimmer.slimmer</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/python</span>
+
+<span class="n">__version__</span><span class="o">=</span><span class="s">&#39;0.1.30&#39;</span>
+<span class="n">__all__</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;acceptableSyntax&#39;</span><span class="p">,</span><span class="s">&#39;guessSyntax&#39;</span><span class="p">,</span><span class="s">&#39;slimmer&#39;</span><span class="p">,</span><span class="s">&#39;css_slimmer&#39;</span><span class="p">,</span>
+         <span class="s">&#39;html_slimmer&#39;</span><span class="p">,</span><span class="s">&#39;xhtml_slimmer&#39;</span><span class="p">,</span><span class="s">&#39;js_slimmer&#39;</span><span class="p">,</span>
+         <span class="s">&#39;__version__&#39;</span><span class="p">]</span>
+
+<span class="kn">import</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">getopt</span>
+<span class="kn">import</span> <span class="nn">urllib2</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">js_function_slimmer</span> <span class="kn">import</span> <span class="n">slim</span> <span class="k">as</span> <span class="n">js_function_slimmer</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">js_function_slimmer</span> <span class="o">=</span> <span class="bp">None</span>
+
+<span class="c">## Options</span>
+<span class="c">#</span>
+<span class="c"># If you&#39;re slimming HTML docs and really want to</span>
+<span class="c"># convert border=&quot;0&quot; to border=0, be aware that this</span>
+<span class="c"># can take 5 times longer than without but compresses</span>
+<span class="c"># the document at least twice as good.</span>
+<span class="n">UNQUOTE_HTML_ATTRIBUTES</span> <span class="o">=</span> <span class="mi">0</span>
+
+
+<span class="c"># Define the syntax options we accept</span>
+<span class="n">HTML</span> <span class="o">=</span> <span class="s">&#39;html&#39;</span>
+<span class="n">XHTML</span> <span class="o">=</span> <span class="s">&#39;xhtml&#39;</span>
+<span class="n">CSS</span> <span class="o">=</span> <span class="s">&#39;css&#39;</span>
+<span class="n">JS</span> <span class="o">=</span> <span class="s">&#39;js&#39;</span>
+
+<span class="n">OK_SYNTAX</span> <span class="o">=</span> <span class="p">(</span><span class="n">HTML</span><span class="p">,</span> <span class="n">XHTML</span><span class="p">,</span> <span class="n">CSS</span><span class="p">,</span> <span class="n">JS</span><span class="p">)</span>
+
+<div class="viewcode-block" id="acceptableSyntax"><a class="viewcode-back" href="../../../lib.slimmer.html#lib.slimmer.slimmer.acceptableSyntax">[docs]</a><span class="k">def</span> <span class="nf">acceptableSyntax</span><span class="p">(</span><span class="n">syntax</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; return the syntax as we recognize it or None &quot;&quot;&quot;</span>
+    <span class="n">syntax</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">syntax</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">,</span><span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;-&#39;</span><span class="p">,</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">syntax</span> <span class="o">=</span> <span class="n">syntax</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;stylesheet&#39;</span><span class="p">,</span><span class="s">&#39;css&#39;</span><span class="p">)</span> <span class="c"># allow for alias</span>
+    <span class="n">syntax</span> <span class="o">=</span> <span class="n">syntax</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;javascript&#39;</span><span class="p">,</span><span class="s">&#39;js&#39;</span><span class="p">)</span> <span class="c"># allow for alias</span>
+    <span class="k">if</span> <span class="n">syntax</span> <span class="ow">in</span> <span class="n">OK_SYNTAX</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">syntax</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">None</span>
+</div>
+<span class="n">some_javascript_code_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="s">&#39;function\(\)\s*{|var \w|return false;|return true;|&#39;</span>\
+    <span class="s">&#39;function \w{2,15}\(|}\s*else if\s*\(&#39;</span><span class="p">)</span>
+<span class="n">some_css_code_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;^#\w+\s*{|body\s*{|font-family:|margin:0|display:&#39;</span>\
+                                 <span class="s">&#39;|height:\s*\d|border:1px&#39;</span><span class="p">)</span>
+<span class="n">_html_doctypes</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.01&#39;</span><span class="p">,)</span>
+<span class="n">_xhtml_doctypes</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional&#39;</span><span class="p">,</span>
+                   <span class="s">&#39;&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Strict&#39;</span><span class="p">)</span>
+<span class="n">some_xhtml_code_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">_xhtml_doctypes</span><span class="p">])</span><span class="o">+</span>\
+                                   <span class="s">&#39;|&lt;html&gt;|&lt;title&gt;|\s/&gt;|&lt;input|&lt;a\s+&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+<span class="n">some_html_code_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">_html_doctypes</span><span class="p">])</span><span class="o">+</span>\
+                                  <span class="s">&#39;|&lt;table|background=</span><span class="se">\&quot;</span><span class="s">|&lt;script|border=0|&lt;!--&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+<div class="viewcode-block" id="guessSyntax"><a class="viewcode-back" href="../../../lib.slimmer.html#lib.slimmer.slimmer.guessSyntax">[docs]</a><span class="k">def</span> <span class="nf">guessSyntax</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="n">code</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">some_html_code_regex</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">HTML</span>
+    <span class="k">elif</span> <span class="n">some_xhtml_code_regex</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">XHTML</span>
+    <span class="k">elif</span> <span class="n">some_javascript_code_regex</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">JS</span>
+    <span class="k">elif</span> <span class="n">some_css_code_regex</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">CSS</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># getting desperate but we shall prevail!</span>
+        <span class="k">if</span> <span class="s">&#39;&lt;/&#39;</span> <span class="ow">in</span> <span class="n">code</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s">&#39;/&gt;&#39;</span> <span class="ow">in</span> <span class="n">code</span> <span class="ow">or</span> <span class="s">&#39;/ &gt;&#39;</span> <span class="ow">in</span> <span class="n">code</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">XHTML</span>
+            <span class="k">return</span> <span class="n">HTML</span>
+
+    <span class="k">return</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="slimmer"><a class="viewcode-back" href="../../../lib.slimmer.html#lib.slimmer.slimmer.slimmer">[docs]</a><span class="k">def</span> <span class="nf">slimmer</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">syntax</span><span class="o">=</span><span class="n">XHTML</span><span class="p">,</span> <span class="n">hardcore</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; wrap all function we have &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">syntax</span> <span class="o">==</span> <span class="n">XHTML</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_xhtml_slimmer</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">syntax</span> <span class="o">==</span> <span class="n">HTML</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_html_slimmer</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">syntax</span> <span class="o">==</span> <span class="n">CSS</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_css_slimmer</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">syntax</span> <span class="o">==</span> <span class="n">JS</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_js_slimmer</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">slim_functions</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">hardcore</span><span class="p">))</span>
+</div>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">itertools</span>
+    <span class="k">def</span> <span class="nf">anyTrue</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">seq</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">True</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">imap</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span><span class="n">seq</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">anyTrue</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">seq</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">seq</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">pred</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="bp">False</span>
+
+
+
+<span class="c"># CSS</span>
+<span class="n">css_comments</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;/\*.*?\*/&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="o">|</span><span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+<span class="n">hex_colour</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;#\w{2}\w{2}\w{2}&#39;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_css_slimmer</span><span class="p">(</span><span class="n">css</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; remove repeating whitespace ( \t\n) &quot;&quot;&quot;</span>
+
+    <span class="c">#css = css_comments.sub(&#39;&#39;, css) # remove comments</span>
+    <span class="n">remove_next_comment</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">css_comment</span> <span class="ow">in</span> <span class="n">css_comments</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">css</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">css_comment</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:]</span><span class="o">==</span><span class="s">&#39;\*/&#39;</span><span class="p">:</span>
+            <span class="n">remove_next_comment</span><span class="o">=</span><span class="mi">0</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">remove_next_comment</span><span class="p">:</span>
+            <span class="n">css</span> <span class="o">=</span> <span class="n">css</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">css_comment</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">remove_next_comment</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">css</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r&#39;\s\s+&#39;</span><span class="p">,</span> <span class="s">&#39; &#39;</span><span class="p">,</span> <span class="n">css</span><span class="p">)</span> <span class="c"># &gt;= 2 whitespace becomes one whitespace</span>
+    <span class="n">css</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r&#39;\s+\n&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">css</span><span class="p">)</span> <span class="c"># no whitespace before end of line</span>
+    <span class="c"># Remove space before and after certain chars</span>
+    <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;{&#39;</span><span class="p">,</span> <span class="s">&#39;}&#39;</span><span class="p">,</span> <span class="s">&#39;:&#39;</span><span class="p">,</span> <span class="s">&#39;;&#39;</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">):</span>
+        <span class="n">css</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">char</span><span class="o">+</span><span class="s">r&#39;\s&#39;</span><span class="p">,</span> <span class="n">char</span><span class="p">,</span> <span class="n">css</span><span class="p">)</span>
+        <span class="n">css</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r&#39;\s&#39;</span><span class="o">+</span><span class="n">char</span><span class="p">,</span> <span class="n">char</span><span class="p">,</span> <span class="n">css</span><span class="p">)</span>
+    <span class="n">css</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r&#39;\s+&lt;/&#39;</span><span class="p">,</span><span class="s">r&#39;&lt;/&#39;</span><span class="p">,</span> <span class="n">css</span><span class="p">)</span> <span class="c"># no extraspace before &lt;/style&gt;</span>
+    <span class="n">css</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r&#39;}\s(#|\w)&#39;</span><span class="p">,</span> <span class="s">r&#39;}\1&#39;</span><span class="p">,</span> <span class="n">css</span><span class="p">)</span>
+    <span class="n">css</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r&#39;;}&#39;</span><span class="p">,</span> <span class="s">r&#39;}&#39;</span><span class="p">,</span> <span class="n">css</span><span class="p">)</span> <span class="c"># no need for the ; before end of attributes</span>
+    <span class="n">css</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r&#39;}//--&gt;&#39;</span><span class="p">,</span> <span class="s">r&#39;}\n//--&gt;&#39;</span><span class="p">,</span> <span class="n">css</span><span class="p">)</span>
+    <span class="n">css</span> <span class="o">=</span> <span class="n">simplifyHexColours</span><span class="p">(</span><span class="n">css</span><span class="p">)</span>
+
+    <span class="c"># voice-family hack. The declation: &#39;&#39;&#39;voice-family: &quot;\&quot;}\&quot;&quot;&#39;&#39;&#39; requires</span>
+    <span class="c"># that extra space between the &#39;:&#39; and the first &#39;&quot;&#39; which _css_slimmer()</span>
+    <span class="c"># removed. Put it back (http://real.issuetrackerproduct.com/0168)</span>
+    <span class="n">css</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r&#39;voice-family:&quot;</span><span class="se">\\</span><span class="s">&quot;}</span><span class="se">\\</span><span class="s">&quot;&quot;&#39;</span><span class="p">,</span> <span class="s">r&#39;voice-family: &quot;</span><span class="se">\\</span><span class="s">&quot;}</span><span class="se">\\</span><span class="s">&quot;&quot;&#39;</span><span class="p">,</span> <span class="n">css</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">css</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+
+<span class="c"># HTML</span>
+<span class="n">f_IMD</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="o">|</span><span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="o">|</span><span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span>
+<span class="n">f_MD</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="o">|</span><span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span>
+<span class="n">f_M</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span>
+
+<span class="c"># the comment has to start with a space or a charater</span>
+<span class="c"># otherwise me might remove a SSI include which can look like this:</span>
+<span class="c">#  &lt;!--#include virtual=&quot;/include/myinclude.asp&quot;--&gt;</span>
+<span class="n">html_comments_oneline</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;&lt;!--[\w\s].*?--&gt;&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">html_inline_css</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;&lt;style.*?&gt;.*?&lt;/style&gt;&#39;</span><span class="p">,</span> <span class="n">f_IMD</span><span class="p">)</span>
+<span class="n">html_inline_js</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;&lt;script.*?&gt;.*?&lt;/script&gt;&#39;</span><span class="p">,</span> <span class="n">f_IMD</span><span class="p">)</span>
+
+<span class="n">any_tag</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&quot;&lt;\w.*?&gt;&quot;</span><span class="p">,</span> <span class="n">f_IMD</span><span class="p">)</span>
+<span class="n">excess_whitespace</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39; \s+|\s +&#39;</span><span class="p">,</span> <span class="n">f_M</span><span class="p">)</span>
+<span class="n">excess_whitespace1</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;\w\s+\w&#39;</span><span class="p">,</span> <span class="n">f_M</span><span class="p">)</span>
+<span class="n">excess_whitespace2</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;&quot;\s+&gt;&#39;</span><span class="p">,</span> <span class="n">f_M</span><span class="p">)</span>
+<span class="n">excess_whitespace3</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&quot;&#39;\s+&gt;&quot;</span><span class="p">,</span> <span class="n">f_M</span><span class="p">)</span>
+<span class="n">excess_whitespace4</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;&quot;\s\s+\w+=&quot;|</span><span class="se">\&#39;</span><span class="s">\s\s+\w+=</span><span class="se">\&#39;</span><span class="s">|&quot;\s\s+\w+=|</span><span class="se">\&#39;</span><span class="s">\s\s+\w+=&#39;</span><span class="p">,</span> <span class="n">f_M</span><span class="p">)</span>
+<span class="n">excess_whitespace6</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&quot;\d\s+&gt;&quot;</span><span class="p">,</span> <span class="n">f_M</span><span class="p">)</span>
+
+<span class="n">quotes_in_tag</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;([a-zA-Z]+)=&quot;([a-zA-Z0-9-_\.]+)&quot;&#39;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_html_slimmer</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="n">xml</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Optimize like XHTML but go one step further &quot;&quot;&quot;</span>
+    <span class="c"># 1. optimize inline CSS</span>
+    <span class="k">for</span> <span class="n">styletag</span> <span class="ow">in</span> <span class="n">html_inline_css</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">html</span><span class="p">):</span>
+        <span class="n">html</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">styletag</span><span class="p">,</span> <span class="n">css_slimmer</span><span class="p">(</span><span class="n">styletag</span><span class="p">))</span>
+
+    <span class="c"># 2. optimize inline Javascript</span>
+    <span class="k">for</span> <span class="n">scripttag</span> <span class="ow">in</span> <span class="n">html_inline_js</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">html</span><span class="p">):</span>
+        <span class="n">html</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">scripttag</span><span class="p">,</span> <span class="n">js_slimmer</span><span class="p">(</span><span class="n">scripttag</span><span class="p">))</span>
+
+    <span class="c"># 2. Remove excessive whitespace between tags</span>
+    <span class="n">html</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r&#39;&gt;\s+&lt;&#39;</span><span class="p">,</span><span class="s">&#39;&gt;&lt;&#39;</span><span class="p">,</span> <span class="n">html</span><span class="p">)</span>
+
+    <span class="c"># 3. Remove oneline comments</span>
+    <span class="n">html</span> <span class="o">=</span> <span class="n">html_comments_oneline</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">html</span><span class="p">)</span>
+
+    <span class="c"># 4. In every tag, remove quotes on numerical attributes and all</span>
+    <span class="c"># excessive whitespace</span>
+
+    <span class="n">ew1</span> <span class="o">=</span> <span class="n">excess_whitespace1</span> <span class="c"># shortcut</span>
+    <span class="n">ew6</span> <span class="o">=</span> <span class="n">excess_whitespace6</span> <span class="c"># shortcut</span>
+    <span class="n">ew4</span> <span class="o">=</span> <span class="n">excess_whitespace4</span> <span class="c"># shortcut</span>
+
+    <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">uniqify</span><span class="p">(</span><span class="n">any_tag</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">html</span><span class="p">)):</span>
+        <span class="c"># 4a. observe exceptions</span>
+        <span class="k">if</span> <span class="n">tag</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;&lt;!&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">tag</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;&lt;/&#39;</span><span class="p">)</span><span class="o">&gt;-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">original</span> <span class="o">=</span> <span class="n">tag</span>
+
+        <span class="c"># 4b. remove excess whitespace inside the tag</span>
+        <span class="n">tag</span><span class="o">=</span> <span class="n">excess_whitespace2</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&#39;&quot;&gt;&#39;</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
+        <span class="n">tag</span><span class="o">=</span> <span class="n">excess_whitespace3</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&quot;&#39;&gt;&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">each</span> <span class="ow">in</span> <span class="n">ew1</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span><span class="o">+</span><span class="n">ew6</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">tag</span><span class="p">):</span>
+            <span class="n">tag</span> <span class="o">=</span> <span class="n">tag</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">each</span><span class="p">,</span> <span class="n">excess_whitespace</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">,</span><span class="n">each</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">each</span> <span class="ow">in</span> <span class="n">ew4</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">tag</span><span class="p">):</span>
+            <span class="n">tag</span> <span class="o">=</span> <span class="n">tag</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">each</span><span class="p">,</span> <span class="n">each</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="s">&#39; &#39;</span><span class="o">+</span><span class="n">each</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">())</span>
+
+        <span class="c"># 4c. remove quotes</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">xml</span> <span class="ow">and</span> <span class="n">UNQUOTE_HTML_ATTRIBUTES</span><span class="p">:</span>
+            <span class="n">tag</span><span class="o">=</span> <span class="n">quotes_in_tag</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r&#39;\1=\2&#39;</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
+
+        <span class="c"># has the tag been improved?</span>
+        <span class="k">if</span> <span class="n">original</span> <span class="o">!=</span> <span class="n">tag</span><span class="p">:</span>
+            <span class="n">html</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">original</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+
+
+<span class="k">def</span> <span class="nf">_xhtml_slimmer</span><span class="p">(</span><span class="n">xhtml</span><span class="p">):</span>
+    <span class="c"># currently not difference</span>
+    <span class="k">return</span> <span class="n">_html_slimmer</span><span class="p">(</span><span class="n">xhtml</span><span class="p">,</span> <span class="n">xml</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="n">excess_whitespace_js</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;^\s+(\S)&#39;</span><span class="p">,</span><span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>
+<span class="n">excess_whitespace_js2</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;(\S+);\s+(\S+)&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>
+<span class="n">whitespaced_func_def</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;(function)\s+(\S+\(.*?\))\s*{\s*(\S+)&#39;</span><span class="p">,</span> <span class="n">f_IMD</span><span class="p">)</span>
+<span class="n">whitespaced_func_def2</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;function\s*\(\)\s*{\s*(\S+)&#39;</span><span class="p">,</span> <span class="n">f_IMD</span><span class="p">)</span>
+<span class="n">js_comments_singlelines</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;^//.*?$|\s+//.*?$&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="o">|</span><span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="o">|</span><span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+<span class="n">js_comments_singlelines2</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;((^|;|\s)//.*?$)&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="o">|</span><span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="o">|</span><span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+<span class="n">js_comment_end</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;--&gt;&#39;</span><span class="p">)</span>
+<span class="n">js_comment_start</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;(&lt;!--(.*?))$\s(\w+)&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>
+<span class="c">#js_comment_start2 = re.compile(&#39;(\&lt;\!--(.*?)(\n+|[\r\n]+)\s*(\w+))&#39;, re.DOTALL|re.MULTILINE)</span>
+<span class="n">whitespaced_controls</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;(for|else if|if|catch|while)\s*\((.*?)\)\s*{\s*(\S+)&#39;</span><span class="p">,</span> <span class="n">f_IMD</span><span class="p">)</span>
+<span class="n">single_whitespaced_controls</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;(try|else)\s*{\s*(\S+)&#39;</span><span class="p">,</span> <span class="n">f_IMD</span><span class="p">)</span>
+<span class="n">sloppy_conditionals</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;\(\s*(\S+)\s*(==|!=)\s*(\S+)\)&#39;</span><span class="p">)</span>
+<span class="n">sloppy_parameters</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;\(([(\w+)\s,]+)\)&#39;</span><span class="p">)</span>
+<span class="n">sloppy_ifs</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;\s*(if|else if|else)\s*({|\()&#39;</span><span class="p">)</span>
+<span class="n">sloppy_declarations</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;var\s+(\w+)\s*=\s*(\d+|\w+|</span><span class="se">\&quot;</span><span class="s">[\w+ ]</span><span class="se">\&quot;</span><span class="s">|\[[</span><span class="se">\&#39;</span><span class="s">\w \.,</span><span class="se">\&quot;</span><span class="s">]+\])&#39;</span><span class="p">)</span>
+<span class="n">sloppy_simple_declarations</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;(\w+)\s*=\s*(\d+|\w+|</span><span class="se">\&quot;</span><span class="s">[\w+ ]</span><span class="se">\&quot;</span><span class="s">)&#39;</span><span class="p">)</span>
+<span class="n">sloppy_increments</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;(\w+)\s*(\+=|-=)\s*(\d*|</span><span class="se">\&quot;</span><span class="s">\w+</span><span class="se">\&quot;</span><span class="s">)&#39;</span><span class="p">)</span>
+<span class="n">js_multiline_comments</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;/\*.*?\*/&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="o">|</span><span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+<span class="n">closing_curly_brackets</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;\s*}&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>
+<span class="n">opening_curly_brackets</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;{\s*&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_js_slimmer</span><span class="p">(</span><span class="n">js</span><span class="p">,</span> <span class="n">slim_functions</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+
+    <span class="c"># 1. remove all whitespace starting every line</span>
+    <span class="n">js</span> <span class="o">=</span> <span class="n">excess_whitespace_js</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r&#39;\1&#39;</span><span class="p">,</span><span class="n">js</span><span class="p">)</span>
+
+    <span class="c"># 2. Remove all /* multiline comments  */</span>
+    <span class="n">js</span> <span class="o">=</span> <span class="n">js_multiline_comments</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span><span class="n">js</span><span class="p">)</span>
+
+    <span class="c"># 3. // style comments</span>
+    <span class="k">def</span> <span class="nf">_reject_slashslash_comment</span><span class="p">(</span><span class="n">match</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">()</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;--&gt;&#39;</span><span class="p">)</span><span class="o">==-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s">&#39;&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+    <span class="n">js</span> <span class="o">=</span> <span class="n">js_comments_singlelines</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">_reject_slashslash_comment</span><span class="p">,</span> <span class="n">js</span><span class="p">)</span>
+    <span class="n">_</span><span class="o">=</span><span class="s">&quot;&quot;&quot;</span>
+<span class="s">    for comment, start in js_comments_singlelines2.findall(js):</span>
+<span class="s">        # ...except those that contain --&gt;</span>
+<span class="s">        replacewith = &#39;&#39;</span>
+<span class="s">        if start == &#39;;&#39;:</span>
+<span class="s">            replacewith = &#39;;&#39;</span>
+<span class="s">        if not js_comment_end.findall(comment):</span>
+<span class="s">            js = js.replace(comment, replacewith)</span>
+<span class="s">    &quot;&quot;&quot;</span>
+
+    <span class="n">js</span> <span class="o">=</span> <span class="n">js_comment_start</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r&#39;&lt;!--\n\3&#39;</span><span class="p">,</span> <span class="n">js</span><span class="p">)</span>
+
+    <span class="c"># 3. excessive whitespace after semicolons</span>
+    <span class="n">js</span> <span class="o">=</span> <span class="n">excess_whitespace_js2</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r&#39;\1;\2&#39;</span><span class="p">,</span> <span class="n">js</span><span class="p">)</span>
+
+    <span class="c"># 4. functions defined with lots of whitespace</span>
+    <span class="n">js</span> <span class="o">=</span> <span class="n">whitespaced_func_def</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r&#39;\1 \2{\3&#39;</span><span class="p">,</span> <span class="n">js</span><span class="p">)</span>
+    <span class="n">js</span> <span class="o">=</span> <span class="n">whitespaced_func_def2</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r&#39;function(){\1&#39;</span><span class="p">,</span> <span class="n">js</span><span class="p">)</span>
+
+    <span class="c"># 5. control statements with lots of whitespace</span>
+    <span class="n">js</span> <span class="o">=</span> <span class="n">whitespaced_controls</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r&#39;\1(\2){\3&#39;</span><span class="p">,</span> <span class="n">js</span><span class="p">)</span>
+
+    <span class="c"># 6. control statements without params with lots of whitespace</span>
+    <span class="n">js</span> <span class="o">=</span> <span class="n">single_whitespaced_controls</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r&#39;\1{\2&#39;</span><span class="p">,</span> <span class="n">js</span><span class="p">)</span>
+
+    <span class="c"># 7. convert &#39;(page == &quot;foo&quot;)&#39; to &#39;(page==&quot;foo&quot;)&#39;</span>
+    <span class="n">js</span> <span class="o">=</span> <span class="n">sloppy_conditionals</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r&#39;(\1\2\3)&#39;</span><span class="p">,</span> <span class="n">js</span><span class="p">)</span>
+
+    <span class="c"># 8. convert &#39;} else if {&#39; to &#39;}else if{&#39;</span>
+    <span class="n">js</span> <span class="o">=</span> <span class="n">sloppy_ifs</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r&#39;\1\2&#39;</span><span class="p">,</span> <span class="n">js</span><span class="p">)</span>
+
+    <span class="c"># 9. convert &#39;var x = foo&#39; to &#39;var x=foo&#39;</span>
+    <span class="n">js</span> <span class="o">=</span> <span class="n">sloppy_declarations</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r&#39;var \1=\2&#39;</span><span class="p">,</span><span class="n">js</span><span class="p">)</span>
+    <span class="n">js</span> <span class="o">=</span> <span class="n">sloppy_simple_declarations</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r&#39;\1=\2&#39;</span><span class="p">,</span> <span class="n">js</span><span class="p">)</span>
+
+    <span class="c"># 10. whitespace around closing } curly brackets</span>
+    <span class="n">js</span> <span class="o">=</span> <span class="n">opening_curly_brackets</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&#39;{&#39;</span><span class="p">,</span> <span class="n">js</span><span class="p">)</span>
+    <span class="n">js</span> <span class="o">=</span> <span class="n">closing_curly_brackets</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&#39;}&#39;</span><span class="p">,</span> <span class="n">js</span><span class="p">)</span>
+
+    <span class="c"># 11. Neater parameter lists</span>
+
+    <span class="c">#js = sloppy_parameters.sub(lambda m:m.group().replace(&#39; &#39;,&#39;&#39;), js)</span>
+    <span class="k">def</span> <span class="nf">param_list_fixer</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+        <span class="n">whole</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">whole</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">params</span><span class="p">,</span>
+                 <span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)]))</span>
+    <span class="n">js</span> <span class="o">=</span> <span class="n">sloppy_parameters</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">param_list_fixer</span><span class="p">,</span> <span class="n">js</span><span class="p">)</span>
+
+    <span class="c"># 12. sloppy increments</span>
+    <span class="n">js</span> <span class="o">=</span> <span class="n">sloppy_increments</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r&#39;\1\2\3&#39;</span><span class="p">,</span> <span class="n">js</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">slim_functions</span> <span class="ow">and</span> <span class="n">js_function_slimmer</span><span class="p">:</span>
+        <span class="n">js</span> <span class="o">=</span> <span class="n">js_function_slimmer</span><span class="p">(</span><span class="n">js</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">js</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+
+<span class="c">## ----- Some fancier names</span>
+<span class="c">##</span>
+
+<div class="viewcode-block" id="css_slimmer"><a class="viewcode-back" href="../../../lib.slimmer.html#lib.slimmer.slimmer.css_slimmer">[docs]</a><span class="k">def</span> <span class="nf">css_slimmer</span><span class="p">(</span><span class="n">css</span><span class="p">,</span> <span class="n">hardcore</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">_css_slimmer</span><span class="p">(</span><span class="n">css</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="xhtml_slimmer"><a class="viewcode-back" href="../../../lib.slimmer.html#lib.slimmer.slimmer.xhtml_slimmer">[docs]</a><span class="k">def</span> <span class="nf">xhtml_slimmer</span><span class="p">(</span><span class="n">xhtml</span><span class="p">,</span> <span class="n">hardcore</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">_xhtml_slimmer</span><span class="p">(</span><span class="n">xhtml</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="html_slimmer"><a class="viewcode-back" href="../../../lib.slimmer.html#lib.slimmer.slimmer.html_slimmer">[docs]</a><span class="k">def</span> <span class="nf">html_slimmer</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="n">hardcore</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">_html_slimmer</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="js_slimmer"><a class="viewcode-back" href="../../../lib.slimmer.html#lib.slimmer.slimmer.js_slimmer">[docs]</a><span class="k">def</span> <span class="nf">js_slimmer</span><span class="p">(</span><span class="n">js</span><span class="p">,</span> <span class="n">hardcore</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">_js_slimmer</span><span class="p">(</span><span class="n">js</span><span class="p">,</span> <span class="n">slim_functions</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">hardcore</span><span class="p">))</span>
+
+
+<span class="c">## ----- Methods related to simplifying HEX colour codes</span>
+</div>
+<span class="k">def</span> <span class="nf">uniqify</span><span class="p">(</span><span class="nb">all</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; borrowed from Tim Peters&#39; algorithm on ASPN Cookbook &quot;&quot;&quot;</span>
+    <span class="c"># REMEMBER! This will shuffle the order of the list</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">each</span> <span class="ow">in</span> <span class="nb">all</span><span class="p">:</span>
+        <span class="n">u</span><span class="p">[</span><span class="n">each</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
+    <span class="k">return</span> <span class="n">u</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">simplifyHexColours</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Replace all colour declarations where pairs repeat.</span>
+<span class="sd">    I.e. #FFFFFF =&gt; #FFF; #CCEEFF =&gt; #CEF</span>
+<span class="sd">    and #EFEFEF, #EFCDI9 avoided &quot;&quot;&quot;</span>
+    <span class="n">colour_replacements</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">all_hex_encodings</span> <span class="o">=</span> <span class="n">hex_colour</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">uniqify</span><span class="p">(</span><span class="n">all_hex_encodings</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="n">e</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">and</span> <span class="n">e</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">==</span><span class="n">e</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="ow">and</span> <span class="n">e</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">==</span><span class="n">e</span><span class="p">[</span><span class="mi">6</span><span class="p">]:</span>
+            <span class="n">colour_replacements</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;#&#39;</span><span class="o">+</span><span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">e</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">+</span><span class="n">e</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">colour_replacements</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">text</span>
+
+
+<span class="k">def</span> <span class="nf">__grr</span><span class="p">():</span>
+    <span class="k">print</span> <span class="s">&quot;Usage: python slimmer.py /path/to/input.html [xhtml|html|css|js] /path/to/output.html&quot;</span>
+
+<span class="k">def</span> <span class="nf">_pingable</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+<span class="k">def</span> <span class="nf">_is_openable_url</span><span class="p">(</span><span class="n">path_or_url</span><span class="p">):</span>
+    <span class="c"># looks like a URL?</span>
+    <span class="k">if</span> <span class="n">path_or_url</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;http&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_pingable</span><span class="p">(</span><span class="n">path_or_url</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+<span class="k">def</span> <span class="nf">__guess_syntax</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_is_openable_url</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">filepath</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;.css&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s">&#39;css&#39;</span>
+        <span class="k">elif</span> <span class="n">filepath</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;.js&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s">&#39;js&#39;</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+            <span class="n">f</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">=</span><span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+
+        <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">50</span> <span class="ow">and</span> <span class="n">line</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+            <span class="n">c</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">c</span><span class="o">&gt;</span><span class="mi">100</span><span class="p">:</span>
+                <span class="k">break</span> <span class="c"># paranoid safety</span>
+
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="n">lines_list</span> <span class="o">=</span> <span class="n">lines</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">lines_list</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;!DOCTYPE&#39;</span><span class="p">)</span><span class="o">&gt;-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">lines</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;HTML 4.0&#39;</span><span class="p">)</span><span class="o">&gt;-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s">&#39;html&#39;</span>
+        <span class="k">elif</span> <span class="n">lines</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;XHTML 1.0&#39;</span><span class="p">)</span><span class="o">&gt;-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s">&#39;xhtml&#39;</span>
+        <span class="k">elif</span> <span class="n">lines</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;&lt;html&gt;&#39;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s">&#39;html&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines_list</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">lines</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;&lt;html&#39;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s">&#39;html&#39;</span>
+
+        <span class="k">if</span> <span class="n">filepath</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;.html&#39;</span><span class="p">)</span> <span class="ow">or</span> \
+          <span class="n">filepath</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;.htm&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s">&#39;html&#39;</span>
+
+
+    <span class="k">return</span> <span class="bp">None</span>
+
+
+<span class="k">def</span> <span class="nf">__showversion</span><span class="p">():</span>
+    <span class="k">print</span> <span class="n">__version__</span>
+
+<span class="k">def</span> <span class="nf">__usage</span><span class="p">():</span>
+    <span class="k">print</span> <span class="n">usage</span>
+
+<span class="k">class</span> <span class="nc">Usage</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">argv</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">argv</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">opts</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="n">getopt</span><span class="o">.</span><span class="n">getopt</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="s">&quot;ho:vt&quot;</span><span class="p">,</span> 
+                           <span class="p">[</span><span class="s">&quot;help&quot;</span><span class="p">,</span> <span class="s">&quot;output=&quot;</span><span class="p">,</span> <span class="s">&quot;version&quot;</span><span class="p">,</span> <span class="s">&quot;test&quot;</span><span class="p">,</span> <span class="s">&quot;hardcore&quot;</span><span class="p">])</span>
+        <span class="k">except</span> <span class="n">getopt</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">Usage</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="c"># more code, unchanged</span>
+    <span class="k">except</span> <span class="n">Usage</span><span class="p">,</span> <span class="n">err</span><span class="p">:</span>
+        <span class="k">print</span> <span class="o">&gt;&gt;</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="n">err</span><span class="o">.</span><span class="n">msg</span>
+        <span class="k">print</span> <span class="o">&gt;&gt;</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;for help use --help&quot;</span>
+        <span class="k">return</span> <span class="mi">2</span>
+
+    <span class="n">outputfile</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">speedtest</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">hardcore</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="k">for</span> <span class="n">o</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">opts</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">o</span> <span class="o">==</span> <span class="s">&quot;--version&quot;</span><span class="p">:</span>
+            <span class="n">__showversion</span><span class="p">()</span>
+            <span class="k">return</span> <span class="mi">2</span>
+        <span class="k">elif</span> <span class="n">o</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;-h&#39;</span><span class="p">,</span> <span class="s">&#39;--help&#39;</span><span class="p">):</span>
+            <span class="n">__usage</span><span class="p">()</span>
+            <span class="k">return</span> <span class="mi">3</span>
+        <span class="k">elif</span> <span class="n">o</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;--output&#39;</span><span class="p">):</span>
+            <span class="n">outputfile</span> <span class="o">=</span> <span class="n">a</span>
+        <span class="k">elif</span> <span class="n">o</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;-t&quot;</span><span class="p">,</span> <span class="s">&quot;--test&quot;</span><span class="p">):</span>
+            <span class="n">speedtest</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">o</span> <span class="o">==</span> <span class="s">&#39;--hardcore&#39;</span><span class="p">:</span>
+            <span class="n">hardcore</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span>
+        <span class="n">__usage</span><span class="p">()</span>
+        <span class="k">return</span> <span class="mi">4</span>
+
+    <span class="n">syntax</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">inputfile</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">otherargs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">arg</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;-t&#39;</span><span class="p">,</span> <span class="s">&#39;--test&#39;</span><span class="p">):</span>
+            <span class="n">speedtest</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">arg</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;--output=&#39;</span><span class="p">):</span>
+            <span class="n">outputfile</span> <span class="o">=</span> <span class="n">arg</span><span class="p">[</span><span class="mi">9</span><span class="p">:]</span>
+        <span class="k">elif</span> <span class="n">acceptableSyntax</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
+            <span class="n">syntax</span> <span class="o">=</span> <span class="n">acceptableSyntax</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_is_openable_url</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
+            <span class="n">inputfile</span> <span class="o">=</span> <span class="n">arg</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">otherargs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">inputfile</span> <span class="ow">and</span> <span class="n">syntax</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">syntax</span> <span class="o">=</span> <span class="n">__guess_syntax</span><span class="p">(</span><span class="n">inputfile</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">inputfile</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">print</span> <span class="o">&gt;&gt;</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;No input file&quot;</span>
+        <span class="k">print</span> <span class="o">&gt;&gt;</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;for help use --help&quot;</span>
+        <span class="k">return</span> <span class="mi">2</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">acceptableSyntax</span><span class="p">(</span><span class="n">syntax</span><span class="p">):</span>
+        <span class="k">print</span> <span class="o">&gt;&gt;</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;Unrecognized syntax&quot;</span>
+        <span class="k">print</span> <span class="o">&gt;&gt;</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;for help use --help&quot;</span>
+        <span class="k">return</span> <span class="mi">2</span>
+
+    <span class="k">if</span> <span class="n">otherargs</span><span class="p">:</span>
+        <span class="k">print</span> <span class="o">&gt;&gt;</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;Unrecognized arguments </span><span class="si">%r</span><span class="s">&quot;</span><span class="o">%</span><span class="n">otherargs</span>
+        <span class="k">print</span> <span class="o">&gt;&gt;</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;for help use --help&quot;</span>
+        <span class="k">return</span> <span class="mi">2</span>
+
+
+
+    <span class="n">run</span><span class="p">(</span><span class="n">inputfile</span><span class="p">,</span> <span class="n">syntax</span><span class="p">,</span> <span class="n">speedtest</span><span class="p">,</span> <span class="n">outputfile</span><span class="p">,</span> <span class="n">hardcore</span><span class="o">=</span><span class="n">hardcore</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="mi">0</span>
+
+
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+
+<span class="k">def</span> <span class="nf">_gzipText</span><span class="p">(</span><span class="n">content</span><span class="p">):</span>
+    <span class="kn">import</span> <span class="nn">cStringIO</span><span class="o">,</span><span class="nn">gzip</span>
+    <span class="n">zbuf</span> <span class="o">=</span> <span class="n">cStringIO</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+    <span class="n">zfile</span> <span class="o">=</span> <span class="n">gzip</span><span class="o">.</span><span class="n">GzipFile</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="s">&#39;wb&#39;</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="n">zbuf</span><span class="p">)</span>
+    <span class="n">zfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+    <span class="n">zfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">zbuf</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">inputfile</span><span class="p">,</span> <span class="n">syntax</span><span class="p">,</span> <span class="n">speedtest</span><span class="p">,</span> <span class="n">outputfile</span><span class="p">,</span> <span class="n">hardcore</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">inputfile</span><span class="p">):</span>
+        <span class="n">contents</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">inputfile</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">contents</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">inputfile</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">t0</span><span class="o">=</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">slimmed</span> <span class="o">=</span> <span class="n">slimmer</span><span class="p">(</span><span class="n">contents</span><span class="p">,</span> <span class="n">syntax</span><span class="p">,</span> <span class="n">hardcore</span><span class="o">=</span><span class="n">hardcore</span><span class="p">)</span>
+    <span class="n">t</span><span class="o">=</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t0</span>
+
+
+
+    <span class="k">if</span> <span class="n">speedtest</span><span class="p">:</span>
+        <span class="n">before</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span>
+        <span class="n">after</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">slimmed</span><span class="p">)</span>
+        <span class="n">after_zlibbed</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">slimmed</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;zlib&#39;</span><span class="p">))</span>
+        <span class="n">after_gzip</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">_gzipText</span><span class="p">(</span><span class="n">slimmed</span><span class="p">))</span>
+        <span class="n">size_before</span> <span class="o">=</span> <span class="n">before</span>
+        <span class="k">if</span> <span class="n">size_before</span> <span class="o">&gt;</span> <span class="mi">100000</span><span class="p">:</span>
+            <span class="n">size_before</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> (</span><span class="si">%s</span><span class="s">K)&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">size_before</span><span class="p">,</span> <span class="n">size_before</span><span class="o">/</span><span class="mi">1024</span><span class="p">)</span>
+        <span class="n">size_after</span> <span class="o">=</span> <span class="n">after</span>
+        <span class="k">if</span> <span class="n">size_after</span> <span class="o">&gt;</span> <span class="mi">100000</span><span class="p">:</span>
+            <span class="n">size_after</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> (</span><span class="si">%s</span><span class="s">K)&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">size_after</span><span class="p">,</span> <span class="n">size_after</span><span class="o">/</span><span class="mi">1024</span><span class="p">)</span>
+        <span class="n">size_difference</span> <span class="o">=</span> <span class="n">before</span><span class="o">-</span><span class="n">after</span>
+        <span class="k">if</span> <span class="n">size_difference</span> <span class="o">&gt;</span> <span class="mi">10000</span><span class="p">:</span>
+            <span class="n">size_difference</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> (</span><span class="si">%s</span><span class="s">K)&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">size_difference</span><span class="p">,</span> <span class="n">size_difference</span><span class="o">/</span><span class="mi">1024</span><span class="p">)</span>
+        <span class="k">print</span> <span class="s">&quot;Took </span><span class="si">%s</span><span class="s"> seconds&quot;</span><span class="o">%</span><span class="nb">round</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="k">print</span> <span class="s">&quot;Bytes before: </span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span><span class="n">size_before</span>
+        <span class="k">print</span> <span class="s">&quot;Bytes after:  </span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span><span class="n">size_after</span>
+        <span class="k">print</span> <span class="s">&quot;Bytes after zlib: </span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span><span class="n">after_zlibbed</span>
+        <span class="k">print</span> <span class="s">&quot;Bytes after gzip: </span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span><span class="n">after_gzip</span>
+        <span class="k">print</span> <span class="s">&quot;Bytes saved:  </span><span class="si">%s</span><span class="s"> &quot;</span><span class="o">%</span><span class="n">size_difference</span><span class="p">,</span>
+        <span class="k">print</span> <span class="s">&quot;(</span><span class="si">%s%%</span><span class="s"> of original size)&quot;</span><span class="o">%</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="nb">round</span><span class="p">(</span><span class="n">after</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">before</span><span class="p">),</span> <span class="mi">2</span><span class="p">))</span>
+
+    <span class="k">elif</span> <span class="n">outputfile</span><span class="p">:</span>
+        <span class="nb">open</span><span class="p">(</span><span class="n">outputfile</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">slimmed</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">print</span> <span class="o">&gt;&gt;</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">slimmed</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span><span class="o">==</span><span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

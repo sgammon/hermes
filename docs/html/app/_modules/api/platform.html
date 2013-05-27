@@ -1,0 +1,384 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>api.platform &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for api.platform</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This package contains platform classes. AppTools platform classes contain</span>
+<span class="sd">business logic code that must be distributed to all base classes in an app.</span>
+<span class="sd">Platforms are registered at ``apptools.system.platform``, and are picked up</span>
+<span class="sd">and injected at class construction time, such that platform functionality</span>
+<span class="sd">is ready and waiting when ``self`` is defined at runtime.</span>
+
+<span class="sd">Interface</span>
+<span class="sd">---------</span>
+
+<span class="sd">Platforms can export a number of special methods and properties. These</span>
+<span class="sd">attributes are picked up and considered by the ``apptools`` platform</span>
+<span class="sd">runtime (see: :py:mod:`apptools.util.platform`):</span>
+
+<span class="sd">  * :py:meth:`Platform.check_environment`:</span>
+
+<span class="sd">    Executed by apptools internals before injection and after import,</span>
+<span class="sd">    to delegate environment compatibility detection to the Platform.</span>
+<span class="sd">    Must return ``True`` or ``False`` to indicate whether this platform</span>
+<span class="sd">    can (and should) be loaded::</span>
+
+<span class="sd">        # -*- coding: utf-8 -*-</span>
+
+<span class="sd">        ## SamplePlatform - sample platform for the docs.</span>
+<span class="sd">        class SamplePlatform(object):</span>
+
+<span class="sd">            &#39;&#39;&#39; Our cool sample platform. &#39;&#39;&#39;</span>
+
+<span class="sd">            @classmethod</span>
+<span class="sd">            def check_environment(cls, environ, config):</span>
+
+<span class="sd">                &#39;&#39;&#39; Check for some import that this platform depends on. &#39;&#39;&#39;</span>
+
+<span class="sd">                try:</span>
+<span class="sd">                    import cool_package</span>
+<span class="sd">                except ImportError as e:</span>
+<span class="sd">                  return False</span>
+<span class="sd">                return True</span>
+
+
+<span class="sd">  * :py:attr:`Platform.shortcut_exports`:</span>
+
+<span class="sd">    Accessed by apptools internals. Must be a structure in the format</span>
+<span class="sd">    ``[(&lt;string&gt;, &lt;obj&gt;)]``. Shortcuts exported in this way</span>
+<span class="sd">    will appear on injected base classes as directly attached at the</span>
+<span class="sd">    top-level of the object&#39;s dict. For example::</span>
+
+<span class="sd">        # -*- coding: utf-8 -*-</span>
+
+<span class="sd">        ## SamplePlatform - export some shortcuts.</span>
+<span class="sd">        class SamplePlatform(object):</span>
+
+<span class="sd">            &#39;&#39;&#39; Sample platform that exports shortcuts. &#39;&#39;&#39;</span>
+
+<span class="sd">            @property</span>
+<span class="sd">            def shortcut_exports(self):</span>
+
+<span class="sd">                &#39;&#39;&#39; Return exported base class shortcuts. &#39;&#39;&#39;</span>
+
+<span class="sd">                return [(&#39;api&#39;, self.api), (&#39;my_cool_platform&#39;, self)]</span>
+
+
+<span class="sd">    And then, many microseconds later, in a handler far, far away... a wild</span>
+<span class="sd">    platform magically appears::</span>
+
+<span class="sd">        # -*- coding: utf-8 -*-</span>
+
+<span class="sd">        ## MyHandler - cool handler demo-ing Platforms.</span>
+<span class="sd">        class MyHandler(WebHandler):</span>
+
+<span class="sd">            &#39;&#39;&#39; My cool injected handler. &#39;&#39;&#39;</span>
+
+<span class="sd">            def get(self):</span>
+
+<span class="sd">                &#39;&#39;&#39; HTTP GET &#39;&#39;&#39;</span>
+
+<span class="sd">                self.api == MyPlatform.api  # this is truthy</span>
+<span class="sd">                self.my_cool_platform == MyPlatform  # this is also truthy</span>
+
+
+<span class="sd">  * :py:attr:`Platform.template_context`:</span>
+
+<span class="sd">    Loaded by the AppTools output API to allow a Platform to inject data</span>
+<span class="sd">    into the global Jinja2 template context. This is evaluated at runtime</span>
+<span class="sd">    during the request processing flow, and thus has access to request</span>
+<span class="sd">    environment data. Must return a closure to be executed during render,</span>
+<span class="sd">    that accepts the parameters ``handler`` (the current handler) and</span>
+<span class="sd">    ``context`` (the current Jinja2 context), the latter of which **MUST** be</span>
+<span class="sd">    mutated in place and passed back::</span>
+
+<span class="sd">        # -*- coding: utf-8 -*-</span>
+
+<span class="sd">        ## SamplePlatform - export some template context.</span>
+<span class="sd">        class SamplePlatform(object):</span>
+
+<span class="sd">            &#39;&#39;&#39; Sample platform that exports template context entries. &#39;&#39;&#39;</span>
+
+<span class="sd">            @property</span>
+<span class="sd">            def template_context(self):</span>
+
+<span class="sd">                &#39;&#39;&#39; Return some local data that we have. &#39;&#39;&#39;</span>
+
+<span class="sd">                def inject_stuff(handler, context):</span>
+
+<span class="sd">                    &#39;&#39;&#39; Inject `mycoolvar` into the Jinja2 template context. &#39;&#39;&#39;</span>
+
+<span class="sd">                    context[&#39;mycoolvar&#39;] = &#39;wassup template!&#39;</span>
+
+<span class="sd">                return context</span>
+
+
+<span class="sd">    And then, many microseconds later in a template far, far away... your</span>
+<span class="sd">    stupid template variable is *waiting for you*:</span>
+
+<span class="sd">    .. code-block :: jinja</span>
+
+<span class="sd">          {% block injected %}</span>
+<span class="sd">              &lt;b&gt;{{ mycoolvar }}&lt;/b&gt;</span>
+<span class="sd">          {% endblock injected %}</span>
+
+<span class="sd">    Will produce the HTML:</span>
+
+<span class="sd">    .. code-block :: html</span>
+
+<span class="sd">        &lt;ul&gt;</span>
+<span class="sd">            &lt;li&gt;&lt;b&gt;mycooltemplate&lt;/b&gt;&lt;/li&gt;</span>
+<span class="sd">        &lt;/ul&gt;</span>
+
+
+<span class="sd">  * :py:attr:`Platform.config_shortcuts`:</span>
+
+<span class="sd">    Loaded and attached by the apptools internals to base classes in a very</span>
+<span class="sd">    similar way to ``shortcut_exports``. This structure, however, accepts</span>
+<span class="sd">    a list of the form ``list(tuple(&lt;string&gt;, &lt;obj&gt;))``, where ``&lt;string&gt;``</span>
+<span class="sd">    is a path to config. The resulting object is wrapped in a Webapp2 cached</span>
+<span class="sd">    property and attached as a config shortcut.</span>
+
+<span class="sd">    Mostly for internal use.</span>
+
+
+<span class="sd">Hooks</span>
+<span class="sd">---------</span>
+
+<span class="sd">Platforms can also export method hooks, which are dispatched by ``apptools``</span>
+<span class="sd">at various stages of the request/response execution flow:</span>
+
+<span class="sd">    * :py:meth:`Platform.pre_dispatch`:</span>
+<span class="sd">      Hook method that, if defined, is executed right before handler dispatch.</span>
+<span class="sd">      The request flow can be stopped by raising an exception, but the return</span>
+<span class="sd">      value of this function is ignored, so it&#39;s mostly for initialization.</span>
+
+<span class="sd">      :param handler: The currently-active :py:class:`webapp.RequestHandler`.</span>
+<span class="sd">      :returns: *Must* return the current handler.</span>
+
+
+<span class="sd">    * :py:meth:`Platform.post_dispatch`:</span>
+<span class="sd">      Hook method that, if defined, is executed right after the response is</span>
+<span class="sd">      returned from the handler. Once again, the request flow can be stopped</span>
+<span class="sd">      via exceptions but the return value is ignored.</span>
+
+<span class="sd">      :param handler: The currently-active :py:class:`webapp.RequestHandler`.</span>
+<span class="sd">      :param response: The currently-active :py:class:`webapp.Response`.</span>
+<span class="sd">      :returns: Return value is discarded - since the request execution flow</span>
+<span class="sd">                has already ceased, the return value from this method is</span>
+<span class="sd">                discarded.</span>
+
+
+
+<span class="sd">:author: Sam Gammon (sam.gammon@ampush.com)</span>
+<span class="sd">:copyright: (c) 2013 Ampush.</span>
+<span class="sd">:license: This is private source code - all rights are reserved. For details about</span>
+<span class="sd">          embedded licenses and other legalese, see `LICENSE.md`.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c"># Base Imports</span>
+<span class="kn">import</span> <span class="nn">config</span>
+<span class="kn">import</span> <span class="nn">webapp2</span>
+
+<span class="c"># Utils</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">debug</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">decorators</span>
+
+
+<span class="c">## Platform - abstract platform class</span>
+<div class="viewcode-block" id="Platform"><a class="viewcode-back" href="../../api.platform.html#api.platform.Platform">[docs]</a><span class="k">class</span> <span class="nc">Platform</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Root abstract class for platform objects. &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Initialize this ``Platform`. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;initialize&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+
+    <span class="nd">@decorators.classproperty</span>
+    <span class="k">def</span> <span class="nf">_config_path</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Calculate dynamic default config path.</span>
+
+<span class="sd">            :returns: String configuration path, which defaults to</span>
+<span class="sd">                      concatenated module import path and class name</span>
+<span class="sd">                      (for example: ``cool.platforms.Platform``). &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">__module__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">cls</span><span class="o">.</span><span class="n">__name__</span><span class="p">])</span>
+
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="Platform.config"><a class="viewcode-back" href="../../api.platform.html#api.platform.Platform.config">[docs]</a>    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Named config pipe. Resolves ``Platform`` configuration.</span>
+
+<span class="sd">            :returns: Configuration ``dict`` for target ``Platform``.</span>
+<span class="sd">                      In this case, ``debug`` always defaults to</span>
+<span class="sd">                      ``True`` if no config was found. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config_path</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;debug&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">})</span>
+</div>
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="Platform.logging"><a class="viewcode-back" href="../../api.platform.html#api.platform.Platform.logging">[docs]</a>    <span class="k">def</span> <span class="nf">logging</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Named logging pipe. Reads :py:attr:`PlatformBridge._config_path`</span>
+<span class="sd">            to produce a customized log pipe.</span>
+
+<span class="sd">            :returns: A brand new :py:class:`apptools.debug.AppToolsLogger`,</span>
+<span class="sd">                      with the current ``path``/``name``/``condition`` set. &#39;&#39;&#39;</span>
+
+        <span class="n">_split</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">debug</span><span class="o">.</span><span class="n">AppToolsLogger</span><span class="p">(</span><span class="o">**</span><span class="p">{</span>
+            <span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_split</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">_split</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">})</span><span class="o">.</span><span class="n">_setcondition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;debug&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">))</span>
+
+
+<span class="c">## PlatformBridge - abstract class for objects held by platforms</span></div></div>
+<div class="viewcode-block" id="PlatformBridge"><a class="viewcode-back" href="../../api.platform.html#api.platform.PlatformBridge">[docs]</a><span class="k">class</span> <span class="nc">PlatformBridge</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Root abstract class for platform objects. &#39;&#39;&#39;</span>
+
+    <span class="n">bus</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">handler</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bus</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Initialize a PlatformBridge, optionally with a parent bus.</span>
+
+<span class="sd">            :param bus: Parent ``Platform``, for access to other bridges/main code. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">bus</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bus</span> <span class="o">=</span> <span class="n">bus</span>
+
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="PlatformBridge.config"><a class="viewcode-back" href="../../api.platform.html#api.platform.PlatformBridge.config">[docs]</a>    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Named config pipe. Reads :py:attr:`PlatformBridge._config_path`.</span>
+
+<span class="sd">            :returns: Configuration ``dict`` for contextual class, if any.</span>
+<span class="sd">                      Defaults to returning an empty dictionary. &#39;&#39;&#39;</span>
+
+        <span class="c"># Generate and return path by fully-qualified python module + class name (e.g. yoga.platform.PlatformBridge)</span>
+        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config_path</span><span class="p">,</span> <span class="p">{})</span>
+</div>
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="PlatformBridge.logging"><a class="viewcode-back" href="../../api.platform.html#api.platform.PlatformBridge.logging">[docs]</a>    <span class="k">def</span> <span class="nf">logging</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Named logging pipe. Reads :py:attr:`PlatformBridge._config_path`</span>
+<span class="sd">            to produce a customized log pipe.</span>
+
+<span class="sd">            :returns: A brand new :py:class:`apptools.debug.AppToolsLogger`,</span>
+<span class="sd">                      with the current ``path``/``name``/``condition`` set. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">debug</span><span class="o">.</span><span class="n">AppToolsLogger</span><span class="p">(</span><span class="o">**</span><span class="p">{</span>
+            <span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="p">})</span><span class="o">.</span><span class="n">_setcondition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;debug&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">))</span>
+</div>
+    <span class="nd">@webapp2.cached_property</span>
+    <span class="k">def</span> <span class="nf">_config_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Generate a config path, like &quot;python.module.to.Class&quot; for a given class.</span>
+
+<span class="sd">            :returns: String config path, built from module import path and class</span>
+<span class="sd">                      name (for example: ``api.platform.ampush.example.Example``). &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__module__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">])</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

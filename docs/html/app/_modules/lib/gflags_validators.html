@@ -1,0 +1,284 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.gflags_validators &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.gflags_validators</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+
+<span class="c"># Copyright (c) 2010, Google Inc.</span>
+<span class="c"># All rights reserved.</span>
+<span class="c">#</span>
+<span class="c"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c"># modification, are permitted provided that the following conditions are</span>
+<span class="c"># met:</span>
+<span class="c">#</span>
+<span class="c">#     * Redistributions of source code must retain the above copyright</span>
+<span class="c"># notice, this list of conditions and the following disclaimer.</span>
+<span class="c">#     * Redistributions in binary form must reproduce the above</span>
+<span class="c"># copyright notice, this list of conditions and the following disclaimer</span>
+<span class="c"># in the documentation and/or other materials provided with the</span>
+<span class="c"># distribution.</span>
+<span class="c">#     * Neither the name of Google Inc. nor the names of its</span>
+<span class="c"># contributors may be used to endorse or promote products derived from</span>
+<span class="c"># this software without specific prior written permission.</span>
+<span class="c">#</span>
+<span class="c"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS</span>
+<span class="c"># &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT</span>
+<span class="c"># LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR</span>
+<span class="c"># A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT</span>
+<span class="c"># OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,</span>
+<span class="c"># SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT</span>
+<span class="c"># LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,</span>
+<span class="c"># DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY</span>
+<span class="c"># THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT</span>
+<span class="c"># (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE</span>
+<span class="c"># OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+
+<span class="sd">&quot;&quot;&quot;Module to enforce different constraints on flags.</span>
+
+<span class="sd">A validator represents an invariant, enforced over a one or more flags.</span>
+<span class="sd">See &#39;FLAGS VALIDATORS&#39; in gflags.py&#39;s docstring for a usage manual.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;olexiy@google.com (Olexiy Oryeshko)&#39;</span>
+
+
+<div class="viewcode-block" id="Error"><a class="viewcode-back" href="../../lib.html#lib.gflags_validators.Error">[docs]</a><span class="k">class</span> <span class="nc">Error</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Thrown If validator constraint is not satisfied.&quot;&quot;&quot;</span>
+
+</div>
+<div class="viewcode-block" id="Validator"><a class="viewcode-back" href="../../lib.html#lib.gflags_validators.Validator">[docs]</a><span class="k">class</span> <span class="nc">Validator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Base class for flags validators.</span>
+
+<span class="sd">  Users should NOT overload these classes, and use gflags.Register...</span>
+<span class="sd">  methods instead.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="c"># Used to assign each validator an unique insertion_index</span>
+  <span class="n">validators_count</span> <span class="o">=</span> <span class="mi">0</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checker</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor to create all validators.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      checker: function to verify the constraint.</span>
+<span class="sd">        Input of this method varies, see SimpleValidator and</span>
+<span class="sd">          DictionaryValidator for a detailed description.</span>
+<span class="sd">      message: string, error message to be shown to the user</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">checker</span> <span class="o">=</span> <span class="n">checker</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+    <span class="n">Validator</span><span class="o">.</span><span class="n">validators_count</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="c"># Used to assert validators in the order they were registered (CL/18694236)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">insertion_index</span> <span class="o">=</span> <span class="n">Validator</span><span class="o">.</span><span class="n">validators_count</span>
+
+<div class="viewcode-block" id="Validator.Verify"><a class="viewcode-back" href="../../lib.html#lib.gflags_validators.Validator.Verify">[docs]</a>  <span class="k">def</span> <span class="nf">Verify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag_values</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Verify that constraint is satisfied.</span>
+
+<span class="sd">    flags library calls this method to verify Validator&#39;s constraint.</span>
+<span class="sd">    Args:</span>
+<span class="sd">      flag_values: gflags.FlagValues, containing all flags</span>
+<span class="sd">    Raises:</span>
+<span class="sd">      Error: if constraint is not satisfied.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_GetInputToCheckerFunction</span><span class="p">(</span><span class="n">flag_values</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">checker</span><span class="p">(</span><span class="n">param</span><span class="p">):</span>
+      <span class="k">raise</span> <span class="n">Error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Validator.GetFlagsNames"><a class="viewcode-back" href="../../lib.html#lib.gflags_validators.Validator.GetFlagsNames">[docs]</a>  <span class="k">def</span> <span class="nf">GetFlagsNames</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the names of the flags checked by this validator.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      [string], names of the flags</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&#39;This method should be overloaded&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Validator.PrintFlagsWithValues"><a class="viewcode-back" href="../../lib.html#lib.gflags_validators.Validator.PrintFlagsWithValues">[docs]</a>  <span class="k">def</span> <span class="nf">PrintFlagsWithValues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag_values</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&#39;This method should be overloaded&#39;</span><span class="p">)</span>
+</div>
+  <span class="k">def</span> <span class="nf">_GetInputToCheckerFunction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag_values</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Given flag values, construct the input to be given to checker.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      flag_values: gflags.FlagValues, containing all flags.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      Return type depends on the specific validator.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&#39;This method should be overloaded&#39;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="SimpleValidator"><a class="viewcode-back" href="../../lib.html#lib.gflags_validators.SimpleValidator">[docs]</a><span class="k">class</span> <span class="nc">SimpleValidator</span><span class="p">(</span><span class="n">Validator</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Validator behind RegisterValidator() method.</span>
+
+<span class="sd">  Validates that a single flag passes its checker function. The checker function</span>
+<span class="sd">  takes the flag value and returns True (if value looks fine) or, if flag value</span>
+<span class="sd">  is not valid, either returns False or raises an Exception.&quot;&quot;&quot;</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag_name</span><span class="p">,</span> <span class="n">checker</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      flag_name: string, name of the flag.</span>
+<span class="sd">      checker: function to verify the validator.</span>
+<span class="sd">        input  - value of the corresponding flag (string, boolean, etc).</span>
+<span class="sd">        output - Boolean. Must return True if validator constraint is satisfied.</span>
+<span class="sd">          If constraint is not satisfied, it should either return False or</span>
+<span class="sd">          raise Error.</span>
+<span class="sd">      message: string, error message to be shown to the user if validator&#39;s</span>
+<span class="sd">        condition is not satisfied</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">SimpleValidator</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">checker</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">flag_name</span> <span class="o">=</span> <span class="n">flag_name</span>
+
+<div class="viewcode-block" id="SimpleValidator.GetFlagsNames"><a class="viewcode-back" href="../../lib.html#lib.gflags_validators.SimpleValidator.GetFlagsNames">[docs]</a>  <span class="k">def</span> <span class="nf">GetFlagsNames</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">flag_name</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="SimpleValidator.PrintFlagsWithValues"><a class="viewcode-back" href="../../lib.html#lib.gflags_validators.SimpleValidator.PrintFlagsWithValues">[docs]</a>  <span class="k">def</span> <span class="nf">PrintFlagsWithValues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag_values</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s">&#39;flag --</span><span class="si">%s</span><span class="s">=</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flag_name</span><span class="p">,</span> <span class="n">flag_values</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">flag_name</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+</div>
+  <span class="k">def</span> <span class="nf">_GetInputToCheckerFunction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag_values</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Given flag values, construct the input to be given to checker.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      flag_values: gflags.FlagValues</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      value of the corresponding flag.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">flag_values</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">flag_name</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+
+</div>
+<div class="viewcode-block" id="DictionaryValidator"><a class="viewcode-back" href="../../lib.html#lib.gflags_validators.DictionaryValidator">[docs]</a><span class="k">class</span> <span class="nc">DictionaryValidator</span><span class="p">(</span><span class="n">Validator</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Validator behind RegisterDictionaryValidator method.</span>
+
+<span class="sd">  Validates that flag values pass their common checker function. The checker</span>
+<span class="sd">  function takes flag values and returns True (if values look fine) or,</span>
+<span class="sd">  if values are not valid, either returns False or raises an Exception.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag_names</span><span class="p">,</span> <span class="n">checker</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      flag_names: [string], containing names of the flags used by checker.</span>
+<span class="sd">      checker: function to verify the validator.</span>
+<span class="sd">        input  - dictionary, with keys() being flag_names, and value for each</span>
+<span class="sd">          key being the value of the corresponding flag (string, boolean, etc).</span>
+<span class="sd">        output - Boolean. Must return True if validator constraint is satisfied.</span>
+<span class="sd">          If constraint is not satisfied, it should either return False or</span>
+<span class="sd">          raise Error.</span>
+<span class="sd">      message: string, error message to be shown to the user if validator&#39;s</span>
+<span class="sd">        condition is not satisfied</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">DictionaryValidator</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">checker</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">flag_names</span> <span class="o">=</span> <span class="n">flag_names</span>
+
+  <span class="k">def</span> <span class="nf">_GetInputToCheckerFunction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag_values</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Given flag values, construct the input to be given to checker.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      flag_values: gflags.FlagValues</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      dictionary, with keys() being self.lag_names, and value for each key</span>
+<span class="sd">        being the value of the corresponding flag (string, boolean, etc).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">([</span><span class="n">key</span><span class="p">,</span> <span class="n">flag_values</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_names</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DictionaryValidator.PrintFlagsWithValues"><a class="viewcode-back" href="../../lib.html#lib.gflags_validators.DictionaryValidator.PrintFlagsWithValues">[docs]</a>  <span class="k">def</span> <span class="nf">PrintFlagsWithValues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag_values</span><span class="p">):</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="s">&#39;flags &#39;</span>
+    <span class="n">flags_with_values</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_names</span><span class="p">:</span>
+      <span class="n">flags_with_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">=</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">flag_values</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">flags_with_values</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="DictionaryValidator.GetFlagsNames"><a class="viewcode-back" href="../../lib.html#lib.gflags_validators.DictionaryValidator.GetFlagsNames">[docs]</a>  <span class="k">def</span> <span class="nf">GetFlagsNames</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_names</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,1171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.gviz &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.gviz</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/python</span>
+<span class="c">#</span>
+<span class="c"># Copyright (C) 2009 Google Inc.</span>
+<span class="c">#</span>
+<span class="c"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c"># you may not use this file except in compliance with the License.</span>
+<span class="c"># You may obtain a copy of the License at</span>
+<span class="c">#</span>
+<span class="c">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c"># See the License for the specific language governing permissions and</span>
+<span class="c"># limitations under the License.</span>
+
+<span class="sd">&quot;&quot;&quot;Converts Python data into data for Google Visualization API clients.</span>
+
+<span class="sd">This library can be used to create a google.visualization.DataTable usable by</span>
+<span class="sd">visualizations built on the Google Visualization API. Output formats are raw</span>
+<span class="sd">JSON, JSON response, JavaScript, CSV, and HTML table.</span>
+
+<span class="sd">See http://code.google.com/apis/visualization/ for documentation on the</span>
+<span class="sd">Google Visualization API.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Amit Weinstein, Misha Seltzer, Jacob Baskin&quot;</span>
+
+<span class="kn">import</span> <span class="nn">cgi</span>
+<span class="kn">import</span> <span class="nn">cStringIO</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="k">try</span><span class="p">:</span>
+  <span class="kn">import</span> <span class="nn">json</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+  <span class="kn">import</span> <span class="nn">simplejson</span> <span class="kn">as</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">types</span>
+
+
+<div class="viewcode-block" id="DataTableException"><a class="viewcode-back" href="../../lib.html#lib.gviz.DataTableException">[docs]</a><span class="k">class</span> <span class="nc">DataTableException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The general exception object thrown by DataTable.&quot;&quot;&quot;</span>
+  <span class="k">pass</span>
+
+</div>
+<div class="viewcode-block" id="DataTableJSONEncoder"><a class="viewcode-back" href="../../lib.html#lib.gviz.DataTableJSONEncoder">[docs]</a><span class="k">class</span> <span class="nc">DataTableJSONEncoder</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;JSON encoder that handles date/time/datetime objects correctly.&quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                              <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">,</span> <span class="s">&quot;:&quot;</span><span class="p">),</span>
+                              <span class="n">ensure_ascii</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DataTableJSONEncoder.default"><a class="viewcode-back" href="../../lib.html#lib.gviz.DataTableJSONEncoder.default">[docs]</a>  <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">):</span>
+      <span class="k">return</span> <span class="s">&quot;Date(</span><span class="si">%d</span><span class="s">,</span><span class="si">%d</span><span class="s">,</span><span class="si">%d</span><span class="s">,</span><span class="si">%d</span><span class="s">,</span><span class="si">%d</span><span class="s">,</span><span class="si">%d</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span>
+          <span class="n">o</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">o</span><span class="o">.</span><span class="n">month</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">o</span><span class="o">.</span><span class="n">day</span><span class="p">,</span> <span class="n">o</span><span class="o">.</span><span class="n">hour</span><span class="p">,</span> <span class="n">o</span><span class="o">.</span><span class="n">minute</span><span class="p">,</span> <span class="n">o</span><span class="o">.</span><span class="n">second</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">):</span>
+      <span class="k">return</span> <span class="s">&quot;Date(</span><span class="si">%d</span><span class="s">,</span><span class="si">%d</span><span class="s">,</span><span class="si">%d</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">o</span><span class="o">.</span><span class="n">month</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">o</span><span class="o">.</span><span class="n">day</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="p">):</span>
+      <span class="k">return</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">hour</span><span class="p">,</span> <span class="n">o</span><span class="o">.</span><span class="n">minute</span><span class="p">,</span> <span class="n">o</span><span class="o">.</span><span class="n">second</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">DataTableJSONEncoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="DataTable"><a class="viewcode-back" href="../../lib.html#lib.gviz.DataTable">[docs]</a><span class="k">class</span> <span class="nc">DataTable</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Wraps the data to convert to a Google Visualization API DataTable.</span>
+
+<span class="sd">  Create this object, populate it with data, then call one of the ToJS...</span>
+<span class="sd">  methods to return a string representation of the data in the format described.</span>
+
+<span class="sd">  You can clear all data from the object to reuse it, but you cannot clear</span>
+<span class="sd">  individual cells, rows, or columns. You also cannot modify the table schema</span>
+<span class="sd">  specified in the class constructor.</span>
+
+<span class="sd">  You can add new data one or more rows at a time. All data added to an</span>
+<span class="sd">  instantiated DataTable must conform to the schema passed in to __init__().</span>
+
+<span class="sd">  You can reorder the columns in the output table, and also specify row sorting</span>
+<span class="sd">  order by column. The default column order is according to the original</span>
+<span class="sd">  table_description parameter. Default row sort order is ascending, by column</span>
+<span class="sd">  1 values. For a dictionary, we sort the keys for order.</span>
+
+<span class="sd">  The data and the table_description are closely tied, as described here:</span>
+
+<span class="sd">  The table schema is defined in the class constructor&#39;s table_description</span>
+<span class="sd">  parameter. The user defines each column using a tuple of</span>
+<span class="sd">  (id[, type[, label[, custom_properties]]]). The default value for type is</span>
+<span class="sd">  string, label is the same as ID if not specified, and custom properties is</span>
+<span class="sd">  an empty dictionary if not specified.</span>
+
+<span class="sd">  table_description is a dictionary or list, containing one or more column</span>
+<span class="sd">  descriptor tuples, nested dictionaries, and lists. Each dictionary key, list</span>
+<span class="sd">  element, or dictionary element must eventually be defined as</span>
+<span class="sd">  a column description tuple. Here&#39;s an example of a dictionary where the key</span>
+<span class="sd">  is a tuple, and the value is a list of two tuples:</span>
+<span class="sd">    {(&#39;a&#39;, &#39;number&#39;): [(&#39;b&#39;, &#39;number&#39;), (&#39;c&#39;, &#39;string&#39;)]}</span>
+
+<span class="sd">  This flexibility in data entry enables you to build and manipulate your data</span>
+<span class="sd">  in a Python structure that makes sense for your program.</span>
+
+<span class="sd">  Add data to the table using the same nested design as the table&#39;s</span>
+<span class="sd">  table_description, replacing column descriptor tuples with cell data, and</span>
+<span class="sd">  each row is an element in the top level collection. This will be a bit</span>
+<span class="sd">  clearer after you look at the following examples showing the</span>
+<span class="sd">  table_description, matching data, and the resulting table:</span>
+
+<span class="sd">  Columns as list of tuples [col1, col2, col3]</span>
+<span class="sd">    table_description: [(&#39;a&#39;, &#39;number&#39;), (&#39;b&#39;, &#39;string&#39;)]</span>
+<span class="sd">    AppendData( [[1, &#39;z&#39;], [2, &#39;w&#39;], [4, &#39;o&#39;], [5, &#39;k&#39;]] )</span>
+<span class="sd">    Table:</span>
+<span class="sd">    a  b   &lt;--- these are column ids/labels</span>
+<span class="sd">    1  z</span>
+<span class="sd">    2  w</span>
+<span class="sd">    4  o</span>
+<span class="sd">    5  k</span>
+
+<span class="sd">  Dictionary of columns, where key is a column, and value is a list of</span>
+<span class="sd">  columns  {col1: [col2, col3]}</span>
+<span class="sd">    table_description: {(&#39;a&#39;, &#39;number&#39;): [(&#39;b&#39;, &#39;number&#39;), (&#39;c&#39;, &#39;string&#39;)]}</span>
+<span class="sd">    AppendData( data: {1: [2, &#39;z&#39;], 3: [4, &#39;w&#39;]}</span>
+<span class="sd">    Table:</span>
+<span class="sd">    a  b  c</span>
+<span class="sd">    1  2  z</span>
+<span class="sd">    3  4  w</span>
+
+<span class="sd">  Dictionary where key is a column, and the value is itself a dictionary of</span>
+<span class="sd">  columns {col1: {col2, col3}}</span>
+<span class="sd">    table_description: {(&#39;a&#39;, &#39;number&#39;): {&#39;b&#39;: &#39;number&#39;, &#39;c&#39;: &#39;string&#39;}}</span>
+<span class="sd">    AppendData( data: {1: {&#39;b&#39;: 2, &#39;c&#39;: &#39;z&#39;}, 3: {&#39;b&#39;: 4, &#39;c&#39;: &#39;w&#39;}}</span>
+<span class="sd">    Table:</span>
+<span class="sd">    a  b  c</span>
+<span class="sd">    1  2  z</span>
+<span class="sd">    3  4  w</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_description</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">custom_properties</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Initialize the data table from a table schema and (optionally) data.</span>
+
+<span class="sd">    See the class documentation for more information on table schema and data</span>
+<span class="sd">    values.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      table_description: A table schema, following one of the formats described</span>
+<span class="sd">                         in TableDescriptionParser(). Schemas describe the</span>
+<span class="sd">                         column names, data types, and labels. See</span>
+<span class="sd">                         TableDescriptionParser() for acceptable formats.</span>
+<span class="sd">      data: Optional. If given, fills the table with the given data. The data</span>
+<span class="sd">            structure must be consistent with schema in table_description. See</span>
+<span class="sd">            the class documentation for more information on acceptable data. You</span>
+<span class="sd">            can add data later by calling AppendData().</span>
+<span class="sd">      custom_properties: Optional. A dictionary from string to string that</span>
+<span class="sd">                         goes into the table&#39;s custom properties. This can be</span>
+<span class="sd">                         later changed by changing self.custom_properties.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      DataTableException: Raised if the data and the description did not match,</span>
+<span class="sd">                          or did not use the supported formats.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">__columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TableDescriptionParser</span><span class="p">(</span><span class="n">table_description</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">__data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">custom_properties</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">custom_properties</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">custom_properties</span> <span class="o">=</span> <span class="n">custom_properties</span>
+    <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">LoadData</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+  <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DataTable.CoerceValue"><a class="viewcode-back" href="../../lib.html#lib.gviz.DataTable.CoerceValue">[docs]</a>  <span class="k">def</span> <span class="nf">CoerceValue</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">value_type</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Coerces a single value into the type expected for its column.</span>
+
+<span class="sd">    Internal helper method.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      value: The value which should be converted</span>
+<span class="sd">      value_type: One of &quot;string&quot;, &quot;number&quot;, &quot;boolean&quot;, &quot;date&quot;, &quot;datetime&quot; or</span>
+<span class="sd">                  &quot;timeofday&quot;.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      An item of the Python type appropriate to the given value_type. Strings</span>
+<span class="sd">      are also converted to Unicode using UTF-8 encoding if necessary.</span>
+<span class="sd">      If a tuple is given, it should be in one of the following forms:</span>
+<span class="sd">        - (value, formatted value)</span>
+<span class="sd">        - (value, formatted value, custom properties)</span>
+<span class="sd">      where the formatted value is a string, and custom properties is a</span>
+<span class="sd">      dictionary of the custom properties for this cell.</span>
+<span class="sd">      To specify custom properties without specifying formatted value, one can</span>
+<span class="sd">      pass None as the formatted value.</span>
+<span class="sd">      One can also have a null-valued cell with formatted value and/or custom</span>
+<span class="sd">      properties by specifying None for the value.</span>
+<span class="sd">      This method ignores the custom properties except for checking that it is a</span>
+<span class="sd">      dictionary. The custom properties are handled in the ToJSon and ToJSCode</span>
+<span class="sd">      methods.</span>
+<span class="sd">      The real type of the given value is not strictly checked. For example,</span>
+<span class="sd">      any type can be used for string - as we simply take its str( ) and for</span>
+<span class="sd">      boolean value we just check &quot;if value&quot;.</span>
+<span class="sd">      Examples:</span>
+<span class="sd">        CoerceValue(None, &quot;string&quot;) returns None</span>
+<span class="sd">        CoerceValue((5, &quot;5$&quot;), &quot;number&quot;) returns (5, &quot;5$&quot;)</span>
+<span class="sd">        CoerceValue(100, &quot;string&quot;) returns &quot;100&quot;</span>
+<span class="sd">        CoerceValue(0, &quot;boolean&quot;) returns False</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      DataTableException: The value and type did not match in a not-recoverable</span>
+<span class="sd">                          way, for example given value &#39;abc&#39; for type &#39;number&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+      <span class="c"># In case of a tuple, we run the same function on the value itself and</span>
+      <span class="c"># add the formatted value.</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="ow">or</span>
+          <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="nb">dict</span><span class="p">))):</span>
+        <span class="k">raise</span> <span class="n">DataTableException</span><span class="p">(</span><span class="s">&quot;Wrong format for value and formatting - </span><span class="si">%s</span><span class="s">.&quot;</span> <span class="o">%</span>
+                                 <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+      <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span> <span class="o">+</span> <span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">NoneType</span><span class="p">,)):</span>
+        <span class="k">raise</span> <span class="n">DataTableException</span><span class="p">(</span><span class="s">&quot;Formatted value is not string, given </span><span class="si">%s</span><span class="s">.&quot;</span> <span class="o">%</span>
+                                 <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+      <span class="n">js_value</span> <span class="o">=</span> <span class="n">DataTable</span><span class="o">.</span><span class="n">CoerceValue</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">value_type</span><span class="p">)</span>
+      <span class="k">return</span> <span class="p">(</span><span class="n">js_value</span><span class="p">,)</span> <span class="o">+</span> <span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+    <span class="n">t_value</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">value</span>
+    <span class="k">if</span> <span class="n">value_type</span> <span class="o">==</span> <span class="s">&quot;boolean&quot;</span><span class="p">:</span>
+      <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">value_type</span> <span class="o">==</span> <span class="s">&quot;number&quot;</span><span class="p">:</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">long</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="n">value</span>
+      <span class="k">raise</span> <span class="n">DataTableException</span><span class="p">(</span><span class="s">&quot;Wrong type </span><span class="si">%s</span><span class="s"> when expected number&quot;</span> <span class="o">%</span> <span class="n">t_value</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">value_type</span> <span class="o">==</span> <span class="s">&quot;string&quot;</span><span class="p">:</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">unicode</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&quot;utf-8&quot;</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">value_type</span> <span class="o">==</span> <span class="s">&quot;date&quot;</span><span class="p">:</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">month</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">day</span><span class="p">)</span>
+      <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">DataTableException</span><span class="p">(</span><span class="s">&quot;Wrong type </span><span class="si">%s</span><span class="s"> when expected date&quot;</span> <span class="o">%</span> <span class="n">t_value</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">value_type</span> <span class="o">==</span> <span class="s">&quot;timeofday&quot;</span><span class="p">:</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">hour</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">minute</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">second</span><span class="p">)</span>
+      <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">DataTableException</span><span class="p">(</span><span class="s">&quot;Wrong type </span><span class="si">%s</span><span class="s"> when expected time&quot;</span> <span class="o">%</span> <span class="n">t_value</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">value_type</span> <span class="o">==</span> <span class="s">&quot;datetime&quot;</span><span class="p">:</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">DataTableException</span><span class="p">(</span><span class="s">&quot;Wrong type </span><span class="si">%s</span><span class="s"> when expected datetime&quot;</span> <span class="o">%</span>
+                                 <span class="n">t_value</span><span class="p">)</span>
+    <span class="c"># If we got here, it means the given value_type was not one of the</span>
+    <span class="c"># supported types.</span>
+    <span class="k">raise</span> <span class="n">DataTableException</span><span class="p">(</span><span class="s">&quot;Unsupported type </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">value_type</span><span class="p">)</span>
+</div>
+  <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DataTable.EscapeForJSCode"><a class="viewcode-back" href="../../lib.html#lib.gviz.DataTable.EscapeForJSCode">[docs]</a>  <span class="k">def</span> <span class="nf">EscapeForJSCode</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="k">return</span> <span class="s">&quot;null&quot;</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">):</span>
+      <span class="k">return</span> <span class="s">&quot;new Date(</span><span class="si">%d</span><span class="s">,</span><span class="si">%d</span><span class="s">,</span><span class="si">%d</span><span class="s">,</span><span class="si">%d</span><span class="s">,</span><span class="si">%d</span><span class="s">,</span><span class="si">%d</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
+                                              <span class="n">value</span><span class="o">.</span><span class="n">month</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>  <span class="c"># To match JS</span>
+                                              <span class="n">value</span><span class="o">.</span><span class="n">day</span><span class="p">,</span>
+                                              <span class="n">value</span><span class="o">.</span><span class="n">hour</span><span class="p">,</span>
+                                              <span class="n">value</span><span class="o">.</span><span class="n">minute</span><span class="p">,</span>
+                                              <span class="n">value</span><span class="o">.</span><span class="n">second</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">):</span>
+      <span class="k">return</span> <span class="s">&quot;new Date(</span><span class="si">%d</span><span class="s">,</span><span class="si">%d</span><span class="s">,</span><span class="si">%d</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">month</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">day</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</div>
+  <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DataTable.ToString"><a class="viewcode-back" href="../../lib.html#lib.gviz.DataTable.ToString">[docs]</a>  <span class="k">def</span> <span class="nf">ToString</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="k">return</span> <span class="s">&quot;(empty)&quot;</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span>
+                            <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
+                            <span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="p">)):</span>
+      <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">unicode</span><span class="p">):</span>
+      <span class="k">return</span> <span class="n">value</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+      <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&quot;utf-8&quot;</span><span class="p">)</span>
+</div>
+  <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DataTable.ColumnTypeParser"><a class="viewcode-back" href="../../lib.html#lib.gviz.DataTable.ColumnTypeParser">[docs]</a>  <span class="k">def</span> <span class="nf">ColumnTypeParser</span><span class="p">(</span><span class="n">description</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parses a single column description. Internal helper method.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      description: a column description in the possible formats:</span>
+<span class="sd">       &#39;id&#39;</span>
+<span class="sd">       (&#39;id&#39;,)</span>
+<span class="sd">       (&#39;id&#39;, &#39;type&#39;)</span>
+<span class="sd">       (&#39;id&#39;, &#39;type&#39;, &#39;label&#39;)</span>
+<span class="sd">       (&#39;id&#39;, &#39;type&#39;, &#39;label&#39;, {&#39;custom_prop1&#39;: &#39;custom_val1&#39;})</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      Dictionary with the following keys: id, label, type, and</span>
+<span class="sd">      custom_properties where:</span>
+<span class="sd">        - If label not given, it equals the id.</span>
+<span class="sd">        - If type not given, string is used by default.</span>
+<span class="sd">        - If custom properties are not given, an empty dictionary is used by</span>
+<span class="sd">          default.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      DataTableException: The column description did not match the RE, or</span>
+<span class="sd">          unsupported type was passed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">description</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="n">DataTableException</span><span class="p">(</span><span class="s">&quot;Description error: empty description given&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+      <span class="k">raise</span> <span class="n">DataTableException</span><span class="p">(</span><span class="s">&quot;Description error: expected either string or &quot;</span>
+                               <span class="s">&quot;tuple, got </span><span class="si">%s</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">description</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span><span class="p">):</span>
+      <span class="n">description</span> <span class="o">=</span> <span class="p">(</span><span class="n">description</span><span class="p">,)</span>
+
+    <span class="c"># According to the tuple&#39;s length, we fill the keys</span>
+    <span class="c"># We verify everything is of type string</span>
+    <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">description</span><span class="p">[:</span><span class="mi">3</span><span class="p">]:</span>
+      <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">DataTableException</span><span class="p">(</span><span class="s">&quot;Description error: expected tuple of &quot;</span>
+                                 <span class="s">&quot;strings, current element of type </span><span class="si">%s</span><span class="s">.&quot;</span> <span class="o">%</span>
+                                 <span class="nb">type</span><span class="p">(</span><span class="n">elem</span><span class="p">))</span>
+    <span class="n">desc_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;id&quot;</span><span class="p">:</span> <span class="n">description</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                 <span class="s">&quot;label&quot;</span><span class="p">:</span> <span class="n">description</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                 <span class="s">&quot;type&quot;</span><span class="p">:</span> <span class="s">&quot;string&quot;</span><span class="p">,</span>
+                 <span class="s">&quot;custom_properties&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">description</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+      <span class="n">desc_dict</span><span class="p">[</span><span class="s">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+      <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">description</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">desc_dict</span><span class="p">[</span><span class="s">&quot;label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">description</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+          <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">description</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">DataTableException</span><span class="p">(</span><span class="s">&quot;Description error: expected custom &quot;</span>
+                                     <span class="s">&quot;properties of type dict, current element &quot;</span>
+                                     <span class="s">&quot;of type </span><span class="si">%s</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">description</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+          <span class="n">desc_dict</span><span class="p">[</span><span class="s">&quot;custom_properties&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+          <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">description</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DataTableException</span><span class="p">(</span><span class="s">&quot;Description error: tuple of length &gt; 4&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">desc_dict</span><span class="p">[</span><span class="s">&quot;type&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;string&quot;</span><span class="p">,</span> <span class="s">&quot;number&quot;</span><span class="p">,</span> <span class="s">&quot;boolean&quot;</span><span class="p">,</span>
+                                 <span class="s">&quot;date&quot;</span><span class="p">,</span> <span class="s">&quot;datetime&quot;</span><span class="p">,</span> <span class="s">&quot;timeofday&quot;</span><span class="p">]:</span>
+      <span class="k">raise</span> <span class="n">DataTableException</span><span class="p">(</span>
+          <span class="s">&quot;Description error: unsupported type &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="n">desc_dict</span><span class="p">[</span><span class="s">&quot;type&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">desc_dict</span>
+</div>
+  <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DataTable.TableDescriptionParser"><a class="viewcode-back" href="../../lib.html#lib.gviz.DataTable.TableDescriptionParser">[docs]</a>  <span class="k">def</span> <span class="nf">TableDescriptionParser</span><span class="p">(</span><span class="n">table_description</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parses the table_description object for internal use.</span>
+
+<span class="sd">    Parses the user-submitted table description into an internal format used</span>
+<span class="sd">    by the Python DataTable class. Returns the flat list of parsed columns.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      table_description: A description of the table which should comply</span>
+<span class="sd">                         with one of the formats described below.</span>
+<span class="sd">      depth: Optional. The depth of the first level in the current description.</span>
+<span class="sd">             Used by recursive calls to this function.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      List of columns, where each column represented by a dictionary with the</span>
+<span class="sd">      keys: id, label, type, depth, container which means the following:</span>
+<span class="sd">      - id: the id of the column</span>
+<span class="sd">      - name: The name of the column</span>
+<span class="sd">      - type: The datatype of the elements in this column. Allowed types are</span>
+<span class="sd">              described in ColumnTypeParser().</span>
+<span class="sd">      - depth: The depth of this column in the table description</span>
+<span class="sd">      - container: &#39;dict&#39;, &#39;iter&#39; or &#39;scalar&#39; for parsing the format easily.</span>
+<span class="sd">      - custom_properties: The custom properties for this column.</span>
+<span class="sd">      The returned description is flattened regardless of how it was given.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      DataTableException: Error in a column description or in the description</span>
+<span class="sd">                          structure.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">      A column description can be of the following forms:</span>
+<span class="sd">       &#39;id&#39;</span>
+<span class="sd">       (&#39;id&#39;,)</span>
+<span class="sd">       (&#39;id&#39;, &#39;type&#39;)</span>
+<span class="sd">       (&#39;id&#39;, &#39;type&#39;, &#39;label&#39;)</span>
+<span class="sd">       (&#39;id&#39;, &#39;type&#39;, &#39;label&#39;, {&#39;custom_prop1&#39;: &#39;custom_val1&#39;})</span>
+<span class="sd">       or as a dictionary:</span>
+<span class="sd">       &#39;id&#39;: &#39;type&#39;</span>
+<span class="sd">       &#39;id&#39;: (&#39;type&#39;,)</span>
+<span class="sd">       &#39;id&#39;: (&#39;type&#39;, &#39;label&#39;)</span>
+<span class="sd">       &#39;id&#39;: (&#39;type&#39;, &#39;label&#39;, {&#39;custom_prop1&#39;: &#39;custom_val1&#39;})</span>
+<span class="sd">      If the type is not specified, we treat it as string.</span>
+<span class="sd">      If no specific label is given, the label is simply the id.</span>
+<span class="sd">      If no custom properties are given, we use an empty dictionary.</span>
+
+<span class="sd">      input: [(&#39;a&#39;, &#39;date&#39;), (&#39;b&#39;, &#39;timeofday&#39;, &#39;b&#39;, {&#39;foo&#39;: &#39;bar&#39;})]</span>
+<span class="sd">      output: [{&#39;id&#39;: &#39;a&#39;, &#39;label&#39;: &#39;a&#39;, &#39;type&#39;: &#39;date&#39;,</span>
+<span class="sd">                &#39;depth&#39;: 0, &#39;container&#39;: &#39;iter&#39;, &#39;custom_properties&#39;: {}},</span>
+<span class="sd">               {&#39;id&#39;: &#39;b&#39;, &#39;label&#39;: &#39;b&#39;, &#39;type&#39;: &#39;timeofday&#39;,</span>
+<span class="sd">                &#39;depth&#39;: 0, &#39;container&#39;: &#39;iter&#39;,</span>
+<span class="sd">                &#39;custom_properties&#39;: {&#39;foo&#39;: &#39;bar&#39;}}]</span>
+
+<span class="sd">      input: {&#39;a&#39;: [(&#39;b&#39;, &#39;number&#39;), (&#39;c&#39;, &#39;string&#39;, &#39;column c&#39;)]}</span>
+<span class="sd">      output: [{&#39;id&#39;: &#39;a&#39;, &#39;label&#39;: &#39;a&#39;, &#39;type&#39;: &#39;string&#39;,</span>
+<span class="sd">                &#39;depth&#39;: 0, &#39;container&#39;: &#39;dict&#39;, &#39;custom_properties&#39;: {}},</span>
+<span class="sd">               {&#39;id&#39;: &#39;b&#39;, &#39;label&#39;: &#39;b&#39;, &#39;type&#39;: &#39;number&#39;,</span>
+<span class="sd">                &#39;depth&#39;: 1, &#39;container&#39;: &#39;iter&#39;, &#39;custom_properties&#39;: {}},</span>
+<span class="sd">               {&#39;id&#39;: &#39;c&#39;, &#39;label&#39;: &#39;column c&#39;, &#39;type&#39;: &#39;string&#39;,</span>
+<span class="sd">                &#39;depth&#39;: 1, &#39;container&#39;: &#39;iter&#39;, &#39;custom_properties&#39;: {}}]</span>
+
+<span class="sd">      input:  {(&#39;a&#39;, &#39;number&#39;, &#39;column a&#39;): { &#39;b&#39;: &#39;number&#39;, &#39;c&#39;: &#39;string&#39;}}</span>
+<span class="sd">      output: [{&#39;id&#39;: &#39;a&#39;, &#39;label&#39;: &#39;column a&#39;, &#39;type&#39;: &#39;number&#39;,</span>
+<span class="sd">                &#39;depth&#39;: 0, &#39;container&#39;: &#39;dict&#39;, &#39;custom_properties&#39;: {}},</span>
+<span class="sd">               {&#39;id&#39;: &#39;b&#39;, &#39;label&#39;: &#39;b&#39;, &#39;type&#39;: &#39;number&#39;,</span>
+<span class="sd">                &#39;depth&#39;: 1, &#39;container&#39;: &#39;dict&#39;, &#39;custom_properties&#39;: {}},</span>
+<span class="sd">               {&#39;id&#39;: &#39;c&#39;, &#39;label&#39;: &#39;c&#39;, &#39;type&#39;: &#39;string&#39;,</span>
+<span class="sd">                &#39;depth&#39;: 1, &#39;container&#39;: &#39;dict&#39;, &#39;custom_properties&#39;: {}}]</span>
+
+<span class="sd">      input: { (&#39;w&#39;, &#39;string&#39;, &#39;word&#39;): (&#39;c&#39;, &#39;number&#39;, &#39;count&#39;) }</span>
+<span class="sd">      output: [{&#39;id&#39;: &#39;w&#39;, &#39;label&#39;: &#39;word&#39;, &#39;type&#39;: &#39;string&#39;,</span>
+<span class="sd">                &#39;depth&#39;: 0, &#39;container&#39;: &#39;dict&#39;, &#39;custom_properties&#39;: {}},</span>
+<span class="sd">               {&#39;id&#39;: &#39;c&#39;, &#39;label&#39;: &#39;count&#39;, &#39;type&#39;: &#39;number&#39;,</span>
+<span class="sd">                &#39;depth&#39;: 1, &#39;container&#39;: &#39;scalar&#39;, &#39;custom_properties&#39;: {}}]</span>
+
+<span class="sd">      input: {&#39;a&#39;: (&#39;number&#39;, &#39;column a&#39;), &#39;b&#39;: (&#39;string&#39;, &#39;column b&#39;)}</span>
+<span class="sd">      output: [{&#39;id&#39;: &#39;a&#39;, &#39;label&#39;: &#39;column a&#39;, &#39;type&#39;: &#39;number&#39;, &#39;depth&#39;: 0,</span>
+<span class="sd">               &#39;container&#39;: &#39;dict&#39;, &#39;custom_properties&#39;: {}},</span>
+<span class="sd">               {&#39;id&#39;: &#39;b&#39;, &#39;label&#39;: &#39;column b&#39;, &#39;type&#39;: &#39;string&#39;, &#39;depth&#39;: 0,</span>
+<span class="sd">               &#39;container&#39;: &#39;dict&#39;, &#39;custom_properties&#39;: {}}</span>
+
+<span class="sd">      NOTE: there might be ambiguity in the case of a dictionary representation</span>
+<span class="sd">      of a single column. For example, the following description can be parsed</span>
+<span class="sd">      in 2 different ways: {&#39;a&#39;: (&#39;b&#39;, &#39;c&#39;)} can be thought of a single column</span>
+<span class="sd">      with the id &#39;a&#39;, of type &#39;b&#39; and the label &#39;c&#39;, or as 2 columns: one named</span>
+<span class="sd">      &#39;a&#39;, and the other named &#39;b&#39; of type &#39;c&#39;. We choose the first option by</span>
+<span class="sd">      default, and in case the second option is the right one, it is possible to</span>
+<span class="sd">      make the key into a tuple (i.e. {(&#39;a&#39;,): (&#39;b&#39;, &#39;c&#39;)}) or add more info</span>
+<span class="sd">      into the tuple, thus making it look like this: {&#39;a&#39;: (&#39;b&#39;, &#39;c&#39;, &#39;b&#39;, {})}</span>
+<span class="sd">      -- second &#39;b&#39; is the label, and {} is the custom properties field.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># For the recursion step, we check for a scalar object (string or tuple)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">table_description</span><span class="p">,</span> <span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+      <span class="n">parsed_col</span> <span class="o">=</span> <span class="n">DataTable</span><span class="o">.</span><span class="n">ColumnTypeParser</span><span class="p">(</span><span class="n">table_description</span><span class="p">)</span>
+      <span class="n">parsed_col</span><span class="p">[</span><span class="s">&quot;depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">depth</span>
+      <span class="n">parsed_col</span><span class="p">[</span><span class="s">&quot;container&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;scalar&quot;</span>
+      <span class="k">return</span> <span class="p">[</span><span class="n">parsed_col</span><span class="p">]</span>
+
+    <span class="c"># Since it is not scalar, table_description must be iterable.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">table_description</span><span class="p">,</span> <span class="s">&quot;__iter__&quot;</span><span class="p">):</span>
+      <span class="k">raise</span> <span class="n">DataTableException</span><span class="p">(</span><span class="s">&quot;Expected an iterable object, got </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+                               <span class="nb">type</span><span class="p">(</span><span class="n">table_description</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">table_description</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+      <span class="c"># We expects a non-dictionary iterable item.</span>
+      <span class="n">columns</span> <span class="o">=</span> <span class="p">[]</span>
+      <span class="k">for</span> <span class="n">desc</span> <span class="ow">in</span> <span class="n">table_description</span><span class="p">:</span>
+        <span class="n">parsed_col</span> <span class="o">=</span> <span class="n">DataTable</span><span class="o">.</span><span class="n">ColumnTypeParser</span><span class="p">(</span><span class="n">desc</span><span class="p">)</span>
+        <span class="n">parsed_col</span><span class="p">[</span><span class="s">&quot;depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">depth</span>
+        <span class="n">parsed_col</span><span class="p">[</span><span class="s">&quot;container&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;iter&quot;</span>
+        <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parsed_col</span><span class="p">)</span>
+      <span class="k">if</span> <span class="ow">not</span> <span class="n">columns</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">DataTableException</span><span class="p">(</span><span class="s">&quot;Description iterable objects should not&quot;</span>
+                                 <span class="s">&quot; be empty.&quot;</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">columns</span>
+    <span class="c"># The other case is a dictionary</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">table_description</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="n">DataTableException</span><span class="p">(</span><span class="s">&quot;Empty dictionaries are not allowed inside&quot;</span>
+                               <span class="s">&quot; description&quot;</span><span class="p">)</span>
+
+    <span class="c"># To differentiate between the two cases of more levels below or this is</span>
+    <span class="c"># the most inner dictionary, we consider the number of keys (more then one</span>
+    <span class="c"># key is indication for most inner dictionary) and the type of the key and</span>
+    <span class="c"># value in case of only 1 key (if the type of key is string and the type of</span>
+    <span class="c"># the value is a tuple of 0-3 items, we assume this is the most inner</span>
+    <span class="c"># dictionary).</span>
+    <span class="c"># NOTE: this way of differentiating might create ambiguity. See docs.</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">table_description</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span>
+        <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">table_description</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span><span class="p">)</span> <span class="ow">and</span>
+         <span class="nb">isinstance</span><span class="p">(</span><span class="n">table_description</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span>
+         <span class="nb">len</span><span class="p">(</span><span class="n">table_description</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">)):</span>
+      <span class="c"># This is the most inner dictionary. Parsing types.</span>
+      <span class="n">columns</span> <span class="o">=</span> <span class="p">[]</span>
+      <span class="c"># We sort the items, equivalent to sort the keys since they are unique</span>
+      <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">table_description</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="c"># We parse the column type as (key, type) or (key, type, label) using</span>
+        <span class="c"># ColumnTypeParser.</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+          <span class="n">parsed_col</span> <span class="o">=</span> <span class="n">DataTable</span><span class="o">.</span><span class="n">ColumnTypeParser</span><span class="p">((</span><span class="n">key</span><span class="p">,)</span> <span class="o">+</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="n">parsed_col</span> <span class="o">=</span> <span class="n">DataTable</span><span class="o">.</span><span class="n">ColumnTypeParser</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+        <span class="n">parsed_col</span><span class="p">[</span><span class="s">&quot;depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">depth</span>
+        <span class="n">parsed_col</span><span class="p">[</span><span class="s">&quot;container&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;dict&quot;</span>
+        <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parsed_col</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">columns</span>
+    <span class="c"># This is an outer dictionary, must have at most one key.</span>
+    <span class="n">parsed_col</span> <span class="o">=</span> <span class="n">DataTable</span><span class="o">.</span><span class="n">ColumnTypeParser</span><span class="p">(</span><span class="n">table_description</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">parsed_col</span><span class="p">[</span><span class="s">&quot;depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">depth</span>
+    <span class="n">parsed_col</span><span class="p">[</span><span class="s">&quot;container&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;dict&quot;</span>
+    <span class="k">return</span> <span class="p">([</span><span class="n">parsed_col</span><span class="p">]</span> <span class="o">+</span>
+            <span class="n">DataTable</span><span class="o">.</span><span class="n">TableDescriptionParser</span><span class="p">(</span><span class="n">table_description</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span>
+                                             <span class="n">depth</span><span class="o">=</span><span class="n">depth</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+</div>
+  <span class="nd">@property</span>
+<div class="viewcode-block" id="DataTable.columns"><a class="viewcode-back" href="../../lib.html#lib.gviz.DataTable.columns">[docs]</a>  <span class="k">def</span> <span class="nf">columns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the parsed table description.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__columns</span>
+</div>
+<div class="viewcode-block" id="DataTable.NumberOfRows"><a class="viewcode-back" href="../../lib.html#lib.gviz.DataTable.NumberOfRows">[docs]</a>  <span class="k">def</span> <span class="nf">NumberOfRows</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the number of rows in the current data stored in the table.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__data</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="DataTable.SetRowsCustomProperties"><a class="viewcode-back" href="../../lib.html#lib.gviz.DataTable.SetRowsCustomProperties">[docs]</a>  <span class="k">def</span> <span class="nf">SetRowsCustomProperties</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">custom_properties</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sets the custom properties for given row(s).</span>
+
+<span class="sd">    Can accept a single row or an iterable of rows.</span>
+<span class="sd">    Sets the given custom properties for all specified rows.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      rows: The row, or rows, to set the custom properties for.</span>
+<span class="sd">      custom_properties: A string to string dictionary of custom properties to</span>
+<span class="sd">      set for all rows.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="s">&quot;__iter__&quot;</span><span class="p">):</span>
+      <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">rows</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">__data</span><span class="p">[</span><span class="n">row</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__data</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">custom_properties</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="DataTable.LoadData"><a class="viewcode-back" href="../../lib.html#lib.gviz.DataTable.LoadData">[docs]</a>  <span class="k">def</span> <span class="nf">LoadData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">custom_properties</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Loads new rows to the data table, clearing existing rows.</span>
+
+<span class="sd">    May also set the custom_properties for the added rows. The given custom</span>
+<span class="sd">    properties dictionary specifies the dictionary that will be used for *all*</span>
+<span class="sd">    given rows.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      data: The rows that the table will contain.</span>
+<span class="sd">      custom_properties: A dictionary of string to string to set as the custom</span>
+<span class="sd">                         properties for all rows.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">__data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">AppendData</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">custom_properties</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="DataTable.AppendData"><a class="viewcode-back" href="../../lib.html#lib.gviz.DataTable.AppendData">[docs]</a>  <span class="k">def</span> <span class="nf">AppendData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">custom_properties</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Appends new data to the table.</span>
+
+<span class="sd">    Data is appended in rows. Data must comply with</span>
+<span class="sd">    the table schema passed in to __init__(). See CoerceValue() for a list</span>
+<span class="sd">    of acceptable data types. See the class documentation for more information</span>
+<span class="sd">    and examples of schema and data values.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      data: The row to add to the table. The data must conform to the table</span>
+<span class="sd">            description format.</span>
+<span class="sd">      custom_properties: A dictionary of string to string, representing the</span>
+<span class="sd">                         custom properties to add to all the rows.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      DataTableException: The data structure does not match the description.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># If the maximal depth is 0, we simply iterate over the data table</span>
+    <span class="c"># lines and insert them using _InnerAppendData. Otherwise, we simply</span>
+    <span class="c"># let the _InnerAppendData handle all the levels.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__columns</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s">&quot;depth&quot;</span><span class="p">]:</span>
+      <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_InnerAppendData</span><span class="p">(({},</span> <span class="n">custom_properties</span><span class="p">),</span> <span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_InnerAppendData</span><span class="p">(({},</span> <span class="n">custom_properties</span><span class="p">),</span> <span class="n">data</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</div>
+  <span class="k">def</span> <span class="nf">_InnerAppendData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prev_col_values</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">col_index</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Inner function to assist LoadData.&quot;&quot;&quot;</span>
+    <span class="c"># We first check that col_index has not exceeded the columns size</span>
+    <span class="k">if</span> <span class="n">col_index</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__columns</span><span class="p">):</span>
+      <span class="k">raise</span> <span class="n">DataTableException</span><span class="p">(</span><span class="s">&quot;The data does not match description, too deep&quot;</span><span class="p">)</span>
+
+    <span class="c"># Dealing with the scalar case, the data is the last value.</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__columns</span><span class="p">[</span><span class="n">col_index</span><span class="p">][</span><span class="s">&quot;container&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;scalar&quot;</span><span class="p">:</span>
+      <span class="n">prev_col_values</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">__columns</span><span class="p">[</span><span class="n">col_index</span><span class="p">][</span><span class="s">&quot;id&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">data</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">__data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prev_col_values</span><span class="p">)</span>
+      <span class="k">return</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__columns</span><span class="p">[</span><span class="n">col_index</span><span class="p">][</span><span class="s">&quot;container&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;iter&quot;</span><span class="p">:</span>
+      <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s">&quot;__iter__&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">DataTableException</span><span class="p">(</span><span class="s">&quot;Expected iterable object, got </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+                                 <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+      <span class="c"># We only need to insert the rest of the columns</span>
+      <span class="c"># If there are less items than expected, we only add what there is.</span>
+      <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">col_index</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__columns</span><span class="p">):</span>
+          <span class="k">raise</span> <span class="n">DataTableException</span><span class="p">(</span><span class="s">&quot;Too many elements given in data&quot;</span><span class="p">)</span>
+        <span class="n">prev_col_values</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">__columns</span><span class="p">[</span><span class="n">col_index</span><span class="p">][</span><span class="s">&quot;id&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="n">col_index</span> <span class="o">+=</span> <span class="mi">1</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">__data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prev_col_values</span><span class="p">)</span>
+      <span class="k">return</span>
+
+    <span class="c"># We know the current level is a dictionary, we verify the type.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+      <span class="k">raise</span> <span class="n">DataTableException</span><span class="p">(</span><span class="s">&quot;Expected dictionary at current level, got </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+                               <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+    <span class="c"># We check if this is the last level</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__columns</span><span class="p">[</span><span class="n">col_index</span><span class="p">][</span><span class="s">&quot;depth&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">__columns</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s">&quot;depth&quot;</span><span class="p">]:</span>
+      <span class="c"># We need to add the keys in the dictionary as they are</span>
+      <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__columns</span><span class="p">[</span><span class="n">col_index</span><span class="p">:]:</span>
+        <span class="k">if</span> <span class="n">col</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+          <span class="n">prev_col_values</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">col</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">]]</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">__data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prev_col_values</span><span class="p">)</span>
+      <span class="k">return</span>
+
+    <span class="c"># We have a dictionary in an inner depth level.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+      <span class="c"># In case this is an empty dictionary, we add a record with the columns</span>
+      <span class="c"># filled only until this point.</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">__data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prev_col_values</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="n">col_values</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">prev_col_values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">col_values</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__columns</span><span class="p">[</span><span class="n">col_index</span><span class="p">][</span><span class="s">&quot;id&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_InnerAppendData</span><span class="p">((</span><span class="n">col_values</span><span class="p">,</span> <span class="n">prev_col_values</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                              <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">col_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_PreparedData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">order_by</span><span class="o">=</span><span class="p">()):</span>
+    <span class="sd">&quot;&quot;&quot;Prepares the data for enumeration - sorting it by order_by.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      order_by: Optional. Specifies the name of the column(s) to sort by, and</span>
+<span class="sd">                (optionally) which direction to sort in. Default sort direction</span>
+<span class="sd">                is asc. Following formats are accepted:</span>
+<span class="sd">                &quot;string_col_name&quot;  -- For a single key in default (asc) order.</span>
+<span class="sd">                (&quot;string_col_name&quot;, &quot;asc|desc&quot;) -- For a single key.</span>
+<span class="sd">                [(&quot;col_1&quot;,&quot;asc|desc&quot;), (&quot;col_2&quot;,&quot;asc|desc&quot;)] -- For more than</span>
+<span class="sd">                    one column, an array of tuples of (col_name, &quot;asc|desc&quot;).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      The data sorted by the keys given.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      DataTableException: Sort direction not in &#39;asc&#39; or &#39;desc&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">order_by</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__data</span>
+
+    <span class="n">proper_sort_keys</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">order_by</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+        <span class="nb">isinstance</span><span class="p">(</span><span class="n">order_by</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">order_by</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span>
+        <span class="n">order_by</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;asc&quot;</span><span class="p">,</span> <span class="s">&quot;desc&quot;</span><span class="p">]):</span>
+      <span class="n">order_by</span> <span class="o">=</span> <span class="p">(</span><span class="n">order_by</span><span class="p">,)</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">order_by</span><span class="p">:</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">StringTypes</span><span class="p">):</span>
+        <span class="n">proper_sort_keys</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+      <span class="k">elif</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span>
+            <span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;asc&quot;</span><span class="p">,</span> <span class="s">&quot;desc&quot;</span><span class="p">)):</span>
+        <span class="n">proper_sort_keys</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;asc&quot;</span> <span class="ow">and</span> <span class="mi">1</span> <span class="ow">or</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">DataTableException</span><span class="p">(</span><span class="s">&quot;Expected tuple with second value: &quot;</span>
+                                 <span class="s">&quot;&#39;asc&#39; or &#39;desc&#39;&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">SortCmpFunc</span><span class="p">(</span><span class="n">row1</span><span class="p">,</span> <span class="n">row2</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;cmp function for sorted. Compares by keys and &#39;asc&#39;/&#39;desc&#39; keywords.&quot;&quot;&quot;</span>
+      <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">asc_mult</span> <span class="ow">in</span> <span class="n">proper_sort_keys</span><span class="p">:</span>
+        <span class="n">cmp_result</span> <span class="o">=</span> <span class="n">asc_mult</span> <span class="o">*</span> <span class="nb">cmp</span><span class="p">(</span><span class="n">row1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="n">row2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">cmp_result</span><span class="p">:</span>
+          <span class="k">return</span> <span class="n">cmp_result</span>
+      <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__data</span><span class="p">,</span> <span class="nb">cmp</span><span class="o">=</span><span class="n">SortCmpFunc</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DataTable.ToJSCode"><a class="viewcode-back" href="../../lib.html#lib.gviz.DataTable.ToJSCode">[docs]</a>  <span class="k">def</span> <span class="nf">ToJSCode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">columns_order</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">order_by</span><span class="o">=</span><span class="p">()):</span>
+    <span class="sd">&quot;&quot;&quot;Writes the data table as a JS code string.</span>
+
+<span class="sd">    This method writes a string of JS code that can be run to</span>
+<span class="sd">    generate a DataTable with the specified data. Typically used for debugging</span>
+<span class="sd">    only.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      name: The name of the table. The name would be used as the DataTable&#39;s</span>
+<span class="sd">            variable name in the created JS code.</span>
+<span class="sd">      columns_order: Optional. Specifies the order of columns in the</span>
+<span class="sd">                     output table. Specify a list of all column IDs in the order</span>
+<span class="sd">                     in which you want the table created.</span>
+<span class="sd">                     Note that you must list all column IDs in this parameter,</span>
+<span class="sd">                     if you use it.</span>
+<span class="sd">      order_by: Optional. Specifies the name of the column(s) to sort by.</span>
+<span class="sd">                Passed as is to _PreparedData.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A string of JS code that, when run, generates a DataTable with the given</span>
+<span class="sd">      name and the data stored in the DataTable object.</span>
+<span class="sd">      Example result:</span>
+<span class="sd">        &quot;var tab1 = new google.visualization.DataTable();</span>
+<span class="sd">         tab1.addColumn(&quot;string&quot;, &quot;a&quot;, &quot;a&quot;);</span>
+<span class="sd">         tab1.addColumn(&quot;number&quot;, &quot;b&quot;, &quot;b&quot;);</span>
+<span class="sd">         tab1.addColumn(&quot;boolean&quot;, &quot;c&quot;, &quot;c&quot;);</span>
+<span class="sd">         tab1.addRows(10);</span>
+<span class="sd">         tab1.setCell(0, 0, &quot;a&quot;);</span>
+<span class="sd">         tab1.setCell(0, 1, 1, null, {&quot;foo&quot;: &quot;bar&quot;});</span>
+<span class="sd">         tab1.setCell(0, 2, true);</span>
+<span class="sd">         ...</span>
+<span class="sd">         tab1.setCell(9, 0, &quot;c&quot;);</span>
+<span class="sd">         tab1.setCell(9, 1, 3, &quot;3$&quot;);</span>
+<span class="sd">         tab1.setCell(9, 2, false);&quot;</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      DataTableException: The data does not match the type.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">encoder</span> <span class="o">=</span> <span class="n">DataTableJSONEncoder</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">columns_order</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">columns_order</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__columns</span><span class="p">]</span>
+    <span class="n">col_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">col</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">],</span> <span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__columns</span><span class="p">])</span>
+
+    <span class="c"># We first create the table with the given name</span>
+    <span class="n">jscode</span> <span class="o">=</span> <span class="s">&quot;var </span><span class="si">%s</span><span class="s"> = new google.visualization.DataTable();</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">name</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_properties</span><span class="p">:</span>
+      <span class="n">jscode</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">.setTableProperties(</span><span class="si">%s</span><span class="s">);</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+          <span class="n">name</span><span class="p">,</span> <span class="n">encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">custom_properties</span><span class="p">))</span>
+
+    <span class="c"># We add the columns to the table</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">columns_order</span><span class="p">):</span>
+      <span class="n">jscode</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">.addColumn(</span><span class="si">%s</span><span class="s">, </span><span class="si">%s</span><span class="s">, </span><span class="si">%s</span><span class="s">);</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+          <span class="n">name</span><span class="p">,</span>
+          <span class="n">encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">col_dict</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="s">&quot;type&quot;</span><span class="p">]),</span>
+          <span class="n">encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">col_dict</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="s">&quot;label&quot;</span><span class="p">]),</span>
+          <span class="n">encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">col_dict</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="s">&quot;id&quot;</span><span class="p">]))</span>
+      <span class="k">if</span> <span class="n">col_dict</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="s">&quot;custom_properties&quot;</span><span class="p">]:</span>
+        <span class="n">jscode</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">.setColumnProperties(</span><span class="si">%d</span><span class="s">, </span><span class="si">%s</span><span class="s">);</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="n">name</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">col_dict</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="s">&quot;custom_properties&quot;</span><span class="p">]))</span>
+    <span class="n">jscode</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">.addRows(</span><span class="si">%d</span><span class="s">);</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__data</span><span class="p">))</span>
+
+    <span class="c"># We now go over the data and add each row</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">cp</span><span class="p">))</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_PreparedData</span><span class="p">(</span><span class="n">order_by</span><span class="p">)):</span>
+      <span class="c"># We add all the elements of this row by their order</span>
+      <span class="k">for</span> <span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">columns_order</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">row</span> <span class="ow">or</span> <span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+          <span class="k">continue</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">CoerceValue</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">col_dict</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="s">&quot;type&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+          <span class="n">cell_cp</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+          <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">cell_cp</span> <span class="o">=</span> <span class="s">&quot;, </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
+          <span class="c"># We have a formatted value or custom property as well</span>
+          <span class="n">jscode</span> <span class="o">+=</span> <span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">.setCell(</span><span class="si">%d</span><span class="s">, </span><span class="si">%d</span><span class="s">, </span><span class="si">%s</span><span class="s">, </span><span class="si">%s%s</span><span class="s">);</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span>
+                     <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span>
+                      <span class="bp">self</span><span class="o">.</span><span class="n">EscapeForJSCode</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                      <span class="bp">self</span><span class="o">.</span><span class="n">EscapeForJSCode</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">cell_cp</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="n">jscode</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">.setCell(</span><span class="si">%d</span><span class="s">, </span><span class="si">%d</span><span class="s">, </span><span class="si">%s</span><span class="s">);</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+              <span class="n">name</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">EscapeForJSCode</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+      <span class="k">if</span> <span class="n">cp</span><span class="p">:</span>
+        <span class="n">jscode</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">.setRowProperties(</span><span class="si">%d</span><span class="s">, </span><span class="si">%s</span><span class="s">);</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="n">name</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">cp</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">jscode</span>
+</div>
+<div class="viewcode-block" id="DataTable.ToHtml"><a class="viewcode-back" href="../../lib.html#lib.gviz.DataTable.ToHtml">[docs]</a>  <span class="k">def</span> <span class="nf">ToHtml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns_order</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">order_by</span><span class="o">=</span><span class="p">()):</span>
+    <span class="sd">&quot;&quot;&quot;Writes the data table as an HTML table code string.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      columns_order: Optional. Specifies the order of columns in the</span>
+<span class="sd">                     output table. Specify a list of all column IDs in the order</span>
+<span class="sd">                     in which you want the table created.</span>
+<span class="sd">                     Note that you must list all column IDs in this parameter,</span>
+<span class="sd">                     if you use it.</span>
+<span class="sd">      order_by: Optional. Specifies the name of the column(s) to sort by.</span>
+<span class="sd">                Passed as is to _PreparedData.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      An HTML table code string.</span>
+<span class="sd">      Example result (the result is without the newlines):</span>
+<span class="sd">       &lt;html&gt;&lt;body&gt;&lt;table border=&quot;1&quot;&gt;</span>
+<span class="sd">        &lt;thead&gt;&lt;tr&gt;&lt;th&gt;a&lt;/th&gt;&lt;th&gt;b&lt;/th&gt;&lt;th&gt;c&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;</span>
+<span class="sd">        &lt;tbody&gt;</span>
+<span class="sd">         &lt;tr&gt;&lt;td&gt;1&lt;/td&gt;&lt;td&gt;&quot;z&quot;&lt;/td&gt;&lt;td&gt;2&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="sd">         &lt;tr&gt;&lt;td&gt;&quot;3$&quot;&lt;/td&gt;&lt;td&gt;&quot;w&quot;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="sd">        &lt;/tbody&gt;</span>
+<span class="sd">       &lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      DataTableException: The data does not match the type.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">table_template</span> <span class="o">=</span> <span class="s">&quot;&lt;html&gt;&lt;body&gt;&lt;table border=</span><span class="se">\&quot;</span><span class="s">1</span><span class="se">\&quot;</span><span class="s">&gt;</span><span class="si">%s</span><span class="s">&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;&quot;</span>
+    <span class="n">columns_template</span> <span class="o">=</span> <span class="s">&quot;&lt;thead&gt;&lt;tr&gt;</span><span class="si">%s</span><span class="s">&lt;/tr&gt;&lt;/thead&gt;&quot;</span>
+    <span class="n">rows_template</span> <span class="o">=</span> <span class="s">&quot;&lt;tbody&gt;</span><span class="si">%s</span><span class="s">&lt;/tbody&gt;&quot;</span>
+    <span class="n">row_template</span> <span class="o">=</span> <span class="s">&quot;&lt;tr&gt;</span><span class="si">%s</span><span class="s">&lt;/tr&gt;&quot;</span>
+    <span class="n">header_cell_template</span> <span class="o">=</span> <span class="s">&quot;&lt;th&gt;</span><span class="si">%s</span><span class="s">&lt;/th&gt;&quot;</span>
+    <span class="n">cell_template</span> <span class="o">=</span> <span class="s">&quot;&lt;td&gt;</span><span class="si">%s</span><span class="s">&lt;/td&gt;&quot;</span>
+
+    <span class="k">if</span> <span class="n">columns_order</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">columns_order</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__columns</span><span class="p">]</span>
+    <span class="n">col_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">col</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">],</span> <span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__columns</span><span class="p">])</span>
+
+    <span class="n">columns_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">columns_order</span><span class="p">:</span>
+      <span class="n">columns_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">header_cell_template</span> <span class="o">%</span>
+                          <span class="n">cgi</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">col_dict</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="s">&quot;label&quot;</span><span class="p">]))</span>
+    <span class="n">columns_html</span> <span class="o">=</span> <span class="n">columns_template</span> <span class="o">%</span> <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">columns_list</span><span class="p">)</span>
+
+    <span class="n">rows_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c"># We now go over the data and add each row</span>
+    <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="n">unused_cp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_PreparedData</span><span class="p">(</span><span class="n">order_by</span><span class="p">):</span>
+      <span class="n">cells_list</span> <span class="o">=</span> <span class="p">[]</span>
+      <span class="c"># We add all the elements of this row by their order</span>
+      <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">columns_order</span><span class="p">:</span>
+        <span class="c"># For empty string we want empty quotes (&quot;&quot;).</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">row</span> <span class="ow">and</span> <span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+          <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">CoerceValue</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">col_dict</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="s">&quot;type&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+          <span class="c"># We have a formatted value and we&#39;re going to use it</span>
+          <span class="n">cells_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cell_template</span> <span class="o">%</span> <span class="n">cgi</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ToString</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="n">cells_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cell_template</span> <span class="o">%</span> <span class="n">cgi</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ToString</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+      <span class="n">rows_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row_template</span> <span class="o">%</span> <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cells_list</span><span class="p">))</span>
+    <span class="n">rows_html</span> <span class="o">=</span> <span class="n">rows_template</span> <span class="o">%</span> <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rows_list</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">table_template</span> <span class="o">%</span> <span class="p">(</span><span class="n">columns_html</span> <span class="o">+</span> <span class="n">rows_html</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="DataTable.ToCsv"><a class="viewcode-back" href="../../lib.html#lib.gviz.DataTable.ToCsv">[docs]</a>  <span class="k">def</span> <span class="nf">ToCsv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns_order</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">order_by</span><span class="o">=</span><span class="p">(),</span> <span class="n">separator</span><span class="o">=</span><span class="s">&quot;,&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Writes the data table as a CSV string.</span>
+
+<span class="sd">    Output is encoded in UTF-8 because the Python &quot;csv&quot; module can&#39;t handle</span>
+<span class="sd">    Unicode properly according to its documentation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      columns_order: Optional. Specifies the order of columns in the</span>
+<span class="sd">                     output table. Specify a list of all column IDs in the order</span>
+<span class="sd">                     in which you want the table created.</span>
+<span class="sd">                     Note that you must list all column IDs in this parameter,</span>
+<span class="sd">                     if you use it.</span>
+<span class="sd">      order_by: Optional. Specifies the name of the column(s) to sort by.</span>
+<span class="sd">                Passed as is to _PreparedData.</span>
+<span class="sd">      separator: Optional. The separator to use between the values.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A CSV string representing the table.</span>
+<span class="sd">      Example result:</span>
+<span class="sd">       &#39;a&#39;,&#39;b&#39;,&#39;c&#39;</span>
+<span class="sd">       1,&#39;z&#39;,2</span>
+<span class="sd">       3,&#39;w&#39;,&#39;&#39;</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      DataTableException: The data does not match the type.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">csv_buffer</span> <span class="o">=</span> <span class="n">cStringIO</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+    <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csv_buffer</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="n">separator</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">columns_order</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">columns_order</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__columns</span><span class="p">]</span>
+    <span class="n">col_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">col</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">],</span> <span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__columns</span><span class="p">])</span>
+
+    <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="n">col_dict</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="s">&quot;label&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&quot;utf-8&quot;</span><span class="p">)</span>
+                     <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">columns_order</span><span class="p">])</span>
+
+    <span class="c"># We now go over the data and add each row</span>
+    <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="n">unused_cp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_PreparedData</span><span class="p">(</span><span class="n">order_by</span><span class="p">):</span>
+      <span class="n">cells_list</span> <span class="o">=</span> <span class="p">[]</span>
+      <span class="c"># We add all the elements of this row by their order</span>
+      <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">columns_order</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">row</span> <span class="ow">and</span> <span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+          <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">CoerceValue</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">col_dict</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="s">&quot;type&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+          <span class="c"># We have a formatted value. Using it only for date/time types.</span>
+          <span class="k">if</span> <span class="n">col_dict</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="s">&quot;type&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;date&quot;</span><span class="p">,</span> <span class="s">&quot;datetime&quot;</span><span class="p">,</span> <span class="s">&quot;timeofday&quot;</span><span class="p">]:</span>
+            <span class="n">cells_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ToString</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&quot;utf-8&quot;</span><span class="p">))</span>
+          <span class="k">else</span><span class="p">:</span>
+            <span class="n">cells_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ToString</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="n">cells_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ToString</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&quot;utf-8&quot;</span><span class="p">))</span>
+      <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">cells_list</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">csv_buffer</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="DataTable.ToTsvExcel"><a class="viewcode-back" href="../../lib.html#lib.gviz.DataTable.ToTsvExcel">[docs]</a>  <span class="k">def</span> <span class="nf">ToTsvExcel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns_order</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">order_by</span><span class="o">=</span><span class="p">()):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a file in tab-separated-format readable by MS Excel.</span>
+
+<span class="sd">    Returns a file in UTF-16 little endian encoding, with tabs separating the</span>
+<span class="sd">    values.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      columns_order: Delegated to ToCsv.</span>
+<span class="sd">      order_by: Delegated to ToCsv.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A tab-separated little endian UTF16 file representing the table.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ToCsv</span><span class="p">(</span><span class="n">columns_order</span><span class="p">,</span> <span class="n">order_by</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&quot;UTF-16LE&quot;</span><span class="p">))</span>
+</div>
+  <span class="k">def</span> <span class="nf">_ToJSonObj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns_order</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">order_by</span><span class="o">=</span><span class="p">()):</span>
+    <span class="sd">&quot;&quot;&quot;Returns an object suitable to be converted to JSON.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      columns_order: Optional. A list of all column IDs in the order in which</span>
+<span class="sd">                     you want them created in the output table. If specified,</span>
+<span class="sd">                     all column IDs must be present.</span>
+<span class="sd">      order_by: Optional. Specifies the name of the column(s) to sort by.</span>
+<span class="sd">                Passed as is to _PreparedData().</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A dictionary object for use by ToJSon or ToJSonResponse.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">columns_order</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">columns_order</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__columns</span><span class="p">]</span>
+    <span class="n">col_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">col</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">],</span> <span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__columns</span><span class="p">])</span>
+
+    <span class="c"># Creating the column JSON objects</span>
+    <span class="n">col_objs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">col_id</span> <span class="ow">in</span> <span class="n">columns_order</span><span class="p">:</span>
+      <span class="n">col_obj</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;id&quot;</span><span class="p">:</span> <span class="n">col_dict</span><span class="p">[</span><span class="n">col_id</span><span class="p">][</span><span class="s">&quot;id&quot;</span><span class="p">],</span>
+                 <span class="s">&quot;label&quot;</span><span class="p">:</span> <span class="n">col_dict</span><span class="p">[</span><span class="n">col_id</span><span class="p">][</span><span class="s">&quot;label&quot;</span><span class="p">],</span>
+                 <span class="s">&quot;type&quot;</span><span class="p">:</span> <span class="n">col_dict</span><span class="p">[</span><span class="n">col_id</span><span class="p">][</span><span class="s">&quot;type&quot;</span><span class="p">]}</span>
+      <span class="k">if</span> <span class="n">col_dict</span><span class="p">[</span><span class="n">col_id</span><span class="p">][</span><span class="s">&quot;custom_properties&quot;</span><span class="p">]:</span>
+        <span class="n">col_obj</span><span class="p">[</span><span class="s">&quot;p&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">col_dict</span><span class="p">[</span><span class="n">col_id</span><span class="p">][</span><span class="s">&quot;custom_properties&quot;</span><span class="p">]</span>
+      <span class="n">col_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col_obj</span><span class="p">)</span>
+
+    <span class="c"># Creating the rows jsons</span>
+    <span class="n">row_objs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="n">cp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_PreparedData</span><span class="p">(</span><span class="n">order_by</span><span class="p">):</span>
+      <span class="n">cell_objs</span> <span class="o">=</span> <span class="p">[]</span>
+      <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">columns_order</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">CoerceValue</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">col_dict</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="s">&quot;type&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+          <span class="n">cell_obj</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+          <span class="n">cell_obj</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;v&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
+          <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">cell_obj</span><span class="p">[</span><span class="s">&quot;f&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+          <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">cell_obj</span><span class="p">[</span><span class="s">&quot;p&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="n">cell_obj</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;v&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
+        <span class="n">cell_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cell_obj</span><span class="p">)</span>
+      <span class="n">row_obj</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;c&quot;</span><span class="p">:</span> <span class="n">cell_objs</span><span class="p">}</span>
+      <span class="k">if</span> <span class="n">cp</span><span class="p">:</span>
+        <span class="n">row_obj</span><span class="p">[</span><span class="s">&quot;p&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cp</span>
+      <span class="n">row_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row_obj</span><span class="p">)</span>
+
+    <span class="n">json_obj</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;cols&quot;</span><span class="p">:</span> <span class="n">col_objs</span><span class="p">,</span> <span class="s">&quot;rows&quot;</span><span class="p">:</span> <span class="n">row_objs</span><span class="p">}</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_properties</span><span class="p">:</span>
+      <span class="n">json_obj</span><span class="p">[</span><span class="s">&quot;p&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_properties</span>
+
+    <span class="k">return</span> <span class="n">json_obj</span>
+
+<div class="viewcode-block" id="DataTable.ToJSon"><a class="viewcode-back" href="../../lib.html#lib.gviz.DataTable.ToJSon">[docs]</a>  <span class="k">def</span> <span class="nf">ToJSon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns_order</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">order_by</span><span class="o">=</span><span class="p">()):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a string that can be used in a JS DataTable constructor.</span>
+
+<span class="sd">    This method writes a JSON string that can be passed directly into a Google</span>
+<span class="sd">    Visualization API DataTable constructor. Use this output if you are</span>
+<span class="sd">    hosting the visualization HTML on your site, and want to code the data</span>
+<span class="sd">    table in Python. Pass this string into the</span>
+<span class="sd">    google.visualization.DataTable constructor, e.g,:</span>
+<span class="sd">      ... on my page that hosts my visualization ...</span>
+<span class="sd">      google.setOnLoadCallback(drawTable);</span>
+<span class="sd">      function drawTable() {</span>
+<span class="sd">        var data = new google.visualization.DataTable(_my_JSon_string, 0.6);</span>
+<span class="sd">        myTable.draw(data);</span>
+<span class="sd">      }</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      columns_order: Optional. Specifies the order of columns in the</span>
+<span class="sd">                     output table. Specify a list of all column IDs in the order</span>
+<span class="sd">                     in which you want the table created.</span>
+<span class="sd">                     Note that you must list all column IDs in this parameter,</span>
+<span class="sd">                     if you use it.</span>
+<span class="sd">      order_by: Optional. Specifies the name of the column(s) to sort by.</span>
+<span class="sd">                Passed as is to _PreparedData().</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A JSon constructor string to generate a JS DataTable with the data</span>
+<span class="sd">      stored in the DataTable object.</span>
+<span class="sd">      Example result (the result is without the newlines):</span>
+<span class="sd">       {cols: [{id:&quot;a&quot;,label:&quot;a&quot;,type:&quot;number&quot;},</span>
+<span class="sd">               {id:&quot;b&quot;,label:&quot;b&quot;,type:&quot;string&quot;},</span>
+<span class="sd">              {id:&quot;c&quot;,label:&quot;c&quot;,type:&quot;number&quot;}],</span>
+<span class="sd">        rows: [{c:[{v:1},{v:&quot;z&quot;},{v:2}]}, c:{[{v:3,f:&quot;3$&quot;},{v:&quot;w&quot;},{v:null}]}],</span>
+<span class="sd">        p:    {&#39;foo&#39;: &#39;bar&#39;}}</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      DataTableException: The data does not match the type.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">encoder</span> <span class="o">=</span> <span class="n">DataTableJSONEncoder</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ToJSonObj</span><span class="p">(</span><span class="n">columns_order</span><span class="p">,</span> <span class="n">order_by</span><span class="p">))</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&quot;utf-8&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="DataTable.ToJSonResponse"><a class="viewcode-back" href="../../lib.html#lib.gviz.DataTable.ToJSonResponse">[docs]</a>  <span class="k">def</span> <span class="nf">ToJSonResponse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns_order</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">order_by</span><span class="o">=</span><span class="p">(),</span> <span class="n">req_id</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                     <span class="n">response_handler</span><span class="o">=</span><span class="s">&quot;google.visualization.Query.setResponse&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Writes a table as a JSON response that can be returned as-is to a client.</span>
+
+<span class="sd">    This method writes a JSON response to return to a client in response to a</span>
+<span class="sd">    Google Visualization API query. This string can be processed by the calling</span>
+<span class="sd">    page, and is used to deliver a data table to a visualization hosted on</span>
+<span class="sd">    a different page.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      columns_order: Optional. Passed straight to self.ToJSon().</span>
+<span class="sd">      order_by: Optional. Passed straight to self.ToJSon().</span>
+<span class="sd">      req_id: Optional. The response id, as retrieved by the request.</span>
+<span class="sd">      response_handler: Optional. The response handler, as retrieved by the</span>
+<span class="sd">          request.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A JSON response string to be received by JS the visualization Query</span>
+<span class="sd">      object. This response would be translated into a DataTable on the</span>
+<span class="sd">      client side.</span>
+<span class="sd">      Example result (newlines added for readability):</span>
+<span class="sd">       google.visualization.Query.setResponse({</span>
+<span class="sd">          &#39;version&#39;:&#39;0.6&#39;, &#39;reqId&#39;:&#39;0&#39;, &#39;status&#39;:&#39;OK&#39;,</span>
+<span class="sd">          &#39;table&#39;: {cols: [...], rows: [...]}});</span>
+
+<span class="sd">    Note: The URL returning this string can be used as a data source by Google</span>
+<span class="sd">          Visualization Gadgets or from JS code.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">response_obj</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&quot;version&quot;</span><span class="p">:</span> <span class="s">&quot;0.6&quot;</span><span class="p">,</span>
+        <span class="s">&quot;reqId&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">req_id</span><span class="p">),</span>
+        <span class="s">&quot;table&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ToJSonObj</span><span class="p">(</span><span class="n">columns_order</span><span class="p">,</span> <span class="n">order_by</span><span class="p">),</span>
+        <span class="s">&quot;status&quot;</span><span class="p">:</span> <span class="s">&quot;ok&quot;</span>
+    <span class="p">}</span>
+    <span class="n">encoder</span> <span class="o">=</span> <span class="n">DataTableJSONEncoder</span><span class="p">()</span>
+    <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">(</span><span class="si">%s</span><span class="s">);&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">response_handler</span><span class="p">,</span>
+                        <span class="n">encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">response_obj</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&quot;utf-8&quot;</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="DataTable.ToResponse"><a class="viewcode-back" href="../../lib.html#lib.gviz.DataTable.ToResponse">[docs]</a>  <span class="k">def</span> <span class="nf">ToResponse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns_order</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">order_by</span><span class="o">=</span><span class="p">(),</span> <span class="n">tqx</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Writes the right response according to the request string passed in tqx.</span>
+
+<span class="sd">    This method parses the tqx request string (format of which is defined in</span>
+<span class="sd">    the documentation for implementing a data source of Google Visualization),</span>
+<span class="sd">    and returns the right response according to the request.</span>
+<span class="sd">    It parses out the &quot;out&quot; parameter of tqx, calls the relevant response</span>
+<span class="sd">    (ToJSonResponse() for &quot;json&quot;, ToCsv() for &quot;csv&quot;, ToHtml() for &quot;html&quot;,</span>
+<span class="sd">    ToTsvExcel() for &quot;tsv-excel&quot;) and passes the response function the rest of</span>
+<span class="sd">    the relevant request keys.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      columns_order: Optional. Passed as is to the relevant response function.</span>
+<span class="sd">      order_by: Optional. Passed as is to the relevant response function.</span>
+<span class="sd">      tqx: Optional. The request string as received by HTTP GET. Should be in</span>
+<span class="sd">           the format &quot;key1:value1;key2:value2...&quot;. All keys have a default</span>
+<span class="sd">           value, so an empty string will just do the default (which is calling</span>
+<span class="sd">           ToJSonResponse() with no extra parameters).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A response string, as returned by the relevant response function.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      DataTableException: One of the parameters passed in tqx is not supported.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tqx_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">tqx</span><span class="p">:</span>
+      <span class="n">tqx_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;:&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">tqx</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;;&quot;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">tqx_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;version&quot;</span><span class="p">,</span> <span class="s">&quot;0.6&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s">&quot;0.6&quot;</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="n">DataTableException</span><span class="p">(</span>
+          <span class="s">&quot;Version (</span><span class="si">%s</span><span class="s">) passed by request is not supported.&quot;</span>
+          <span class="o">%</span> <span class="n">tqx_dict</span><span class="p">[</span><span class="s">&quot;version&quot;</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">tqx_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;out&quot;</span><span class="p">,</span> <span class="s">&quot;json&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;json&quot;</span><span class="p">:</span>
+      <span class="n">response_handler</span> <span class="o">=</span> <span class="n">tqx_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;responseHandler&quot;</span><span class="p">,</span>
+                                      <span class="s">&quot;google.visualization.Query.setResponse&quot;</span><span class="p">)</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ToJSonResponse</span><span class="p">(</span><span class="n">columns_order</span><span class="p">,</span> <span class="n">order_by</span><span class="p">,</span>
+                                 <span class="n">req_id</span><span class="o">=</span><span class="n">tqx_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;reqId&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                                 <span class="n">response_handler</span><span class="o">=</span><span class="n">response_handler</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">tqx_dict</span><span class="p">[</span><span class="s">&quot;out&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;html&quot;</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ToHtml</span><span class="p">(</span><span class="n">columns_order</span><span class="p">,</span> <span class="n">order_by</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">tqx_dict</span><span class="p">[</span><span class="s">&quot;out&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;csv&quot;</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ToCsv</span><span class="p">(</span><span class="n">columns_order</span><span class="p">,</span> <span class="n">order_by</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">tqx_dict</span><span class="p">[</span><span class="s">&quot;out&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;tsv-excel&quot;</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ToTsvExcel</span><span class="p">(</span><span class="n">columns_order</span><span class="p">,</span> <span class="n">order_by</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="n">DataTableException</span><span class="p">(</span>
+          <span class="s">&quot;&#39;out&#39; parameter: &#39;</span><span class="si">%s</span><span class="s">&#39; is not supported&quot;</span> <span class="o">%</span> <span class="n">tqx_dict</span><span class="p">[</span><span class="s">&quot;out&quot;</span><span class="p">])</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,375 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.apptools.dispatch &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../index.html" />
+    <link rel="up" title="lib.apptools" href="../apptools.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../apptools.html" accesskey="U">lib.apptools</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.apptools.dispatch</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">AppTools Dispatch</span>
+
+<span class="sd">Used for dispatching URLs that are internal to AppTools, and routing</span>
+<span class="sd">requests to the user&#39;s app.</span>
+
+<span class="sd">-sam (&lt;sam@momentum.io&gt;)</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">config</span>
+<span class="kn">import</span> <span class="nn">webapp2</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">endpoints</span>
+<span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="n">endpoints</span> <span class="o">=</span> <span class="bp">False</span>
+
+<span class="n">rule_builders</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">installed_apps</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;webapp2&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apps_installed&#39;</span><span class="p">,</span> <span class="p">[])</span>
+<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">installed_apps</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="n">installed_apps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">app</span> <span class="ow">in</span> <span class="n">installed_apps</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">app</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">rule_builders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">webapp2</span><span class="o">.</span><span class="n">import_string</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">app</span><span class="p">,</span> <span class="s">&#39;routing&#39;</span><span class="p">,</span> <span class="s">&#39;get_rules&#39;</span><span class="p">])))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rule_builders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">webapp2</span><span class="o">.</span><span class="n">import_string</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&#39;routing&#39;</span><span class="p">,</span> <span class="s">&#39;get_rules&#39;</span><span class="p">])))</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">ImportStringError</span><span class="p">):</span>
+        <span class="k">continue</span>
+
+<span class="kn">from</span> <span class="nn">apptools</span> <span class="kn">import</span> <span class="n">core</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">runtools</span>
+
+<span class="c"># new RPC version 2.0</span>
+<span class="kn">from</span> <span class="nn">apptools.rpc</span> <span class="kn">import</span> <span class="n">dispatch</span>
+
+<span class="k">if</span> <span class="n">rule_builders</span><span class="p">:</span>
+    <span class="n">app_rules</span> <span class="o">=</span> <span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="n">ruleset</span><span class="p">()</span> <span class="k">for</span> <span class="n">ruleset</span> <span class="ow">in</span> <span class="n">rule_builders</span><span class="p">])</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">app_rules</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">sys_config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apptools.system&#39;</span><span class="p">,</span> <span class="p">{})</span>
+
+
+<span class="c">##### ===== Basic Builtin Handlers ===== #####</span>
+
+<span class="c">## NoOperationHandler</span>
+<span class="c"># Throwaway handler that returns `NO-OP` and HTTP 404.</span>
+<div class="viewcode-block" id="NoOperationHandler"><a class="viewcode-back" href="../../../lib.apptools.html#lib.apptools.dispatch.NoOperationHandler">[docs]</a><span class="k">class</span> <span class="nc">NoOperationHandler</span><span class="p">(</span><span class="n">webapp2</span><span class="o">.</span><span class="n">RequestHandler</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Does nothing. &#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="NoOperationHandler.noop"><a class="viewcode-back" href="../../../lib.apptools.html#lib.apptools.dispatch.NoOperationHandler.noop">[docs]</a>    <span class="k">def</span> <span class="nf">noop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Write NO-OP and 404. &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;NO-OP&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="mi">404</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="NoOperationHandler.get"><a class="viewcode-back" href="../../../lib.apptools.html#lib.apptools.dispatch.NoOperationHandler.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Pass to NO-OP handler and 404. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">noop</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="NoOperationHandler.post"><a class="viewcode-back" href="../../../lib.apptools.html#lib.apptools.dispatch.NoOperationHandler.post">[docs]</a>    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Pass to NO-OP handler and 404. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">noop</span><span class="p">()</span>
+
+
+<span class="c">## AppAdminHandler</span>
+<span class="c"># Entrypoint for the autogenerated admin panel.</span></div></div>
+<div class="viewcode-block" id="AppAdminHandler"><a class="viewcode-back" href="../../../lib.apptools.html#lib.apptools.dispatch.AppAdminHandler">[docs]</a><span class="k">class</span> <span class="nc">AppAdminHandler</span><span class="p">(</span><span class="n">webapp2</span><span class="o">.</span><span class="n">RequestHandler</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Provides a clean admin panel that comes standard with your app. &#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="AppAdminHandler.get"><a class="viewcode-back" href="../../../lib.apptools.html#lib.apptools.dispatch.AppAdminHandler.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;Admin panel coming soon.&#39;</span><span class="p">)</span>
+
+
+<span class="c">## SitemapHandler</span>
+<span class="c"># Entrypoint for autogenerated Google Webmaster Tools sitemaps.</span></div></div>
+<div class="viewcode-block" id="SitemapHandler"><a class="viewcode-back" href="../../../lib.apptools.html#lib.apptools.dispatch.SitemapHandler">[docs]</a><span class="k">class</span> <span class="nc">SitemapHandler</span><span class="p">(</span><span class="n">webapp2</span><span class="o">.</span><span class="n">RequestHandler</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Automatically generates a sitemap in proper XML format. &#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="SitemapHandler.get"><a class="viewcode-back" href="../../../lib.apptools.html#lib.apptools.dispatch.SitemapHandler.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;Sitemaps coming soon.&#39;</span><span class="p">)</span>
+
+
+<span class="c">## CacheManifestHandler</span>
+<span class="c"># Entrypoint for autogenerated HTML5 AppCache manifests.</span></div></div>
+<div class="viewcode-block" id="CacheManifestHandler"><a class="viewcode-back" href="../../../lib.apptools.html#lib.apptools.dispatch.CacheManifestHandler">[docs]</a><span class="k">class</span> <span class="nc">CacheManifestHandler</span><span class="p">(</span><span class="n">webapp2</span><span class="o">.</span><span class="n">RequestHandler</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Automatically generates an HTML5 AppCache manifest in proper format. &#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="CacheManifestHandler.get"><a class="viewcode-back" href="../../../lib.apptools.html#lib.apptools.dispatch.CacheManifestHandler.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;Appcache manifests coming soon&#39;</span><span class="p">)</span>
+
+
+<span class="c">##### ===== Routing + Route Compilation ===== #####</span>
+
+
+<span class="c">## Route Mappings</span></div></div>
+<span class="n">_noop_app</span> <span class="o">=</span> <span class="p">[</span><span class="n">webapp2</span><span class="o">.</span><span class="n">Route</span><span class="p">(</span><span class="s">&#39;/.*&#39;</span><span class="p">,</span> <span class="n">NoOperationHandler</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;no-op-handler&#39;</span><span class="p">)]</span>
+<span class="n">_admin_app</span> <span class="o">=</span> <span class="p">[</span><span class="n">webapp2</span><span class="o">.</span><span class="n">Route</span><span class="p">(</span><span class="s">&#39;/_app/manage.*&#39;</span><span class="p">,</span> <span class="n">AppAdminHandler</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;admin-handler-root&#39;</span><span class="p">)]</span>
+<span class="n">_sitemap_app</span> <span class="o">=</span> <span class="p">[</span><span class="n">webapp2</span><span class="o">.</span><span class="n">Route</span><span class="p">(</span><span class="s">&#39;/_app/sitemap.*&#39;</span><span class="p">,</span> <span class="n">SitemapHandler</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;sitemap-handler&#39;</span><span class="p">)]</span>
+<span class="n">_appcache_app</span> <span class="o">=</span> <span class="p">[</span><span class="n">webapp2</span><span class="o">.</span><span class="n">Route</span><span class="p">(</span><span class="s">&#39;/_app/manifest.*&#39;</span><span class="p">,</span> <span class="n">CacheManifestHandler</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;cache-manifest-handler&#39;</span><span class="p">)]</span>
+<span class="n">_services_app</span> <span class="o">=</span> <span class="n">dispatch</span><span class="o">.</span><span class="n">mappings</span>
+<span class="k">if</span> <span class="n">endpoints</span><span class="p">:</span>
+    <span class="n">endpoint</span> <span class="o">=</span> <span class="n">endpoints</span><span class="o">.</span><span class="n">api_server</span><span class="p">([</span><span class="n">service</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">dispatch</span><span class="o">.</span><span class="n">_resolve_services</span><span class="p">(</span><span class="n">load</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                                     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="s">&#39;api_info&#39;</span><span class="p">)],</span> <span class="n">restricted</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+<span class="c">## Get builtin apps</span>
+<span class="n">_builtin_route_cache</span> <span class="o">=</span> <span class="bp">None</span>
+
+
+<div class="viewcode-block" id="get_builtin_apps"><a class="viewcode-back" href="../../../lib.apptools.html#lib.apptools.dispatch.get_builtin_apps">[docs]</a><span class="k">def</span> <span class="nf">get_builtin_apps</span><span class="p">():</span>
+
+    <span class="sd">&#39;&#39;&#39; Return a list of builtin WSGI applications. This should NOT include _noop_app, which is only present for utility/fallback. &#39;&#39;&#39;</span>
+
+    <span class="k">global</span> <span class="n">_builtin_route_cache</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_builtin_route_cache</span><span class="p">:</span>
+        <span class="n">_builtin_route_cache</span> <span class="o">=</span> <span class="p">[</span><span class="n">route</span> <span class="k">for</span> <span class="n">route</span> <span class="ow">in</span> <span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="n">_admin_app</span><span class="p">,</span> <span class="n">_sitemap_app</span><span class="p">,</span> <span class="n">_appcache_app</span><span class="p">,</span> <span class="n">_services_app</span><span class="p">])]</span>
+    <span class="k">return</span> <span class="n">_builtin_route_cache</span>
+
+
+<span class="c">## @TODO: Export this class to exceptions</span></div>
+<div class="viewcode-block" id="NoURLRules"><a class="viewcode-back" href="../../../lib.apptools.html#lib.apptools.dispatch.NoURLRules">[docs]</a><span class="k">class</span> <span class="nc">NoURLRules</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span> <span class="k">pass</span></div>
+<span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rule_builders</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">get_builtin_apps</span><span class="p">()))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">NoURLRules</span><span class="p">(</span><span class="s">&quot;Could not resolve a URL rule builder.&quot;</span><span class="p">)</span>
+
+
+<span class="c">##### ===== Runtime Tools/Entrypoints ===== #####</span>
+
+<span class="c">## WSGI/CGI Bridge</span>
+<span class="k">def</span> <span class="nf">_run</span><span class="p">(</span><span class="n">cbk</span><span class="p">,</span> <span class="n">environ</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">start_response</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Run an app, via CGI or WSGI if possible. &#39;&#39;&#39;</span>
+
+    <span class="k">global</span> <span class="n">_noop_app</span>
+
+    <span class="c">## If no app is passed in, default to no-op...</span>
+    <span class="k">if</span> <span class="n">cbk</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">cbk</span> <span class="o">=</span> <span class="n">_noop_app</span>
+
+    <span class="c">## We&#39;re running in WSGI...</span>
+    <span class="k">if</span> <span class="n">environ</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">start_response</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cbk</span><span class="p">(</span><span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">)</span>
+
+    <span class="c">## We&#39;re running in CGI...</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cbk</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+
+<span class="c">## Admin panel run shortcut</span>
+<div class="viewcode-block" id="admin"><a class="viewcode-back" href="../../../lib.apptools.html#lib.apptools.dispatch.admin">[docs]</a><span class="k">def</span> <span class="nf">admin</span><span class="p">(</span><span class="n">environ</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">start_response</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Run the admin panel app. &#39;&#39;&#39;</span>
+
+    <span class="k">global</span> <span class="n">_run</span>
+    <span class="k">global</span> <span class="n">_noop_app</span>
+    <span class="k">global</span> <span class="n">_admin_app</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c"># Make sure we&#39;re dealing with an admin...</span>
+        <span class="kn">from</span> <span class="nn">google.appengine.api</span> <span class="kn">import</span> <span class="n">users</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">users</span><span class="o">.</span><span class="n">get_current_user</span><span class="p">()</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">users</span><span class="o">.</span><span class="n">is_current_user_admin</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">_run</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">)</span>  <span class="c"># return no-op if they aren&#39;t logged in or aren&#39;t admin</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_run</span><span class="p">(</span><span class="n">_admin_app</span><span class="p">,</span> <span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">)</span>  <span class="c"># replace with actual control panel</span>
+
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_run</span><span class="p">(</span><span class="n">_noop_app</span><span class="p">,</span> <span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">)</span>  <span class="c"># We&#39;re not running on AppEngine</span>
+
+
+<span class="c">## Sitemap run shortcut</span></div>
+<div class="viewcode-block" id="sitemap"><a class="viewcode-back" href="../../../lib.apptools.html#lib.apptools.dispatch.sitemap">[docs]</a><span class="k">def</span> <span class="nf">sitemap</span><span class="p">(</span><span class="n">environ</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">start_response</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Run the sitemap generation app. &#39;&#39;&#39;</span>
+
+    <span class="k">global</span> <span class="n">_run</span>
+    <span class="k">global</span> <span class="n">_sitemap_app</span>
+
+    <span class="k">return</span> <span class="n">_run</span><span class="p">(</span><span class="n">_sitemap_app</span><span class="p">,</span> <span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">)</span>
+
+
+<span class="c">## Appcache run shortcut</span></div>
+<div class="viewcode-block" id="appcache"><a class="viewcode-back" href="../../../lib.apptools.html#lib.apptools.dispatch.appcache">[docs]</a><span class="k">def</span> <span class="nf">appcache</span><span class="p">(</span><span class="n">environ</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">start_response</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Run the appcache manifest generation app. &#39;&#39;&#39;</span>
+
+    <span class="k">global</span> <span class="n">_run</span>
+    <span class="k">global</span> <span class="n">_appcache_app</span>
+
+    <span class="k">return</span> <span class="n">_run</span><span class="p">(</span><span class="n">_appcache_app</span><span class="p">,</span> <span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">)</span>
+
+
+<span class="c">## Services run shortcut</span></div>
+<div class="viewcode-block" id="services"><a class="viewcode-back" href="../../../lib.apptools.html#lib.apptools.dispatch.services">[docs]</a><span class="k">def</span> <span class="nf">services</span><span class="p">(</span><span class="n">environ</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">start_response</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">direct</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Run the service layer app. &#39;&#39;&#39;</span>
+
+    <span class="k">global</span> <span class="n">_run</span>
+    <span class="k">global</span> <span class="n">_services_app</span>
+
+    <span class="k">if</span> <span class="n">direct</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">apptools.services</span> <span class="kn">import</span> <span class="n">direct</span>
+        <span class="n">_services_app</span> <span class="o">=</span> <span class="n">direct</span><span class="o">.</span><span class="n">realtimeServiceMappings</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apptools.project.services&#39;</span><span class="p">))</span>
+
+    <span class="c">## Pass off to servicelayer-specific dispatch (if accessed through this entrypoint)</span>
+    <span class="k">return</span> <span class="n">_run</span><span class="p">(</span><span class="n">_services_app</span><span class="p">,</span> <span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">)</span>
+
+
+<span class="c">## Main WSGI dispatch</span></div>
+<div class="viewcode-block" id="gateway"><a class="viewcode-back" href="../../../lib.apptools.html#lib.apptools.dispatch.gateway">[docs]</a><span class="k">def</span> <span class="nf">gateway</span><span class="p">(</span><span class="n">environ</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">start_response</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">direct</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">appclass</span><span class="o">=</span><span class="n">webapp2</span><span class="o">.</span><span class="n">WSGIApplication</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Resolve which internal app should be run, then do it. &#39;&#39;&#39;</span>
+
+    <span class="k">global</span> <span class="n">_run</span>
+    <span class="k">global</span> <span class="n">app_rules</span>
+    <span class="k">global</span> <span class="n">sys_config</span>
+
+    <span class="c">## Get user/app rules, then splice in our internal rules at the end</span>
+    <span class="n">routing_rules</span> <span class="o">=</span> <span class="p">[</span><span class="n">rule</span> <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="p">(</span><span class="n">app_rules</span> <span class="o">+</span> <span class="n">get_builtin_apps</span><span class="p">())]</span>
+
+    <span class="k">if</span> <span class="n">direct</span><span class="p">:</span>
+        <span class="n">environ</span><span class="p">[</span><span class="s">&#39;xaf.direct&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">appclass</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">DirectDispatchApplication</span>
+
+    <span class="c">## Make the WSGI app</span>
+    <span class="n">action</span> <span class="o">=</span> <span class="n">_run</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">ApplicationFactory</span><span class="p">(</span><span class="n">appclass</span><span class="p">,</span> <span class="n">routing_rules</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="c">## Debug Options</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+        <span class="n">runtools</span><span class="o">.</span><span class="n">enable_jinja2_debugging</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">sys_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;hooks&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">sys_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;appstats&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="n">app</span> <span class="o">=</span> <span class="n">runtools</span><span class="o">.</span><span class="n">enable_appstats</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sys_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apptrace&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="n">app</span> <span class="o">=</span> <span class="n">runtools</span><span class="o">.</span><span class="n">enable_apptrace</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sys_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;profiler&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+
+                <span class="c"># profile_run shim action</span>
+                <span class="k">def</span> <span class="nf">profile_run</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">environ</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">start_response</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+                    <span class="sd">&#39;&#39;&#39; Wrap our WSGI run action in cProfile. &#39;&#39;&#39;</span>
+
+                    <span class="kn">import</span> <span class="nn">cProfile</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;==== PROFILING ENABLED. ====&#39;</span><span class="p">)</span>
+                    <span class="n">dump_path</span> <span class="o">=</span> <span class="s">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s">&#39;AppToolsApp.profile&#39;</span><span class="p">])</span>
+
+                    <span class="n">cProfile</span><span class="o">.</span><span class="n">runctx</span><span class="p">(</span><span class="s">&quot;_run(app, environ, start_response)&quot;</span><span class="p">,</span> <span class="nb">globals</span><span class="p">(),</span> <span class="nb">locals</span><span class="p">(),</span> <span class="n">filename</span><span class="o">=</span><span class="n">dump_path</span><span class="p">)</span>
+
+                <span class="n">action</span> <span class="o">=</span> <span class="n">profile_run</span>
+
+    <span class="c">## Go!</span>
+    <span class="k">return</span> <span class="n">action</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">)</span>
+
+
+<span class="c">## Extension exports</span></div>
+<span class="n">_installed_extensions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;admin&#39;</span><span class="p">:</span> <span class="n">admin</span><span class="p">,</span>
+    <span class="s">&#39;sitemap&#39;</span><span class="p">:</span> <span class="n">sitemap</span><span class="p">,</span>
+    <span class="s">&#39;appcache&#39;</span><span class="p">:</span> <span class="n">appcache</span>
+<span class="p">}</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../apptools.html" >lib.apptools</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

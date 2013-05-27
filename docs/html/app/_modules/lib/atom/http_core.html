@@ -1,0 +1,700 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.atom.http_core &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../index.html" />
+    <link rel="up" title="lib.atom" href="../atom.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../atom.html" accesskey="U">lib.atom</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.atom.http_core</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c">#</span>
+<span class="c">#    Copyright (C) 2009 Google Inc.</span>
+<span class="c">#</span>
+<span class="c">#   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c">#   you may not use this file except in compliance with the License.</span>
+<span class="c">#   You may obtain a copy of the License at</span>
+<span class="c">#</span>
+<span class="c">#       http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c">#   Unless required by applicable law or agreed to in writing, software</span>
+<span class="c">#   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c">#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c">#   See the License for the specific language governing permissions and</span>
+<span class="c">#   limitations under the License.</span>
+
+
+<span class="c"># This module is used for version 2 of the Google Data APIs.</span>
+<span class="c"># TODO: add proxy handling.</span>
+
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;j.s@google.com (Jeff Scudder)&#39;</span>
+
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">StringIO</span>
+<span class="kn">import</span> <span class="nn">urlparse</span>
+<span class="kn">import</span> <span class="nn">urllib</span>
+<span class="kn">import</span> <span class="nn">httplib</span>
+<span class="n">ssl</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="k">try</span><span class="p">:</span>
+  <span class="kn">import</span> <span class="nn">ssl</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+  <span class="k">pass</span>
+
+
+
+<div class="viewcode-block" id="Error"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.http_core.Error">[docs]</a><span class="k">class</span> <span class="nc">Error</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+  <span class="k">pass</span>
+
+</div>
+<div class="viewcode-block" id="UnknownSize"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.http_core.UnknownSize">[docs]</a><span class="k">class</span> <span class="nc">UnknownSize</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
+  <span class="k">pass</span>
+
+</div>
+<div class="viewcode-block" id="ProxyError"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.http_core.ProxyError">[docs]</a><span class="k">class</span> <span class="nc">ProxyError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
+  <span class="k">pass</span>
+
+</div>
+<span class="n">MIME_BOUNDARY</span> <span class="o">=</span> <span class="s">&#39;END_OF_PART&#39;</span>
+
+
+<div class="viewcode-block" id="get_headers"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.http_core.get_headers">[docs]</a><span class="k">def</span> <span class="nf">get_headers</span><span class="p">(</span><span class="n">http_response</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Retrieves all HTTP headers from an HTTP response from the server.</span>
+
+<span class="sd">  This method is provided for backwards compatibility for Python2.2 and 2.3.</span>
+<span class="sd">  The httplib.HTTPResponse object in 2.2 and 2.3 does not have a getheaders</span>
+<span class="sd">  method so this function will use getheaders if available, but if not it</span>
+<span class="sd">  will retrieve a few using getheader.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">http_response</span><span class="p">,</span> <span class="s">&#39;getheaders&#39;</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">http_response</span><span class="o">.</span><span class="n">getheaders</span><span class="p">()</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">headers</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">header</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="s">&#39;location&#39;</span><span class="p">,</span> <span class="s">&#39;content-type&#39;</span><span class="p">,</span> <span class="s">&#39;content-length&#39;</span><span class="p">,</span> <span class="s">&#39;age&#39;</span><span class="p">,</span> <span class="s">&#39;allow&#39;</span><span class="p">,</span>
+        <span class="s">&#39;cache-control&#39;</span><span class="p">,</span> <span class="s">&#39;content-location&#39;</span><span class="p">,</span> <span class="s">&#39;content-encoding&#39;</span><span class="p">,</span> <span class="s">&#39;date&#39;</span><span class="p">,</span>
+        <span class="s">&#39;etag&#39;</span><span class="p">,</span> <span class="s">&#39;expires&#39;</span><span class="p">,</span> <span class="s">&#39;last-modified&#39;</span><span class="p">,</span> <span class="s">&#39;pragma&#39;</span><span class="p">,</span> <span class="s">&#39;server&#39;</span><span class="p">,</span>
+        <span class="s">&#39;set-cookie&#39;</span><span class="p">,</span> <span class="s">&#39;transfer-encoding&#39;</span><span class="p">,</span> <span class="s">&#39;vary&#39;</span><span class="p">,</span> <span class="s">&#39;via&#39;</span><span class="p">,</span> <span class="s">&#39;warning&#39;</span><span class="p">,</span>
+        <span class="s">&#39;www-authenticate&#39;</span><span class="p">,</span> <span class="s">&#39;gdata-version&#39;</span><span class="p">):</span>
+      <span class="n">value</span> <span class="o">=</span> <span class="n">http_response</span><span class="o">.</span><span class="n">getheader</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">headers</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">header</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">headers</span>
+
+</div>
+<div class="viewcode-block" id="HttpRequest"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.http_core.HttpRequest">[docs]</a><span class="k">class</span> <span class="nc">HttpRequest</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Contains all of the parameters for an HTTP 1.1 request.</span>
+
+<span class="sd">  The HTTP headers are represented by a dictionary, and it is the</span>
+<span class="sd">  responsibility of the user to ensure that duplicate field names are combined</span>
+<span class="sd">  into one header value according to the rules in section 4.2 of RFC 2616.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">method</span> <span class="o">=</span> <span class="bp">None</span>
+  <span class="n">uri</span> <span class="o">=</span> <span class="bp">None</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Construct an HTTP request.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      uri: The full path or partial path as a Uri object or a string.</span>
+<span class="sd">      method: The HTTP method for the request, examples include &#39;GET&#39;, &#39;POST&#39;,</span>
+<span class="sd">              etc.</span>
+<span class="sd">      headers: dict of strings The HTTP headers to include in the request.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="n">headers</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_body_parts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">unicode</span><span class="p">)):</span>
+      <span class="n">uri</span> <span class="o">=</span> <span class="n">Uri</span><span class="o">.</span><span class="n">parse_uri</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">uri</span> <span class="o">=</span> <span class="n">uri</span> <span class="ow">or</span> <span class="n">Uri</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="HttpRequest.add_body_part"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.http_core.HttpRequest.add_body_part">[docs]</a>  <span class="k">def</span> <span class="nf">add_body_part</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">mime_type</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Adds data to the HTTP request body.</span>
+
+<span class="sd">    If more than one part is added, this is assumed to be a mime-multipart</span>
+<span class="sd">    request. This method is designed to create MIME 1.0 requests as specified</span>
+<span class="sd">    in RFC 1341.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      data: str or a file-like object containing a part of the request body.</span>
+<span class="sd">      mime_type: str The MIME type describing the data</span>
+<span class="sd">      size: int Required if the data is a file like object. If the data is a</span>
+<span class="sd">            string, the size is calculated so this parameter is ignored.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+      <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="c"># TODO: support chunked transfer if some of the body is of unknown size.</span>
+      <span class="k">raise</span> <span class="n">UnknownSize</span><span class="p">(</span><span class="s">&#39;Each part of the body must have a known size.&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s">&#39;Content-Length&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">:</span>
+      <span class="n">content_length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">&#39;Content-Length&#39;</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">content_length</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="c"># If this is the first part added to the body, then this is not a multipart</span>
+    <span class="c"># request.</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_body_parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">&#39;Content-Type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mime_type</span>
+      <span class="n">content_length</span> <span class="o">=</span> <span class="n">size</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_body_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_body_parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+      <span class="c"># This is the first member in a mime-multipart request, so change the</span>
+      <span class="c"># _body_parts list to indicate a multipart payload.</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_body_parts</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&#39;Media multipart posting&#39;</span><span class="p">)</span>
+      <span class="n">boundary_string</span> <span class="o">=</span> <span class="s">&#39;</span><span class="se">\r\n</span><span class="s">--</span><span class="si">%s</span><span class="se">\r\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">MIME_BOUNDARY</span><span class="p">,)</span>
+      <span class="n">content_length</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">boundary_string</span><span class="p">)</span> <span class="o">+</span> <span class="n">size</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_body_parts</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">boundary_string</span><span class="p">)</span>
+      <span class="n">content_length</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="s">&#39;Media multipart posting&#39;</span><span class="p">)</span>
+      <span class="c"># Put the content type of the first part of the body into the multipart</span>
+      <span class="c"># payload.</span>
+      <span class="n">original_type_string</span> <span class="o">=</span> <span class="s">&#39;Content-Type: </span><span class="si">%s</span><span class="se">\r\n\r\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">&#39;Content-Type&#39;</span><span class="p">],)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_body_parts</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">original_type_string</span><span class="p">)</span>
+      <span class="n">content_length</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">original_type_string</span><span class="p">)</span>
+      <span class="n">boundary_string</span> <span class="o">=</span> <span class="s">&#39;</span><span class="se">\r\n</span><span class="s">--</span><span class="si">%s</span><span class="se">\r\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">MIME_BOUNDARY</span><span class="p">,)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_body_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">boundary_string</span><span class="p">)</span>
+      <span class="n">content_length</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">boundary_string</span><span class="p">)</span>
+      <span class="c"># Change the headers to indicate this is now a mime multipart request.</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">&#39;Content-Type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;multipart/related; boundary=&quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span>
+          <span class="n">MIME_BOUNDARY</span><span class="p">,)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">&#39;MIME-version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;1.0&#39;</span>
+      <span class="c"># Include the mime type of this part.</span>
+      <span class="n">type_string</span> <span class="o">=</span> <span class="s">&#39;Content-Type: </span><span class="si">%s</span><span class="se">\r\n\r\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">mime_type</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_body_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">type_string</span><span class="p">)</span>
+      <span class="n">content_length</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">type_string</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_body_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+      <span class="n">ending_boundary_string</span> <span class="o">=</span> <span class="s">&#39;</span><span class="se">\r\n</span><span class="s">--</span><span class="si">%s</span><span class="s">--&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">MIME_BOUNDARY</span><span class="p">,)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_body_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ending_boundary_string</span><span class="p">)</span>
+      <span class="n">content_length</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ending_boundary_string</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="c"># This is a mime multipart request.</span>
+      <span class="n">boundary_string</span> <span class="o">=</span> <span class="s">&#39;</span><span class="se">\r\n</span><span class="s">--</span><span class="si">%s</span><span class="se">\r\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">MIME_BOUNDARY</span><span class="p">,)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_body_parts</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">boundary_string</span><span class="p">)</span>
+      <span class="n">content_length</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">boundary_string</span><span class="p">)</span> <span class="o">+</span> <span class="n">size</span>
+      <span class="c"># Include the mime type of this part.</span>
+      <span class="n">type_string</span> <span class="o">=</span> <span class="s">&#39;Content-Type: </span><span class="si">%s</span><span class="se">\r\n\r\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">mime_type</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_body_parts</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">type_string</span><span class="p">)</span>
+      <span class="n">content_length</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">type_string</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_body_parts</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">&#39;Content-Length&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">content_length</span><span class="p">)</span>
+  <span class="c"># I could add an &quot;append_to_body_part&quot; method as well.</span>
+</div>
+  <span class="n">AddBodyPart</span> <span class="o">=</span> <span class="n">add_body_part</span>
+
+<div class="viewcode-block" id="HttpRequest.add_form_inputs"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.http_core.HttpRequest.add_form_inputs">[docs]</a>  <span class="k">def</span> <span class="nf">add_form_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form_data</span><span class="p">,</span>
+                      <span class="n">mime_type</span><span class="o">=</span><span class="s">&#39;application/x-www-form-urlencoded&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Form-encodes and adds data to the request body.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      form_data: dict or sequnce or two member tuples which contains the</span>
+<span class="sd">                 form keys and values.</span>
+<span class="sd">      mime_type: str The MIME type of the form data being sent. Defaults</span>
+<span class="sd">                 to &#39;application/x-www-form-urlencoded&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">urlencode</span><span class="p">(</span><span class="n">form_data</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_body_part</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="n">mime_type</span><span class="p">)</span>
+</div>
+  <span class="n">AddFormInputs</span> <span class="o">=</span> <span class="n">add_form_inputs</span>
+
+  <span class="k">def</span> <span class="nf">_copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates a deep copy of this request.&quot;&quot;&quot;</span>
+    <span class="n">copied_uri</span> <span class="o">=</span> <span class="n">Uri</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">scheme</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">port</span><span class="p">,</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+    <span class="n">new_request</span> <span class="o">=</span> <span class="n">HttpRequest</span><span class="p">(</span><span class="n">uri</span><span class="o">=</span><span class="n">copied_uri</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
+                              <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+    <span class="n">new_request</span><span class="o">.</span><span class="n">_body_parts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_body_parts</span><span class="p">[:]</span>
+    <span class="k">return</span> <span class="n">new_request</span>
+
+  <span class="k">def</span> <span class="nf">_dump</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Converts to a printable string for debugging purposes.</span>
+
+<span class="sd">    In order to preserve the request, it does not read from file-like objects</span>
+<span class="sd">    in the body.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">output</span> <span class="o">=</span>  <span class="s">&#39;HTTP Request</span><span class="se">\n</span><span class="s">  method: </span><span class="si">%s</span><span class="se">\n</span><span class="s">  url: </span><span class="si">%s</span><span class="se">\n</span><span class="s">  headers:</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uri</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">header</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+      <span class="n">output</span> <span class="o">+=</span> <span class="s">&#39;    </span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="n">output</span> <span class="o">+=</span> <span class="s">&#39;  body sections:</span><span class="se">\n</span><span class="s">&#39;</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_body_parts</span><span class="p">:</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">unicode</span><span class="p">)):</span>
+        <span class="n">output</span> <span class="o">+=</span> <span class="s">&#39;    </span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">part</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">output</span> <span class="o">+=</span> <span class="s">&#39;    </span><span class="si">%s</span><span class="s">: &lt;file like object&gt;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">i</span>
+      <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">output</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_apply_defaults</span><span class="p">(</span><span class="n">http_request</span><span class="p">):</span>
+  <span class="k">if</span> <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">scheme</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">port</span> <span class="o">==</span> <span class="mi">443</span><span class="p">:</span>
+      <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">scheme</span> <span class="o">=</span> <span class="s">&#39;https&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">scheme</span> <span class="o">=</span> <span class="s">&#39;http&#39;</span>
+
+
+<div class="viewcode-block" id="Uri"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.http_core.Uri">[docs]</a><span class="k">class</span> <span class="nc">Uri</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;A URI as used in HTTP 1.1&quot;&quot;&quot;</span>
+  <span class="n">scheme</span> <span class="o">=</span> <span class="bp">None</span>
+  <span class="n">host</span> <span class="o">=</span> <span class="bp">None</span>
+  <span class="n">port</span> <span class="o">=</span> <span class="bp">None</span>
+  <span class="n">path</span> <span class="o">=</span> <span class="bp">None</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scheme</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for a URI.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      scheme: str This is usually &#39;http&#39; or &#39;https&#39;.</span>
+<span class="sd">      host: str The host name or IP address of the desired server.</span>
+<span class="sd">      post: int The server&#39;s port number.</span>
+<span class="sd">      path: str The path of the resource following the host. This begins with</span>
+<span class="sd">            a /, example: &#39;/calendar/feeds/default/allcalendars/full&#39;</span>
+<span class="sd">      query: dict of strings The URL query parameters. The keys and values are</span>
+<span class="sd">             both escaped so this dict should contain the unescaped values.</span>
+<span class="sd">             For example {&#39;my key&#39;: &#39;val&#39;, &#39;second&#39;: &#39;!!!&#39;} will become</span>
+<span class="sd">             &#39;?my+key=val&amp;second=%21%21%21&#39; which is appended to the path.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="o">=</span> <span class="n">query</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">scheme</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">scheme</span> <span class="o">=</span> <span class="n">scheme</span>
+    <span class="k">if</span> <span class="n">host</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">host</span>
+    <span class="k">if</span> <span class="n">port</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">port</span>
+    <span class="k">if</span> <span class="n">path</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+
+  <span class="k">def</span> <span class="nf">_get_query_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">param_pairs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+      <span class="n">quoted_key</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">quote_plus</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+      <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">param_pairs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">quoted_key</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">quoted_value</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">quote_plus</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="n">param_pairs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">=</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">quoted_key</span><span class="p">,</span> <span class="n">quoted_value</span><span class="p">))</span>
+    <span class="k">return</span> <span class="s">&#39;&amp;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">param_pairs</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_get_relative_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the path with the query parameters escaped and appended.&quot;&quot;&quot;</span>
+    <span class="n">param_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_query_string</span><span class="p">()</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">path</span> <span class="o">=</span> <span class="s">&#39;/&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span>
+    <span class="k">if</span> <span class="n">param_string</span><span class="p">:</span>
+      <span class="k">return</span> <span class="s">&#39;?&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">path</span><span class="p">,</span> <span class="n">param_string</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">path</span>
+
+  <span class="k">def</span> <span class="nf">_to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scheme</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">==</span> <span class="mi">443</span><span class="p">:</span>
+      <span class="n">scheme</span> <span class="o">=</span> <span class="s">&#39;https&#39;</span>
+    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">scheme</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">scheme</span> <span class="o">=</span> <span class="s">&#39;http&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">scheme</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scheme</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">path</span> <span class="o">=</span> <span class="s">&#39;/&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="k">return</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">://</span><span class="si">%s%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">scheme</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_relative_path</span><span class="p">())</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">://</span><span class="si">%s</span><span class="s">:</span><span class="si">%s%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">scheme</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">),</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="n">_get_relative_path</span><span class="p">())</span>
+
+  <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_string</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Uri.modify_request"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.http_core.Uri.modify_request">[docs]</a>  <span class="k">def</span> <span class="nf">modify_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http_request</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sets HTTP request components based on the URI.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">http_request</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">http_request</span> <span class="o">=</span> <span class="n">HttpRequest</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span> <span class="o">=</span> <span class="n">Uri</span><span class="p">()</span>
+    <span class="c"># Determine the correct scheme.</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scheme</span><span class="p">:</span>
+      <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">scheme</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scheme</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">:</span>
+      <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">:</span>
+      <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span>
+    <span class="c"># Set the relative uri path</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+      <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">:</span>
+      <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">query</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">http_request</span>
+</div>
+  <span class="n">ModifyRequest</span> <span class="o">=</span> <span class="n">modify_request</span>
+
+<div class="viewcode-block" id="Uri.parse_uri"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.http_core.Uri.parse_uri">[docs]</a>  <span class="k">def</span> <span class="nf">parse_uri</span><span class="p">(</span><span class="n">uri_string</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates a Uri object which corresponds to the URI string.</span>
+
+<span class="sd">    This method can accept partial URIs, but it will leave missing</span>
+<span class="sd">    members of the Uri unset.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">urlparse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="n">uri_string</span><span class="p">)</span>
+    <span class="n">uri</span> <span class="o">=</span> <span class="n">Uri</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+      <span class="n">uri</span><span class="o">.</span><span class="n">scheme</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+      <span class="n">host_parts</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">host_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="n">uri</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">host_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+      <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">host_parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">uri</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">host_parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+      <span class="n">uri</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">parts</span><span class="p">[</span><span class="mi">4</span><span class="p">]:</span>
+      <span class="n">param_pairs</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;&amp;&#39;</span><span class="p">)</span>
+      <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">param_pairs</span><span class="p">:</span>
+        <span class="n">pair_parts</span> <span class="o">=</span> <span class="n">pair</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;=&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pair_parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+          <span class="n">uri</span><span class="o">.</span><span class="n">query</span><span class="p">[</span><span class="n">urllib</span><span class="o">.</span><span class="n">unquote_plus</span><span class="p">(</span><span class="n">pair_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span> <span class="o">=</span> <span class="p">(</span>
+              <span class="n">urllib</span><span class="o">.</span><span class="n">unquote_plus</span><span class="p">(</span><span class="n">pair_parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">pair_parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+          <span class="n">uri</span><span class="o">.</span><span class="n">query</span><span class="p">[</span><span class="n">urllib</span><span class="o">.</span><span class="n">unquote_plus</span><span class="p">(</span><span class="n">pair_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">return</span> <span class="n">uri</span>
+</div>
+  <span class="n">parse_uri</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">parse_uri</span><span class="p">)</span>
+
+  <span class="n">ParseUri</span> <span class="o">=</span> <span class="n">parse_uri</span>
+
+</div>
+<span class="n">parse_uri</span> <span class="o">=</span> <span class="n">Uri</span><span class="o">.</span><span class="n">parse_uri</span>
+
+
+<span class="n">ParseUri</span> <span class="o">=</span> <span class="n">Uri</span><span class="o">.</span><span class="n">parse_uri</span>
+
+
+<div class="viewcode-block" id="HttpResponse"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.http_core.HttpResponse">[docs]</a><span class="k">class</span> <span class="nc">HttpResponse</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="n">status</span> <span class="o">=</span> <span class="bp">None</span>
+  <span class="n">reason</span> <span class="o">=</span> <span class="bp">None</span>
+  <span class="n">_body</span> <span class="o">=</span> <span class="bp">None</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span> <span class="o">=</span> <span class="n">headers</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">status</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">status</span>
+    <span class="k">if</span> <span class="n">reason</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">reason</span> <span class="o">=</span> <span class="n">reason</span>
+    <span class="k">if</span> <span class="n">body</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="s">&#39;read&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_body</span> <span class="o">=</span> <span class="n">body</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_body</span> <span class="o">=</span> <span class="n">StringIO</span><span class="o">.</span><span class="n">StringIO</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+
+<div class="viewcode-block" id="HttpResponse.getheader"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.http_core.HttpResponse.getheader">[docs]</a>  <span class="k">def</span> <span class="nf">getheader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">default</span>
+</div>
+<div class="viewcode-block" id="HttpResponse.getheaders"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.http_core.HttpResponse.getheaders">[docs]</a>  <span class="k">def</span> <span class="nf">getheaders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_headers</span>
+</div>
+<div class="viewcode-block" id="HttpResponse.read"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.http_core.HttpResponse.read">[docs]</a>  <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amt</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_body</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">amt</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_body</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_body</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">amt</span><span class="p">)</span>
+
+</div></div>
+<span class="k">def</span> <span class="nf">_dump_response</span><span class="p">(</span><span class="n">http_response</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Converts to a string for printing debug messages.</span>
+
+<span class="sd">  Does not read the body since that may consume the content.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">output</span> <span class="o">=</span> <span class="s">&#39;HttpResponse</span><span class="se">\n</span><span class="s">  status: </span><span class="si">%s</span><span class="se">\n</span><span class="s">  reason: </span><span class="si">%s</span><span class="se">\n</span><span class="s">  headers:&#39;</span> <span class="o">%</span> <span class="p">(</span>
+      <span class="n">http_response</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="n">http_response</span><span class="o">.</span><span class="n">reason</span><span class="p">)</span>
+  <span class="n">headers</span> <span class="o">=</span> <span class="n">get_headers</span><span class="p">(</span><span class="n">http_response</span><span class="p">)</span>
+  <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">headers</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">header</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">headers</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+      <span class="n">output</span> <span class="o">+=</span> <span class="s">&#39;    </span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">headers</span><span class="p">:</span>
+      <span class="n">output</span> <span class="o">+=</span> <span class="s">&#39;    </span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+  <span class="k">return</span> <span class="n">output</span>
+
+
+<div class="viewcode-block" id="HttpClient"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.http_core.HttpClient">[docs]</a><span class="k">class</span> <span class="nc">HttpClient</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Performs HTTP requests using httplib.&quot;&quot;&quot;</span>
+  <span class="n">debug</span> <span class="o">=</span> <span class="bp">None</span>
+
+<div class="viewcode-block" id="HttpClient.request"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.http_core.HttpClient.request">[docs]</a>  <span class="k">def</span> <span class="nf">request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http_request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http_request</span><span class="p">(</span><span class="n">http_request</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">http_request</span><span class="o">.</span><span class="n">uri</span><span class="p">,</span>
+                              <span class="n">http_request</span><span class="o">.</span><span class="n">headers</span><span class="p">,</span> <span class="n">http_request</span><span class="o">.</span><span class="n">_body_parts</span><span class="p">)</span>
+</div>
+  <span class="n">Request</span> <span class="o">=</span> <span class="n">request</span>
+
+  <span class="k">def</span> <span class="nf">_get_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Opens a socket connection to the server to set up an HTTP request.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      uri: The full URL for the request as a Uri object.</span>
+<span class="sd">      headers: A dict of string pairs containing the HTTP headers for the</span>
+<span class="sd">          request.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">connection</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="n">uri</span><span class="o">.</span><span class="n">scheme</span> <span class="o">==</span> <span class="s">&#39;https&#39;</span><span class="p">:</span>
+      <span class="k">if</span> <span class="ow">not</span> <span class="n">uri</span><span class="o">.</span><span class="n">port</span><span class="p">:</span>
+        <span class="n">connection</span> <span class="o">=</span> <span class="n">httplib</span><span class="o">.</span><span class="n">HTTPSConnection</span><span class="p">(</span><span class="n">uri</span><span class="o">.</span><span class="n">host</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">connection</span> <span class="o">=</span> <span class="n">httplib</span><span class="o">.</span><span class="n">HTTPSConnection</span><span class="p">(</span><span class="n">uri</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">uri</span><span class="o">.</span><span class="n">port</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">if</span> <span class="ow">not</span> <span class="n">uri</span><span class="o">.</span><span class="n">port</span><span class="p">:</span>
+        <span class="n">connection</span> <span class="o">=</span> <span class="n">httplib</span><span class="o">.</span><span class="n">HTTPConnection</span><span class="p">(</span><span class="n">uri</span><span class="o">.</span><span class="n">host</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">connection</span> <span class="o">=</span> <span class="n">httplib</span><span class="o">.</span><span class="n">HTTPConnection</span><span class="p">(</span><span class="n">uri</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">uri</span><span class="o">.</span><span class="n">port</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">connection</span>
+
+  <span class="k">def</span> <span class="nf">_http_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">body_parts</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Makes an HTTP request using httplib.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      method: str example: &#39;GET&#39;, &#39;POST&#39;, &#39;PUT&#39;, &#39;DELETE&#39;, etc.</span>
+<span class="sd">      uri: str or atom.http_core.Uri</span>
+<span class="sd">      headers: dict of strings mapping to strings which will be sent as HTTP</span>
+<span class="sd">               headers in the request.</span>
+<span class="sd">      body_parts: list of strings, objects with a read method, or objects</span>
+<span class="sd">                  which can be converted to strings using str. Each of these</span>
+<span class="sd">                  will be sent in order as the body of the HTTP request.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">unicode</span><span class="p">)):</span>
+      <span class="n">uri</span> <span class="o">=</span> <span class="n">Uri</span><span class="o">.</span><span class="n">parse_uri</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
+
+    <span class="n">connection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_connection</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+      <span class="n">connection</span><span class="o">.</span><span class="n">debuglevel</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">connection</span><span class="o">.</span><span class="n">host</span> <span class="o">!=</span> <span class="n">uri</span><span class="o">.</span><span class="n">host</span><span class="p">:</span>
+      <span class="n">connection</span><span class="o">.</span><span class="n">putrequest</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">uri</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">connection</span><span class="o">.</span><span class="n">putrequest</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">uri</span><span class="o">.</span><span class="n">_get_relative_path</span><span class="p">())</span>
+
+    <span class="c"># Overcome a bug in Python 2.4 and 2.5</span>
+    <span class="c"># httplib.HTTPConnection.putrequest adding</span>
+    <span class="c"># HTTP request header &#39;Host: www.google.com:443&#39; instead of</span>
+    <span class="c"># &#39;Host: www.google.com&#39;, and thus resulting the error message</span>
+    <span class="c"># &#39;Token invalid - AuthSub token has wrong scope&#39; in the HTTP response.</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">uri</span><span class="o">.</span><span class="n">scheme</span> <span class="o">==</span> <span class="s">&#39;https&#39;</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">uri</span><span class="o">.</span><span class="n">port</span> <span class="ow">or</span> <span class="mi">443</span><span class="p">)</span> <span class="o">==</span> <span class="mi">443</span> <span class="ow">and</span>
+        <span class="nb">hasattr</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="s">&#39;_buffer&#39;</span><span class="p">)</span> <span class="ow">and</span>
+        <span class="nb">isinstance</span><span class="p">(</span><span class="n">connection</span><span class="o">.</span><span class="n">_buffer</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+      <span class="n">header_line</span> <span class="o">=</span> <span class="s">&#39;Host: </span><span class="si">%s</span><span class="s">:443&#39;</span> <span class="o">%</span> <span class="n">uri</span><span class="o">.</span><span class="n">host</span>
+      <span class="n">replacement_header_line</span> <span class="o">=</span> <span class="s">&#39;Host: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">uri</span><span class="o">.</span><span class="n">host</span>
+      <span class="k">try</span><span class="p">:</span>
+        <span class="n">connection</span><span class="o">.</span><span class="n">_buffer</span><span class="p">[</span><span class="n">connection</span><span class="o">.</span><span class="n">_buffer</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">header_line</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">replacement_header_line</span><span class="p">)</span>
+      <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>  <span class="c"># header_line missing from connection._buffer</span>
+        <span class="k">pass</span>
+
+    <span class="c"># Send the HTTP headers.</span>
+    <span class="k">for</span> <span class="n">header_name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">headers</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+      <span class="n">connection</span><span class="o">.</span><span class="n">putheader</span><span class="p">(</span><span class="n">header_name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="n">connection</span><span class="o">.</span><span class="n">endheaders</span><span class="p">()</span>
+
+    <span class="c"># If there is data, send it in the request.</span>
+    <span class="k">if</span> <span class="n">body_parts</span> <span class="ow">and</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">!=</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">body_parts</span><span class="p">):</span>
+      <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">body_parts</span><span class="p">:</span>
+        <span class="n">_send_data_part</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="n">connection</span><span class="p">)</span>
+
+    <span class="c"># Return the HTTP Response from the server.</span>
+    <span class="k">return</span> <span class="n">connection</span><span class="o">.</span><span class="n">getresponse</span><span class="p">()</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_send_data_part</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">connection</span><span class="p">):</span>
+  <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">unicode</span><span class="p">)):</span>
+    <span class="c"># I might want to just allow str, not unicode.</span>
+    <span class="n">connection</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">return</span>
+  <span class="c"># Check to see if data is a file-like object that has a read method.</span>
+  <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s">&#39;read&#39;</span><span class="p">):</span>
+    <span class="c"># Read the file and send it a chunk at a time.</span>
+    <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+      <span class="n">binarydata</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">100000</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">binarydata</span> <span class="o">==</span> <span class="s">&#39;&#39;</span><span class="p">:</span> <span class="k">break</span>
+      <span class="n">connection</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">binarydata</span><span class="p">)</span>
+    <span class="k">return</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="c"># The data object was not a file.</span>
+    <span class="c"># Try to convert to a string and send the data.</span>
+    <span class="n">connection</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+    <span class="k">return</span>
+
+
+<div class="viewcode-block" id="ProxiedHttpClient"><a class="viewcode-back" href="../../../lib.atom.html#lib.atom.http_core.ProxiedHttpClient">[docs]</a><span class="k">class</span> <span class="nc">ProxiedHttpClient</span><span class="p">(</span><span class="n">HttpClient</span><span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">_get_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="c"># Check to see if there are proxy settings required for this request.</span>
+    <span class="n">proxy</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="n">uri</span><span class="o">.</span><span class="n">scheme</span> <span class="o">==</span> <span class="s">&#39;https&#39;</span><span class="p">:</span>
+      <span class="n">proxy</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;https_proxy&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">uri</span><span class="o">.</span><span class="n">scheme</span> <span class="o">==</span> <span class="s">&#39;http&#39;</span><span class="p">:</span>
+      <span class="n">proxy</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;http_proxy&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">proxy</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">HttpClient</span><span class="o">.</span><span class="n">_get_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+    <span class="c"># Now we have the URL of the appropriate proxy server.</span>
+    <span class="c"># Get a username and password for the proxy if required.</span>
+    <span class="n">proxy_auth</span> <span class="o">=</span> <span class="n">_get_proxy_auth</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">uri</span><span class="o">.</span><span class="n">scheme</span> <span class="o">==</span> <span class="s">&#39;https&#39;</span><span class="p">:</span>
+      <span class="kn">import</span> <span class="nn">socket</span>
+      <span class="k">if</span> <span class="n">proxy_auth</span><span class="p">:</span>
+        <span class="n">proxy_auth</span> <span class="o">=</span> <span class="s">&#39;Proxy-authorization: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">proxy_auth</span>
+      <span class="c"># Construct the proxy connect command.</span>
+      <span class="n">port</span> <span class="o">=</span> <span class="n">uri</span><span class="o">.</span><span class="n">port</span>
+      <span class="k">if</span> <span class="ow">not</span> <span class="n">port</span><span class="p">:</span>
+        <span class="n">port</span> <span class="o">=</span> <span class="mi">443</span>
+      <span class="n">proxy_connect</span> <span class="o">=</span> <span class="s">&#39;CONNECT </span><span class="si">%s</span><span class="s">:</span><span class="si">%s</span><span class="s"> HTTP/1.0</span><span class="se">\r\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">uri</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
+      <span class="c"># Set the user agent to send to the proxy</span>
+      <span class="n">user_agent</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+      <span class="k">if</span> <span class="n">headers</span> <span class="ow">and</span> <span class="s">&#39;User-Agent&#39;</span> <span class="ow">in</span> <span class="n">headers</span><span class="p">:</span>
+        <span class="n">user_agent</span> <span class="o">=</span> <span class="s">&#39;User-Agent: </span><span class="si">%s</span><span class="se">\r\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">headers</span><span class="p">[</span><span class="s">&#39;User-Agent&#39;</span><span class="p">])</span>
+      <span class="n">proxy_pieces</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s%s%s</span><span class="se">\r\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">proxy_connect</span><span class="p">,</span> <span class="n">proxy_auth</span><span class="p">,</span> <span class="n">user_agent</span><span class="p">)</span>
+      <span class="c"># Find the proxy host and port.</span>
+      <span class="n">proxy_uri</span> <span class="o">=</span> <span class="n">Uri</span><span class="o">.</span><span class="n">parse_uri</span><span class="p">(</span><span class="n">proxy</span><span class="p">)</span>
+      <span class="k">if</span> <span class="ow">not</span> <span class="n">proxy_uri</span><span class="o">.</span><span class="n">port</span><span class="p">:</span>
+        <span class="n">proxy_uri</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="s">&#39;80&#39;</span>
+      <span class="c"># Connect to the proxy server, very simple recv and error checking</span>
+      <span class="n">p_sock</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span><span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">)</span>
+      <span class="n">p_sock</span><span class="o">.</span><span class="n">connect</span><span class="p">((</span><span class="n">proxy_uri</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">proxy_uri</span><span class="o">.</span><span class="n">port</span><span class="p">)))</span>
+      <span class="n">p_sock</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="n">proxy_pieces</span><span class="p">)</span>
+      <span class="n">response</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+      <span class="c"># Wait for the full response.</span>
+      <span class="k">while</span> <span class="n">response</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\r\n\r\n</span><span class="s">&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">+=</span> <span class="n">p_sock</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">8192</span><span class="p">)</span>
+      <span class="n">p_status</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+      <span class="k">if</span> <span class="n">p_status</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">(</span><span class="mi">200</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">ProxyError</span><span class="p">(</span><span class="s">&#39;Error status=</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">p_status</span><span class="p">))</span>
+      <span class="c"># Trivial setup for ssl socket.</span>
+      <span class="n">sslobj</span> <span class="o">=</span> <span class="bp">None</span>
+      <span class="k">if</span> <span class="n">ssl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">sslobj</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">wrap_socket</span><span class="p">(</span><span class="n">p_sock</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">sock_ssl</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">ssl</span><span class="p">(</span><span class="n">p_sock</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">Nonesock_</span><span class="p">)</span>
+        <span class="n">sslobj</span> <span class="o">=</span> <span class="n">httplib</span><span class="o">.</span><span class="n">FakeSocket</span><span class="p">(</span><span class="n">p_sock</span><span class="p">,</span> <span class="n">sock_ssl</span><span class="p">)</span>
+      <span class="c"># Initalize httplib and replace with the proxy socket.</span>
+      <span class="n">connection</span> <span class="o">=</span> <span class="n">httplib</span><span class="o">.</span><span class="n">HTTPConnection</span><span class="p">(</span><span class="n">proxy_uri</span><span class="o">.</span><span class="n">host</span><span class="p">)</span>
+      <span class="n">connection</span><span class="o">.</span><span class="n">sock</span> <span class="o">=</span> <span class="n">sslobj</span>
+      <span class="k">return</span> <span class="n">connection</span>
+    <span class="k">elif</span> <span class="n">uri</span><span class="o">.</span><span class="n">scheme</span> <span class="o">==</span> <span class="s">&#39;http&#39;</span><span class="p">:</span>
+      <span class="n">proxy_uri</span> <span class="o">=</span> <span class="n">Uri</span><span class="o">.</span><span class="n">parse_uri</span><span class="p">(</span><span class="n">proxy</span><span class="p">)</span>
+      <span class="k">if</span> <span class="ow">not</span> <span class="n">proxy_uri</span><span class="o">.</span><span class="n">port</span><span class="p">:</span>
+        <span class="n">proxy_uri</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="s">&#39;80&#39;</span>
+      <span class="k">if</span> <span class="n">proxy_auth</span><span class="p">:</span>
+        <span class="n">headers</span><span class="p">[</span><span class="s">&#39;Proxy-Authorization&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">proxy_auth</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">httplib</span><span class="o">.</span><span class="n">HTTPConnection</span><span class="p">(</span><span class="n">proxy_uri</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">proxy_uri</span><span class="o">.</span><span class="n">port</span><span class="p">))</span>
+    <span class="k">return</span> <span class="bp">None</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_get_proxy_auth</span><span class="p">():</span>
+  <span class="kn">import</span> <span class="nn">base64</span>
+  <span class="n">proxy_username</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;proxy-username&#39;</span><span class="p">)</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">proxy_username</span><span class="p">:</span>
+    <span class="n">proxy_username</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;proxy_username&#39;</span><span class="p">)</span>
+  <span class="n">proxy_password</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;proxy-password&#39;</span><span class="p">)</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">proxy_password</span><span class="p">:</span>
+    <span class="n">proxy_password</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;proxy_password&#39;</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">proxy_username</span><span class="p">:</span>
+    <span class="n">user_auth</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">:</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">proxy_username</span><span class="p">,</span>
+                                            <span class="n">proxy_password</span><span class="p">))</span>
+    <span class="k">return</span> <span class="s">&#39;Basic </span><span class="si">%s</span><span class="se">\r\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">user_auth</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="k">return</span> <span class="s">&#39;&#39;</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../atom.html" >lib.atom</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

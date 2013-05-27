@@ -1,0 +1,366 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.appfactory.integration.frontline &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../../index.html" />
+    <link rel="up" title="lib.appfactory.integration" href="../integration.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../integration.html" accesskey="U">lib.appfactory.integration</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.appfactory.integration.frontline</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="c"># Base Imports</span>
+<span class="kn">import</span> <span class="nn">config</span>
+<span class="kn">import</span> <span class="nn">webapp2</span>
+
+<span class="c"># AppTools Util</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">debug</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">datastructures</span>
+
+<span class="c"># Integration Primitives</span>
+<span class="kn">from</span> <span class="nn">appfactory.integration.abstract</span> <span class="kn">import</span> <span class="n">CommandBus</span>
+
+
+<span class="c">## Headers - frozen set of possible frontline-provided headers</span>
+<span class="n">_FRONTLINE_HEADERS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">([</span><span class="s">&#39;Frontline&#39;</span><span class="p">,</span>
+                                <span class="s">&#39;Agent&#39;</span><span class="p">,</span>
+                                <span class="s">&#39;Hostname&#39;</span><span class="p">,</span>
+                                <span class="s">&#39;Broker&#39;</span><span class="p">,</span>
+                                <span class="s">&#39;Protocol&#39;</span><span class="p">,</span>
+                                <span class="s">&#39;Version&#39;</span><span class="p">,</span>
+                                <span class="s">&#39;Entrypoint&#39;</span><span class="p">,</span>
+                                <span class="s">&#39;Flags&#39;</span><span class="p">,</span>
+                                <span class="s">&#39;Client&#39;</span><span class="p">,</span>
+                                <span class="s">&#39;Hash&#39;</span><span class="p">,</span>
+                                <span class="s">&#39;Channel&#39;</span><span class="p">])</span>
+
+
+<span class="c">## Flags - frozen set of reserved flags that can appear in the &quot;Flags&quot; header</span>
+<span class="n">_FRONTLINE_FLAGS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">((</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">CommandBus</span><span class="o">.</span><span class="n">flags</span><span class="p">))</span>
+
+
+<span class="c">## FrontlineBus</span>
+<span class="c">## Parses headers added by the AppFactory frontline, in order to facilitate triggering/changing behaviour in the codebase based on the hosting scheme being used.</span>
+<div class="viewcode-block" id="FrontlineBus"><a class="viewcode-back" href="../../../../lib.appfactory.integration.html#lib.appfactory.integration.frontline.FrontlineBus">[docs]</a><span class="k">class</span> <span class="nc">FrontlineBus</span><span class="p">(</span><span class="n">CommandBus</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; AppFactory Frontline management and integration code. &#39;&#39;&#39;</span>
+
+    <span class="c">## == Internal Methods == ##</span>
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="FrontlineBus.config"><a class="viewcode-back" href="../../../../lib.appfactory.integration.html#lib.appfactory.integration.frontline.FrontlineBus.config">[docs]</a>    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Named config pipe. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;layer9.appfactory.frontline&#39;</span><span class="p">)</span>
+</div>
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="FrontlineBus.logging"><a class="viewcode-back" href="../../../../lib.appfactory.integration.html#lib.appfactory.integration.frontline.FrontlineBus.logging">[docs]</a>    <span class="k">def</span> <span class="nf">logging</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Named logging pipe. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">debug</span><span class="o">.</span><span class="n">AppToolsLogger</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s">&#39;appfactory.integration.frontline&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;FrontlineBus&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">_setcondition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;debug&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">))</span>
+
+    <span class="c">## == Meta Header Triggers == ##</span></div>
+    <span class="k">def</span> <span class="nf">__hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Set internal request hash. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">handler</span><span class="o">.</span><span class="n">request_hash</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">__channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Set internal push endpoint. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">handler</span><span class="o">.</span><span class="n">push_channel</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">__flags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Set reserved flags. &#39;&#39;&#39;</span>
+
+        <span class="n">directive_i</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">directive_i</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">directive</span> <span class="ow">in</span> <span class="n">directive_i</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">di_r</span> <span class="o">=</span> <span class="n">directive</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;=&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">di_r</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">di_r</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">di_r</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">in</span> <span class="n">_FRONTLINE_FLAGS</span><span class="p">:</span>
+                        <span class="n">handler</span><span class="o">.</span><span class="n">flags</span><span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span> <span class="o">=</span> <span class="n">v</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&#39;Rogue frontline reserved option encountered, at key &quot;</span><span class="si">%s</span><span class="s">&quot;. Register or meet your peril!&#39;</span> <span class="o">%</span> <span class="n">k</span><span class="p">)</span>
+                        <span class="k">continue</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;Error encountered processing reserved flags at key &quot;</span><span class="si">%s</span><span class="s">&quot; with exception &quot;</span><span class="si">%s</span><span class="s">&quot;. Continuing.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
+                    <span class="k">continue</span>
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">__agent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Parse the user agent string, as provided by the Frontline in an alternate header. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+
+                <span class="c"># Pass through httpagentparser</span>
+                <span class="n">handler</span><span class="o">.</span><span class="n">uagent</span> <span class="o">=</span> <span class="n">handler</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">httpagentparser</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="n">handler</span><span class="o">.</span><span class="n">uagent</span><span class="p">[</span><span class="s">&#39;original&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&#39;Unable to parse AppFactory UserAgent header with value &quot;</span><span class="si">%s</span><span class="s">&quot;. Exception: &quot;</span><span class="si">%s</span><span class="s">&quot;.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">e</span> <span class="p">,</span><span class="n">uagent</span><span class="p">))</span>
+                <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">__client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Consider the true remote IP, not the frontline IP. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+
+                <span class="c"># Make sure it&#39;s something resembling an IP.</span>
+                <span class="n">ip_octets</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)]</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">ip_octets</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span>
+
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+
+                <span class="c"># If it could not be split or converted...</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;Invalid IP given for AppFactory remote client header. Value given: &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">value</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+                    <span class="k">raise</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span>
+
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="c"># If everything passed, set the overridden remote IP.</span>
+                <span class="n">handler</span><span class="o">.</span><span class="n">force_remoteip</span> <span class="o">=</span> <span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">octet</span><span class="p">)</span> <span class="k">for</span> <span class="n">octet</span> <span class="ow">in</span> <span class="n">ip_octets</span><span class="p">])</span>
+                <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">__broker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Store the broker for this connection, which is the frontline instance handling the request/response cycle. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">handler</span><span class="o">.</span><span class="n">broker</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">__version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Set the system version. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">sv</span><span class="p">,</span> <span class="n">pv</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;=&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)])</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&#39;Invalid AppFactory system version provided (&quot;</span><span class="si">%s</span><span class="s">&quot;) of type &quot;</span><span class="si">%s</span><span class="s">&quot;.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+                <span class="k">return</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">handler</span><span class="o">.</span><span class="n">_appfactory_version</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                    <span class="n">handler</span><span class="o">.</span><span class="n">_appfactory_version</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+                <span class="n">handler</span><span class="o">.</span><span class="n">_appfactory_version</span> <span class="o">=</span> <span class="n">sv</span><span class="p">,</span> <span class="n">pv</span>
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">__protocol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Set the protocol version. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#39;https&#39;</span><span class="p">:</span>
+                <span class="n">handler</span><span class="o">.</span><span class="n">force_https</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="n">handler</span><span class="o">.</span><span class="n">force_https_assets</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="n">handler</span><span class="o">.</span><span class="n">force_absolute_assets</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">__hostname</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Set the proxied hostname, for redirection/assets/links. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">handler</span><span class="o">.</span><span class="n">force_hostname</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="n">handler</span><span class="o">.</span><span class="n">force_absoltue_assets</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">__frontline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Set the frontline cluster that this request entered Layer9 through. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">handler</span><span class="o">.</span><span class="n">frontline</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">__entrypoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Set the app/host that this request entered Layer9 through. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">handler</span><span class="o">.</span><span class="n">entrypoint</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span>
+
+    <span class="n">trigger</span> <span class="o">=</span> <span class="n">datastructures</span><span class="o">.</span><span class="n">DictProxy</span><span class="p">({</span>
+
+        <span class="s">&#39;hash&#39;</span><span class="p">:</span> <span class="n">__hash</span><span class="p">,</span>
+        <span class="s">&#39;flags&#39;</span><span class="p">:</span> <span class="n">__flags</span><span class="p">,</span>
+        <span class="s">&#39;agent&#39;</span><span class="p">:</span> <span class="n">__agent</span><span class="p">,</span>
+        <span class="s">&#39;client&#39;</span><span class="p">:</span> <span class="n">__client</span><span class="p">,</span>
+        <span class="s">&#39;broker&#39;</span><span class="p">:</span> <span class="n">__broker</span><span class="p">,</span>
+        <span class="s">&#39;channel&#39;</span><span class="p">:</span> <span class="n">__channel</span><span class="p">,</span>
+        <span class="s">&#39;version&#39;</span><span class="p">:</span> <span class="n">__version</span><span class="p">,</span>
+        <span class="s">&#39;protocol&#39;</span><span class="p">:</span> <span class="n">__protocol</span><span class="p">,</span>
+        <span class="s">&#39;hostname&#39;</span><span class="p">:</span> <span class="n">__hostname</span><span class="p">,</span>
+        <span class="s">&#39;frontline&#39;</span><span class="p">:</span> <span class="n">__frontline</span><span class="p">,</span>
+        <span class="s">&#39;entrypoint&#39;</span><span class="p">:</span> <span class="n">__entrypoint</span>
+
+    <span class="p">})</span>
+
+    <span class="c">## == Dispatch + Exports == ##</span>
+    <span class="k">def</span> <span class="nf">_dispatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Dispatch internal functions to change aspects of the environment or request based on a sniffed header. &#39;&#39;&#39;</span>
+
+        <span class="n">handler</span><span class="o">.</span><span class="n">_triggered</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Dispatching action for header &quot;</span><span class="si">%s</span><span class="s">&quot;.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">header</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trigger</span><span class="p">,</span> <span class="n">header</span><span class="o">.</span><span class="n">lower</span><span class="p">()):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trigger</span><span class="p">,</span> <span class="n">header</span><span class="o">.</span><span class="n">lower</span><span class="p">())(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;Unhandled exception &quot;</span><span class="si">%s</span><span class="s">&quot; encountered when triggering functionality on AppFactory standard header &quot;</span><span class="si">%s</span><span class="s">&quot;, set at value &quot;</span><span class="si">%s</span><span class="s">&quot;.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+                    <span class="k">raise</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Dispatched action completed with no issues.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="FrontlineBus.sniff"><a class="viewcode-back" href="../../../../lib.appfactory.integration.html#lib.appfactory.integration.frontline.FrontlineBus.sniff">[docs]</a>    <span class="k">def</span> <span class="nf">sniff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Sniff a request for headers that were added by the AppFactory upstream servers. &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Sniffing request for AppFactory frontline headers.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_l9config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;headers&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;use_compact&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_l9config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;headers&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;full_prefix&#39;</span><span class="p">,</span> <span class="s">&#39;X-AppFactory&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_l9config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;headers&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;compact_prefix&#39;</span><span class="p">,</span> <span class="s">&#39;XAF&#39;</span><span class="p">)</span>
+
+        <span class="n">sniffed</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">_FRONTLINE_HEADERS</span><span class="p">:</span>
+            <span class="n">header_i</span> <span class="o">=</span> <span class="s">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">prefix</span><span class="p">,</span> <span class="n">i</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;--Looking for header &quot;</span><span class="si">%s</span><span class="s">&quot;.&#39;</span> <span class="o">%</span> <span class="n">header_i</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">header_i</span> <span class="ow">in</span> <span class="n">handler</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;-----Found!&#39;</span><span class="p">)</span>
+                <span class="n">sniffed</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">handler</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="n">header_i</span><span class="p">]))</span>
+
+        <span class="k">for</span> <span class="n">header_s</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">sniffed</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dispatch</span><span class="p">(</span><span class="n">handler</span><span class="p">,</span> <span class="n">header_s</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;Encountered an error dispatching detected AppFactory trigger header &quot;</span><span class="si">%s</span><span class="s">&quot;.&#39;</span> <span class="o">%</span> <span class="n">header_s</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sniffed</span>
+</div>
+<div class="viewcode-block" id="FrontlineBus.dump"><a class="viewcode-back" href="../../../../lib.appfactory.integration.html#lib.appfactory.integration.frontline.FrontlineBus.dump">[docs]</a>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Dump the upstream state to memcache, so stats and realtime operations can be introspected and displayed. &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Dumped AppFactory Frontline state.&#39;</span><span class="p">)</span>
+
+</div></div>
+<span class="n">IntegrationBridge</span> <span class="o">=</span> <span class="n">FrontlineBus</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../index.html">
+              <img class="logo" src="../../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../integration.html" >lib.appfactory.integration</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.apptools.pipelines &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../index.html" />
+    <link rel="up" title="lib.apptools" href="../apptools.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../apptools.html" accesskey="U">lib.apptools</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.apptools.pipelines</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">AppTools Pipelines</span>
+
+<span class="sd">Holds BasePipeline to be exported by core, and includes any code or features</span>
+<span class="sd">built around AppEngine Pipelines.</span>
+
+<span class="sd">-sam (&lt;sam@momentum.io&gt;)</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c"># Pipeline Imports</span>
+<span class="kn">import</span> <span class="nn">config</span>
+<span class="kn">import</span> <span class="nn">webapp2</span>
+
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">debug</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">platform</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">datastructures</span>
+
+<span class="n">logging</span> <span class="o">=</span> <span class="n">debug</span><span class="o">.</span><span class="n">AppToolsLogger</span><span class="p">(</span><span class="s">&#39;apptools.pipelines&#39;</span><span class="p">)</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">pipeline</span>
+
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s">&#39;GAE lib &quot;Pipelines&quot; is not installed.&#39;</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">_BaseAbstractPipeline</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Abstract base class, injected when pipeline support is unavailable. &#39;&#39;&#39;</span>
+
+        <span class="k">pass</span>
+
+<span class="k">else</span><span class="p">:</span>
+
+    <span class="k">class</span> <span class="nc">_BaseAbstractPipeline</span><span class="p">(</span><span class="n">pipeline</span><span class="o">.</span><span class="n">Pipeline</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Abstract base class, parent for all app pipelines. &#39;&#39;&#39;</span>
+
+        <span class="k">pass</span>
+
+
+<span class="c">## BasePipeline</span>
+<span class="c"># This base class provides pipeline utilities.</span>
+<span class="nd">@platform.PlatformInjector</span>
+<div class="viewcode-block" id="BasePipeline"><a class="viewcode-back" href="../../../lib.apptools.pipelines.html#lib.apptools.pipelines.BasePipeline">[docs]</a><span class="k">class</span> <span class="nc">BasePipeline</span><span class="p">(</span><span class="n">_BaseAbstractPipeline</span><span class="p">):</span>
+
+    <span class="c"># Pipeline State</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c"># Template Context</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">context_injectors</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="BasePipeline.logging"><a class="viewcode-back" href="../../../lib.apptools.pipelines.html#lib.apptools.pipelines.BasePipeline.logging">[docs]</a>    <span class="k">def</span> <span class="nf">logging</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Named log pipe. &#39;&#39;&#39;</span>
+
+        <span class="k">global</span> <span class="n">logging</span>
+        <span class="k">return</span> <span class="n">logging</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+</div>
+    <span class="nd">@webapp2.cached_property</span>
+    <span class="k">def</span> <span class="nf">_pipelineConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Cached shortcut to pipelines configuration. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apptools.pipelines&#39;</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../apptools.html" >lib.apptools</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

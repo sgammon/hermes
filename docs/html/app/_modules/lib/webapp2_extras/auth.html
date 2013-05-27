@@ -1,0 +1,741 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.webapp2_extras.auth &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.webapp2_extras.auth</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    webapp2_extras.auth</span>
+<span class="sd">    ===================</span>
+
+<span class="sd">    Utilities for authentication and authorization.</span>
+
+<span class="sd">    :copyright: 2011 by tipfy.org.</span>
+<span class="sd">    :license: Apache Sotware License, see LICENSE for details.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">webapp2</span>
+
+<span class="kn">from</span> <span class="nn">webapp2_extras</span> <span class="kn">import</span> <span class="n">security</span>
+<span class="kn">from</span> <span class="nn">webapp2_extras</span> <span class="kn">import</span> <span class="n">sessions</span>
+
+<span class="c">#: Default configuration values for this module. Keys are:</span>
+<span class="c">#:</span>
+<span class="c">#: user_model</span>
+<span class="c">#:     User model which authenticates custom users and tokens.</span>
+<span class="c">#:     Can also be a string in dotted notation to be lazily imported.</span>
+<span class="c">#:     Default is :class:`webapp2_extras.appengine.auth.models.User`.</span>
+<span class="c">#:</span>
+<span class="c">#: session_backend</span>
+<span class="c">#:     Name of the session backend to be used. Default is `securecookie`.</span>
+<span class="c">#:</span>
+<span class="c">#: cookie_name</span>
+<span class="c">#:     Name of the cookie to save the auth session. Default is `auth`.</span>
+<span class="c">#:</span>
+<span class="c">#: token_max_age</span>
+<span class="c">#:     Number of seconds of inactivity after which an auth token is</span>
+<span class="c">#:     invalidated. The same value is used to set the ``max_age`` for</span>
+<span class="c">#:     persistent auth sessions. Default is 86400 * 7 * 3 (3 weeks).</span>
+<span class="c">#:</span>
+<span class="c">#: token_new_age</span>
+<span class="c">#:     Number of seconds after which a new token is created and written to</span>
+<span class="c">#:     the database, and the old one is invalidated.</span>
+<span class="c">#:     Use this to limit database writes; set to None to write on all requests.</span>
+<span class="c">#:     Default is 86400 (1 day).</span>
+<span class="c">#:</span>
+<span class="c">#: token_cache_age</span>
+<span class="c">#:     Number of seconds after which a token must be checked in the database.</span>
+<span class="c">#:     Use this to limit database reads; set to None to read on all requests.</span>
+<span class="c">#:     Default is 3600 (1 hour).</span>
+<span class="c">#:</span>
+<span class="c">#: user_attributes</span>
+<span class="c">#:     A list of extra user attributes to be stored in the session.</span>
+<span class="c">#      The user object must provide all of them as attributes.</span>
+<span class="c">#:     Default is an empty list.</span>
+<span class="n">default_config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;user_model&#39;</span><span class="p">:</span>      <span class="s">&#39;webapp2_extras.appengine.auth.models.User&#39;</span><span class="p">,</span>
+    <span class="s">&#39;session_backend&#39;</span><span class="p">:</span> <span class="s">&#39;securecookie&#39;</span><span class="p">,</span>
+    <span class="s">&#39;cookie_name&#39;</span><span class="p">:</span>     <span class="s">&#39;auth&#39;</span><span class="p">,</span>
+    <span class="s">&#39;token_max_age&#39;</span><span class="p">:</span>   <span class="mi">86400</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="s">&#39;token_new_age&#39;</span><span class="p">:</span>   <span class="mi">86400</span><span class="p">,</span>
+    <span class="s">&#39;token_cache_age&#39;</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span>
+    <span class="s">&#39;user_attributes&#39;</span><span class="p">:</span> <span class="p">[],</span>
+<span class="p">}</span>
+
+<span class="c">#: Internal flag for anonymous users.</span>
+<span class="n">_anon</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="AuthError"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.AuthError">[docs]</a><span class="k">class</span> <span class="nc">AuthError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base auth exception.&quot;&quot;&quot;</span>
+
+</div>
+<div class="viewcode-block" id="InvalidAuthIdError"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.InvalidAuthIdError">[docs]</a><span class="k">class</span> <span class="nc">InvalidAuthIdError</span><span class="p">(</span><span class="n">AuthError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Raised when a user can&#39;t be fetched given an auth_id.&quot;&quot;&quot;</span>
+
+</div>
+<div class="viewcode-block" id="InvalidPasswordError"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.InvalidPasswordError">[docs]</a><span class="k">class</span> <span class="nc">InvalidPasswordError</span><span class="p">(</span><span class="n">AuthError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Raised when a user password doesn&#39;t match.&quot;&quot;&quot;</span>
+
+</div>
+<div class="viewcode-block" id="AuthStore"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.AuthStore">[docs]</a><span class="k">class</span> <span class="nc">AuthStore</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Provides common utilities and configuration for :class:`Auth`.&quot;&quot;&quot;</span>
+
+    <span class="c">#: Configuration key.</span>
+    <span class="n">config_key</span> <span class="o">=</span> <span class="n">__name__</span>
+
+    <span class="c">#: Required attributes stored in a session.</span>
+    <span class="n">_session_attributes</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;user_id&#39;</span><span class="p">,</span> <span class="s">&#39;remember&#39;</span><span class="p">,</span>
+                           <span class="s">&#39;token&#39;</span><span class="p">,</span> <span class="s">&#39;token_ts&#39;</span><span class="p">,</span> <span class="s">&#39;cache_ts&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the session store.</span>
+
+<span class="sd">        :param app:</span>
+<span class="sd">            A :class:`webapp2.WSGIApplication` instance.</span>
+<span class="sd">        :param config:</span>
+<span class="sd">            A dictionary of configuration values to be overridden. See</span>
+<span class="sd">            the available keys in :data:`default_config`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app</span> <span class="o">=</span> <span class="n">app</span>
+        <span class="c"># Base configuration.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">load_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_key</span><span class="p">,</span>
+            <span class="n">default_values</span><span class="o">=</span><span class="n">default_config</span><span class="p">,</span> <span class="n">user_values</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="c"># User data we&#39;re interested in -------------------------------------------</span>
+
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="AuthStore.session_attributes"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.AuthStore.session_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">session_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of attributes stored in a session.</span>
+
+<span class="sd">        This must be an ordered list of unique elements.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">attrs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session_attributes</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_attributes</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">attrs</span> <span class="k">if</span> <span class="n">a</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">a</span><span class="p">)]</span>
+</div>
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="AuthStore.user_attributes"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.AuthStore.user_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">user_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of attributes retrieved from the user model.</span>
+
+<span class="sd">        This must be an ordered list of unique elements.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">attrs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;user_attributes&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">attrs</span> <span class="k">if</span> <span class="n">a</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">a</span><span class="p">)]</span>
+
+    <span class="c"># User model related ------------------------------------------------------</span>
+</div>
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="AuthStore.user_model"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.AuthStore.user_model">[docs]</a>    <span class="k">def</span> <span class="nf">user_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Configured user model.&quot;&quot;&quot;</span>
+        <span class="n">cls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;user_model&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+            <span class="n">cls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;user_model&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">import_string</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">cls</span>
+</div>
+<div class="viewcode-block" id="AuthStore.get_user_by_auth_password"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.AuthStore.get_user_by_auth_password">[docs]</a>    <span class="k">def</span> <span class="nf">get_user_by_auth_password</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">auth_id</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a user dict based on auth_id and password.</span>
+
+<span class="sd">        :param auth_id:</span>
+<span class="sd">            Authentication id.</span>
+<span class="sd">        :param password:</span>
+<span class="sd">            User password.</span>
+<span class="sd">        :param silent:</span>
+<span class="sd">            If True, raises an exception if auth_id or password are invalid.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            A dictionary with user data.</span>
+<span class="sd">        :raises:</span>
+<span class="sd">            ``InvalidAuthIdError`` or ``InvalidPasswordError``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_model</span><span class="o">.</span><span class="n">get_by_auth_password</span><span class="p">(</span><span class="n">auth_id</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_to_dict</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">InvalidAuthIdError</span><span class="p">,</span> <span class="n">InvalidPasswordError</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>
+                <span class="k">raise</span>
+
+            <span class="k">return</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="AuthStore.get_user_by_auth_token"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.AuthStore.get_user_by_auth_token">[docs]</a>    <span class="k">def</span> <span class="nf">get_user_by_auth_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a user dict based on user_id and auth token.</span>
+
+<span class="sd">        :param user_id:</span>
+<span class="sd">            User id.</span>
+<span class="sd">        :param token:</span>
+<span class="sd">            Authentication token.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            A tuple ``(user_dict, token_timestamp)``. Both values can be None.</span>
+<span class="sd">            The token timestamp will be None if the user is invalid or it</span>
+<span class="sd">            is valid but the token requires renewal.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">user</span><span class="p">,</span> <span class="n">ts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_model</span><span class="o">.</span><span class="n">get_by_auth_token</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">token</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_to_dict</span><span class="p">(</span><span class="n">user</span><span class="p">),</span> <span class="n">ts</span>
+</div>
+<div class="viewcode-block" id="AuthStore.create_auth_token"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.AuthStore.create_auth_token">[docs]</a>    <span class="k">def</span> <span class="nf">create_auth_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates a new authentication token.</span>
+
+<span class="sd">        :param user_id:</span>
+<span class="sd">            Authentication id.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            A new authentication token.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_model</span><span class="o">.</span><span class="n">create_auth_token</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="AuthStore.delete_auth_token"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.AuthStore.delete_auth_token">[docs]</a>    <span class="k">def</span> <span class="nf">delete_auth_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Deletes an authentication token.</span>
+
+<span class="sd">        :param user_id:</span>
+<span class="sd">            User id.</span>
+<span class="sd">        :param token:</span>
+<span class="sd">            Authentication token.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_model</span><span class="o">.</span><span class="n">delete_auth_token</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">token</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="AuthStore.user_to_dict"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.AuthStore.user_to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">user_to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a dictionary based on a user object.</span>
+
+<span class="sd">        Extra attributes to be retrieved must be set in this module&#39;s</span>
+<span class="sd">        configuration.</span>
+
+<span class="sd">        :param user:</span>
+<span class="sd">            User object: an instance the custom user model.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            A dictionary with user data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+
+        <span class="n">user_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">a</span><span class="p">))</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_attributes</span><span class="p">)</span>
+        <span class="n">user_dict</span><span class="p">[</span><span class="s">&#39;user_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">user_dict</span>
+
+    <span class="c"># Session related ---------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="AuthStore.get_session"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.AuthStore.get_session">[docs]</a>    <span class="k">def</span> <span class="nf">get_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns an auth session.</span>
+
+<span class="sd">        :param request:</span>
+<span class="sd">            A :class:`webapp2.Request` instance.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            A session dict.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">store</span> <span class="o">=</span> <span class="n">sessions</span><span class="o">.</span><span class="n">get_store</span><span class="p">(</span><span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">store</span><span class="o">.</span><span class="n">get_session</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;cookie_name&#39;</span><span class="p">],</span>
+                                 <span class="n">backend</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;session_backend&#39;</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="AuthStore.serialize_session"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.AuthStore.serialize_session">[docs]</a>    <span class="k">def</span> <span class="nf">serialize_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Serializes values for a session.</span>
+
+<span class="sd">        :param data:</span>
+<span class="sd">            A dict with session data.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            A list with session data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_attributes</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_attributes</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s">&#39;Invalid user data: </span><span class="si">%r</span><span class="s">. Expected attributes: </span><span class="si">%r</span><span class="s">.&#39;</span> <span class="o">%</span>
+                <span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_attributes</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="AuthStore.deserialize_session"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.AuthStore.deserialize_session">[docs]</a>    <span class="k">def</span> <span class="nf">deserialize_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Deserializes values for a session.</span>
+
+<span class="sd">        :param data:</span>
+<span class="sd">            A list with session data.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            A dict with session data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_attributes</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_attributes</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s">&#39;Invalid user data: </span><span class="si">%r</span><span class="s">. Expected attributes: </span><span class="si">%r</span><span class="s">.&#39;</span> <span class="o">%</span>
+                <span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_attributes</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">None</span>
+
+    <span class="c"># Validators --------------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="AuthStore.validate_password"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.AuthStore.validate_password">[docs]</a>    <span class="k">def</span> <span class="nf">validate_password</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">auth_id</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Validates a password.</span>
+
+<span class="sd">        Passwords are used to log-in using forms or to request auth tokens</span>
+<span class="sd">        from services.</span>
+
+<span class="sd">        :param auth_id:</span>
+<span class="sd">            Authentication id.</span>
+<span class="sd">        :param password:</span>
+<span class="sd">            Password to be checked.</span>
+<span class="sd">        :param silent:</span>
+<span class="sd">            If True, raises an exception if auth_id or password are invalid.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            user or None</span>
+<span class="sd">        :raises:</span>
+<span class="sd">            ``InvalidAuthIdError`` or ``InvalidPasswordError``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_user_by_auth_password</span><span class="p">(</span><span class="n">auth_id</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="AuthStore.validate_token"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.AuthStore.validate_token">[docs]</a>    <span class="k">def</span> <span class="nf">validate_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span> <span class="n">token_ts</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Validates a token.</span>
+
+<span class="sd">        Tokens are random strings used to authenticate temporarily. They are</span>
+<span class="sd">        used to validate sessions or service requests.</span>
+
+<span class="sd">        :param user_id:</span>
+<span class="sd">            User id.</span>
+<span class="sd">        :param token:</span>
+<span class="sd">            Token to be checked.</span>
+<span class="sd">        :param token_ts:</span>
+<span class="sd">            Optional token timestamp used to pre-validate the token age.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            A tuple ``(user_dict, token)``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
+        <span class="n">delete</span> <span class="o">=</span> <span class="n">token_ts</span> <span class="ow">and</span> <span class="p">((</span><span class="n">now</span> <span class="o">-</span> <span class="n">token_ts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;token_max_age&#39;</span><span class="p">])</span>
+        <span class="n">create</span> <span class="o">=</span> <span class="bp">False</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">delete</span><span class="p">:</span>
+            <span class="c"># Try to fetch the user.</span>
+            <span class="n">user</span><span class="p">,</span> <span class="n">ts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_user_by_auth_token</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">token</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">user</span><span class="p">:</span>
+                <span class="c"># Now validate the real timestamp.</span>
+                <span class="n">delete</span> <span class="o">=</span> <span class="p">(</span><span class="n">now</span> <span class="o">-</span> <span class="n">ts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;token_max_age&#39;</span><span class="p">]</span>
+                <span class="n">create</span> <span class="o">=</span> <span class="p">(</span><span class="n">now</span> <span class="o">-</span> <span class="n">ts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;token_new_age&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">delete</span> <span class="ow">or</span> <span class="n">create</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">delete</span> <span class="ow">or</span> <span class="n">create</span><span class="p">:</span>
+                <span class="c"># Delete token from db.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">delete_auth_token</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">token</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">delete</span><span class="p">:</span>
+                    <span class="n">user</span> <span class="o">=</span> <span class="bp">None</span>
+
+            <span class="n">token</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="k">return</span> <span class="n">user</span><span class="p">,</span> <span class="n">token</span>
+</div>
+<div class="viewcode-block" id="AuthStore.validate_cache_timestamp"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.AuthStore.validate_cache_timestamp">[docs]</a>    <span class="k">def</span> <span class="nf">validate_cache_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_ts</span><span class="p">,</span> <span class="n">token_ts</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Validates a cache timestamp.</span>
+
+<span class="sd">        :param cache_ts:</span>
+<span class="sd">            Token timestamp to validate the cache age.</span>
+<span class="sd">        :param token_ts:</span>
+<span class="sd">            Token timestamp to validate the token age.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            True if it is valid, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="p">(</span><span class="n">now</span> <span class="o">-</span> <span class="n">cache_ts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;token_cache_age&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">valid</span> <span class="ow">and</span> <span class="n">token_ts</span><span class="p">:</span>
+            <span class="n">valid2</span> <span class="o">=</span> <span class="p">(</span><span class="n">now</span> <span class="o">-</span> <span class="n">token_ts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;token_max_age&#39;</span><span class="p">]</span>
+            <span class="n">valid3</span> <span class="o">=</span> <span class="p">(</span><span class="n">now</span> <span class="o">-</span> <span class="n">token_ts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;token_new_age&#39;</span><span class="p">]</span>
+            <span class="n">valid</span> <span class="o">=</span> <span class="n">valid2</span> <span class="ow">and</span> <span class="n">valid3</span>
+
+        <span class="k">return</span> <span class="n">valid</span>
+
+</div></div>
+<div class="viewcode-block" id="Auth"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.Auth">[docs]</a><span class="k">class</span> <span class="nc">Auth</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Authentication provider for a single request.&quot;&quot;&quot;</span>
+
+    <span class="c">#: A :class:`webapp2.Request` instance.</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="c">#: An :class:`AuthStore` instance.</span>
+    <span class="n">store</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="c">#: Cached user for the request.</span>
+    <span class="n">_user</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the auth provider for a request.</span>
+
+<span class="sd">        :param request:</span>
+<span class="sd">            A :class:`webapp2.Request` instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">request</span> <span class="o">=</span> <span class="n">request</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store</span> <span class="o">=</span> <span class="n">get_store</span><span class="p">(</span><span class="n">app</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">app</span><span class="p">)</span>
+
+    <span class="c"># Retrieving a user -------------------------------------------------------</span>
+
+    <span class="k">def</span> <span class="nf">_user_or_none</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_anon</span> <span class="k">else</span> <span class="bp">None</span>
+
+<div class="viewcode-block" id="Auth.get_user_by_session"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.Auth.get_user_by_session">[docs]</a>    <span class="k">def</span> <span class="nf">get_user_by_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_session</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a user based on the current session.</span>
+
+<span class="sd">        :param save_session:</span>
+<span class="sd">            If True, saves the user in the session if authentication succeeds.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            A user dict or None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_session_data</span><span class="p">(</span><span class="n">pop</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_user</span> <span class="o">=</span> <span class="n">_anon</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_user_by_token</span><span class="p">(</span>
+                    <span class="n">user_id</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;user_id&#39;</span><span class="p">],</span> <span class="n">token</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;token&#39;</span><span class="p">],</span>
+                    <span class="n">token_ts</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;token_ts&#39;</span><span class="p">],</span> <span class="n">cache</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+                    <span class="n">cache_ts</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;cache_ts&#39;</span><span class="p">],</span> <span class="n">remember</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;remember&#39;</span><span class="p">],</span>
+                    <span class="n">save_session</span><span class="o">=</span><span class="n">save_session</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user_or_none</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Auth.get_user_by_token"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.Auth.get_user_by_token">[docs]</a>    <span class="k">def</span> <span class="nf">get_user_by_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span> <span class="n">token_ts</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                          <span class="n">cache_ts</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">remember</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">save_session</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a user based on an authentication token.</span>
+
+<span class="sd">        :param user_id:</span>
+<span class="sd">            User id.</span>
+<span class="sd">        :param token:</span>
+<span class="sd">            Authentication token.</span>
+<span class="sd">        :param token_ts:</span>
+<span class="sd">            Token timestamp, used to perform pre-validation.</span>
+<span class="sd">        :param cache:</span>
+<span class="sd">            Cached user data (from the session).</span>
+<span class="sd">        :param cache_ts:</span>
+<span class="sd">            Cache timestamp.</span>
+<span class="sd">        :param remember:</span>
+<span class="sd">            If True, saves permanent sessions.</span>
+<span class="sd">        :param save_session:</span>
+<span class="sd">            If True, saves the user in the session if authentication succeeds.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            A user dict or None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_user</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_anon</span> <span class="ow">and</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_user</span><span class="p">[</span><span class="s">&#39;user_id&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">user_id</span> <span class="ow">and</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_user</span><span class="p">[</span><span class="s">&#39;token&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">token</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user_or_none</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">cache</span> <span class="ow">and</span> <span class="n">cache_ts</span><span class="p">:</span>
+            <span class="n">valid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">validate_cache_timestamp</span><span class="p">(</span><span class="n">cache_ts</span><span class="p">,</span> <span class="n">token_ts</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">valid</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_user</span> <span class="o">=</span> <span class="n">cache</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cache_ts</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c"># Fetch and validate the token.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_user</span><span class="p">,</span> <span class="n">token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">validate_token</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span>
+                                                          <span class="n">token_ts</span><span class="o">=</span><span class="n">token_ts</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_user</span> <span class="o">=</span> <span class="n">_anon</span>
+        <span class="k">elif</span> <span class="n">save_session</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">token</span><span class="p">:</span>
+                <span class="n">token_ts</span> <span class="o">=</span> <span class="bp">None</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_session</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_user</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">,</span> <span class="n">token_ts</span><span class="o">=</span><span class="n">token_ts</span><span class="p">,</span>
+                             <span class="n">cache_ts</span><span class="o">=</span><span class="n">cache_ts</span><span class="p">,</span> <span class="n">remember</span><span class="o">=</span><span class="n">remember</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user_or_none</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Auth.get_user_by_password"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.Auth.get_user_by_password">[docs]</a>    <span class="k">def</span> <span class="nf">get_user_by_password</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">auth_id</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">remember</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                             <span class="n">save_session</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a user based on password credentials.</span>
+
+<span class="sd">        :param auth_id:</span>
+<span class="sd">            Authentication id.</span>
+<span class="sd">        :param password:</span>
+<span class="sd">            User password.</span>
+<span class="sd">        :param remember:</span>
+<span class="sd">            If True, saves permanent sessions.</span>
+<span class="sd">        :param save_session:</span>
+<span class="sd">            If True, saves the user in the session if authentication succeeds.</span>
+<span class="sd">        :param silent:</span>
+<span class="sd">            If True, raises an exception if auth_id or password are invalid.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            A user dict or None.</span>
+<span class="sd">        :raises:</span>
+<span class="sd">            ``InvalidAuthIdError`` or ``InvalidPasswordError``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">save_session</span><span class="p">:</span>
+            <span class="c"># During a login attempt, invalidate current session.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">unset_session</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">validate_password</span><span class="p">(</span><span class="n">auth_id</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span>
+                                                  <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_user</span> <span class="o">=</span> <span class="n">_anon</span>
+        <span class="k">elif</span> <span class="n">save_session</span><span class="p">:</span>
+            <span class="c"># This always creates a new token with new timestamp.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_session</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_user</span><span class="p">,</span> <span class="n">remember</span><span class="o">=</span><span class="n">remember</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user_or_none</span><span class="p">()</span>
+
+    <span class="c"># Storing and removing user from session ----------------------------------</span>
+</div>
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="Auth.session"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.Auth.session">[docs]</a>    <span class="k">def</span> <span class="nf">session</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Auth session.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">get_session</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Auth.set_session"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.Auth.set_session">[docs]</a>    <span class="k">def</span> <span class="nf">set_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">token_ts</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">cache_ts</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                    <span class="n">remember</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">**</span><span class="n">session_args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Saves a user in the session.</span>
+
+<span class="sd">        :param user:</span>
+<span class="sd">            A dictionary with user data.</span>
+<span class="sd">        :param token:</span>
+<span class="sd">            A unique token to be persisted. If None, a new one is created.</span>
+<span class="sd">        :param token_ts:</span>
+<span class="sd">            Token timestamp. If None, a new one is created.</span>
+<span class="sd">        :param cache_ts:</span>
+<span class="sd">            Token cache timestamp. If None, a new one is created.</span>
+<span class="sd">        :remember:</span>
+<span class="sd">            If True, session is set to be persisted.</span>
+<span class="sd">        :param session_args:</span>
+<span class="sd">            Keyword arguments to set the session arguments.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="n">token</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">create_auth_token</span><span class="p">(</span><span class="n">user</span><span class="p">[</span><span class="s">&#39;user_id&#39;</span><span class="p">])</span>
+        <span class="n">token_ts</span> <span class="o">=</span> <span class="n">token_ts</span> <span class="ow">or</span> <span class="n">now</span>
+        <span class="n">cache_ts</span> <span class="o">=</span> <span class="n">cache_ts</span> <span class="ow">or</span> <span class="n">now</span>
+        <span class="k">if</span> <span class="n">remember</span><span class="p">:</span>
+            <span class="n">max_age</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;token_max_age&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">max_age</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="n">session_args</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s">&#39;max_age&#39;</span><span class="p">,</span> <span class="n">max_age</span><span class="p">)</span>
+        <span class="c"># Create a new dict or just update user?</span>
+        <span class="c"># We are doing the latter, and so the user dict will always have</span>
+        <span class="c"># the session metadata (token, timestamps etc). This is easier to test.</span>
+        <span class="c"># But we could store only user_id and custom user attributes instead.</span>
+        <span class="n">user</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s">&#39;token&#39;</span><span class="p">:</span>    <span class="n">token</span><span class="p">,</span>
+            <span class="s">&#39;token_ts&#39;</span><span class="p">:</span> <span class="n">token_ts</span><span class="p">,</span>
+            <span class="s">&#39;cache_ts&#39;</span><span class="p">:</span> <span class="n">cache_ts</span><span class="p">,</span>
+            <span class="s">&#39;remember&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">remember</span><span class="p">),</span>
+        <span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_session_data</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="o">**</span><span class="n">session_args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_user</span> <span class="o">=</span> <span class="n">user</span>
+</div>
+<div class="viewcode-block" id="Auth.unset_session"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.Auth.unset_session">[docs]</a>    <span class="k">def</span> <span class="nf">unset_session</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Removes a user from the session and invalidates the auth token.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_user</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_session_data</span><span class="p">(</span><span class="n">pop</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
+            <span class="c"># Invalidate current token.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">delete_auth_token</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;user_id&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;token&#39;</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="Auth.get_session_data"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.Auth.get_session_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_session_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the session data as a dictionary.</span>
+
+<span class="sd">        :param pop:</span>
+<span class="sd">            If True, removes the session.</span>
+<span class="sd">        :returns:</span>
+<span class="sd">            A deserialized session, or None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">pop</span> <span class="k">if</span> <span class="n">pop</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span>
+        <span class="n">rv</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="s">&#39;_user&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">deserialize_session</span><span class="p">(</span><span class="n">rv</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">data</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">pop</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;_user&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="Auth.set_session_data"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.Auth.set_session_data">[docs]</a>    <span class="k">def</span> <span class="nf">set_session_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">session_args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets the session data as a list.</span>
+
+<span class="sd">        :param data:</span>
+<span class="sd">            Deserialized session data.</span>
+<span class="sd">        :param session_args:</span>
+<span class="sd">            Extra arguments for the session.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">serialize_session</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s">&#39;_user&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">session_args</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">session_args</span><span class="p">)</span>
+
+
+<span class="c"># Factories -------------------------------------------------------------------</span>
+
+
+<span class="c">#: Key used to store :class:`AuthStore` in the app registry.</span></div></div>
+<span class="n">_store_registry_key</span> <span class="o">=</span> <span class="s">&#39;webapp2_extras.auth.Auth&#39;</span>
+<span class="c">#: Key used to store :class:`Auth` in the request registry.</span>
+<span class="n">_auth_registry_key</span> <span class="o">=</span> <span class="s">&#39;webapp2_extras.auth.Auth&#39;</span>
+
+
+<div class="viewcode-block" id="get_store"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.get_store">[docs]</a><span class="k">def</span> <span class="nf">get_store</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="n">AuthStore</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">_store_registry_key</span><span class="p">,</span> <span class="n">app</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns an instance of :class:`AuthStore` from the app registry.</span>
+
+<span class="sd">    It&#39;ll try to get it from the current app registry, and if it is not</span>
+<span class="sd">    registered it&#39;ll be instantiated and registered. A second call to this</span>
+<span class="sd">    function will return the same instance.</span>
+
+<span class="sd">    :param factory:</span>
+<span class="sd">        The callable used to build and register the instance if it is not yet</span>
+<span class="sd">        registered. The default is the class :class:`AuthStore` itself.</span>
+<span class="sd">    :param key:</span>
+<span class="sd">        The key used to store the instance in the registry. A default is used</span>
+<span class="sd">        if it is not set.</span>
+<span class="sd">    :param app:</span>
+<span class="sd">        A :class:`webapp2.WSGIApplication` instance used to store the instance.</span>
+<span class="sd">        The active app is used if it is not set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">app</span> <span class="ow">or</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">get_app</span><span class="p">()</span>
+    <span class="n">store</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">store</span><span class="p">:</span>
+        <span class="n">store</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">registry</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">factory</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">store</span>
+
+</div>
+<div class="viewcode-block" id="set_store"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.set_store">[docs]</a><span class="k">def</span> <span class="nf">set_store</span><span class="p">(</span><span class="n">store</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">_store_registry_key</span><span class="p">,</span> <span class="n">app</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sets an instance of :class:`AuthStore` in the app registry.</span>
+
+<span class="sd">    :param store:</span>
+<span class="sd">        An instance of :class:`AuthStore`.</span>
+<span class="sd">    :param key:</span>
+<span class="sd">        The key used to retrieve the instance from the registry. A default</span>
+<span class="sd">        is used if it is not set.</span>
+<span class="sd">    :param request:</span>
+<span class="sd">        A :class:`webapp2.WSGIApplication` instance used to retrieve the</span>
+<span class="sd">        instance. The active app is used if it is not set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">app</span> <span class="ow">or</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">get_app</span><span class="p">()</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">registry</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">store</span>
+
+</div>
+<div class="viewcode-block" id="get_auth"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.get_auth">[docs]</a><span class="k">def</span> <span class="nf">get_auth</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="n">Auth</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">_auth_registry_key</span><span class="p">,</span> <span class="n">request</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns an instance of :class:`Auth` from the request registry.</span>
+
+<span class="sd">    It&#39;ll try to get it from the current request registry, and if it is not</span>
+<span class="sd">    registered it&#39;ll be instantiated and registered. A second call to this</span>
+<span class="sd">    function will return the same instance.</span>
+
+<span class="sd">    :param factory:</span>
+<span class="sd">        The callable used to build and register the instance if it is not yet</span>
+<span class="sd">        registered. The default is the class :class:`Auth` itself.</span>
+<span class="sd">    :param key:</span>
+<span class="sd">        The key used to store the instance in the registry. A default is used</span>
+<span class="sd">        if it is not set.</span>
+<span class="sd">    :param request:</span>
+<span class="sd">        A :class:`webapp2.Request` instance used to store the instance. The</span>
+<span class="sd">        active request is used if it is not set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="n">request</span> <span class="ow">or</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">get_request</span><span class="p">()</span>
+    <span class="n">auth</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">auth</span><span class="p">:</span>
+        <span class="n">auth</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">factory</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">auth</span>
+
+</div>
+<div class="viewcode-block" id="set_auth"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.auth.set_auth">[docs]</a><span class="k">def</span> <span class="nf">set_auth</span><span class="p">(</span><span class="n">auth</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">_auth_registry_key</span><span class="p">,</span> <span class="n">request</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sets an instance of :class:`Auth` in the request registry.</span>
+
+<span class="sd">    :param auth:</span>
+<span class="sd">        An instance of :class:`Auth`.</span>
+<span class="sd">    :param key:</span>
+<span class="sd">        The key used to retrieve the instance from the registry. A default</span>
+<span class="sd">        is used if it is not set.</span>
+<span class="sd">    :param request:</span>
+<span class="sd">        A :class:`webapp2.Request` instance used to retrieve the instance. The</span>
+<span class="sd">        active request is used if it is not set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="n">request</span> <span class="ow">or</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">get_request</span><span class="p">()</span>
+    <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">auth</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

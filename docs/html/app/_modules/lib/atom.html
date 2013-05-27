@@ -1,0 +1,1581 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.atom &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.atom</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/python</span>
+<span class="c">#</span>
+<span class="c"># Copyright (C) 2006 Google Inc.</span>
+<span class="c">#</span>
+<span class="c"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c"># you may not use this file except in compliance with the License.</span>
+<span class="c"># You may obtain a copy of the License at</span>
+<span class="c">#</span>
+<span class="c">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c"># See the License for the specific language governing permissions and</span>
+<span class="c"># limitations under the License.</span>
+
+
+<span class="sd">&quot;&quot;&quot;Contains classes representing Atom elements.</span>
+
+<span class="sd">  Module objective: provide data classes for Atom constructs. These classes hide</span>
+<span class="sd">  the XML-ness of Atom and provide a set of native Python classes to interact</span>
+<span class="sd">  with.</span>
+
+<span class="sd">  Conversions to and from XML should only be necessary when the Atom classes</span>
+<span class="sd">  &quot;touch the wire&quot; and are sent over HTTP. For this reason this module</span>
+<span class="sd">  provides  methods and functions to convert Atom classes to and from strings.</span>
+
+<span class="sd">  For more information on the Atom data model, see RFC 4287</span>
+<span class="sd">  (http://www.ietf.org/rfc/rfc4287.txt)</span>
+
+<span class="sd">  AtomBase: A foundation class on which Atom classes are built. It</span>
+<span class="sd">      handles the parsing of attributes and children which are common to all</span>
+<span class="sd">      Atom classes. By default, the AtomBase class translates all XML child</span>
+<span class="sd">      nodes into ExtensionElements.</span>
+
+<span class="sd">  ExtensionElement: Atom allows Atom objects to contain XML which is not part</span>
+<span class="sd">      of the Atom specification, these are called extension elements. If a</span>
+<span class="sd">      classes parser encounters an unexpected XML construct, it is translated</span>
+<span class="sd">      into an ExtensionElement instance. ExtensionElement is designed to fully</span>
+<span class="sd">      capture the information in the XML. Child nodes in an XML extension are</span>
+<span class="sd">      turned into ExtensionElements as well.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;api.jscudder (Jeffrey Scudder)&#39;</span>
+
+<span class="k">try</span><span class="p">:</span>
+  <span class="kn">from</span> <span class="nn">xml.etree</span> <span class="kn">import</span> <span class="n">cElementTree</span> <span class="k">as</span> <span class="n">ElementTree</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+  <span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">cElementTree</span> <span class="kn">as</span> <span class="nn">ElementTree</span>
+  <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+      <span class="kn">from</span> <span class="nn">xml.etree</span> <span class="kn">import</span> <span class="n">ElementTree</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+      <span class="kn">from</span> <span class="nn">elementtree</span> <span class="kn">import</span> <span class="n">ElementTree</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+
+<span class="c"># XML namespaces which are often used in Atom entities.</span>
+<span class="n">ATOM_NAMESPACE</span> <span class="o">=</span> <span class="s">&#39;http://www.w3.org/2005/Atom&#39;</span>
+<span class="n">ELEMENT_TEMPLATE</span> <span class="o">=</span> <span class="s">&#39;{http://www.w3.org/2005/Atom}</span><span class="si">%s</span><span class="s">&#39;</span>
+<span class="n">APP_NAMESPACE</span> <span class="o">=</span> <span class="s">&#39;http://purl.org/atom/app#&#39;</span>
+<span class="n">APP_TEMPLATE</span> <span class="o">=</span> <span class="s">&#39;{http://purl.org/atom/app#}</span><span class="si">%s</span><span class="s">&#39;</span>
+
+<span class="c"># This encoding is used for converting strings before translating the XML</span>
+<span class="c"># into an object.</span>
+<span class="n">XML_STRING_ENCODING</span> <span class="o">=</span> <span class="s">&#39;utf-8&#39;</span>
+<span class="c"># The desired string encoding for object members. set or monkey-patch to</span>
+<span class="c"># unicode if you want object members to be Python unicode strings, instead of</span>
+<span class="c"># encoded strings</span>
+<span class="n">MEMBER_STRING_ENCODING</span> <span class="o">=</span> <span class="s">&#39;utf-8&#39;</span>
+<span class="c">#MEMBER_STRING_ENCODING = unicode</span>
+
+<span class="c"># If True, all methods which are exclusive to v1 will raise a</span>
+<span class="c"># DeprecationWarning</span>
+<span class="n">ENABLE_V1_WARNINGS</span> <span class="o">=</span> <span class="bp">False</span>
+
+
+<div class="viewcode-block" id="v1_deprecated"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.v1_deprecated">[docs]</a><span class="k">def</span> <span class="nf">v1_deprecated</span><span class="p">(</span><span class="n">warning</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Shows a warning if ENABLE_V1_WARNINGS is True.</span>
+
+<span class="sd">  Function decorator used to mark methods used in v1 classes which</span>
+<span class="sd">  may be removed in future versions of the library.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">warning</span> <span class="o">=</span> <span class="n">warning</span> <span class="ow">or</span> <span class="s">&#39;&#39;</span>
+  <span class="c"># This closure is what is returned from the deprecated function.</span>
+  <span class="k">def</span> <span class="nf">mark_deprecated</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    <span class="c"># The deprecated_function wraps the actual call to f.</span>
+    <span class="k">def</span> <span class="nf">optional_warn_function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">ENABLE_V1_WARNINGS</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">warning</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="c"># Preserve the original name to avoid masking all decorated functions as</span>
+    <span class="c"># &#39;deprecated_function&#39;</span>
+    <span class="k">try</span><span class="p">:</span>
+      <span class="n">optional_warn_function</span><span class="o">.</span><span class="n">func_name</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">func_name</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+      <span class="k">pass</span> <span class="c"># In Python2.3 we can&#39;t set the func_name</span>
+    <span class="k">return</span> <span class="n">optional_warn_function</span>
+  <span class="k">return</span> <span class="n">mark_deprecated</span>
+
+</div>
+<div class="viewcode-block" id="CreateClassFromXMLString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.CreateClassFromXMLString">[docs]</a><span class="k">def</span> <span class="nf">CreateClassFromXMLString</span><span class="p">(</span><span class="n">target_class</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">,</span> <span class="n">string_encoding</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Creates an instance of the target class from the string contents.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    target_class: class The class which will be instantiated and populated</span>
+<span class="sd">        with the contents of the XML. This class must have a _tag and a</span>
+<span class="sd">        _namespace class variable.</span>
+<span class="sd">    xml_string: str A string which contains valid XML. The root element</span>
+<span class="sd">        of the XML string should match the tag and namespace of the desired</span>
+<span class="sd">        class.</span>
+<span class="sd">    string_encoding: str The character encoding which the xml_string should</span>
+<span class="sd">        be converted to before it is interpreted and translated into</span>
+<span class="sd">        objects. The default is None in which case the string encoding</span>
+<span class="sd">        is not changed.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    An instance of the target class with members assigned according to the</span>
+<span class="sd">    contents of the XML - or None if the root XML tag and namespace did not</span>
+<span class="sd">    match those of the target class.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">encoding</span> <span class="o">=</span> <span class="n">string_encoding</span> <span class="ow">or</span> <span class="n">XML_STRING_ENCODING</span>
+  <span class="k">if</span> <span class="n">encoding</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">xml_string</span><span class="p">,</span> <span class="nb">unicode</span><span class="p">):</span>
+    <span class="n">xml_string</span> <span class="o">=</span> <span class="n">xml_string</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">encoding</span><span class="p">)</span>
+  <span class="n">tree</span> <span class="o">=</span> <span class="n">ElementTree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">xml_string</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">_CreateClassFromElementTree</span><span class="p">(</span><span class="n">target_class</span><span class="p">,</span> <span class="n">tree</span><span class="p">)</span>
+
+</div>
+<span class="n">CreateClassFromXMLString</span> <span class="o">=</span> <span class="n">v1_deprecated</span><span class="p">(</span>
+    <span class="s">&#39;Please use atom.core.parse with atom.data classes instead.&#39;</span><span class="p">)(</span>
+        <span class="n">CreateClassFromXMLString</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_CreateClassFromElementTree</span><span class="p">(</span><span class="n">target_class</span><span class="p">,</span> <span class="n">tree</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Instantiates the class and populates members according to the tree.</span>
+
+<span class="sd">  Note: Only use this function with classes that have _namespace and _tag</span>
+<span class="sd">  class members.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    target_class: class The class which will be instantiated and populated</span>
+<span class="sd">        with the contents of the XML.</span>
+<span class="sd">    tree: ElementTree An element tree whose contents will be converted into</span>
+<span class="sd">        members of the new target_class instance.</span>
+<span class="sd">    namespace: str (optional) The namespace which the XML tree&#39;s root node must</span>
+<span class="sd">        match. If omitted, the namespace defaults to the _namespace of the</span>
+<span class="sd">        target class.</span>
+<span class="sd">    tag: str (optional) The tag which the XML tree&#39;s root node must match. If</span>
+<span class="sd">        omitted, the tag defaults to the _tag class member of the target</span>
+<span class="sd">        class.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      An instance of the target class - or None if the tag and namespace of</span>
+<span class="sd">      the XML tree&#39;s root node did not match the desired namespace and tag.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="n">namespace</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="n">namespace</span> <span class="o">=</span> <span class="n">target_class</span><span class="o">.</span><span class="n">_namespace</span>
+  <span class="k">if</span> <span class="n">tag</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="n">tag</span> <span class="o">=</span> <span class="n">target_class</span><span class="o">.</span><span class="n">_tag</span>
+  <span class="k">if</span> <span class="n">tree</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s">&#39;{</span><span class="si">%s</span><span class="s">}</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">tag</span><span class="p">):</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">target_class</span><span class="p">()</span>
+    <span class="n">target</span><span class="o">.</span><span class="n">_HarvestElementTree</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">target</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="k">return</span> <span class="bp">None</span>
+
+
+<div class="viewcode-block" id="ExtensionContainer"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.ExtensionContainer">[docs]</a><span class="k">class</span> <span class="nc">ExtensionContainer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+
+  <span class="n">__init__</span> <span class="o">=</span> <span class="n">v1_deprecated</span><span class="p">(</span>
+      <span class="s">&#39;Please use data model classes in atom.data instead.&#39;</span><span class="p">)(</span>
+          <span class="n">__init__</span><span class="p">)</span>
+
+  <span class="c"># Three methods to create an object from an ElementTree</span>
+  <span class="k">def</span> <span class="nf">_HarvestElementTree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree</span><span class="p">):</span>
+    <span class="c"># Fill in the instance members from the contents of the XML tree.</span>
+    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">tree</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_ConvertElementTreeToMember</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_ConvertElementAttributeToMember</span><span class="p">(</span><span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="c"># Encode the text string according to the desired encoding type. (UTF-8)</span>
+    <span class="k">if</span> <span class="n">tree</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">MEMBER_STRING_ENCODING</span> <span class="ow">is</span> <span class="nb">unicode</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">text</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">MEMBER_STRING_ENCODING</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_ConvertElementTreeToMember</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">child_tree</span><span class="p">,</span> <span class="n">current_class</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_ExtensionElementFromElementTree</span><span class="p">(</span>
+        <span class="n">child_tree</span><span class="p">))</span>
+
+  <span class="k">def</span> <span class="nf">_ConvertElementAttributeToMember</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="c"># Encode the attribute value&#39;s string with the desired type Default UTF-8</span>
+    <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">MEMBER_STRING_ENCODING</span> <span class="ow">is</span> <span class="nb">unicode</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span><span class="p">[</span><span class="n">attribute</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span><span class="p">[</span><span class="n">attribute</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
+            <span class="n">MEMBER_STRING_ENCODING</span><span class="p">)</span>
+
+  <span class="c"># One method to create an ElementTree from an object</span>
+  <span class="k">def</span> <span class="nf">_AddMembersToElementTree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span><span class="p">:</span>
+      <span class="n">child</span><span class="o">.</span><span class="n">_BecomeChildElement</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+      <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">unicode</span><span class="p">)</span> <span class="ow">or</span> <span class="n">MEMBER_STRING_ENCODING</span> <span class="ow">is</span> <span class="nb">unicode</span><span class="p">:</span>
+          <span class="n">tree</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="n">attribute</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="c"># Decode the value from the desired encoding (default UTF-8).</span>
+          <span class="n">tree</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="n">attribute</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">MEMBER_STRING_ENCODING</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="nb">unicode</span><span class="p">)</span> <span class="ow">or</span> <span class="n">MEMBER_STRING_ENCODING</span> <span class="ow">is</span> <span class="nb">unicode</span><span class="p">:</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">MEMBER_STRING_ENCODING</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ExtensionContainer.FindExtensions"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.ExtensionContainer.FindExtensions">[docs]</a>  <span class="k">def</span> <span class="nf">FindExtensions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Searches extension elements for child nodes with the desired name.</span>
+
+<span class="sd">    Returns a list of extension elements within this object whose tag</span>
+<span class="sd">    and/or namespace match those passed in. To find all extensions in</span>
+<span class="sd">    a particular namespace, specify the namespace but not the tag name.</span>
+<span class="sd">    If you specify only the tag, the result list may contain extension</span>
+<span class="sd">    elements in multiple namespaces.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      tag: str (optional) The desired tag</span>
+<span class="sd">      namespace: str (optional) The desired namespace</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A list of elements whose tag and/or namespace match the parameters</span>
+<span class="sd">      values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">tag</span> <span class="ow">and</span> <span class="n">namespace</span><span class="p">:</span>
+      <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="n">tag</span> <span class="ow">and</span> <span class="n">element</span><span class="o">.</span><span class="n">namespace</span> <span class="o">==</span> <span class="n">namespace</span><span class="p">:</span>
+          <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">tag</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">namespace</span><span class="p">:</span>
+      <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="n">tag</span><span class="p">:</span>
+          <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">namespace</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">tag</span><span class="p">:</span>
+      <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">namespace</span> <span class="o">==</span> <span class="n">namespace</span><span class="p">:</span>
+          <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span><span class="p">:</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">results</span>
+
+</div></div>
+<div class="viewcode-block" id="AtomBase"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.AtomBase">[docs]</a><span class="k">class</span> <span class="nc">AtomBase</span><span class="p">(</span><span class="n">ExtensionContainer</span><span class="p">):</span>
+
+  <span class="n">_children</span> <span class="o">=</span> <span class="p">{}</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="p">{}</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+
+  <span class="n">__init__</span> <span class="o">=</span> <span class="n">v1_deprecated</span><span class="p">(</span>
+      <span class="s">&#39;Please use data model classes in atom.data instead.&#39;</span><span class="p">)(</span>
+          <span class="n">__init__</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_ConvertElementTreeToMember</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">child_tree</span><span class="p">):</span>
+    <span class="c"># Find the element&#39;s tag in this class&#39;s list of child members</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">child_tree</span><span class="o">.</span><span class="n">tag</span><span class="p">):</span>
+      <span class="n">member_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">_children</span><span class="p">[</span><span class="n">child_tree</span><span class="o">.</span><span class="n">tag</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+      <span class="n">member_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">_children</span><span class="p">[</span><span class="n">child_tree</span><span class="o">.</span><span class="n">tag</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+      <span class="c"># If the class member is supposed to contain a list, make sure the</span>
+      <span class="c"># matching member is set to a list, then append the new member</span>
+      <span class="c"># instance to the list.</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member_class</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">member_name</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+          <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">member_name</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">member_name</span><span class="p">)</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_CreateClassFromElementTree</span><span class="p">(</span>
+            <span class="n">member_class</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">child_tree</span><span class="p">))</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">member_name</span><span class="p">,</span>
+                <span class="n">_CreateClassFromElementTree</span><span class="p">(</span><span class="n">member_class</span><span class="p">,</span> <span class="n">child_tree</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">ExtensionContainer</span><span class="o">.</span><span class="n">_ConvertElementTreeToMember</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">child_tree</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_ConvertElementAttributeToMember</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="c"># Find the attribute in this class&#39;s list of attributes.</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">attribute</span><span class="p">):</span>
+      <span class="c"># Find the member of this class which corresponds to the XML attribute</span>
+      <span class="c"># (lookup in current_class._attributes) and set this member to the</span>
+      <span class="c"># desired value (using self.__dict__).</span>
+      <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+        <span class="c"># Encode the string to capture non-ascii characters (default UTF-8)</span>
+        <span class="k">if</span> <span class="n">MEMBER_STRING_ENCODING</span> <span class="ow">is</span> <span class="nb">unicode</span><span class="p">:</span>
+          <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="n">attribute</span><span class="p">],</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="n">attribute</span><span class="p">],</span>
+                  <span class="n">value</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">MEMBER_STRING_ENCODING</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">ExtensionContainer</span><span class="o">.</span><span class="n">_ConvertElementAttributeToMember</span><span class="p">(</span>
+          <span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+  <span class="c"># Three methods to create an ElementTree from an object</span>
+  <span class="k">def</span> <span class="nf">_AddMembersToElementTree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree</span><span class="p">):</span>
+    <span class="c"># Convert the members of this class which are XML child nodes.</span>
+    <span class="c"># This uses the class&#39;s _children dictionary to find the members which</span>
+    <span class="c"># should become XML child nodes.</span>
+    <span class="n">member_node_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span>
+                                       <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()]</span>
+    <span class="k">for</span> <span class="n">member_name</span> <span class="ow">in</span> <span class="n">member_node_names</span><span class="p">:</span>
+      <span class="n">member</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">member_name</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">member</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">pass</span>
+      <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">instance</span> <span class="ow">in</span> <span class="n">member</span><span class="p">:</span>
+          <span class="n">instance</span><span class="o">.</span><span class="n">_BecomeChildElement</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">member</span><span class="o">.</span><span class="n">_BecomeChildElement</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+    <span class="c"># Convert the members of this class which are XML attributes.</span>
+    <span class="k">for</span> <span class="n">xml_attribute</span><span class="p">,</span> <span class="n">member_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+      <span class="n">member</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">member_name</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">member</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="nb">unicode</span><span class="p">)</span> <span class="ow">or</span> <span class="n">MEMBER_STRING_ENCODING</span> <span class="ow">is</span> <span class="nb">unicode</span><span class="p">:</span>
+          <span class="n">tree</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="n">xml_attribute</span><span class="p">]</span> <span class="o">=</span> <span class="n">member</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="n">tree</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="n">xml_attribute</span><span class="p">]</span> <span class="o">=</span> <span class="n">member</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">MEMBER_STRING_ENCODING</span><span class="p">)</span>
+    <span class="c"># Lastly, call the ExtensionContainers&#39;s _AddMembersToElementTree to</span>
+    <span class="c"># convert any extension attributes.</span>
+    <span class="n">ExtensionContainer</span><span class="o">.</span><span class="n">_AddMembersToElementTree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree</span><span class="p">)</span>
+
+
+  <span class="k">def</span> <span class="nf">_BecomeChildElement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Note: Only for use with classes that have a _tag and _namespace class</span>
+<span class="sd">    member. It is in AtomBase so that it can be inherited but it should</span>
+<span class="sd">    not be called on instances of AtomBase.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">new_child</span> <span class="o">=</span> <span class="n">ElementTree</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">tree</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_child</span><span class="p">)</span>
+    <span class="n">new_child</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="s">&#39;{</span><span class="si">%s</span><span class="s">}</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">_namespace</span><span class="p">,</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">_tag</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_AddMembersToElementTree</span><span class="p">(</span><span class="n">new_child</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_ToElementTree</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Note, this method is designed to be used only with classes that have a</span>
+<span class="sd">    _tag and _namespace. It is placed in AtomBase for inheritance but should</span>
+<span class="sd">    not be called on this class.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">new_tree</span> <span class="o">=</span> <span class="n">ElementTree</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s">&#39;{</span><span class="si">%s</span><span class="s">}</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">_namespace</span><span class="p">,</span>
+                                               <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">_tag</span><span class="p">))</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_AddMembersToElementTree</span><span class="p">(</span><span class="n">new_tree</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">new_tree</span>
+
+<div class="viewcode-block" id="AtomBase.ToString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.AtomBase.ToString">[docs]</a>  <span class="k">def</span> <span class="nf">ToString</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string_encoding</span><span class="o">=</span><span class="s">&#39;UTF-8&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Converts the Atom object to a string containing XML.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">ElementTree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ToElementTree</span><span class="p">(),</span> <span class="n">encoding</span><span class="o">=</span><span class="n">string_encoding</span><span class="p">)</span>
+</div>
+  <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ToString</span><span class="p">()</span>
+
+</div>
+<div class="viewcode-block" id="Name"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.Name">[docs]</a><span class="k">class</span> <span class="nc">Name</span><span class="p">(</span><span class="n">AtomBase</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The atom:name element&quot;&quot;&quot;</span>
+
+  <span class="n">_tag</span> <span class="o">=</span> <span class="s">&#39;name&#39;</span>
+  <span class="n">_namespace</span> <span class="o">=</span> <span class="n">ATOM_NAMESPACE</span>
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for Name</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      text: str The text data in the this element</span>
+<span class="sd">      extension_elements: list A  list of ExtensionElement instances</span>
+<span class="sd">      extension_attributes: dict A dictionary of attribute value string pairs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+
+</div>
+<div class="viewcode-block" id="NameFromString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.NameFromString">[docs]</a><span class="k">def</span> <span class="nf">NameFromString</span><span class="p">(</span><span class="n">xml_string</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">CreateClassFromXMLString</span><span class="p">(</span><span class="n">Name</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Email"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.Email">[docs]</a><span class="k">class</span> <span class="nc">Email</span><span class="p">(</span><span class="n">AtomBase</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The atom:email element&quot;&quot;&quot;</span>
+
+  <span class="n">_tag</span> <span class="o">=</span> <span class="s">&#39;email&#39;</span>
+  <span class="n">_namespace</span> <span class="o">=</span> <span class="n">ATOM_NAMESPACE</span>
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for Email</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      extension_elements: list A  list of ExtensionElement instances</span>
+<span class="sd">      extension_attributes: dict A dictionary of attribute value string pairs</span>
+<span class="sd">      text: str The text data in the this element</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+
+</div>
+<div class="viewcode-block" id="EmailFromString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.EmailFromString">[docs]</a><span class="k">def</span> <span class="nf">EmailFromString</span><span class="p">(</span><span class="n">xml_string</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">CreateClassFromXMLString</span><span class="p">(</span><span class="n">Email</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Uri"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.Uri">[docs]</a><span class="k">class</span> <span class="nc">Uri</span><span class="p">(</span><span class="n">AtomBase</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The atom:uri element&quot;&quot;&quot;</span>
+
+  <span class="n">_tag</span> <span class="o">=</span> <span class="s">&#39;uri&#39;</span>
+  <span class="n">_namespace</span> <span class="o">=</span> <span class="n">ATOM_NAMESPACE</span>
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for Uri</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      extension_elements: list A  list of ExtensionElement instances</span>
+<span class="sd">      extension_attributes: dict A dictionary of attribute value string pairs</span>
+<span class="sd">      text: str The text data in the this element</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+
+</div>
+<div class="viewcode-block" id="UriFromString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.UriFromString">[docs]</a><span class="k">def</span> <span class="nf">UriFromString</span><span class="p">(</span><span class="n">xml_string</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">CreateClassFromXMLString</span><span class="p">(</span><span class="n">Uri</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Person"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.Person">[docs]</a><span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">AtomBase</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;A foundation class from which atom:author and atom:contributor extend.</span>
+
+<span class="sd">  A person contains information like name, email address, and web page URI for</span>
+<span class="sd">  an author or contributor to an Atom feed.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_children</span><span class="p">[</span><span class="s">&#39;{</span><span class="si">%s</span><span class="s">}name&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ATOM_NAMESPACE</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">Name</span><span class="p">)</span>
+  <span class="n">_children</span><span class="p">[</span><span class="s">&#39;{</span><span class="si">%s</span><span class="s">}email&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ATOM_NAMESPACE</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;email&#39;</span><span class="p">,</span> <span class="n">Email</span><span class="p">)</span>
+  <span class="n">_children</span><span class="p">[</span><span class="s">&#39;{</span><span class="si">%s</span><span class="s">}uri&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ATOM_NAMESPACE</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;uri&#39;</span><span class="p">,</span> <span class="n">Uri</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">email</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">uri</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Foundation from which author and contributor are derived.</span>
+
+<span class="sd">    The constructor is provided for illustrative purposes, you should not</span>
+<span class="sd">    need to instantiate a Person.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      name: Name The person&#39;s name</span>
+<span class="sd">      email: Email The person&#39;s email address</span>
+<span class="sd">      uri: Uri The URI of the person&#39;s webpage</span>
+<span class="sd">      extension_elements: list A list of ExtensionElement instances which are</span>
+<span class="sd">          children of this element.</span>
+<span class="sd">      extension_attributes: dict A dictionary of strings which are the values</span>
+<span class="sd">          for additional XML attributes of this element.</span>
+<span class="sd">      text: String The text contents of the element. This is the contents</span>
+<span class="sd">          of the Entry&#39;s XML text node. (Example: &lt;foo&gt;This is the text&lt;/foo&gt;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="n">email</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">uri</span> <span class="o">=</span> <span class="n">uri</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+
+</div>
+<div class="viewcode-block" id="Author"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.Author">[docs]</a><span class="k">class</span> <span class="nc">Author</span><span class="p">(</span><span class="n">Person</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The atom:author element</span>
+
+<span class="sd">  An author is a required element in Feed.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="n">_tag</span> <span class="o">=</span> <span class="s">&#39;author&#39;</span>
+  <span class="n">_namespace</span> <span class="o">=</span> <span class="n">ATOM_NAMESPACE</span>
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">Person</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">Person</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="c">#_children = {}</span>
+  <span class="c">#_attributes = {}</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">email</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">uri</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for Author</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      name: Name</span>
+<span class="sd">      email: Email</span>
+<span class="sd">      uri: Uri</span>
+<span class="sd">      extension_elements: list A  list of ExtensionElement instances</span>
+<span class="sd">      extension_attributes: dict A dictionary of attribute value string pairs</span>
+<span class="sd">      text: str The text data in the this element</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="n">email</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">uri</span> <span class="o">=</span> <span class="n">uri</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+
+</div>
+<div class="viewcode-block" id="AuthorFromString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.AuthorFromString">[docs]</a><span class="k">def</span> <span class="nf">AuthorFromString</span><span class="p">(</span><span class="n">xml_string</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">CreateClassFromXMLString</span><span class="p">(</span><span class="n">Author</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Contributor"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.Contributor">[docs]</a><span class="k">class</span> <span class="nc">Contributor</span><span class="p">(</span><span class="n">Person</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The atom:contributor element&quot;&quot;&quot;</span>
+
+  <span class="n">_tag</span> <span class="o">=</span> <span class="s">&#39;contributor&#39;</span>
+  <span class="n">_namespace</span> <span class="o">=</span> <span class="n">ATOM_NAMESPACE</span>
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">Person</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">Person</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">email</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">uri</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for Contributor</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      name: Name</span>
+<span class="sd">      email: Email</span>
+<span class="sd">      uri: Uri</span>
+<span class="sd">      extension_elements: list A  list of ExtensionElement instances</span>
+<span class="sd">      extension_attributes: dict A dictionary of attribute value string pairs</span>
+<span class="sd">      text: str The text data in the this element</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="n">email</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">uri</span> <span class="o">=</span> <span class="n">uri</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+
+</div>
+<div class="viewcode-block" id="ContributorFromString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.ContributorFromString">[docs]</a><span class="k">def</span> <span class="nf">ContributorFromString</span><span class="p">(</span><span class="n">xml_string</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">CreateClassFromXMLString</span><span class="p">(</span><span class="n">Contributor</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Link"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.Link">[docs]</a><span class="k">class</span> <span class="nc">Link</span><span class="p">(</span><span class="n">AtomBase</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The atom:link element&quot;&quot;&quot;</span>
+
+  <span class="n">_tag</span> <span class="o">=</span> <span class="s">&#39;link&#39;</span>
+  <span class="n">_namespace</span> <span class="o">=</span> <span class="n">ATOM_NAMESPACE</span>
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span><span class="p">[</span><span class="s">&#39;rel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;rel&#39;</span>
+  <span class="n">_attributes</span><span class="p">[</span><span class="s">&#39;href&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;href&#39;</span>
+  <span class="n">_attributes</span><span class="p">[</span><span class="s">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;type&#39;</span>
+  <span class="n">_attributes</span><span class="p">[</span><span class="s">&#39;title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;title&#39;</span>
+  <span class="n">_attributes</span><span class="p">[</span><span class="s">&#39;length&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;length&#39;</span>
+  <span class="n">_attributes</span><span class="p">[</span><span class="s">&#39;hreflang&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;hreflang&#39;</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">href</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">rel</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">link_type</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">hreflang</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">title</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for Link</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      href: string The href attribute of the link</span>
+<span class="sd">      rel: string</span>
+<span class="sd">      type: string</span>
+<span class="sd">      hreflang: string The language for the href</span>
+<span class="sd">      title: string</span>
+<span class="sd">      length: string The length of the href&#39;s destination</span>
+<span class="sd">      extension_elements: list A  list of ExtensionElement instances</span>
+<span class="sd">      extension_attributes: dict A dictionary of attribute value string pairs</span>
+<span class="sd">      text: str The text data in the this element</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">href</span> <span class="o">=</span> <span class="n">href</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">rel</span> <span class="o">=</span> <span class="n">rel</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">link_type</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">hreflang</span> <span class="o">=</span> <span class="n">hreflang</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">length</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+
+</div>
+<div class="viewcode-block" id="LinkFromString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.LinkFromString">[docs]</a><span class="k">def</span> <span class="nf">LinkFromString</span><span class="p">(</span><span class="n">xml_string</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">CreateClassFromXMLString</span><span class="p">(</span><span class="n">Link</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Generator"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.Generator">[docs]</a><span class="k">class</span> <span class="nc">Generator</span><span class="p">(</span><span class="n">AtomBase</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The atom:generator element&quot;&quot;&quot;</span>
+
+  <span class="n">_tag</span> <span class="o">=</span> <span class="s">&#39;generator&#39;</span>
+  <span class="n">_namespace</span> <span class="o">=</span> <span class="n">ATOM_NAMESPACE</span>
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span><span class="p">[</span><span class="s">&#39;uri&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;uri&#39;</span>
+  <span class="n">_attributes</span><span class="p">[</span><span class="s">&#39;version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;version&#39;</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for Generator</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      uri: string</span>
+<span class="sd">      version: string</span>
+<span class="sd">      text: str The text data in the this element</span>
+<span class="sd">      extension_elements: list A  list of ExtensionElement instances</span>
+<span class="sd">      extension_attributes: dict A dictionary of attribute value string pairs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">uri</span> <span class="o">=</span> <span class="n">uri</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+</div>
+<div class="viewcode-block" id="GeneratorFromString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.GeneratorFromString">[docs]</a><span class="k">def</span> <span class="nf">GeneratorFromString</span><span class="p">(</span><span class="n">xml_string</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">CreateClassFromXMLString</span><span class="p">(</span><span class="n">Generator</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Text"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.Text">[docs]</a><span class="k">class</span> <span class="nc">Text</span><span class="p">(</span><span class="n">AtomBase</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;A foundation class from which atom:title, summary, etc. extend.</span>
+
+<span class="sd">  This class should never be instantiated.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span><span class="p">[</span><span class="s">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;type&#39;</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text_type</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for Text</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      text_type: string</span>
+<span class="sd">      text: str The text data in the this element</span>
+<span class="sd">      extension_elements: list A  list of ExtensionElement instances</span>
+<span class="sd">      extension_attributes: dict A dictionary of attribute value string pairs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">text_type</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+
+</div>
+<div class="viewcode-block" id="Title"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.Title">[docs]</a><span class="k">class</span> <span class="nc">Title</span><span class="p">(</span><span class="n">Text</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The atom:title element&quot;&quot;&quot;</span>
+
+  <span class="n">_tag</span> <span class="o">=</span> <span class="s">&#39;title&#39;</span>
+  <span class="n">_namespace</span> <span class="o">=</span> <span class="n">ATOM_NAMESPACE</span>
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">Text</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">Text</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title_type</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for Title</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      title_type: string</span>
+<span class="sd">      text: str The text data in the this element</span>
+<span class="sd">      extension_elements: list A  list of ExtensionElement instances</span>
+<span class="sd">      extension_attributes: dict A dictionary of attribute value string pairs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">title_type</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+
+</div>
+<div class="viewcode-block" id="TitleFromString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.TitleFromString">[docs]</a><span class="k">def</span> <span class="nf">TitleFromString</span><span class="p">(</span><span class="n">xml_string</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">CreateClassFromXMLString</span><span class="p">(</span><span class="n">Title</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Subtitle"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.Subtitle">[docs]</a><span class="k">class</span> <span class="nc">Subtitle</span><span class="p">(</span><span class="n">Text</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The atom:subtitle element&quot;&quot;&quot;</span>
+
+  <span class="n">_tag</span> <span class="o">=</span> <span class="s">&#39;subtitle&#39;</span>
+  <span class="n">_namespace</span> <span class="o">=</span> <span class="n">ATOM_NAMESPACE</span>
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">Text</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">Text</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subtitle_type</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for Subtitle</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      subtitle_type: string</span>
+<span class="sd">      text: str The text data in the this element</span>
+<span class="sd">      extension_elements: list A  list of ExtensionElement instances</span>
+<span class="sd">      extension_attributes: dict A dictionary of attribute value string pairs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">subtitle_type</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+
+</div>
+<div class="viewcode-block" id="SubtitleFromString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.SubtitleFromString">[docs]</a><span class="k">def</span> <span class="nf">SubtitleFromString</span><span class="p">(</span><span class="n">xml_string</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">CreateClassFromXMLString</span><span class="p">(</span><span class="n">Subtitle</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Rights"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.Rights">[docs]</a><span class="k">class</span> <span class="nc">Rights</span><span class="p">(</span><span class="n">Text</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The atom:rights element&quot;&quot;&quot;</span>
+
+  <span class="n">_tag</span> <span class="o">=</span> <span class="s">&#39;rights&#39;</span>
+  <span class="n">_namespace</span> <span class="o">=</span> <span class="n">ATOM_NAMESPACE</span>
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">Text</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">Text</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rights_type</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for Rights</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      rights_type: string</span>
+<span class="sd">      text: str The text data in the this element</span>
+<span class="sd">      extension_elements: list A  list of ExtensionElement instances</span>
+<span class="sd">      extension_attributes: dict A dictionary of attribute value string pairs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">rights_type</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+
+</div>
+<div class="viewcode-block" id="RightsFromString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.RightsFromString">[docs]</a><span class="k">def</span> <span class="nf">RightsFromString</span><span class="p">(</span><span class="n">xml_string</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">CreateClassFromXMLString</span><span class="p">(</span><span class="n">Rights</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Summary"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.Summary">[docs]</a><span class="k">class</span> <span class="nc">Summary</span><span class="p">(</span><span class="n">Text</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The atom:summary element&quot;&quot;&quot;</span>
+
+  <span class="n">_tag</span> <span class="o">=</span> <span class="s">&#39;summary&#39;</span>
+  <span class="n">_namespace</span> <span class="o">=</span> <span class="n">ATOM_NAMESPACE</span>
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">Text</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">Text</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">summary_type</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for Summary</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      summary_type: string</span>
+<span class="sd">      text: str The text data in the this element</span>
+<span class="sd">      extension_elements: list A  list of ExtensionElement instances</span>
+<span class="sd">      extension_attributes: dict A dictionary of attribute value string pairs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">summary_type</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+
+</div>
+<div class="viewcode-block" id="SummaryFromString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.SummaryFromString">[docs]</a><span class="k">def</span> <span class="nf">SummaryFromString</span><span class="p">(</span><span class="n">xml_string</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">CreateClassFromXMLString</span><span class="p">(</span><span class="n">Summary</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Content"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.Content">[docs]</a><span class="k">class</span> <span class="nc">Content</span><span class="p">(</span><span class="n">Text</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The atom:content element&quot;&quot;&quot;</span>
+
+  <span class="n">_tag</span> <span class="o">=</span> <span class="s">&#39;content&#39;</span>
+  <span class="n">_namespace</span> <span class="o">=</span> <span class="n">ATOM_NAMESPACE</span>
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">Text</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">Text</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span><span class="p">[</span><span class="s">&#39;src&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;src&#39;</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for Content</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      content_type: string</span>
+<span class="sd">      src: string</span>
+<span class="sd">      text: str The text data in the this element</span>
+<span class="sd">      extension_elements: list A  list of ExtensionElement instances</span>
+<span class="sd">      extension_attributes: dict A dictionary of attribute value string pairs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">content_type</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">src</span> <span class="o">=</span> <span class="n">src</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+</div>
+<div class="viewcode-block" id="ContentFromString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.ContentFromString">[docs]</a><span class="k">def</span> <span class="nf">ContentFromString</span><span class="p">(</span><span class="n">xml_string</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">CreateClassFromXMLString</span><span class="p">(</span><span class="n">Content</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Category"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.Category">[docs]</a><span class="k">class</span> <span class="nc">Category</span><span class="p">(</span><span class="n">AtomBase</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The atom:category element&quot;&quot;&quot;</span>
+
+  <span class="n">_tag</span> <span class="o">=</span> <span class="s">&#39;category&#39;</span>
+  <span class="n">_namespace</span> <span class="o">=</span> <span class="n">ATOM_NAMESPACE</span>
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span><span class="p">[</span><span class="s">&#39;term&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;term&#39;</span>
+  <span class="n">_attributes</span><span class="p">[</span><span class="s">&#39;scheme&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;scheme&#39;</span>
+  <span class="n">_attributes</span><span class="p">[</span><span class="s">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;label&#39;</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">term</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">scheme</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for Category</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      term: str</span>
+<span class="sd">      scheme: str</span>
+<span class="sd">      label: str</span>
+<span class="sd">      text: str The text data in the this element</span>
+<span class="sd">      extension_elements: list A  list of ExtensionElement instances</span>
+<span class="sd">      extension_attributes: dict A dictionary of attribute value string pairs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">term</span> <span class="o">=</span> <span class="n">term</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">scheme</span> <span class="o">=</span> <span class="n">scheme</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">label</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+
+</div>
+<div class="viewcode-block" id="CategoryFromString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.CategoryFromString">[docs]</a><span class="k">def</span> <span class="nf">CategoryFromString</span><span class="p">(</span><span class="n">xml_string</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">CreateClassFromXMLString</span><span class="p">(</span><span class="n">Category</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Id"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.Id">[docs]</a><span class="k">class</span> <span class="nc">Id</span><span class="p">(</span><span class="n">AtomBase</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The atom:id element.&quot;&quot;&quot;</span>
+
+  <span class="n">_tag</span> <span class="o">=</span> <span class="s">&#39;id&#39;</span>
+  <span class="n">_namespace</span> <span class="o">=</span> <span class="n">ATOM_NAMESPACE</span>
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for Id</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      text: str The text data in the this element</span>
+<span class="sd">      extension_elements: list A  list of ExtensionElement instances</span>
+<span class="sd">      extension_attributes: dict A dictionary of attribute value string pairs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+
+</div>
+<div class="viewcode-block" id="IdFromString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.IdFromString">[docs]</a><span class="k">def</span> <span class="nf">IdFromString</span><span class="p">(</span><span class="n">xml_string</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">CreateClassFromXMLString</span><span class="p">(</span><span class="n">Id</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Icon"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.Icon">[docs]</a><span class="k">class</span> <span class="nc">Icon</span><span class="p">(</span><span class="n">AtomBase</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The atom:icon element.&quot;&quot;&quot;</span>
+
+  <span class="n">_tag</span> <span class="o">=</span> <span class="s">&#39;icon&#39;</span>
+  <span class="n">_namespace</span> <span class="o">=</span> <span class="n">ATOM_NAMESPACE</span>
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for Icon</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      text: str The text data in the this element</span>
+<span class="sd">      extension_elements: list A  list of ExtensionElement instances</span>
+<span class="sd">      extension_attributes: dict A dictionary of attribute value string pairs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+
+</div>
+<div class="viewcode-block" id="IconFromString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.IconFromString">[docs]</a><span class="k">def</span> <span class="nf">IconFromString</span><span class="p">(</span><span class="n">xml_string</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">CreateClassFromXMLString</span><span class="p">(</span><span class="n">Icon</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Logo"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.Logo">[docs]</a><span class="k">class</span> <span class="nc">Logo</span><span class="p">(</span><span class="n">AtomBase</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The atom:logo element.&quot;&quot;&quot;</span>
+
+  <span class="n">_tag</span> <span class="o">=</span> <span class="s">&#39;logo&#39;</span>
+  <span class="n">_namespace</span> <span class="o">=</span> <span class="n">ATOM_NAMESPACE</span>
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for Logo</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      text: str The text data in the this element</span>
+<span class="sd">      extension_elements: list A  list of ExtensionElement instances</span>
+<span class="sd">      extension_attributes: dict A dictionary of attribute value string pairs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+
+</div>
+<div class="viewcode-block" id="LogoFromString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.LogoFromString">[docs]</a><span class="k">def</span> <span class="nf">LogoFromString</span><span class="p">(</span><span class="n">xml_string</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">CreateClassFromXMLString</span><span class="p">(</span><span class="n">Logo</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Draft"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.Draft">[docs]</a><span class="k">class</span> <span class="nc">Draft</span><span class="p">(</span><span class="n">AtomBase</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The app:draft element which indicates if this entry should be public.&quot;&quot;&quot;</span>
+
+  <span class="n">_tag</span> <span class="o">=</span> <span class="s">&#39;draft&#39;</span>
+  <span class="n">_namespace</span> <span class="o">=</span> <span class="n">APP_NAMESPACE</span>
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for app:draft</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      text: str The text data in the this element</span>
+<span class="sd">      extension_elements: list A  list of ExtensionElement instances</span>
+<span class="sd">      extension_attributes: dict A dictionary of attribute value string pairs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+
+</div>
+<div class="viewcode-block" id="DraftFromString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.DraftFromString">[docs]</a><span class="k">def</span> <span class="nf">DraftFromString</span><span class="p">(</span><span class="n">xml_string</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">CreateClassFromXMLString</span><span class="p">(</span><span class="n">Draft</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Control"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.Control">[docs]</a><span class="k">class</span> <span class="nc">Control</span><span class="p">(</span><span class="n">AtomBase</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The app:control element indicating restrictions on publication.</span>
+
+<span class="sd">  The APP control element may contain a draft element indicating whether or</span>
+<span class="sd">  not this entry should be publicly available.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="n">_tag</span> <span class="o">=</span> <span class="s">&#39;control&#39;</span>
+  <span class="n">_namespace</span> <span class="o">=</span> <span class="n">APP_NAMESPACE</span>
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_children</span><span class="p">[</span><span class="s">&#39;{</span><span class="si">%s</span><span class="s">}draft&#39;</span> <span class="o">%</span> <span class="n">APP_NAMESPACE</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;draft&#39;</span><span class="p">,</span> <span class="n">Draft</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">draft</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+        <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for app:control&quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">draft</span> <span class="o">=</span> <span class="n">draft</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+
+</div>
+<div class="viewcode-block" id="ControlFromString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.ControlFromString">[docs]</a><span class="k">def</span> <span class="nf">ControlFromString</span><span class="p">(</span><span class="n">xml_string</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">CreateClassFromXMLString</span><span class="p">(</span><span class="n">Control</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Date"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.Date">[docs]</a><span class="k">class</span> <span class="nc">Date</span><span class="p">(</span><span class="n">AtomBase</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;A parent class for atom:updated, published, etc.&quot;&quot;&quot;</span>
+
+  <span class="c">#TODO Add text to and from time conversion methods to allow users to set</span>
+  <span class="c"># the contents of a Date to a python DateTime object.</span>
+
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+
+</div>
+<div class="viewcode-block" id="Updated"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.Updated">[docs]</a><span class="k">class</span> <span class="nc">Updated</span><span class="p">(</span><span class="n">Date</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The atom:updated element.&quot;&quot;&quot;</span>
+
+  <span class="n">_tag</span> <span class="o">=</span> <span class="s">&#39;updated&#39;</span>
+  <span class="n">_namespace</span> <span class="o">=</span> <span class="n">ATOM_NAMESPACE</span>
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">Date</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">Date</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for Updated</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      text: str The text data in the this element</span>
+<span class="sd">      extension_elements: list A  list of ExtensionElement instances</span>
+<span class="sd">      extension_attributes: dict A dictionary of attribute value string pairs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+
+</div>
+<div class="viewcode-block" id="UpdatedFromString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.UpdatedFromString">[docs]</a><span class="k">def</span> <span class="nf">UpdatedFromString</span><span class="p">(</span><span class="n">xml_string</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">CreateClassFromXMLString</span><span class="p">(</span><span class="n">Updated</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Published"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.Published">[docs]</a><span class="k">class</span> <span class="nc">Published</span><span class="p">(</span><span class="n">Date</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The atom:published element.&quot;&quot;&quot;</span>
+
+  <span class="n">_tag</span> <span class="o">=</span> <span class="s">&#39;published&#39;</span>
+  <span class="n">_namespace</span> <span class="o">=</span> <span class="n">ATOM_NAMESPACE</span>
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">Date</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">Date</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for Published</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      text: str The text data in the this element</span>
+<span class="sd">      extension_elements: list A  list of ExtensionElement instances</span>
+<span class="sd">      extension_attributes: dict A dictionary of attribute value string pairs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+
+</div>
+<div class="viewcode-block" id="PublishedFromString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.PublishedFromString">[docs]</a><span class="k">def</span> <span class="nf">PublishedFromString</span><span class="p">(</span><span class="n">xml_string</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">CreateClassFromXMLString</span><span class="p">(</span><span class="n">Published</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="LinkFinder"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.LinkFinder">[docs]</a><span class="k">class</span> <span class="nc">LinkFinder</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;An &quot;interface&quot; providing methods to find link elements</span>
+
+<span class="sd">  Entry elements often contain multiple links which differ in the rel</span>
+<span class="sd">  attribute or content type. Often, developers are interested in a specific</span>
+<span class="sd">  type of link so this class provides methods to find specific classes of</span>
+<span class="sd">  links.</span>
+
+<span class="sd">  This class is used as a mixin in Atom entries and feeds.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LinkFinder.GetSelfLink"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.LinkFinder.GetSelfLink">[docs]</a>  <span class="k">def</span> <span class="nf">GetSelfLink</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Find the first link with rel set to &#39;self&#39;</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      An atom.Link or none if none of the links had rel equal to &#39;self&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">a_link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">link</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">a_link</span><span class="o">.</span><span class="n">rel</span> <span class="o">==</span> <span class="s">&#39;self&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">a_link</span>
+    <span class="k">return</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="LinkFinder.GetEditLink"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.LinkFinder.GetEditLink">[docs]</a>  <span class="k">def</span> <span class="nf">GetEditLink</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">a_link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">link</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">a_link</span><span class="o">.</span><span class="n">rel</span> <span class="o">==</span> <span class="s">&#39;edit&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">a_link</span>
+    <span class="k">return</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="LinkFinder.GetEditMediaLink"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.LinkFinder.GetEditMediaLink">[docs]</a>  <span class="k">def</span> <span class="nf">GetEditMediaLink</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">a_link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">link</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">a_link</span><span class="o">.</span><span class="n">rel</span> <span class="o">==</span> <span class="s">&#39;edit-media&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">a_link</span>
+    <span class="k">return</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="LinkFinder.GetNextLink"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.LinkFinder.GetNextLink">[docs]</a>  <span class="k">def</span> <span class="nf">GetNextLink</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">a_link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">link</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">a_link</span><span class="o">.</span><span class="n">rel</span> <span class="o">==</span> <span class="s">&#39;next&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">a_link</span>
+    <span class="k">return</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="LinkFinder.GetLicenseLink"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.LinkFinder.GetLicenseLink">[docs]</a>  <span class="k">def</span> <span class="nf">GetLicenseLink</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">a_link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">link</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">a_link</span><span class="o">.</span><span class="n">rel</span> <span class="o">==</span> <span class="s">&#39;license&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">a_link</span>
+    <span class="k">return</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="LinkFinder.GetAlternateLink"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.LinkFinder.GetAlternateLink">[docs]</a>  <span class="k">def</span> <span class="nf">GetAlternateLink</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">a_link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">link</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">a_link</span><span class="o">.</span><span class="n">rel</span> <span class="o">==</span> <span class="s">&#39;alternate&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">a_link</span>
+    <span class="k">return</span> <span class="bp">None</span>
+
+</div></div>
+<div class="viewcode-block" id="FeedEntryParent"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.FeedEntryParent">[docs]</a><span class="k">class</span> <span class="nc">FeedEntryParent</span><span class="p">(</span><span class="n">AtomBase</span><span class="p">,</span> <span class="n">LinkFinder</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;A super class for atom:feed and entry, contains shared attributes&quot;&quot;&quot;</span>
+
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">AtomBase</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_children</span><span class="p">[</span><span class="s">&#39;{</span><span class="si">%s</span><span class="s">}author&#39;</span> <span class="o">%</span> <span class="n">ATOM_NAMESPACE</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;author&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">Author</span><span class="p">])</span>
+  <span class="n">_children</span><span class="p">[</span><span class="s">&#39;{</span><span class="si">%s</span><span class="s">}category&#39;</span> <span class="o">%</span> <span class="n">ATOM_NAMESPACE</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;category&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">Category</span><span class="p">])</span>
+  <span class="n">_children</span><span class="p">[</span><span class="s">&#39;{</span><span class="si">%s</span><span class="s">}contributor&#39;</span> <span class="o">%</span> <span class="n">ATOM_NAMESPACE</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;contributor&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">Contributor</span><span class="p">])</span>
+  <span class="n">_children</span><span class="p">[</span><span class="s">&#39;{</span><span class="si">%s</span><span class="s">}id&#39;</span> <span class="o">%</span> <span class="n">ATOM_NAMESPACE</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;id&#39;</span><span class="p">,</span> <span class="n">Id</span><span class="p">)</span>
+  <span class="n">_children</span><span class="p">[</span><span class="s">&#39;{</span><span class="si">%s</span><span class="s">}link&#39;</span> <span class="o">%</span> <span class="n">ATOM_NAMESPACE</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;link&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">Link</span><span class="p">])</span>
+  <span class="n">_children</span><span class="p">[</span><span class="s">&#39;{</span><span class="si">%s</span><span class="s">}rights&#39;</span> <span class="o">%</span> <span class="n">ATOM_NAMESPACE</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;rights&#39;</span><span class="p">,</span> <span class="n">Rights</span><span class="p">)</span>
+  <span class="n">_children</span><span class="p">[</span><span class="s">&#39;{</span><span class="si">%s</span><span class="s">}title&#39;</span> <span class="o">%</span> <span class="n">ATOM_NAMESPACE</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;title&#39;</span><span class="p">,</span> <span class="n">Title</span><span class="p">)</span>
+  <span class="n">_children</span><span class="p">[</span><span class="s">&#39;{</span><span class="si">%s</span><span class="s">}updated&#39;</span> <span class="o">%</span> <span class="n">ATOM_NAMESPACE</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;updated&#39;</span><span class="p">,</span> <span class="n">Updated</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">author</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">contributor</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">atom_id</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">rights</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">updated</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">author</span> <span class="o">=</span> <span class="n">author</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="n">category</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">contributor</span> <span class="o">=</span> <span class="n">contributor</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">atom_id</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">link</span> <span class="o">=</span> <span class="n">link</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">rights</span> <span class="o">=</span> <span class="n">rights</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">updated</span> <span class="o">=</span> <span class="n">updated</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+
+</div>
+<div class="viewcode-block" id="Source"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.Source">[docs]</a><span class="k">class</span> <span class="nc">Source</span><span class="p">(</span><span class="n">FeedEntryParent</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The atom:source element&quot;&quot;&quot;</span>
+
+  <span class="n">_tag</span> <span class="o">=</span> <span class="s">&#39;source&#39;</span>
+  <span class="n">_namespace</span> <span class="o">=</span> <span class="n">ATOM_NAMESPACE</span>
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">FeedEntryParent</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">FeedEntryParent</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_children</span><span class="p">[</span><span class="s">&#39;{</span><span class="si">%s</span><span class="s">}generator&#39;</span> <span class="o">%</span> <span class="n">ATOM_NAMESPACE</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;generator&#39;</span><span class="p">,</span> <span class="n">Generator</span><span class="p">)</span>
+  <span class="n">_children</span><span class="p">[</span><span class="s">&#39;{</span><span class="si">%s</span><span class="s">}icon&#39;</span> <span class="o">%</span> <span class="n">ATOM_NAMESPACE</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;icon&#39;</span><span class="p">,</span> <span class="n">Icon</span><span class="p">)</span>
+  <span class="n">_children</span><span class="p">[</span><span class="s">&#39;{</span><span class="si">%s</span><span class="s">}logo&#39;</span> <span class="o">%</span> <span class="n">ATOM_NAMESPACE</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;logo&#39;</span><span class="p">,</span> <span class="n">Logo</span><span class="p">)</span>
+  <span class="n">_children</span><span class="p">[</span><span class="s">&#39;{</span><span class="si">%s</span><span class="s">}subtitle&#39;</span> <span class="o">%</span> <span class="n">ATOM_NAMESPACE</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;subtitle&#39;</span><span class="p">,</span> <span class="n">Subtitle</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">author</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">contributor</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">generator</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">atom_id</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">logo</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">rights</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">subtitle</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">updated</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for Source</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      author: list (optional) A list of Author instances which belong to this</span>
+<span class="sd">          class.</span>
+<span class="sd">      category: list (optional) A list of Category instances</span>
+<span class="sd">      contributor: list (optional) A list on Contributor instances</span>
+<span class="sd">      generator: Generator (optional)</span>
+<span class="sd">      icon: Icon (optional)</span>
+<span class="sd">      id: Id (optional) The entry&#39;s Id element</span>
+<span class="sd">      link: list (optional) A list of Link instances</span>
+<span class="sd">      logo: Logo (optional)</span>
+<span class="sd">      rights: Rights (optional) The entry&#39;s Rights element</span>
+<span class="sd">      subtitle: Subtitle (optional) The entry&#39;s subtitle element</span>
+<span class="sd">      title: Title (optional) the entry&#39;s title element</span>
+<span class="sd">      updated: Updated (optional) the entry&#39;s updated element</span>
+<span class="sd">      text: String (optional) The text contents of the element. This is the</span>
+<span class="sd">          contents of the Entry&#39;s XML text node.</span>
+<span class="sd">          (Example: &lt;foo&gt;This is the text&lt;/foo&gt;)</span>
+<span class="sd">      extension_elements: list (optional) A list of ExtensionElement instances</span>
+<span class="sd">          which are children of this element.</span>
+<span class="sd">      extension_attributes: dict (optional) A dictionary of strings which are</span>
+<span class="sd">          the values for additional XML attributes of this element.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">author</span> <span class="o">=</span> <span class="n">author</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="n">category</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">contributor</span> <span class="o">=</span> <span class="n">contributor</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">generator</span> <span class="o">=</span> <span class="n">generator</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">icon</span> <span class="o">=</span> <span class="n">icon</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">atom_id</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">link</span> <span class="o">=</span> <span class="n">link</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">logo</span> <span class="o">=</span> <span class="n">logo</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">rights</span> <span class="o">=</span> <span class="n">rights</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">subtitle</span> <span class="o">=</span> <span class="n">subtitle</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">updated</span> <span class="o">=</span> <span class="n">updated</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+
+</div>
+<div class="viewcode-block" id="SourceFromString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.SourceFromString">[docs]</a><span class="k">def</span> <span class="nf">SourceFromString</span><span class="p">(</span><span class="n">xml_string</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">CreateClassFromXMLString</span><span class="p">(</span><span class="n">Source</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Entry"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.Entry">[docs]</a><span class="k">class</span> <span class="nc">Entry</span><span class="p">(</span><span class="n">FeedEntryParent</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The atom:entry element&quot;&quot;&quot;</span>
+
+  <span class="n">_tag</span> <span class="o">=</span> <span class="s">&#39;entry&#39;</span>
+  <span class="n">_namespace</span> <span class="o">=</span> <span class="n">ATOM_NAMESPACE</span>
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">FeedEntryParent</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">FeedEntryParent</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_children</span><span class="p">[</span><span class="s">&#39;{</span><span class="si">%s</span><span class="s">}content&#39;</span> <span class="o">%</span> <span class="n">ATOM_NAMESPACE</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;content&#39;</span><span class="p">,</span> <span class="n">Content</span><span class="p">)</span>
+  <span class="n">_children</span><span class="p">[</span><span class="s">&#39;{</span><span class="si">%s</span><span class="s">}published&#39;</span> <span class="o">%</span> <span class="n">ATOM_NAMESPACE</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;published&#39;</span><span class="p">,</span> <span class="n">Published</span><span class="p">)</span>
+  <span class="n">_children</span><span class="p">[</span><span class="s">&#39;{</span><span class="si">%s</span><span class="s">}source&#39;</span> <span class="o">%</span> <span class="n">ATOM_NAMESPACE</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;source&#39;</span><span class="p">,</span> <span class="n">Source</span><span class="p">)</span>
+  <span class="n">_children</span><span class="p">[</span><span class="s">&#39;{</span><span class="si">%s</span><span class="s">}summary&#39;</span> <span class="o">%</span> <span class="n">ATOM_NAMESPACE</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;summary&#39;</span><span class="p">,</span> <span class="n">Summary</span><span class="p">)</span>
+  <span class="n">_children</span><span class="p">[</span><span class="s">&#39;{</span><span class="si">%s</span><span class="s">}control&#39;</span> <span class="o">%</span> <span class="n">APP_NAMESPACE</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;control&#39;</span><span class="p">,</span> <span class="n">Control</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">author</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">contributor</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">atom_id</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">published</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">rights</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">source</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">summary</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">control</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">updated</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for atom:entry</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      author: list A list of Author instances which belong to this class.</span>
+<span class="sd">      category: list A list of Category instances</span>
+<span class="sd">      content: Content The entry&#39;s Content</span>
+<span class="sd">      contributor: list A list on Contributor instances</span>
+<span class="sd">      id: Id The entry&#39;s Id element</span>
+<span class="sd">      link: list A list of Link instances</span>
+<span class="sd">      published: Published The entry&#39;s Published element</span>
+<span class="sd">      rights: Rights The entry&#39;s Rights element</span>
+<span class="sd">      source: Source the entry&#39;s source element</span>
+<span class="sd">      summary: Summary the entry&#39;s summary element</span>
+<span class="sd">      title: Title the entry&#39;s title element</span>
+<span class="sd">      updated: Updated the entry&#39;s updated element</span>
+<span class="sd">      control: The entry&#39;s app:control element which can be used to mark an</span>
+<span class="sd">          entry as a draft which should not be publicly viewable.</span>
+<span class="sd">      text: String The text contents of the element. This is the contents</span>
+<span class="sd">          of the Entry&#39;s XML text node. (Example: &lt;foo&gt;This is the text&lt;/foo&gt;)</span>
+<span class="sd">      extension_elements: list A list of ExtensionElement instances which are</span>
+<span class="sd">          children of this element.</span>
+<span class="sd">      extension_attributes: dict A dictionary of strings which are the values</span>
+<span class="sd">          for additional XML attributes of this element.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">author</span> <span class="o">=</span> <span class="n">author</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="n">category</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="n">content</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">contributor</span> <span class="o">=</span> <span class="n">contributor</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">atom_id</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">link</span> <span class="o">=</span> <span class="n">link</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">published</span> <span class="o">=</span> <span class="n">published</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">rights</span> <span class="o">=</span> <span class="n">rights</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">source</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">summary</span> <span class="o">=</span> <span class="n">summary</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">updated</span> <span class="o">=</span> <span class="n">updated</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">control</span> <span class="o">=</span> <span class="n">control</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+
+  <span class="n">__init__</span> <span class="o">=</span> <span class="n">v1_deprecated</span><span class="p">(</span><span class="s">&#39;Please use atom.data.Entry instead.&#39;</span><span class="p">)(</span><span class="n">__init__</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="EntryFromString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.EntryFromString">[docs]</a><span class="k">def</span> <span class="nf">EntryFromString</span><span class="p">(</span><span class="n">xml_string</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">CreateClassFromXMLString</span><span class="p">(</span><span class="n">Entry</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Feed"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.Feed">[docs]</a><span class="k">class</span> <span class="nc">Feed</span><span class="p">(</span><span class="n">Source</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The atom:feed element&quot;&quot;&quot;</span>
+
+  <span class="n">_tag</span> <span class="o">=</span> <span class="s">&#39;feed&#39;</span>
+  <span class="n">_namespace</span> <span class="o">=</span> <span class="n">ATOM_NAMESPACE</span>
+  <span class="n">_children</span> <span class="o">=</span> <span class="n">Source</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_attributes</span> <span class="o">=</span> <span class="n">Source</span><span class="o">.</span><span class="n">_attributes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">_children</span><span class="p">[</span><span class="s">&#39;{</span><span class="si">%s</span><span class="s">}entry&#39;</span> <span class="o">%</span> <span class="n">ATOM_NAMESPACE</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;entry&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">Entry</span><span class="p">])</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">author</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">contributor</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">generator</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">atom_id</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">logo</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">rights</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">subtitle</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">updated</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">entry</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_elements</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extension_attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for Source</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      author: list (optional) A list of Author instances which belong to this</span>
+<span class="sd">          class.</span>
+<span class="sd">      category: list (optional) A list of Category instances</span>
+<span class="sd">      contributor: list (optional) A list on Contributor instances</span>
+<span class="sd">      generator: Generator (optional)</span>
+<span class="sd">      icon: Icon (optional)</span>
+<span class="sd">      id: Id (optional) The entry&#39;s Id element</span>
+<span class="sd">      link: list (optional) A list of Link instances</span>
+<span class="sd">      logo: Logo (optional)</span>
+<span class="sd">      rights: Rights (optional) The entry&#39;s Rights element</span>
+<span class="sd">      subtitle: Subtitle (optional) The entry&#39;s subtitle element</span>
+<span class="sd">      title: Title (optional) the entry&#39;s title element</span>
+<span class="sd">      updated: Updated (optional) the entry&#39;s updated element</span>
+<span class="sd">      entry: list (optional) A list of the Entry instances contained in the</span>
+<span class="sd">          feed.</span>
+<span class="sd">      text: String (optional) The text contents of the element. This is the</span>
+<span class="sd">          contents of the Entry&#39;s XML text node.</span>
+<span class="sd">          (Example: &lt;foo&gt;This is the text&lt;/foo&gt;)</span>
+<span class="sd">      extension_elements: list (optional) A list of ExtensionElement instances</span>
+<span class="sd">          which are children of this element.</span>
+<span class="sd">      extension_attributes: dict (optional) A dictionary of strings which are</span>
+<span class="sd">          the values for additional XML attributes of this element.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">author</span> <span class="o">=</span> <span class="n">author</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="n">category</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">contributor</span> <span class="o">=</span> <span class="n">contributor</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">generator</span> <span class="o">=</span> <span class="n">generator</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">icon</span> <span class="o">=</span> <span class="n">icon</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">atom_id</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">link</span> <span class="o">=</span> <span class="n">link</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">logo</span> <span class="o">=</span> <span class="n">logo</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">rights</span> <span class="o">=</span> <span class="n">rights</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">subtitle</span> <span class="o">=</span> <span class="n">subtitle</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">updated</span> <span class="o">=</span> <span class="n">updated</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">entry</span> <span class="o">=</span> <span class="n">entry</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_elements</span> <span class="o">=</span> <span class="n">extension_elements</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extension_attributes</span> <span class="o">=</span> <span class="n">extension_attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+
+  <span class="n">__init__</span> <span class="o">=</span> <span class="n">v1_deprecated</span><span class="p">(</span><span class="s">&#39;Please use atom.data.Feed instead.&#39;</span><span class="p">)(</span><span class="n">__init__</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="FeedFromString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.FeedFromString">[docs]</a><span class="k">def</span> <span class="nf">FeedFromString</span><span class="p">(</span><span class="n">xml_string</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">CreateClassFromXMLString</span><span class="p">(</span><span class="n">Feed</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="ExtensionElement"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.ExtensionElement">[docs]</a><span class="k">class</span> <span class="nc">ExtensionElement</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Represents extra XML elements contained in Atom classes.&quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+      <span class="n">children</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for EtensionElement</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      namespace: string (optional) The XML namespace for this element.</span>
+<span class="sd">      tag: string (optional) The tag (without the namespace qualifier) for</span>
+<span class="sd">          this element. To reconstruct the full qualified name of the element,</span>
+<span class="sd">          combine this tag with the namespace.</span>
+<span class="sd">      attributes: dict (optinal) The attribute value string pairs for the XML</span>
+<span class="sd">          attributes of this element.</span>
+<span class="sd">      children: list (optional) A list of ExtensionElements which represent</span>
+<span class="sd">          the XML child nodes of this element.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">namespace</span> <span class="o">=</span> <span class="n">namespace</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="n">tag</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span> <span class="o">=</span> <span class="n">attributes</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="n">children</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+
+<div class="viewcode-block" id="ExtensionElement.ToString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.ExtensionElement.ToString">[docs]</a>  <span class="k">def</span> <span class="nf">ToString</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">element_tree</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_TransferToElementTree</span><span class="p">(</span><span class="n">ElementTree</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">ElementTree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">element_tree</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&quot;UTF-8&quot;</span><span class="p">)</span>
+</div>
+  <span class="k">def</span> <span class="nf">_TransferToElementTree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element_tree</span><span class="p">):</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">None</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">namespace</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">element_tree</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="s">&#39;{</span><span class="si">%s</span><span class="s">}</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">element_tree</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span>
+
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+      <span class="n">element_tree</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+      <span class="n">child</span><span class="o">.</span><span class="n">_BecomeChildElement</span><span class="p">(</span><span class="n">element_tree</span><span class="p">)</span>
+
+    <span class="n">element_tree</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span>
+
+    <span class="k">return</span> <span class="n">element_tree</span>
+
+  <span class="k">def</span> <span class="nf">_BecomeChildElement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element_tree</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Converts this object into an etree element and adds it as a child node.</span>
+
+<span class="sd">    Adds self to the ElementTree. This method is required to avoid verbose XML</span>
+<span class="sd">    which constantly redefines the namespace.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      element_tree: ElementTree._Element The element to which this object&#39;s XML</span>
+<span class="sd">          will be added.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">new_element</span> <span class="o">=</span> <span class="n">ElementTree</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">element_tree</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_element</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_TransferToElementTree</span><span class="p">(</span><span class="n">new_element</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ExtensionElement.FindChildren"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.ExtensionElement.FindChildren">[docs]</a>  <span class="k">def</span> <span class="nf">FindChildren</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Searches child nodes for objects with the desired tag/namespace.</span>
+
+<span class="sd">    Returns a list of extension elements within this object whose tag</span>
+<span class="sd">    and/or namespace match those passed in. To find all children in</span>
+<span class="sd">    a particular namespace, specify the namespace but not the tag name.</span>
+<span class="sd">    If you specify only the tag, the result list may contain extension</span>
+<span class="sd">    elements in multiple namespaces.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      tag: str (optional) The desired tag</span>
+<span class="sd">      namespace: str (optional) The desired namespace</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A list of elements whose tag and/or namespace match the parameters</span>
+<span class="sd">      values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">tag</span> <span class="ow">and</span> <span class="n">namespace</span><span class="p">:</span>
+      <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="n">tag</span> <span class="ow">and</span> <span class="n">element</span><span class="o">.</span><span class="n">namespace</span> <span class="o">==</span> <span class="n">namespace</span><span class="p">:</span>
+          <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">tag</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">namespace</span><span class="p">:</span>
+      <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="n">tag</span><span class="p">:</span>
+          <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">namespace</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">tag</span><span class="p">:</span>
+      <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">namespace</span> <span class="o">==</span> <span class="n">namespace</span><span class="p">:</span>
+          <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">results</span>
+
+</div></div>
+<div class="viewcode-block" id="ExtensionElementFromString"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.ExtensionElementFromString">[docs]</a><span class="k">def</span> <span class="nf">ExtensionElementFromString</span><span class="p">(</span><span class="n">xml_string</span><span class="p">):</span>
+  <span class="n">element_tree</span> <span class="o">=</span> <span class="n">ElementTree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">xml_string</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">_ExtensionElementFromElementTree</span><span class="p">(</span><span class="n">element_tree</span><span class="p">)</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_ExtensionElementFromElementTree</span><span class="p">(</span><span class="n">element_tree</span><span class="p">):</span>
+  <span class="n">element_tag</span> <span class="o">=</span> <span class="n">element_tree</span><span class="o">.</span><span class="n">tag</span>
+  <span class="k">if</span> <span class="s">&#39;}&#39;</span> <span class="ow">in</span> <span class="n">element_tag</span><span class="p">:</span>
+    <span class="n">namespace</span> <span class="o">=</span> <span class="n">element_tag</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">element_tag</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s">&#39;}&#39;</span><span class="p">)]</span>
+    <span class="n">tag</span> <span class="o">=</span> <span class="n">element_tag</span><span class="p">[</span><span class="n">element_tag</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s">&#39;}&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">namespace</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">tag</span> <span class="o">=</span> <span class="n">element_tag</span>
+  <span class="n">extension</span> <span class="o">=</span> <span class="n">ExtensionElement</span><span class="p">(</span><span class="n">namespace</span><span class="o">=</span><span class="n">namespace</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="n">tag</span><span class="p">)</span>
+  <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">element_tree</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+    <span class="n">extension</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+  <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">element_tree</span><span class="p">:</span>
+    <span class="n">extension</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_ExtensionElementFromElementTree</span><span class="p">(</span><span class="n">child</span><span class="p">))</span>
+  <span class="n">extension</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">element_tree</span><span class="o">.</span><span class="n">text</span>
+  <span class="k">return</span> <span class="n">extension</span>
+
+
+<div class="viewcode-block" id="deprecated"><a class="viewcode-back" href="../../lib.atom.html#lib.atom.deprecated">[docs]</a><span class="k">def</span> <span class="nf">deprecated</span><span class="p">(</span><span class="n">warning</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Decorator to raise warning each time the function is called.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    warning: The warning message to be displayed as a string (optinoal).</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">warning</span> <span class="o">=</span> <span class="n">warning</span> <span class="ow">or</span> <span class="s">&#39;&#39;</span>
+  <span class="c"># This closure is what is returned from the deprecated function.</span>
+  <span class="k">def</span> <span class="nf">mark_deprecated</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    <span class="c"># The deprecated_function wraps the actual call to f.</span>
+    <span class="k">def</span> <span class="nf">deprecated_function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+      <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">warning</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="c"># Preserve the original name to avoid masking all decorated functions as</span>
+    <span class="c"># &#39;deprecated_function&#39;</span>
+    <span class="k">try</span><span class="p">:</span>
+      <span class="n">deprecated_function</span><span class="o">.</span><span class="n">func_name</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">func_name</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+      <span class="c"># Setting the func_name is not allowed in Python2.3.</span>
+      <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">deprecated_function</span>
+  <span class="k">return</span> <span class="n">mark_deprecated</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

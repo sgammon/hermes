@@ -1,0 +1,1476 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>adapter Package &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="index.html" />
+    <link rel="up" title="model Package" href="lib.apptools.model.html" />
+    <link rel="next" title="pipelines Package" href="lib.apptools.pipelines.html" />
+    <link rel="prev" title="model Package" href="lib.apptools.model.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lib.apptools.pipelines.html" title="pipelines Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="lib.apptools.model.html" title="model Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
+          <li><a href="lib.html" >lib Package</a> &raquo;</li>
+          <li><a href="lib.apptools.html" >apptools Package</a> &raquo;</li>
+          <li><a href="lib.apptools.model.html" accesskey="U">model Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="adapter-package">
+<h1>adapter Package<a class="headerlink" href="#adapter-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">adapter</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-lib.apptools.model.adapter"></span><p>Contains modules that adapt apptools models to various storage backends.</p>
+</div>
+<div class="section" id="module-lib.apptools.model.adapter.abstract">
+<span id="abstract-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">abstract</span></tt> Module<a class="headerlink" href="#module-lib.apptools.model.adapter.abstract" title="Permalink to this headline">¶</a></h2>
+<p>specifies interface classes that plug-in
+to models to allow agnostic storage.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 momentum labs.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - Ampush has been granted an
+unlimited, exclusive license for embedded use. For details
+about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="module-lib.apptools.model.adapter.core">
+<span id="core-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">core</span></tt> Module<a class="headerlink" href="#module-lib.apptools.model.adapter.core" title="Permalink to this headline">¶</a></h2>
+<p>specifies mixins and adapters that are part
+of the core model adapter distribution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 momentum labs.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - Ampush has been granted an
+unlimited, exclusive license for embedded use. For details
+about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="module-lib.apptools.model.adapter.inmemory">
+<span id="inmemory-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">inmemory</span></tt> Module<a class="headerlink" href="#module-lib.apptools.model.adapter.inmemory" title="Permalink to this headline">¶</a></h2>
+<p>allows apptools models to be stored in
+main RAM, as a testing tool.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 momentum labs.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - Ampush has been granted an
+unlimited, exclusive license for embedded use. For details
+about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="lib.apptools.model.adapter.inmemory.InMemoryAdapter">
+<em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.inmemory.</tt><tt class="descname">InMemoryAdapter</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/inmemory.html#InMemoryAdapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.inmemory.InMemoryAdapter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.IndexedModelAdapter</span></tt></p>
+<p>Adapt model classes to RAM.</p>
+<dl class="classmethod">
+<dt id="lib.apptools.model.adapter.inmemory.InMemoryAdapter.acquire">
+<em class="property">classmethod </em><tt class="descname">acquire</tt><big>(</big><em>name</em>, <em>bases</em>, <em>properties</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/inmemory.html#InMemoryAdapter.acquire"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.inmemory.InMemoryAdapter.acquire" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform first initialization.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="lib.apptools.model.adapter.inmemory.InMemoryAdapter.allocate_ids">
+<em class="property">classmethod </em><tt class="descname">allocate_ids</tt><big>(</big><em>key_class</em>, <em>kind</em>, <em>count=1</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/inmemory.html#InMemoryAdapter.allocate_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.inmemory.InMemoryAdapter.allocate_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allocate new Key IDs up to <cite>count</cite>.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="lib.apptools.model.adapter.inmemory.InMemoryAdapter.clean_indexes">
+<em class="property">classmethod </em><tt class="descname">clean_indexes</tt><big>(</big><em>writes</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/inmemory.html#InMemoryAdapter.clean_indexes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.inmemory.InMemoryAdapter.clean_indexes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clean indexes for a key.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="lib.apptools.model.adapter.inmemory.InMemoryAdapter.delete">
+<em class="property">classmethod </em><tt class="descname">delete</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/inmemory.html#InMemoryAdapter.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.inmemory.InMemoryAdapter.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete an entity by Key from memory.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="lib.apptools.model.adapter.inmemory.InMemoryAdapter.execute_query">
+<em class="property">classmethod </em><tt class="descname">execute_query</tt><big>(</big><em>spec</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/inmemory.html#InMemoryAdapter.execute_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.inmemory.InMemoryAdapter.execute_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute a query across one (or multiple) indexed properties.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="lib.apptools.model.adapter.inmemory.InMemoryAdapter.get">
+<em class="property">classmethod </em><tt class="descname">get</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/inmemory.html#InMemoryAdapter.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.inmemory.InMemoryAdapter.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve an entity by Key from Python RAM.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="lib.apptools.model.adapter.inmemory.InMemoryAdapter.is_supported">
+<em class="property">classmethod </em><tt class="descname">is_supported</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/inmemory.html#InMemoryAdapter.is_supported"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.inmemory.InMemoryAdapter.is_supported" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether this adapter is supported in the current environment.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="lib.apptools.model.adapter.inmemory.InMemoryAdapter.put">
+<em class="property">classmethod </em><tt class="descname">put</tt><big>(</big><em>key</em>, <em>entity</em>, <em>model</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/inmemory.html#InMemoryAdapter.put"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.inmemory.InMemoryAdapter.put" title="Permalink to this definition">¶</a></dt>
+<dd><p>Persist an entity to storage in Python RAM.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="lib.apptools.model.adapter.inmemory.InMemoryAdapter.write_indexes">
+<em class="property">classmethod </em><tt class="descname">write_indexes</tt><big>(</big><em>writes</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/inmemory.html#InMemoryAdapter.write_indexes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.inmemory.InMemoryAdapter.write_indexes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a set of generated indexes via <cite>generate_indexes</cite>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.apptools.model.adapter.memcache">
+<span id="memcache-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">memcache</span></tt> Module<a class="headerlink" href="#module-lib.apptools.model.adapter.memcache" title="Permalink to this headline">¶</a></h2>
+<p>allows apptools models to be stored and
+retrieved using memcache.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 momentum labs.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - Ampush has been granted an
+unlimited, exclusive license for embedded use. For details
+about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="lib.apptools.model.adapter.memcache.MemcacheAdapter">
+<em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.memcache.</tt><tt class="descname">MemcacheAdapter</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/memcache.html#MemcacheAdapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.memcache.MemcacheAdapter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.ModelAdapter</span></tt></p>
+<p>Adapt model classes to Memcache.</p>
+<dl class="classmethod">
+<dt id="lib.apptools.model.adapter.memcache.MemcacheAdapter.is_supported">
+<em class="property">classmethod </em><tt class="descname">is_supported</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/memcache.html#MemcacheAdapter.is_supported"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.memcache.MemcacheAdapter.is_supported" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether this adapter is supported in the current environment.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.apptools.model.adapter.mongo">
+<span id="mongo-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">mongo</span></tt> Module<a class="headerlink" href="#module-lib.apptools.model.adapter.mongo" title="Permalink to this headline">¶</a></h2>
+<p>allows apptools models to be stored and
+retrieved using mongoDB.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 momentum labs.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - Ampush has been granted an
+unlimited, exclusive license for embedded use. For details
+about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="lib.apptools.model.adapter.mongo.MongoAdapter">
+<em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.mongo.</tt><tt class="descname">MongoAdapter</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/mongo.html#MongoAdapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.mongo.MongoAdapter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.ModelAdapter</span></tt></p>
+<p>Adapt model classes to MongoDB.</p>
+<dl class="classmethod">
+<dt id="lib.apptools.model.adapter.mongo.MongoAdapter.is_supported">
+<em class="property">classmethod </em><tt class="descname">is_supported</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/mongo.html#MongoAdapter.is_supported"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.mongo.MongoAdapter.is_supported" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether this adapter is supported in the current environment.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.apptools.model.adapter.pipeline">
+<span id="pipeline-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">pipeline</span></tt> Module<a class="headerlink" href="#module-lib.apptools.model.adapter.pipeline" title="Permalink to this headline">¶</a></h2>
+<p>allows apptools models to be seamlessly
+passed back-and-forth between pipelines.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 momentum labs.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - Ampush has been granted an
+unlimited, exclusive license for embedded use. For details
+about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="module-lib.apptools.model.adapter.protorpc">
+<span id="protorpc-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">protorpc</span></tt> Module<a class="headerlink" href="#module-lib.apptools.model.adapter.protorpc" title="Permalink to this headline">¶</a></h2>
+<p>allows apptools models to be inflated
+from and expressed as protorpc messages.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 momentum labs.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - Ampush has been granted an
+unlimited, exclusive license for embedded use. For details
+about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="lib.apptools.model.adapter.protorpc.ProtoRPCKey">
+<em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.protorpc.</tt><tt class="descname">ProtoRPCKey</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/protorpc.html#ProtoRPCKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.protorpc.ProtoRPCKey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.KeyMixin</span></tt></p>
+<p>Adapt <cite>Key</cite> classes to ProtoRPC messages.</p>
+<dl class="method">
+<dt id="lib.apptools.model.adapter.protorpc.ProtoRPCKey.to_message">
+<tt class="descname">to_message</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/protorpc.html#ProtoRPCKey.to_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.protorpc.ProtoRPCKey.to_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a <cite>Key</cite> instance to a ProtoRPC <cite>Message</cite> instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Constructed <tt class="xref py py-class docutils literal"><span class="pre">protorpc.Key</span></tt> message object.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.model.adapter.protorpc.ProtoRPCModel">
+<em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.protorpc.</tt><tt class="descname">ProtoRPCModel</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/protorpc.html#ProtoRPCModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.protorpc.ProtoRPCModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.ModelMixin</span></tt></p>
+<p>Adapt Model classes to ProtoRPC messages.</p>
+<dl class="method">
+<dt id="lib.apptools.model.adapter.protorpc.ProtoRPCModel.to_message">
+<tt class="descname">to_message</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/protorpc.html#ProtoRPCModel.to_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.protorpc.ProtoRPCModel.to_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a <cite>Model</cite> instance to a ProtoRPC <cite>Message</cite> class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>args</strong> &#8211; Positional arguments to pass to <tt class="xref py py-meth docutils literal"><span class="pre">Model.to_dict()</span></tt>.</li>
+<li><strong>kwargs</strong> &#8211; Keyword arguments to pass to <tt class="xref py py-meth docutils literal"><span class="pre">Model.to_dict()</span></tt>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Constructed and initialized <tt class="xref py py-class docutils literal"><span class="pre">protorpc.Message</span></tt> object.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="lib.apptools.model.adapter.protorpc.ProtoRPCModel.to_message_model">
+<em class="property">classmethod </em><tt class="descname">to_message_model</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/protorpc.html#ProtoRPCModel.to_message_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.protorpc.ProtoRPCModel.to_message_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a <cite>Model</cite> class to a ProtoRPC <cite>Message</cite> class. Delegates
+to <a class="reference internal" href="#lib.apptools.model.adapter.protorpc.build_message" title="lib.apptools.model.adapter.protorpc.build_message"><tt class="xref py py-func docutils literal"><span class="pre">build_message()</span></tt></a>, see docs there for exceptions raised
+(<tt class="xref py py-exc docutils literal"><span class="pre">TypeError</span></tt> and <tt class="xref py py-exc docutils literal"><span class="pre">ValueError</span></tt>).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Constructed (but not initialized) dynamically-build
+<tt class="xref py py-class docutils literal"><span class="pre">message.Message</span></tt> class corresponding to
+the current model (<tt class="docutils literal"><span class="pre">cls</span></tt>).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.apptools.model.adapter.protorpc.build_message">
+<tt class="descclassname">lib.apptools.model.adapter.protorpc.</tt><tt class="descname">build_message</tt><big>(</big><em>_model</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/protorpc.html#build_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.protorpc.build_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursively builds a new <cite>Message</cite> class dynamically from an apptools
+<tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt>. Properties are converted to their <tt class="xref py py-mod docutils literal"><span class="pre">protorpc</span></tt>
+equivalents and factoried into a full <tt class="xref py py-class docutils literal"><span class="pre">messages.Message</span></tt> class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>_model</strong> &#8211; Model class to convert to a <tt class="xref py py-class docutils literal"><span class="pre">protorpc.messages.Message</span></tt>.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first simple">
+<li><strong>TypeError</strong> &#8211; In the case of an unidentified or unknown property basetype.</li>
+<li><strong>ValueError</strong> &#8211; In the case of a missing implementation field or serialization error.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Constructed (but not instantiated) <tt class="xref py py-class docutils literal"><span class="pre">protorpc.messages.Message</span></tt> class.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.apptools.model.adapter.redis">
+<span id="redis-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">redis</span></tt> Module<a class="headerlink" href="#module-lib.apptools.model.adapter.redis" title="Permalink to this headline">¶</a></h2>
+<p>allows apptools models to be efficiently
+stored in and retrieved from redis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 momentum labs.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - Ampush has been granted an
+unlimited, exclusive license for embedded use. For details
+about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter">
+<em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.redis.</tt><tt class="descname">RedisAdapter</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.ModelAdapter</span></tt></p>
+<p>Adapt model classes to Redis.</p>
+<dl class="class">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.EngineConfig">
+<em class="property">class </em><tt class="descname">EngineConfig</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.EngineConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.EngineConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Configuration for the <cite>RedisAdapter</cite> engine.</p>
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.EngineConfig.compression">
+<tt class="descname">compression</tt><em class="property"> = False</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.EngineConfig.compression" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.EngineConfig.encoding">
+<tt class="descname">encoding</tt><em class="property"> = True</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.EngineConfig.encoding" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.EngineConfig.mode">
+<tt class="descname">mode</tt><em class="property"> = 'toplevel'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.EngineConfig.mode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations">
+<em class="property">class </em><tt class="descclassname">RedisAdapter.</tt><tt class="descname">Operations</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.Operations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Available datastore operations.</p>
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.APPEND">
+<tt class="descname">APPEND</tt><em class="property"> = 'APPEND'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.APPEND" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.AUTHENTICATE">
+<tt class="descname">AUTHENTICATE</tt><em class="property"> = 'AUTH'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.AUTHENTICATE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.BACKGROUND_REWRITE">
+<tt class="descname">BACKGROUND_REWRITE</tt><em class="property"> = 'BGREWRITEAOF'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.BACKGROUND_REWRITE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.BACKGROUND_SAVE">
+<tt class="descname">BACKGROUND_SAVE</tt><em class="property"> = 'BGSAVE'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.BACKGROUND_SAVE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.BLOCK_LEFT_POP">
+<tt class="descname">BLOCK_LEFT_POP</tt><em class="property"> = 'BLPOP'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.BLOCK_LEFT_POP" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.BLOCK_RIGHT_POP">
+<tt class="descname">BLOCK_RIGHT_POP</tt><em class="property"> = 'BRPOP'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.BLOCK_RIGHT_POP" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.CLIENT_GET_NAME">
+<tt class="descname">CLIENT_GET_NAME</tt><em class="property"> = ('CLIENT', 'GETNAME')</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.CLIENT_GET_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.CLIENT_KILL">
+<tt class="descname">CLIENT_KILL</tt><em class="property"> = ('CLIENT', 'KILL')</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.CLIENT_KILL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.CLIENT_LIST">
+<tt class="descname">CLIENT_LIST</tt><em class="property"> = ('CLIENT', 'LIST')</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.CLIENT_LIST" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.CLIENT_SET_NAME">
+<tt class="descname">CLIENT_SET_NAME</tt><em class="property"> = ('CLIENT', 'SETNAME')</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.CLIENT_SET_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.CONFIG_GET">
+<tt class="descname">CONFIG_GET</tt><em class="property"> = ('CONFIG', 'GET')</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.CONFIG_GET" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.CONFIG_RESET_STAT">
+<tt class="descname">CONFIG_RESET_STAT</tt><em class="property"> = ('CONFIG', 'RESETSTAT')</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.CONFIG_RESET_STAT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.CONFIG_SET">
+<tt class="descname">CONFIG_SET</tt><em class="property"> = ('CONFIG', 'SET')</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.CONFIG_SET" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.DB_SIZE">
+<tt class="descname">DB_SIZE</tt><em class="property"> = 'DBSIZE'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.DB_SIZE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.DEBUG">
+<tt class="descname">DEBUG</tt><em class="property"> = ('DEBUG', 'OBJECT')</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.DEBUG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.DECREMENT">
+<tt class="descname">DECREMENT</tt><em class="property"> = 'DECR'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.DECREMENT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.DECREMENT_BY">
+<tt class="descname">DECREMENT_BY</tt><em class="property"> = 'DECRBY'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.DECREMENT_BY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.DELETE">
+<tt class="descname">DELETE</tt><em class="property"> = 'DELETE'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.DELETE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.DISCARD">
+<tt class="descname">DISCARD</tt><em class="property"> = 'DISCARD'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.DISCARD" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.DUMP">
+<tt class="descname">DUMP</tt><em class="property"> = 'DUMP'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.DUMP" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.ECHO">
+<tt class="descname">ECHO</tt><em class="property"> = 'ECHO'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.ECHO" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.EVALUATE">
+<tt class="descname">EVALUATE</tt><em class="property"> = 'EVAL'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.EVALUATE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.EVALUATE_STORED">
+<tt class="descname">EVALUATE_STORED</tt><em class="property"> = 'EVALSHA'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.EVALUATE_STORED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.EXEC">
+<tt class="descname">EXEC</tt><em class="property"> = 'EXEC'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.EXEC" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.FLUSH_ALL">
+<tt class="descname">FLUSH_ALL</tt><em class="property"> = 'FLUSHALL'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.FLUSH_ALL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.FLUSH_DB">
+<tt class="descname">FLUSH_DB</tt><em class="property"> = 'FLUSHDB'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.FLUSH_DB" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.GET">
+<tt class="descname">GET</tt><em class="property"> = 'GET'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.GET" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.GETBIT">
+<tt class="descname">GETBIT</tt><em class="property"> = 'GETBIT'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.GETBIT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.GETRANGE">
+<tt class="descname">GETRANGE</tt><em class="property"> = 'GETRANGE'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.GETRANGE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.GETSET">
+<tt class="descname">GETSET</tt><em class="property"> = 'GETSET'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.GETSET" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.HASH_DELETE">
+<tt class="descname">HASH_DELETE</tt><em class="property"> = 'HDEL'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.HASH_DELETE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.HASH_EXISTS">
+<tt class="descname">HASH_EXISTS</tt><em class="property"> = 'HEXISTS'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.HASH_EXISTS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.HASH_GET">
+<tt class="descname">HASH_GET</tt><em class="property"> = 'HGET'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.HASH_GET" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.HASH_GET_ALL">
+<tt class="descname">HASH_GET_ALL</tt><em class="property"> = 'HGETALL'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.HASH_GET_ALL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.HASH_INCREMENT">
+<tt class="descname">HASH_INCREMENT</tt><em class="property"> = 'HINCRBY'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.HASH_INCREMENT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.HASH_INCREMENT_FLOAT">
+<tt class="descname">HASH_INCREMENT_FLOAT</tt><em class="property"> = 'HINCRBYFLOAT'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.HASH_INCREMENT_FLOAT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.HASH_KEYS">
+<tt class="descname">HASH_KEYS</tt><em class="property"> = 'HKEYS'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.HASH_KEYS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.HASH_LENGTH">
+<tt class="descname">HASH_LENGTH</tt><em class="property"> = 'HLEN'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.HASH_LENGTH" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.HASH_MULTI_GET">
+<tt class="descname">HASH_MULTI_GET</tt><em class="property"> = 'HMGET'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.HASH_MULTI_GET" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.HASH_MULTI_SET">
+<tt class="descname">HASH_MULTI_SET</tt><em class="property"> = 'HMSET'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.HASH_MULTI_SET" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.HASH_SET">
+<tt class="descname">HASH_SET</tt><em class="property"> = 'HSET'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.HASH_SET" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.HASH_SET_SAFE">
+<tt class="descname">HASH_SET_SAFE</tt><em class="property"> = 'HSETNX'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.HASH_SET_SAFE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.HASH_VALUES">
+<tt class="descname">HASH_VALUES</tt><em class="property"> = 'HVALS'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.HASH_VALUES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.INCREMENT">
+<tt class="descname">INCREMENT</tt><em class="property"> = 'INCR'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.INCREMENT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.INCREMENT_BY">
+<tt class="descname">INCREMENT_BY</tt><em class="property"> = 'INCRBY'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.INCREMENT_BY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.INCREMENT_BY_FLOAT">
+<tt class="descname">INCREMENT_BY_FLOAT</tt><em class="property"> = 'INCRBYFLOAT'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.INCREMENT_BY_FLOAT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.INFO">
+<tt class="descname">INFO</tt><em class="property"> = 'INFO'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.INFO" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.KEYS">
+<tt class="descname">KEYS</tt><em class="property"> = 'KEYS'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.KEYS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.LAST_SAVE">
+<tt class="descname">LAST_SAVE</tt><em class="property"> = 'LASTSAVE'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.LAST_SAVE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.LEFT_POP">
+<tt class="descname">LEFT_POP</tt><em class="property"> = 'LPOP'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.LEFT_POP" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.LEFT_PUSH">
+<tt class="descname">LEFT_PUSH</tt><em class="property"> = 'LPUSH'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.LEFT_PUSH" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.LEFT_PUSH_X">
+<tt class="descname">LEFT_PUSH_X</tt><em class="property"> = 'LPUSHX'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.LEFT_PUSH_X" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.LIST_INDEX">
+<tt class="descname">LIST_INDEX</tt><em class="property"> = 'LINDEX'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.LIST_INDEX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.LIST_LENGTH">
+<tt class="descname">LIST_LENGTH</tt><em class="property"> = 'LLEN'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.LIST_LENGTH" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.LIST_RANGE">
+<tt class="descname">LIST_RANGE</tt><em class="property"> = 'LRANGE'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.LIST_RANGE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.LIST_REMOVE">
+<tt class="descname">LIST_REMOVE</tt><em class="property"> = 'LREM'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.LIST_REMOVE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.LIST_SET">
+<tt class="descname">LIST_SET</tt><em class="property"> = 'LSET'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.LIST_SET" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.LIST_TRIM">
+<tt class="descname">LIST_TRIM</tt><em class="property"> = 'LTRIM'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.LIST_TRIM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.MONITOR">
+<tt class="descname">MONITOR</tt><em class="property"> = 'MONITOR'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.MONITOR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.MULTI">
+<tt class="descname">MULTI</tt><em class="property"> = 'MULTI'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.MULTI" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.PATTERN_SUBSCRIBE">
+<tt class="descname">PATTERN_SUBSCRIBE</tt><em class="property"> = 'PSUBSCRIBE'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.PATTERN_SUBSCRIBE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.PATTERN_UNSUBSCRIBE">
+<tt class="descname">PATTERN_UNSUBSCRIBE</tt><em class="property"> = 'PUNSUBSCRIBE'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.PATTERN_UNSUBSCRIBE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.PING">
+<tt class="descname">PING</tt><em class="property"> = 'PING'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.PING" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.PUBLISH">
+<tt class="descname">PUBLISH</tt><em class="property"> = 'PUBLISH'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.PUBLISH" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.QUIT">
+<tt class="descname">QUIT</tt><em class="property"> = 'QUIT'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.QUIT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.RIGHT_POP">
+<tt class="descname">RIGHT_POP</tt><em class="property"> = 'RPOP'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.RIGHT_POP" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.RIGHT_PUSH">
+<tt class="descname">RIGHT_PUSH</tt><em class="property"> = 'RPUSH'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.RIGHT_PUSH" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.RIGHT_PUSH_X">
+<tt class="descname">RIGHT_PUSH_X</tt><em class="property"> = 'RPUSHX'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.RIGHT_PUSH_X" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SAVE">
+<tt class="descname">SAVE</tt><em class="property"> = 'SAVE'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SAVE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SCRIPT_EXISTS">
+<tt class="descname">SCRIPT_EXISTS</tt><em class="property"> = ('SCRIPT', 'EXISTS')</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SCRIPT_EXISTS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SCRIPT_FLUSH">
+<tt class="descname">SCRIPT_FLUSH</tt><em class="property"> = ('SCRIPT', 'FLUSH')</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SCRIPT_FLUSH" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SCRIPT_KILL">
+<tt class="descname">SCRIPT_KILL</tt><em class="property"> = ('SCRIPT', 'KILL')</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SCRIPT_KILL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SCRIPT_LOAD">
+<tt class="descname">SCRIPT_LOAD</tt><em class="property"> = ('SCRIPT', 'LOAD')</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SCRIPT_LOAD" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SELECT">
+<tt class="descname">SELECT</tt><em class="property"> = 'SELECT'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SELECT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET">
+<tt class="descname">SET</tt><em class="property"> = 'SET'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_ADD">
+<tt class="descname">SET_ADD</tt><em class="property"> = 'SADD'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_ADD" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_CARDINALITY">
+<tt class="descname">SET_CARDINALITY</tt><em class="property"> = 'SCARD'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_CARDINALITY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_DIFF">
+<tt class="descname">SET_DIFF</tt><em class="property"> = 'SDIFF'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_DIFF" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_DIFF_STORE">
+<tt class="descname">SET_DIFF_STORE</tt><em class="property"> = 'SDIFFSTORE'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_DIFF_STORE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_INTERSECT">
+<tt class="descname">SET_INTERSECT</tt><em class="property"> = 'SINTER'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_INTERSECT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_INTERSECT_STORE">
+<tt class="descname">SET_INTERSECT_STORE</tt><em class="property"> = 'SINTERSTORE'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_INTERSECT_STORE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_IS_MEMBER">
+<tt class="descname">SET_IS_MEMBER</tt><em class="property"> = 'SISMEMBER'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_IS_MEMBER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_MEMBERS">
+<tt class="descname">SET_MEMBERS</tt><em class="property"> = 'SMEMBERS'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_MEMBERS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_MOVE">
+<tt class="descname">SET_MOVE</tt><em class="property"> = 'SMOVE'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_MOVE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_POP">
+<tt class="descname">SET_POP</tt><em class="property"> = 'SPOP'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_POP" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_RANDOM_MEMBER">
+<tt class="descname">SET_RANDOM_MEMBER</tt><em class="property"> = 'SRANDMEMBER'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_RANDOM_MEMBER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_REMOVE">
+<tt class="descname">SET_REMOVE</tt><em class="property"> = 'SREM'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_REMOVE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_UNION">
+<tt class="descname">SET_UNION</tt><em class="property"> = 'SUNION'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_UNION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_UNION_STORE">
+<tt class="descname">SET_UNION_STORE</tt><em class="property"> = 'SUNIONSTORE'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SET_UNION_STORE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SHUTDOWN">
+<tt class="descname">SHUTDOWN</tt><em class="property"> = 'SHUTDOWN'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SHUTDOWN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SLAVE_OF">
+<tt class="descname">SLAVE_OF</tt><em class="property"> = 'SLAVEOF'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SLAVE_OF" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SLOWLOG">
+<tt class="descname">SLOWLOG</tt><em class="property"> = 'SLOWLOG'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SLOWLOG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_ADD">
+<tt class="descname">SORTED_ADD</tt><em class="property"> = 'ZADD'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_ADD" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_CARDINALITY">
+<tt class="descname">SORTED_CARDINALITY</tt><em class="property"> = 'ZCARD'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_CARDINALITY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_COUNT">
+<tt class="descname">SORTED_COUNT</tt><em class="property"> = 'ZCOUNT'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_COUNT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_INCREMENT_BY">
+<tt class="descname">SORTED_INCREMENT_BY</tt><em class="property"> = 'ZINCRBY'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_INCREMENT_BY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_INDEX_BY_SCORE">
+<tt class="descname">SORTED_INDEX_BY_SCORE</tt><em class="property"> = 'ZREVRANK'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_INDEX_BY_SCORE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_INTERSECT_STORE">
+<tt class="descname">SORTED_INTERSECT_STORE</tt><em class="property"> = 'ZINTERSTORE'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_INTERSECT_STORE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_MEMBERS_BY_INDEX">
+<tt class="descname">SORTED_MEMBERS_BY_INDEX</tt><em class="property"> = 'ZREVRANGE'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_MEMBERS_BY_INDEX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_MEMBERS_BY_SCORE">
+<tt class="descname">SORTED_MEMBERS_BY_SCORE</tt><em class="property"> = 'ZREVRANGEBYSCORE'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_MEMBERS_BY_SCORE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_RANGE">
+<tt class="descname">SORTED_RANGE</tt><em class="property"> = 'ZRANGE'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_RANGE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_RANGE_BY_SCORE">
+<tt class="descname">SORTED_RANGE_BY_SCORE</tt><em class="property"> = 'ZRANGEBYSCORE'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_RANGE_BY_SCORE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_RANK">
+<tt class="descname">SORTED_RANK</tt><em class="property"> = 'ZRANK'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_RANK" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_REMOVE">
+<tt class="descname">SORTED_REMOVE</tt><em class="property"> = 'ZREM'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_REMOVE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_REMOVE_RANGE_BY_RANK">
+<tt class="descname">SORTED_REMOVE_RANGE_BY_RANK</tt><em class="property"> = 'ZREMRANGEBYRANK'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_REMOVE_RANGE_BY_RANK" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_REMOVE_RANGE_BY_SCORE">
+<tt class="descname">SORTED_REMOVE_RANGE_BY_SCORE</tt><em class="property"> = 'ZREMRANGEBYSCORE'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_REMOVE_RANGE_BY_SCORE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_SCORE">
+<tt class="descname">SORTED_SCORE</tt><em class="property"> = 'ZSCORE'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_SCORE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_UNION_STORE">
+<tt class="descname">SORTED_UNION_STORE</tt><em class="property"> = 'ZUNIONSTORE'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SORTED_UNION_STORE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.STRING_LENGTH">
+<tt class="descname">STRING_LENGTH</tt><em class="property"> = 'STRLEN'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.STRING_LENGTH" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SUBSCRIBE">
+<tt class="descname">SUBSCRIBE</tt><em class="property"> = 'SUBSCRIBE'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SUBSCRIBE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.SYNC">
+<tt class="descname">SYNC</tt><em class="property"> = 'SYNC'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.SYNC" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.TIME">
+<tt class="descname">TIME</tt><em class="property"> = 'TIME'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.TIME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.UNSUBSCRIBE">
+<tt class="descname">UNSUBSCRIBE</tt><em class="property"> = 'UNSUBSCRIBE'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.UNSUBSCRIBE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.UNWATCH">
+<tt class="descname">UNWATCH</tt><em class="property"> = 'UNWATCH'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.UNWATCH" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.Operations.WATCH">
+<tt class="descname">WATCH</tt><em class="property"> = 'WATCH'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations.WATCH" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.acquire">
+<em class="property">classmethod </em><tt class="descclassname">RedisAdapter.</tt><tt class="descname">acquire</tt><big>(</big><em>name</em>, <em>bases</em>, <em>properties</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.acquire"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.acquire" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform first initialization. This method overrides a
+hook by the same name in <tt class="xref py py-class docutils literal"><span class="pre">model.adapter.ModelAdapter</span></tt>,
+and is invoked during <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt> class construction
+before the final call to <tt class="docutils literal"><span class="pre">type</span></tt>.</p>
+<p>Because this method is invoked <em>before</em> there is actually
+an existing <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt>, it must accept the same
+parameter signature as <tt class="docutils literal"><span class="pre">type</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> &#8211; Name of the <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt> to resolve
+an adapter for.</li>
+<li><strong>bases</strong> &#8211; Tupled base parents for the <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt>
+class-to-be.</li>
+<li><strong>properties</strong> &#8211; Map of defined <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt> data
+properties.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Raises ValueError:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body"><p class="first">In the case that <tt class="docutils literal"><span class="pre">config</span></tt> requests a <tt class="docutils literal"><span class="pre">Redis</span></tt>
+connection profile which is invalid or missing.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The acquired adapter, or <tt class="docutils literal"><span class="pre">None</span></tt> in the case of an empty
+set of server profiles.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.adapter">
+<tt class="descclassname">RedisAdapter.</tt><tt class="descname">adapter</tt><em class="property"> = &lt;module 'redis' from '/Library/Python/2.7/site-packages/redis/__init__.pyc'&gt;</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.adapter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.allocate_ids">
+<em class="property">classmethod </em><tt class="descclassname">RedisAdapter.</tt><tt class="descname">allocate_ids</tt><big>(</big><em>key_class</em>, <em>kind</em>, <em>count=1</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.allocate_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.allocate_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allocate new <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt> IDs up to <tt class="docutils literal"><span class="pre">count</span></tt>. Allocated
+IDs are guaranteed not to be provisioned or otherwise used by the
+underlying persistence engine, and thus can be used for uniquely
+identifying non-deterministic data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>key_class</strong> &#8211; Descendent of <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt>
+to allocate IDs for.</li>
+<li><strong>kind</strong> &#8211; String <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt> kind name.</li>
+<li><strong>count</strong> &#8211; The number of IDs to generate, which <strong>must</strong>
+be greater than 1. Defaults to <tt class="docutils literal"><span class="pre">1</span></tt>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Raises ValueError:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body"><p class="first">In the case the <tt class="docutils literal"><span class="pre">count</span></tt> is less than <tt class="docutils literal"><span class="pre">1</span></tt>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">If <strong>only one</strong> ID is requested, an <strong>integer ID</strong>
+suitable for use in a <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt> directly.
+If <strong>more than one</strong> ID is requested, a <strong>generator</strong>
+is returned, which <tt class="docutils literal"><span class="pre">yields</span></tt> a set of provisioned
+integer IDs, each suitable for use in a
+<tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt> directly.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.channel">
+<em class="property">classmethod </em><tt class="descclassname">RedisAdapter.</tt><tt class="descname">channel</tt><big>(</big><em>kind</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.channel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve a write channel to Redis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>kind</strong> &#8211; String <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt> kind to retrieve a channel for.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Acquired <tt class="docutils literal"><span class="pre">Redis</span></tt> client connection, potentially specific to the
+handed-in <tt class="docutils literal"><span class="pre">kind</span></tt>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.clean_indexes">
+<tt class="descclassname">RedisAdapter.</tt><tt class="descname">clean_indexes</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.clean_indexes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.clean_indexes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clean indexes and index entries matching a particular
+<tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt>, and generated via the adapter method
+<tt class="xref py py-meth docutils literal"><span class="pre">RedisAdapter.generate_indexes()</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> &#8211; Target <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt> to clean from <tt class="docutils literal"><span class="pre">Redis</span></tt> indexes.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises :</th><td class="field-body"><tt class="xref py py-exc docutils literal"><span class="pre">NotImplementedError</span></tt>, as this method is not yet implemented.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.connection_spec">
+<tt class="descclassname">RedisAdapter.</tt><tt class="descname">connection_spec</tt><em class="property"> = None</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.connection_spec" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.delete">
+<em class="property">classmethod </em><tt class="descclassname">RedisAdapter.</tt><tt class="descname">delete</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete an entity by Key from Redis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> &#8211; Target <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt>, whose associated
+<tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt> is being deleted.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The result of the low-level delete operation.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.encode_key">
+<em class="property">classmethod </em><tt class="descclassname">RedisAdapter.</tt><tt class="descname">encode_key</tt><big>(</big><em>joined</em>, <em>flattened</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.encode_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.encode_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encode a Key for storage in <tt class="docutils literal"><span class="pre">Redis</span></tt>. Since we don&#8217;t need to
+do anything fancy, just delegate this to the abstract (default)
+encoder, which is <tt class="docutils literal"><span class="pre">base64</span></tt>.</p>
+<p>If <tt class="xref py py-attr docutils literal"><span class="pre">RedisEngine.EngineConfig.encoding</span></tt> is disabled, this
+simply returns the <tt class="docutils literal"><span class="pre">joined</span></tt> <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt> (for reference,
+see <tt class="xref py py-meth docutils literal"><span class="pre">model.Key.flatten()</span></tt>).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>joined</strong> &#8211; String-joined <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt>.</li>
+<li><strong>flattened</strong> &#8211; Tupled (&#8220;raw format&#8221;) <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">In the case that <tt class="docutils literal"><span class="pre">encoding</span></tt> is <em>on</em>, the encoded string
+<tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt>, suitable for storage in <tt class="docutils literal"><span class="pre">Redis</span></tt>.
+Otherwise (<tt class="docutils literal"><span class="pre">encoding</span></tt> is <em>off</em>), the cleartext <tt class="docutils literal"><span class="pre">joined</span></tt>
+key.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.execute">
+<em class="property">classmethod </em><tt class="descclassname">RedisAdapter.</tt><tt class="descname">execute</tt><big>(</big><em>operation</em>, <em>kind</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Acquire a channel and execute an operation, optionally buffering the command.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>operation</strong> &#8211; Operation name to execute (from <a class="reference internal" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations" title="lib.apptools.model.adapter.redis.RedisAdapter.Operations"><tt class="xref py py-attr docutils literal"><span class="pre">RedisAdapter.Operations</span></tt></a>).</li>
+<li><strong>kind</strong> &#8211; String <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt> kind to acquire the channel for.</li>
+<li><strong>args</strong> &#8211; Positional arguments to pass to the low-level operation selected.</li>
+<li><strong>kwargs</strong> &#8211; Keyword arguments to pass to the low-level operation selected.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Result of the selected low-level operation.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.execute_query">
+<tt class="descclassname">RedisAdapter.</tt><tt class="descname">execute_query</tt><big>(</big><em>spec</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.execute_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.execute_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute a <tt class="xref py py-class docutils literal"><span class="pre">model.Query</span></tt> across one (or multiple)
+indexed properties.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>spec</strong> &#8211; Descendent of <tt class="xref py py-class docutils literal"><span class="pre">model.Query</span></tt> specifying the query to satisfy.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises :</th><td class="field-body"><tt class="xref py py-exc docutils literal"><span class="pre">NotImplementedError</span></tt>, as this method is not yet implemented.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.get">
+<em class="property">classmethod </em><tt class="descclassname">RedisAdapter.</tt><tt class="descname">get</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve an entity by Key from Redis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> &#8211; Target <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt> to retrieve from storage.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The deserialized and decompressed entity associated with
+the target <tt class="docutils literal"><span class="pre">key</span></tt>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.is_supported">
+<em class="property">classmethod </em><tt class="descclassname">RedisAdapter.</tt><tt class="descname">is_supported</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.is_supported"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.is_supported" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether this adapter is supported in the current environment.
+:returns: The imported <tt class="docutils literal"><span class="pre">Redis</span></tt> driver, or <tt class="docutils literal"><span class="pre">False</span></tt> if it could not be found.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.put">
+<em class="property">classmethod </em><tt class="descclassname">RedisAdapter.</tt><tt class="descname">put</tt><big>(</big><em>key</em>, <em>entity</em>, <em>model</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.put"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.put" title="Permalink to this definition">¶</a></dt>
+<dd><p>Persist an entity to storage in Redis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>key</strong> &#8211; New (and potentially empty) <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt> for
+<tt class="docutils literal"><span class="pre">entity</span></tt>. Must be assigned an <tt class="docutils literal"><span class="pre">ID</span></tt> by the driver
+through <a class="reference internal" href="#lib.apptools.model.adapter.redis.RedisAdapter.allocate_ids" title="lib.apptools.model.adapter.redis.RedisAdapter.allocate_ids"><tt class="xref py py-meth docutils literal"><span class="pre">RedisAdapter.allocate_ids()</span></tt></a> in the case
+of an empty (non-deterministic) <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt>.</li>
+<li><strong>entity</strong> &#8211; Object entity <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt> to persist in
+<tt class="docutils literal"><span class="pre">Redis</span></tt>.</li>
+<li><strong>model</strong> &#8211; Schema <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt> associated with the
+target <tt class="docutils literal"><span class="pre">entity</span></tt> being persisted.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Result of the lower-level write operation.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.serializer">
+<tt class="descclassname">RedisAdapter.</tt><tt class="descname">serializer</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.serializer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.serializer" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">JSONWrapper</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.apptools.model.adapter.redis.RedisAdapter.write_indexes">
+<tt class="descclassname">RedisAdapter.</tt><tt class="descname">write_indexes</tt><big>(</big><em>writes</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter.write_indexes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter.write_indexes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a batch of index updates generated earlier via
+<tt class="xref py py-meth docutils literal"><span class="pre">RedisAdapter.generate_indexes()</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>writes</strong> &#8211; Batch of writes to commit to <tt class="docutils literal"><span class="pre">Redis</span></tt>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises :</th><td class="field-body"><tt class="xref py py-exc docutils literal"><span class="pre">NotImplementedError</span></tt>, as this method is not yet implemented.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.apptools.model.adapter.redis.RedisMode">
+<em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.redis.</tt><tt class="descname">RedisMode</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisMode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Map of hard-coded modes of internal operation for the <cite>RedisAdapter</cite>.</p>
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisMode.hashkey_blob">
+<tt class="descname">hashkey_blob</tt><em class="property"> = 'hashblob'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisMode.hashkey_blob" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisMode.hashkey_hash">
+<tt class="descname">hashkey_hash</tt><em class="property"> = 'hashkey'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisMode.hashkey_hash" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisMode.hashkind_blob">
+<tt class="descname">hashkind_blob</tt><em class="property"> = 'hashkind'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisMode.hashkind_blob" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.apptools.model.adapter.redis.RedisMode.toplevel_blob">
+<tt class="descname">toplevel_blob</tt><em class="property"> = 'toplevel'</em><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisMode.toplevel_blob" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.apptools.model.adapter.sql">
+<span id="sql-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">sql</span></tt> Module<a class="headerlink" href="#module-lib.apptools.model.adapter.sql" title="Permalink to this headline">¶</a></h2>
+<p>allows apptools models to be used across
+SQL tables, with enhanced mySQL support.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 momentum labs.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - Ampush has been granted an
+unlimited, exclusive license for embedded use. For details
+about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="lib.apptools.model.adapter.sql.SQLAdapter">
+<em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.sql.</tt><tt class="descname">SQLAdapter</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/sql.html#SQLAdapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.sql.SQLAdapter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.ModelAdapter</span></tt></p>
+<p>Adapt model classes to SQL.</p>
+<dl class="classmethod">
+<dt id="lib.apptools.model.adapter.sql.SQLAdapter.is_supported">
+<em class="property">classmethod </em><tt class="descname">is_supported</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/sql.html#SQLAdapter.is_supported"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.sql.SQLAdapter.is_supported" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether this adapter is supported in the current environment.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">adapter Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">adapter</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.model.adapter.abstract"><tt class="docutils literal"><span class="pre">abstract</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.model.adapter.core"><tt class="docutils literal"><span class="pre">core</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.model.adapter.inmemory"><tt class="docutils literal"><span class="pre">inmemory</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.model.adapter.memcache"><tt class="docutils literal"><span class="pre">memcache</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.model.adapter.mongo"><tt class="docutils literal"><span class="pre">mongo</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.model.adapter.pipeline"><tt class="docutils literal"><span class="pre">pipeline</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.model.adapter.protorpc"><tt class="docutils literal"><span class="pre">protorpc</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.model.adapter.redis"><tt class="docutils literal"><span class="pre">redis</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.model.adapter.sql"><tt class="docutils literal"><span class="pre">sql</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="lib.apptools.model.html"
+                        title="previous chapter">model Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="lib.apptools.pipelines.html"
+                        title="next chapter">pipelines Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/lib.apptools.model.adapter.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lib.apptools.pipelines.html" title="pipelines Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="lib.apptools.model.html" title="model Package"
+             >previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
+          <li><a href="lib.html" >lib Package</a> &raquo;</li>
+          <li><a href="lib.apptools.html" >apptools Package</a> &raquo;</li>
+          <li><a href="lib.apptools.model.html" >model Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

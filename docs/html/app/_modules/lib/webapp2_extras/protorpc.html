@@ -1,0 +1,312 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.webapp2_extras.protorpc &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.webapp2_extras.protorpc</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    webapp2_extras.protorpc</span>
+<span class="sd">    =======================</span>
+
+<span class="sd">    Support for Google ProtoRPC library in webapp2.</span>
+
+<span class="sd">    Ported from protorpc.service_handlers.</span>
+
+<span class="sd">    See: http://code.google.com/p/google-protorpc/</span>
+
+<span class="sd">    .. warning::</span>
+<span class="sd">       This is an experimental package, as the ProtoRPC API is not stable yet.</span>
+
+<span class="sd">    :copyright: 2010 Google Inc.</span>
+<span class="sd">    :copyright: 2011 tipfy.org.</span>
+<span class="sd">    :license: Apache Sotware License, see LICENSE for details.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">protorpc</span> <span class="kn">import</span> <span class="n">registry</span>
+<span class="kn">from</span> <span class="nn">protorpc.webapp</span> <span class="kn">import</span> <span class="n">service_handlers</span>
+<span class="kn">from</span> <span class="nn">protorpc.webapp</span> <span class="kn">import</span> <span class="n">forms</span>
+
+<span class="kn">import</span> <span class="nn">webapp2</span>
+
+
+<div class="viewcode-block" id="ServiceHandler"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.protorpc.ServiceHandler">[docs]</a><span class="k">class</span> <span class="nc">ServiceHandler</span><span class="p">(</span><span class="n">service_handlers</span><span class="o">.</span><span class="n">ServiceHandler</span><span class="p">):</span>
+<div class="viewcode-block" id="ServiceHandler.dispatch"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.protorpc.ServiceHandler.dispatch">[docs]</a>    <span class="k">def</span> <span class="nf">dispatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factory</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+        <span class="c"># Unfortunately we need to access the protected attributes.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ServiceHandler__factory</span> <span class="o">=</span> <span class="n">factory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ServiceHandler__service</span> <span class="o">=</span> <span class="n">service</span>
+
+        <span class="n">request</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span>
+        <span class="n">request_method</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request_method</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="n">service_path</span><span class="p">,</span> <span class="n">remote_method</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">route_args</span>
+        <span class="k">if</span> <span class="n">method</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">handle</span><span class="p">(</span><span class="n">request_method</span><span class="p">,</span> <span class="n">service_path</span><span class="p">,</span> <span class="n">remote_method</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="s">&#39;Unsupported HTTP method: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">request_method</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s">&#39;405 </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">message</span>
+
+        <span class="k">if</span> <span class="n">request_method</span> <span class="o">==</span> <span class="s">&#39;GET&#39;</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_int</span>
+            <span class="k">if</span> <span class="n">status</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">405</span><span class="p">,</span> <span class="mi">415</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">content_type</span><span class="p">:</span>
+                <span class="c"># Again, now a protected method.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_ServiceHandler__show_info</span><span class="p">(</span><span class="n">service_path</span><span class="p">,</span> <span class="n">remote_method</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="ServiceHandlerFactory"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.protorpc.ServiceHandlerFactory">[docs]</a><span class="k">class</span> <span class="nc">ServiceHandlerFactory</span><span class="p">(</span><span class="n">service_handlers</span><span class="o">.</span><span class="n">ServiceHandlerFactory</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct a new service handler instance.&quot;&quot;&quot;</span>
+        <span class="n">handler</span> <span class="o">=</span> <span class="n">ServiceHandler</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">response</span><span class="p">)</span>
+        <span class="n">handler</span><span class="o">.</span><span class="n">dispatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service_factory</span><span class="p">())</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_normalize_services</span><span class="p">(</span><span class="n">mixed_services</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mixed_services</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">mixed_services</span> <span class="o">=</span> <span class="n">mixed_services</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span>
+
+    <span class="n">services</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">service_item</span> <span class="ow">in</span> <span class="n">mixed_services</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">service_item</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="n">path</span><span class="p">,</span> <span class="n">service</span> <span class="o">=</span> <span class="n">service_item</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="n">service</span> <span class="o">=</span> <span class="n">service_item</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+            <span class="c"># Lazily import the service class.</span>
+            <span class="n">service</span> <span class="o">=</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">import_string</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+
+        <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">path</span><span class="p">,</span> <span class="n">service</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">services</span>
+
+
+<div class="viewcode-block" id="service_mapping"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.protorpc.service_mapping">[docs]</a><span class="k">def</span> <span class="nf">service_mapping</span><span class="p">(</span><span class="n">services</span><span class="p">,</span> <span class="n">registry_path</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">DEFAULT_REGISTRY_PATH</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a services mapping for use with webapp2.</span>
+
+<span class="sd">    Creates basic default configuration and registration for ProtoRPC services.</span>
+<span class="sd">    Each service listed in the service mapping has a standard service handler</span>
+<span class="sd">    factory created for it.</span>
+
+<span class="sd">    The list of mappings can either be an explicit path to service mapping or</span>
+<span class="sd">    just services.  If mappings are just services, they will automatically</span>
+<span class="sd">    be mapped to their default name.  For example::</span>
+
+<span class="sd">        from protorpc import messages</span>
+<span class="sd">        from protorpc import remote</span>
+
+<span class="sd">        import webapp2</span>
+<span class="sd">        from webapp2_extras import protorpc</span>
+
+<span class="sd">        class HelloRequest(messages.Message):</span>
+<span class="sd">            my_name = messages.StringField(1, required=True)</span>
+
+<span class="sd">        class HelloResponse(messages.Message):</span>
+<span class="sd">            hello = messages.StringField(1, required=True)</span>
+
+<span class="sd">        class HelloService(remote.Service):</span>
+<span class="sd">            @remote.method(HelloRequest, HelloResponse)</span>
+<span class="sd">            def hello(self, request):</span>
+<span class="sd">                return HelloResponse(hello=&#39;Hello there, %s!&#39; %</span>
+<span class="sd">                                     request.my_name)</span>
+
+<span class="sd">        service_mappings = protorpc.service_mapping([</span>
+<span class="sd">            (&#39;/hello&#39;, HelloService),</span>
+<span class="sd">        ])</span>
+
+<span class="sd">        app = webapp2.WSGIApplication(routes=service_mappings)</span>
+
+<span class="sd">        def main():</span>
+<span class="sd">            app.run()</span>
+
+<span class="sd">        if __name__ == &#39;__main__&#39;:</span>
+<span class="sd">            main()</span>
+
+<span class="sd">    Specifying a service mapping:</span>
+
+<span class="sd">    Normally services are mapped to URL paths by specifying a tuple</span>
+<span class="sd">    (path, service):</span>
+
+<span class="sd">    - path: The path the service resides on.</span>
+<span class="sd">    - service: The service class or service factory for creating new instances</span>
+<span class="sd">      of the service.  For more information about service factories, please</span>
+<span class="sd">      see remote.Service.new_factory.</span>
+
+<span class="sd">    If no tuple is provided, and therefore no path specified, a default path</span>
+<span class="sd">    is calculated by using the fully qualified service name using a URL path</span>
+<span class="sd">    separator for each of its components instead of a &#39;.&#39;.</span>
+
+<span class="sd">    :param services:</span>
+<span class="sd">        Can be service type, service factory or string definition name of</span>
+<span class="sd">        service being mapped or list of tuples (path, service):</span>
+
+<span class="sd">        - path: Path on server to map service to.</span>
+<span class="sd">        - service: Service type, service factory or string definition name of</span>
+<span class="sd">          service being mapped.</span>
+
+<span class="sd">      Can also be a dict.  If so, the keys are treated as the path and values</span>
+<span class="sd">      as the service.</span>
+<span class="sd">    :param registry_path:</span>
+<span class="sd">        Path to give to registry service. Use None to disable registry service.</span>
+<span class="sd">    :returns:</span>
+<span class="sd">        List of tuples defining a mapping of request handlers compatible with a</span>
+<span class="sd">        webapp2 application.</span>
+<span class="sd">    :raises:</span>
+<span class="sd">        ServiceConfigurationError when duplicate paths are provided.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># TODO: clean the convoluted API? Accept services as tuples only, or</span>
+    <span class="c"># make different functions to accept different things.</span>
+    <span class="c"># For now we are just following the same API from protorpc.</span>
+    <span class="n">services</span> <span class="o">=</span> <span class="n">_normalize_services</span><span class="p">(</span><span class="n">services</span><span class="p">)</span>
+    <span class="n">mapping</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">registry_map</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">registry_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">registry_service</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">RegistryService</span><span class="o">.</span><span class="n">new_factory</span><span class="p">(</span><span class="n">registry_map</span><span class="p">)</span>
+        <span class="n">services</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">services</span><span class="p">)</span> <span class="o">+</span> <span class="p">[(</span><span class="n">registry_path</span><span class="p">,</span> <span class="n">registry_service</span><span class="p">)]</span>
+        <span class="n">forms_handler</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">FormsHandler</span><span class="p">(</span><span class="n">registry_path</span><span class="o">=</span><span class="n">registry_path</span><span class="p">)</span>
+        <span class="n">mapping</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">registry_path</span> <span class="o">+</span> <span class="s">r&#39;/form(?:/)?&#39;</span><span class="p">,</span> <span class="n">forms_handler</span><span class="p">))</span>
+        <span class="n">mapping</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">registry_path</span> <span class="o">+</span> <span class="s">r&#39;/form/(.+)&#39;</span><span class="p">,</span> <span class="n">forms</span><span class="o">.</span><span class="n">ResourceHandler</span><span class="p">))</span>
+
+    <span class="n">paths</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">services</span><span class="p">:</span>
+        <span class="n">service_class</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="s">&#39;service_class&#39;</span><span class="p">,</span> <span class="n">service</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">service_class</span><span class="o">.</span><span class="n">definition_name</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="s">&#39;/&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">service_handlers</span><span class="o">.</span><span class="n">ServiceConfigurationError</span><span class="p">(</span>
+                <span class="s">&#39;Path </span><span class="si">%r</span><span class="s"> is already defined in service mapping&#39;</span>
+                <span class="o">%</span> <span class="n">path</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">paths</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="c"># Create service mapping for webapp2.</span>
+        <span class="n">new_mapping</span> <span class="o">=</span> <span class="n">ServiceHandlerFactory</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">service</span><span class="p">)</span><span class="o">.</span><span class="n">mapping</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">mapping</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_mapping</span><span class="p">)</span>
+
+        <span class="c"># Update registry with service class.</span>
+        <span class="n">registry_map</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="n">service_class</span>
+
+    <span class="k">return</span> <span class="n">mapping</span>
+
+</div>
+<div class="viewcode-block" id="get_app"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.protorpc.get_app">[docs]</a><span class="k">def</span> <span class="nf">get_app</span><span class="p">(</span><span class="n">services</span><span class="p">,</span> <span class="n">registry_path</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">DEFAULT_REGISTRY_PATH</span><span class="p">,</span>
+            <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a WSGI application configured for the given services.</span>
+
+<span class="sd">    Parameters are the same as :func:`service_mapping`, plus:</span>
+
+<span class="sd">    :param debug:</span>
+<span class="sd">        WSGI application debug flag: True to enable debug mode.</span>
+<span class="sd">    :param config:</span>
+<span class="sd">        WSGI application configuration dictionary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mappings</span> <span class="o">=</span> <span class="n">service_mapping</span><span class="p">(</span><span class="n">services</span><span class="p">,</span> <span class="n">registry_path</span><span class="o">=</span><span class="n">registry_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">WSGIApplication</span><span class="p">(</span><span class="n">routes</span><span class="o">=</span><span class="n">mappings</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="run_services"><a class="viewcode-back" href="../../../lib.webapp2_extras.html#lib.webapp2_extras.protorpc.run_services">[docs]</a><span class="k">def</span> <span class="nf">run_services</span><span class="p">(</span><span class="n">services</span><span class="p">,</span> <span class="n">registry_path</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">DEFAULT_REGISTRY_PATH</span><span class="p">,</span>
+                 <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Handle CGI request using service mapping.</span>
+
+<span class="sd">    Parameters are the same as :func:`get_app`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">get_app</span><span class="p">(</span><span class="n">services</span><span class="p">,</span> <span class="n">registry_path</span><span class="o">=</span><span class="n">registry_path</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">,</span>
+                  <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

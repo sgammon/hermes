@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>api.handlers.tracker &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../index.html" />
+    <link rel="up" title="api.handlers" href="../handlers.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../handlers.html" accesskey="U">api.handlers</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for api.handlers.tracker</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Handlers for the ``EventTracker`` subsystem. These handlers</span>
+<span class="sd">deal with hits to ``Tracker`` classes, and produce/yield</span>
+<span class="sd">``RawEvent`` models.</span>
+
+<span class="sd">:author: Sam Gammon (sam.gammon@ampush.com)</span>
+<span class="sd">:copyright: (c) 2013 Ampush.</span>
+<span class="sd">:license: This is private source code - all rights are reserved. For details about</span>
+<span class="sd">          embedded licenses and other legalese, see `LICENSE.md`.-sam (&lt;sam.gammon@ampush.com&gt;)</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c"># stdlib</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+
+<span class="c"># WebHandler</span>
+<span class="kn">from</span> <span class="nn">api.handlers</span> <span class="kn">import</span> <span class="n">WebHandler</span>
+
+
+<span class="c">## TrackerEndpoint - handles tracker hits.</span>
+<div class="viewcode-block" id="TrackerEndpoint"><a class="viewcode-back" href="../../../api.handlers.html#api.handlers.tracker.TrackerEndpoint">[docs]</a><span class="k">class</span> <span class="nc">TrackerEndpoint</span><span class="p">(</span><span class="n">WebHandler</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Handles `EventTracker` hits. &#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="TrackerEndpoint.get"><a class="viewcode-back" href="../../../api.handlers.html#api.handlers.tracker.TrackerEndpoint.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; HTTP GET</span>
+<span class="sd">            :returns: Response to a tracker hit. &#39;&#39;&#39;</span>
+
+        <span class="c"># publish raw event first, propagating globally</span>
+        <span class="n">raw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracker</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">raw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">)</span>
+        <span class="n">raw</span><span class="o">.</span><span class="n">put</span><span class="p">()</span>  <span class="c"># save raw event</span>
+
+        <span class="c"># collapse policy for this event, enforce, and fail-out from critical errors</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracker</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">interpret</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tracker</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">raw</span><span class="p">),</span> <span class="n">raw</span><span class="p">)</span> <span class="k">as</span> <span class="n">event</span><span class="p">:</span>
+
+            <span class="c"># get ready to grab our execution flow</span>
+            <span class="n">attributions</span><span class="p">,</span> <span class="n">aggregations</span><span class="p">,</span> <span class="n">integrations</span> <span class="o">=</span> <span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">deque</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)]</span>
+
+            <span class="kn">import</span> <span class="nn">pdb</span><span class="p">;</span> <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+            <span class="c"># first, store the tracked event (which should start a new pipeline for this request)</span>
+            <span class="sd">&#39;&#39;&#39;self.tracker.engine.persist(event, pipeline=True)</span>
+
+<span class="sd">            # publish tracked event</span>
+<span class="sd">            self.tracker.stream.publish(event, propagate=True)</span>
+
+<span class="sd">            for attribution in event.attributions:</span>
+<span class="sd">                # @TODO: generate attribution spec</span>
+<span class="sd">                pass&#39;&#39;&#39;</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../handlers.html" >api.handlers</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

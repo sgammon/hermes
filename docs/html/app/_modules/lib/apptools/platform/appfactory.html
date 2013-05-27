@@ -1,0 +1,354 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.apptools.platform.appfactory &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../../index.html" />
+    <link rel="up" title="lib.apptools.platform" href="../platform.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../apptools.html" >lib.apptools</a> &raquo;</li>
+          <li><a href="../platform.html" accesskey="U">lib.apptools.platform</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.apptools.platform.appfactory</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">Platform: AppFactory</span>
+
+<span class="sd">Deep integration with momentum labs&#39; Layer9 AppFactory platform. Exposes</span>
+<span class="sd">and injects shortcuts to code that controls, parses, and mediates signals</span>
+<span class="sd">between AppEngine and the individual AppFactory components: the Frontline,</span>
+<span class="sd">Upstream and Controller layers.</span>
+
+<span class="sd">-sam (&lt;sam@momentum.io&gt;)</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c"># Base Imports</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">config</span>
+<span class="kn">import</span> <span class="nn">webapp2</span>
+
+<span class="c"># Util Imports</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">debug</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">datastructures</span>
+
+<span class="c"># Platform Imports</span>
+<span class="kn">from</span> <span class="nn">apptools.platform</span> <span class="kn">import</span> <span class="n">Platform</span>
+<span class="kn">from</span> <span class="nn">apptools.platform</span> <span class="kn">import</span> <span class="n">PlatformBridge</span>
+
+<span class="c"># Mod Globals</span>
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">debug</span><span class="o">.</span><span class="n">AppToolsLogger</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s">&#39;apptools.platform.appfactory&#39;</span><span class="p">)</span>
+
+
+<span class="c">## TransportBusManager</span>
+<span class="c"># Provides bus management features to L9 layer bridges.</span>
+<div class="viewcode-block" id="TransportBusManager"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.appfactory.TransportBusManager">[docs]</a><span class="k">class</span> <span class="nc">TransportBusManager</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Mixes in bus management features to L9 bridge classes. &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bus</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Accept a bus object at init, assign to self and proxy. &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">bus</span> <span class="o">=</span> <span class="n">bus</span>
+
+    <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Return the bus upon descriptor access. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bus</span>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Proxy gets to the bus. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&#39;Key &quot;</span><span class="si">%s</span><span class="s">&quot; does not exist on transport integration bus &quot;</span><span class="si">%s</span><span class="s">&quot;.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Proxy getitems to getattr. &#39;&#39;&#39;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&quot;Key &#39;</span><span class="si">%s</span><span class="s">&#39; does not exist on transport integration bus &#39;</span><span class="si">%s</span><span class="s">&#39;.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">))</span>
+
+
+<span class="c">## UpstreamBridge</span>
+<span class="c"># This class bridges and proxies internal calls to L9AF upstream-specific code.</span></div>
+<div class="viewcode-block" id="UpstreamBridge"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.appfactory.UpstreamBridge">[docs]</a><span class="k">class</span> <span class="nc">UpstreamBridge</span><span class="p">(</span><span class="n">PlatformBridge</span><span class="p">,</span> <span class="n">TransportBusManager</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Bridge to upstream-specific features. &#39;&#39;&#39;</span>
+
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="UpstreamBridge.config"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.appfactory.UpstreamBridge.config">[docs]</a>    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Named config pipe to upstream L9AF config. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">l9_config_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">upstream_config_key</span><span class="p">]),</span> <span class="p">{})</span>
+</div>
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="UpstreamBridge.logging"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.appfactory.UpstreamBridge.logging">[docs]</a>    <span class="k">def</span> <span class="nf">logging</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Named logging pipe. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">_logger</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;UpstreamBridge&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">_setcondition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_l9config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;debug&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">))</span>
+
+
+<span class="c">## FrontlineBridge</span>
+<span class="c"># This class bridges and proxies internal calls to L9AF frontline-specific code.</span></div></div>
+<div class="viewcode-block" id="FrontlineBridge"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.appfactory.FrontlineBridge">[docs]</a><span class="k">class</span> <span class="nc">FrontlineBridge</span><span class="p">(</span><span class="n">PlatformBridge</span><span class="p">,</span> <span class="n">TransportBusManager</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Bridge to frontline-specific features. &#39;&#39;&#39;</span>
+
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="FrontlineBridge.config"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.appfactory.FrontlineBridge.config">[docs]</a>    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Named config pipe to frontline L9AF config. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">l9_config_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frontline_config_key</span><span class="p">]),</span> <span class="p">{})</span>
+</div>
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="FrontlineBridge.logging"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.appfactory.FrontlineBridge.logging">[docs]</a>    <span class="k">def</span> <span class="nf">logging</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Named logging pipe. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">_logger</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;FrontlineBridge&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">_setcondition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_l9config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;debug&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">))</span>
+
+
+<span class="c">## ControllerBridge</span>
+<span class="c"># This class bridges and proxies internal calls to L9AF controller-specific code.</span></div></div>
+<div class="viewcode-block" id="ControllerBridge"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.appfactory.ControllerBridge">[docs]</a><span class="k">class</span> <span class="nc">ControllerBridge</span><span class="p">(</span><span class="n">PlatformBridge</span><span class="p">,</span> <span class="n">TransportBusManager</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Bridge to controller-specific features. &#39;&#39;&#39;</span>
+
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="ControllerBridge.config"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.appfactory.ControllerBridge.config">[docs]</a>    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Named config pipe to controller L9AF config. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">l9_config_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">controller_config_key</span><span class="p">]),</span> <span class="p">{})</span>
+</div>
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="ControllerBridge.logging"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.appfactory.ControllerBridge.logging">[docs]</a>    <span class="k">def</span> <span class="nf">logging</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Named logging pipe. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">_logger</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;ControllerBridge&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">_setcondition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_l9config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;debug&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">))</span>
+
+
+<span class="c">## Layer9AppFactory</span>
+<span class="c"># This class provides AppFactory integration to AppTools.</span></div></div>
+<div class="viewcode-block" id="AppFactory"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.appfactory.AppFactory">[docs]</a><span class="k">class</span> <span class="nc">AppFactory</span><span class="p">(</span><span class="n">Platform</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Provider for integration with momentum&#39;s Layer9 AppFactory platform. &#39;&#39;&#39;</span>
+
+    <span class="c"># Main Config</span>
+    <span class="n">l9_config_path</span> <span class="o">=</span> <span class="s">&#39;layer9.appfactory&#39;</span>
+    <span class="n">l9_header_prefix</span> <span class="o">=</span> <span class="s">&#39;X-AppFactory&#39;</span>
+
+    <span class="c"># Config Keys</span>
+    <span class="n">upstream_config_key</span> <span class="o">=</span> <span class="s">&#39;upstream&#39;</span>
+    <span class="n">frontline_config_key</span> <span class="o">=</span> <span class="s">&#39;frontline&#39;</span>
+    <span class="n">controller_config_key</span> <span class="o">=</span> <span class="s">&#39;controller&#39;</span>
+
+    <span class="n">version</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lib</span><span class="o">.</span><span class="n">__version__</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Lazy-load the AppFactory integration library. &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lib</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lazyload</span><span class="p">(</span><span class="s">&#39;appfactory&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">appfactory</span> <span class="o">=</span> <span class="n">datastructures</span><span class="o">.</span><span class="n">DictProxy</span><span class="p">({</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">upstream_config_key</span><span class="p">:</span> <span class="n">UpstreamBridge</span><span class="p">(</span><span class="n">bus</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lib</span><span class="o">.</span><span class="n">upstream</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frontline_config_key</span><span class="p">:</span> <span class="n">FrontlineBridge</span><span class="p">(</span><span class="n">bus</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lib</span><span class="o">.</span><span class="n">frontline</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">controller_config_key</span><span class="p">:</span> <span class="n">ControllerBridge</span><span class="p">(</span><span class="n">bus</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lib</span><span class="o">.</span><span class="n">controller</span><span class="p">),</span>
+            <span class="s">&#39;version&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span>
+        <span class="p">})</span>
+
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="AppFactory.logging"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.appfactory.AppFactory.logging">[docs]</a>    <span class="k">def</span> <span class="nf">logging</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Named logging pipe. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">_logger</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;AppFactory&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">_setcondition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_l9config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;logging&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">))</span>
+</div>
+    <span class="nd">@webapp2.cached_property</span>
+    <span class="k">def</span> <span class="nf">_l9config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Named config pipe to main L9AF config. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">l9_config_path</span><span class="p">,</span> <span class="p">{})</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="AppFactory.check_environment"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.appfactory.AppFactory.check_environment">[docs]</a>    <span class="k">def</span> <span class="nf">check_environment</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">environ</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Check config to see if AppFactory integration is enabled. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">l9_config_path</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;enabled&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</div>
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="AppFactory.shortcut_exports"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.appfactory.AppFactory.shortcut_exports">[docs]</a>    <span class="k">def</span> <span class="nf">shortcut_exports</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Return shortcuts to AppFactory functionality. &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="p">[(</span><span class="s">&#39;appfactory&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">appfactory</span><span class="p">)]</span>
+</div>
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="AppFactory.config_shortcuts"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.appfactory.AppFactory.config_shortcuts">[docs]</a>    <span class="k">def</span> <span class="nf">config_shortcuts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="p">[</span>
+
+            <span class="p">(</span><span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">upstream_config_key</span><span class="p">,</span> <span class="s">&#39;Config&#39;</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">appfactory</span><span class="o">.</span><span class="n">upstream</span><span class="o">.</span><span class="n">config</span><span class="p">),</span>
+            <span class="p">(</span><span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">frontline_config_key</span><span class="p">,</span> <span class="s">&#39;Config&#39;</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">appfactory</span><span class="o">.</span><span class="n">frontline</span><span class="o">.</span><span class="n">config</span><span class="p">),</span>
+            <span class="p">(</span><span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">controller_config_key</span><span class="p">,</span> <span class="s">&#39;Config&#39;</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">appfactory</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+
+        <span class="p">]</span>
+</div>
+    <span class="k">def</span> <span class="nf">_log_dispatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Save processed Layer9 data into memcache, for statistics gathering. &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;LOG DISPATCH CALLED: &quot;</span><span class="si">%s</span><span class="s">&quot;.&#39;</span> <span class="o">%</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+<div class="viewcode-block" id="AppFactory.pre_dispatch"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.appfactory.AppFactory.pre_dispatch">[docs]</a>    <span class="k">def</span> <span class="nf">pre_dispatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Hook into apptools before dispatch is run, and modify the request if Frontline-added HTTP headers are present. &#39;&#39;&#39;</span>
+
+        <span class="c"># Try to detect appfactory headers, added from the frontline</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">appfactory</span><span class="o">.</span><span class="n">frontline</span><span class="o">.</span><span class="n">sniff</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+
+        <span class="c"># Try to detect partial content requests, added from the upstream</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">appfactory</span><span class="o">.</span><span class="n">upstream</span><span class="o">.</span><span class="n">sniff</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+        <span class="k">return</span>
+</div>
+<div class="viewcode-block" id="AppFactory.post_dispatch"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.appfactory.AppFactory.post_dispatch">[docs]</a>    <span class="k">def</span> <span class="nf">post_dispatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Hook into apptools after dispatch has run, and read stats from the response to dump to memcache. &#39;&#39;&#39;</span>
+
+        <span class="c"># Consider asset headers for upstream</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">appfactory</span><span class="o">.</span><span class="n">upstream</span><span class="o">.</span><span class="n">hint</span><span class="p">(</span><span class="n">handler</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+
+        <span class="c"># Dump data to memcache</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">appfactory</span><span class="o">.</span><span class="n">frontline</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">appfactory</span><span class="o">.</span><span class="n">upstream</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">appfactory</span><span class="o">.</span><span class="n">controller</span><span class="p">]:</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">handler</span><span class="p">,</span> <span class="n">result</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_dispatch</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+</div>
+    <span class="nd">@webapp2.cached_property</span>
+<div class="viewcode-block" id="AppFactory.template_context"><a class="viewcode-back" href="../../../../lib.apptools.platform.html#lib.apptools.platform.appfactory.AppFactory.template_context">[docs]</a>    <span class="k">def</span> <span class="nf">template_context</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Inject AppFactory-specific tools. &#39;&#39;&#39;</span>
+
+        <span class="k">def</span> <span class="nf">inject</span><span class="p">(</span><span class="n">handler</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;APPFACTORY&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
+                <span class="n">context</span><span class="p">[</span><span class="s">&#39;util&#39;</span><span class="p">][</span><span class="s">&#39;request&#39;</span><span class="p">][</span><span class="s">&#39;geo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">context</span><span class="p">[</span><span class="s">&#39;util&#39;</span><span class="p">][</span><span class="s">&#39;instance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;XAF_INSTANCE&#39;</span><span class="p">,</span> <span class="s">&#39;_unknown_&#39;</span><span class="p">)</span>
+                <span class="n">context</span><span class="p">[</span><span class="s">&#39;util&#39;</span><span class="p">][</span><span class="s">&#39;software&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;XAF_BACKEND&#39;</span><span class="p">,</span> <span class="s">&#39;sandbox&#39;</span><span class="p">)</span>
+                <span class="n">context</span><span class="p">[</span><span class="s">&#39;util&#39;</span><span class="p">][</span><span class="s">&#39;datacenter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;XAF_DATACENTER&#39;</span><span class="p">,</span> <span class="s">&#39;_unknown_&#39;</span><span class="p">)</span>
+
+                <span class="n">context</span><span class="p">[</span><span class="s">&#39;util&#39;</span><span class="p">][</span><span class="s">&#39;request&#39;</span><span class="p">][</span><span class="s">&#39;hash&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;__UNDEFINED__&#39;</span>
+                <span class="n">context</span><span class="p">[</span><span class="s">&#39;util&#39;</span><span class="p">][</span><span class="s">&#39;request&#39;</span><span class="p">][</span><span class="s">&#39;namespace&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;__UNDEFINED__&#39;</span>
+
+            <span class="k">return</span> <span class="n">context</span>
+
+        <span class="k">return</span> <span class="n">inject</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../index.html">
+              <img class="logo" src="../../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../apptools.html" >lib.apptools</a> &raquo;</li>
+          <li><a href="../platform.html" >lib.apptools.platform</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

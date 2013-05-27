@@ -1,0 +1,280 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>protocol.meta &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for protocol.meta</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Protocol: Meta Bindings</span>
+
+<span class="sd">:author: Sam Gammon (sam.gammon@ampush.com)</span>
+<span class="sd">:copyright: (c) 2013 Ampush.</span>
+<span class="sd">:license: This is private source code - all rights are reserved. For details about</span>
+<span class="sd">          embedded licenses and other legalese, see `LICENSE.md`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c"># stdlib</span>
+<span class="kn">import</span> <span class="nn">abc</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">config</span><span class="p">;</span> <span class="n">_APPCONFIG</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="n">_APPCONFIG</span> <span class="o">=</span> <span class="bp">False</span>
+
+<span class="c"># apptools model</span>
+<span class="kn">from</span> <span class="nn">apptools</span> <span class="kn">import</span> <span class="n">model</span>
+
+<span class="c"># apptools util</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">debug</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">decorators</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">datastructures</span>
+
+
+<div class="viewcode-block" id="Definition"><a class="viewcode-back" href="../../protocol.html#protocol.meta.Definition">[docs]</a><span class="k">class</span> <span class="nc">Definition</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Definition. &#39;&#39;&#39;</span>
+
+    <span class="n">__lookup__</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">()</span>
+    <span class="n">_config_path</span> <span class="o">=</span> <span class="s">&#39;api.components.protocol.Definition&#39;</span>
+
+    <span class="k">class</span> <span class="nc">__metaclass__</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Embedded metaclass - enforces ABC compliance and</span>
+<span class="sd">            packages properties into compound policy definition</span>
+<span class="sd">            classes. &#39;&#39;&#39;</span>
+
+        <span class="n">__owner__</span> <span class="o">=</span> <span class="s">&#39;Definition&#39;</span>  <span class="c"># alias produced classes to this owner</span>
+        <span class="n">_definition_registry</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c"># Holds encountered ``Definition`` subclasses.</span>
+
+        <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">properties</span><span class="p">):</span>
+
+            <span class="sd">&#39;&#39;&#39; Initialize this :py:class:`Definition`. &#39;&#39;&#39;</span>
+
+            <span class="c"># split up properties</span>
+            <span class="n">_original_definition</span><span class="p">,</span> <span class="n">_nonspecial_properties</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">properties</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">properties</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;_&#39;</span><span class="p">)}</span>
+            <span class="n">_prop_lookup</span><span class="p">,</span> <span class="n">_value_lookup</span><span class="p">,</span> <span class="n">_prop_data</span><span class="p">,</span> <span class="n">_value_data</span><span class="p">,</span> <span class="n">_binding_config</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(),</span> <span class="nb">set</span><span class="p">(),</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">{}</span>
+            <span class="n">_special_properties</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">properties</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;_&#39;</span><span class="p">)}</span>
+
+            <span class="c"># examine bindings, group options in descriptors</span>
+            <span class="k">if</span> <span class="n">properties</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;__frozen__&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_nonspecial_properties</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                        <span class="n">_binding_config</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c"># map config into `_binding_config`</span>
+                        <span class="n">_prop_lookup</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>  <span class="c"># add key to property lookup</span>
+                        <span class="n">_prop_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>  <span class="c"># add key (positional)</span>
+                        <span class="n">_value_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>  <span class="c"># add value (positional)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># resolve, hash, and enforce uniqueness for mappings</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">_nonspecial_properties</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                        <span class="c">## this is a mapping, not an enum. zip and break.</span>
+                        <span class="n">_prop_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                        <span class="n">_value_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                        <span class="k">continue</span>
+                    <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_prop_lookup</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_value_lookup</span><span class="p">:</span>
+                        <span class="n">_prop_lookup</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                        <span class="n">_prop_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_value_lookup</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_prop_lookup</span><span class="p">:</span>
+                            <span class="n">_value_lookup</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                            <span class="n">_value_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                            <span class="k">continue</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">offender</span><span class="p">,</span> <span class="n">otype</span> <span class="o">=</span> <span class="n">value</span><span class="p">,</span> <span class="s">&#39;value&#39;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">offender</span><span class="p">,</span> <span class="n">otype</span> <span class="o">=</span> <span class="n">key</span><span class="p">,</span> <span class="s">&#39;key&#39;</span>
+                    <span class="n">context</span> <span class="o">=</span> <span class="p">(</span><span class="n">otype</span><span class="p">,</span> <span class="n">offender</span><span class="p">,</span> <span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">properties</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;__module__&#39;</span><span class="p">,</span> <span class="s">&#39;__main__&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">name</span><span class="p">]))</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Value (`</span><span class="si">%s</span><span class="s">`: &quot;</span><span class="si">%s</span><span class="s">&quot;) was repeated more than once as a `key` or `value`&#39;</span>
+                                     <span class="s">&#39;in a ``Definition`` subclass (&quot;</span><span class="si">%s</span><span class="s">&quot;).&#39;</span> <span class="o">%</span> <span class="n">context</span><span class="p">)</span>
+
+            <span class="c"># reorganize internals to freeze properties</span>
+            <span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span>
+
+                <span class="c">#&#39;__slots__&#39;: tuple(),  # freeze property access, make class properties read-only</span>
+                <span class="s">&#39;__config__&#39;</span><span class="p">:</span> <span class="n">_binding_config</span><span class="p">,</span>  <span class="c"># holds binding config options, passed as a dictionary in tuple position 2</span>
+                <span class="s">&#39;__parent__&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>  <span class="c"># map to the direct parent of this definition - in terms of def path</span>
+                <span class="s">&#39;__lookup__&#39;</span><span class="p">:</span> <span class="n">_prop_lookup</span><span class="p">,</span>  <span class="c"># mapped forward lookup for keys</span>
+                <span class="s">&#39;__value_lookup__&#39;</span><span class="p">:</span> <span class="n">_value_lookup</span><span class="p">,</span>  <span class="c"># mapped reverse lookup for values</span>
+                <span class="s">&#39;__forward__&#39;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">_prop_data</span><span class="p">),</span>  <span class="c"># ordered, mapped prop names</span>
+                <span class="s">&#39;__reverse__&#39;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">_value_data</span><span class="p">),</span>  <span class="c"># ordered, mapped prop values</span>
+                <span class="s">&#39;__override__&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>  <span class="c"># map to the definition this overrides, if any</span>
+                <span class="s">&#39;__definition__&#39;</span><span class="p">:</span> <span class="n">name</span>  <span class="c"># fully-qualified definition path of the new class</span>
+
+            <span class="p">}</span>
+
+            <span class="c"># update with special properties inherited from subclasses</span>
+            <span class="n">mapping</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">i</span><span class="p">:</span> <span class="n">properties</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="n">_original_definition</span> <span class="o">-</span> <span class="n">mapping</span><span class="p">[</span><span class="s">&#39;__lookup__&#39;</span><span class="p">])})</span>
+
+            <span class="c"># update with bindings</span>
+            <span class="n">mapping</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_nonspecial_properties</span><span class="p">)</span>
+            <span class="n">mapping</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_special_properties</span><span class="p">)</span>
+
+            <span class="c"># construct new `Definition` class on-the-fly</span>
+            <span class="n">klass</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">cls</span><span class="p">)</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">mapping</span><span class="p">)</span>
+            <span class="n">datastructures</span><span class="o">.</span><span class="n">BidirectionalEnum</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">klass</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">klass</span>
+
+        <span class="k">def</span> <span class="nf">_register_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+
+            <span class="sd">&#39;&#39;&#39; Register a given definition in the definition registry. &#39;&#39;&#39;</span>
+
+            <span class="c"># register in local registry</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_definition_registry</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__name__</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="s">&#39;__parent__&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+            <span class="sd">&#39;&#39;&#39; Generate a string representation of a `Definition`. &#39;&#39;&#39;</span>
+
+            <span class="k">return</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">(path=</span><span class="si">%s</span><span class="s">, name=</span><span class="si">%s</span><span class="s">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__owner__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">forward_resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+
+            <span class="sd">&#39;&#39;&#39; Resolve an enumerated value by key. &#39;&#39;&#39;</span>
+
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__lookup__</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__reverse__</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__forward__</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&#39;Definition has no binding for key &quot;</span><span class="si">%s</span><span class="s">&quot;.&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">__serialize__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+            <span class="sd">&#39;&#39;&#39; Flatten down into a structure suitable for storage/transport. &#39;&#39;&#39;</span>
+
+            <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__forward__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__reverse__</span><span class="p">))</span>
+
+    <span class="nd">@decorators.classproperty</span>
+    <span class="k">def</span> <span class="nf">_config</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Named config pipe. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">_APPCONFIG</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">_config_path</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;debug&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">})</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s">&#39;debug&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>
+
+    <span class="nd">@decorators.classproperty</span>
+    <span class="k">def</span> <span class="nf">_logging</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Named logging pipe. &#39;&#39;&#39;</span>
+
+        <span class="n">_psplit</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">_config_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">debug</span><span class="o">.</span><span class="n">AppToolsLogger</span><span class="p">(</span><span class="o">**</span><span class="p">{</span>
+            <span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_psplit</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">_psplit</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]})</span><span class="o">.</span><span class="n">_setcondition</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;debug&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="ProtocolBinding"><a class="viewcode-back" href="../../protocol.html#protocol.meta.ProtocolBinding">[docs]</a><span class="k">class</span> <span class="nc">ProtocolBinding</span><span class="p">(</span><span class="n">Definition</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; ProtocolBinding. &#39;&#39;&#39;</span>
+
+    <span class="n">__frozen__</span> <span class="o">=</span> <span class="bp">False</span>
+
+</div>
+<div class="viewcode-block" id="ProtocolDefinition"><a class="viewcode-back" href="../../protocol.html#protocol.meta.ProtocolDefinition">[docs]</a><span class="k">class</span> <span class="nc">ProtocolDefinition</span><span class="p">(</span><span class="n">Definition</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; ProtocolDefinition. &#39;&#39;&#39;</span>
+
+    <span class="n">__frozen__</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ProtocolDefinition.reverse_resolve"><a class="viewcode-back" href="../../protocol.html#protocol.meta.ProtocolDefinition.reverse_resolve">[docs]</a>    <span class="k">def</span> <span class="nf">reverse_resolve</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Resolve an enumerated key by value. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">__value_lookup__</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cls</span><span class="o">.</span><span class="n">__forward__</span><span class="p">[</span><span class="n">cls</span><span class="o">.</span><span class="n">__reverse__</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">value</span><span class="p">)]</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&#39;Definition has no binding for value &quot;</span><span class="si">%s</span><span class="s">&quot;.&#39;</span> <span class="o">%</span> <span class="n">value</span><span class="p">)</span>
+</div>
+    <span class="n">__getitem__</span> <span class="o">=</span> <span class="n">reverse_resolve</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,667 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>protocol Package &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="index.html" />
+    <link rel="up" title="Hermes" href="modules.html" />
+    <link rel="next" title="tools Package" href="tools.html" />
+    <link rel="prev" title="main Module" href="main.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tools.html" title="tools Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="main.html" title="main Module"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" accesskey="U">Hermes</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="protocol-package">
+<h1>protocol Package<a class="headerlink" href="#protocol-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><a class="reference internal" href="#module-protocol" title="protocol"><tt class="xref py py-mod docutils literal"><span class="pre">protocol</span></tt></a> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-protocol"></span><p>Protocol definition suite for Ampush Hermes.</p>
+</div>
+<div class="section" id="module-protocol.builtin">
+<span id="builtin-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">builtin</span></tt> Module<a class="headerlink" href="#module-protocol.builtin" title="Permalink to this headline">¶</a></h2>
+<p>Components: Tracker Protocol</p>
+<p>Description coming soon.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+<dl class="class">
+<dt id="protocol.builtin.TrackerMode">
+<em class="property">class </em><tt class="descclassname">protocol.builtin.</tt><tt class="descname">TrackerMode</tt><a class="reference internal" href="_modules/protocol/builtin.html#TrackerMode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.builtin.TrackerMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#protocol.meta.ProtocolDefinition" title="protocol.meta.ProtocolDefinition"><tt class="xref py py-class docutils literal"><span class="pre">protocol.meta.ProtocolDefinition</span></tt></a></p>
+<p>Maps tracker modes to discrete values.</p>
+<dl class="attribute">
+<dt id="protocol.builtin.TrackerMode.DEBUG">
+<tt class="descname">DEBUG</tt><em class="property"> = 'debug'</em><a class="headerlink" href="#protocol.builtin.TrackerMode.DEBUG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.builtin.TrackerMode.DRYRUN">
+<tt class="descname">DRYRUN</tt><em class="property"> = 'dryrun'</em><a class="headerlink" href="#protocol.builtin.TrackerMode.DRYRUN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.builtin.TrackerMode.PRODUCTION">
+<tt class="descname">PRODUCTION</tt><em class="property"> = 'production'</em><a class="headerlink" href="#protocol.builtin.TrackerMode.PRODUCTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="protocol.builtin.TrackerProtocol">
+<em class="property">class </em><tt class="descclassname">protocol.builtin.</tt><tt class="descname">TrackerProtocol</tt><a class="reference internal" href="_modules/protocol/builtin.html#TrackerProtocol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.builtin.TrackerProtocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#protocol.meta.ProtocolDefinition" title="protocol.meta.ProtocolDefinition"><tt class="xref py py-class docutils literal"><span class="pre">protocol.meta.ProtocolDefinition</span></tt></a></p>
+<p>Maps params to named keys.</p>
+<dl class="attribute">
+<dt id="protocol.builtin.TrackerProtocol.CONTRACT">
+<tt class="descname">CONTRACT</tt><em class="property"> = 'c'</em><a class="headerlink" href="#protocol.builtin.TrackerProtocol.CONTRACT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.builtin.TrackerProtocol.DEBUG">
+<tt class="descname">DEBUG</tt><em class="property"> = 'd'</em><a class="headerlink" href="#protocol.builtin.TrackerProtocol.DEBUG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.builtin.TrackerProtocol.DRYRUN">
+<tt class="descname">DRYRUN</tt><em class="property"> = 'n'</em><a class="headerlink" href="#protocol.builtin.TrackerProtocol.DRYRUN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.builtin.TrackerProtocol.PROVIDER">
+<tt class="descname">PROVIDER</tt><em class="property"> = 'p'</em><a class="headerlink" href="#protocol.builtin.TrackerProtocol.PROVIDER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.builtin.TrackerProtocol.REF">
+<tt class="descname">REF</tt><em class="property"> = 'r'</em><a class="headerlink" href="#protocol.builtin.TrackerProtocol.REF" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.builtin.TrackerProtocol.SENTINEL">
+<tt class="descname">SENTINEL</tt><em class="property"> = 'x'</em><a class="headerlink" href="#protocol.builtin.TrackerProtocol.SENTINEL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.builtin.TrackerProtocol.SPEND">
+<tt class="descname">SPEND</tt><em class="property"> = 's'</em><a class="headerlink" href="#protocol.builtin.TrackerProtocol.SPEND" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.builtin.TrackerProtocol.TRACKER">
+<tt class="descname">TRACKER</tt><em class="property"> = 'id'</em><a class="headerlink" href="#protocol.builtin.TrackerProtocol.TRACKER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.builtin.TrackerProtocol.TYPE">
+<tt class="descname">TYPE</tt><em class="property"> = 't'</em><a class="headerlink" href="#protocol.builtin.TrackerProtocol.TYPE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-protocol.environment">
+<span id="environment-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">environment</span></tt> Module<a class="headerlink" href="#module-protocol.environment" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="protocol.environment.BrowserEnvironment">
+<em class="property">class </em><tt class="descclassname">protocol.environment.</tt><tt class="descname">BrowserEnvironment</tt><a class="reference internal" href="_modules/protocol/environment.html#BrowserEnvironment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.environment.BrowserEnvironment" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="protocol.environment.BrowserEnvironment.ARCH">
+<tt class="descname">ARCH</tt><em class="property"> = 'bh'</em><a class="headerlink" href="#protocol.environment.BrowserEnvironment.ARCH" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.environment.BrowserEnvironment.BROWSER">
+<tt class="descname">BROWSER</tt><em class="property"> = 'br'</em><a class="headerlink" href="#protocol.environment.BrowserEnvironment.BROWSER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.environment.BrowserEnvironment.OS">
+<tt class="descname">OS</tt><em class="property"> = 'bo'</em><a class="headerlink" href="#protocol.environment.BrowserEnvironment.OS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.environment.BrowserEnvironment.VENDOR">
+<tt class="descname">VENDOR</tt><em class="property"> = 'bv'</em><a class="headerlink" href="#protocol.environment.BrowserEnvironment.VENDOR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-protocol.event">
+<span id="event-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">event</span></tt> Module<a class="headerlink" href="#module-protocol.event" title="Permalink to this headline">¶</a></h2>
+<p>Components: Event Protocol</p>
+<p>Description coming soon.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+<dl class="class">
+<dt id="protocol.event.EventProperty">
+<em class="property">class </em><tt class="descclassname">protocol.event.</tt><tt class="descname">EventProperty</tt><a class="reference internal" href="_modules/protocol/event.html#EventProperty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.event.EventProperty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#protocol.meta.ProtocolDefinition" title="protocol.meta.ProtocolDefinition"><tt class="xref py py-class docutils literal"><span class="pre">protocol.meta.ProtocolDefinition</span></tt></a></p>
+<p>Keeps track of web properties on which events may occur.</p>
+<dl class="attribute">
+<dt id="protocol.event.EventProperty.EXTERNAL">
+<tt class="descname">EXTERNAL</tt><em class="property"> = 'ext'</em><a class="headerlink" href="#protocol.event.EventProperty.EXTERNAL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.event.EventProperty.FACEBOOK">
+<tt class="descname">FACEBOOK</tt><em class="property"> = 'fb'</em><a class="headerlink" href="#protocol.event.EventProperty.FACEBOOK" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.event.EventProperty.FACEBOOK_MOBILE">
+<tt class="descname">FACEBOOK_MOBILE</tt><em class="property"> = 'fbm'</em><a class="headerlink" href="#protocol.event.EventProperty.FACEBOOK_MOBILE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.event.EventProperty.OFFISTE">
+<tt class="descname">OFFISTE</tt><em class="property"> = 'off'</em><a class="headerlink" href="#protocol.event.EventProperty.OFFISTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.event.EventProperty.ONSITE">
+<tt class="descname">ONSITE</tt><em class="property"> = 'on'</em><a class="headerlink" href="#protocol.event.EventProperty.ONSITE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="protocol.event.EventProvider">
+<em class="property">class </em><tt class="descclassname">protocol.event.</tt><tt class="descname">EventProvider</tt><a class="reference internal" href="_modules/protocol/event.html#EventProvider"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.event.EventProvider" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#protocol.meta.ProtocolDefinition" title="protocol.meta.ProtocolDefinition"><tt class="xref py py-class docutils literal"><span class="pre">protocol.meta.ProtocolDefinition</span></tt></a></p>
+<p>Keeps track of sources of events we track.</p>
+<dl class="attribute">
+<dt id="protocol.event.EventProvider.AD_X">
+<tt class="descname">AD_X</tt><em class="property"> = 'adx'</em><a class="headerlink" href="#protocol.event.EventProvider.AD_X" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.event.EventProvider.AMAZON">
+<tt class="descname">AMAZON</tt><em class="property"> = 'amz'</em><a class="headerlink" href="#protocol.event.EventProvider.AMAZON" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.event.EventProvider.CLIENT">
+<tt class="descname">CLIENT</tt><em class="property"> = 'cli'</em><a class="headerlink" href="#protocol.event.EventProvider.CLIENT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.event.EventProvider.FACEBOOK">
+<tt class="descname">FACEBOOK</tt><em class="property"> = 'fb'</em><a class="headerlink" href="#protocol.event.EventProvider.FACEBOOK" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.event.EventProvider.HASOFFERS">
+<tt class="descname">HASOFFERS</tt><em class="property"> = 'hs'</em><a class="headerlink" href="#protocol.event.EventProvider.HASOFFERS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="protocol.event.EventType">
+<em class="property">class </em><tt class="descclassname">protocol.event.</tt><tt class="descname">EventType</tt><a class="reference internal" href="_modules/protocol/event.html#EventType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.event.EventType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#protocol.meta.ProtocolDefinition" title="protocol.meta.ProtocolDefinition"><tt class="xref py py-class docutils literal"><span class="pre">protocol.meta.ProtocolDefinition</span></tt></a></p>
+<p>Keeps track of event types that we track.</p>
+<dl class="attribute">
+<dt id="protocol.event.EventType.CLICK">
+<tt class="descname">CLICK</tt><em class="property"> = 'c'</em><a class="headerlink" href="#protocol.event.EventType.CLICK" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.event.EventType.CONVERSION">
+<tt class="descname">CONVERSION</tt><em class="property"> = 'v'</em><a class="headerlink" href="#protocol.event.EventType.CONVERSION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.event.EventType.CUSTOM">
+<tt class="descname">CUSTOM</tt><em class="property"> = 'x'</em><a class="headerlink" href="#protocol.event.EventType.CUSTOM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.event.EventType.IMPRESSION">
+<tt class="descname">IMPRESSION</tt><em class="property"> = 'i'</em><a class="headerlink" href="#protocol.event.EventType.IMPRESSION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="protocol.event.EventTypePriority">
+<em class="property">class </em><tt class="descclassname">protocol.event.</tt><tt class="descname">EventTypePriority</tt><a class="reference internal" href="_modules/protocol/event.html#EventTypePriority"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.event.EventTypePriority" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#protocol.meta.ProtocolDefinition" title="protocol.meta.ProtocolDefinition"><tt class="xref py py-class docutils literal"><span class="pre">protocol.meta.ProtocolDefinition</span></tt></a></p>
+<p>Keeps track of mapped priorities for event types.</p>
+<dl class="attribute">
+<dt id="protocol.event.EventTypePriority.CLICK">
+<tt class="descname">CLICK</tt><em class="property"> = 2</em><a class="headerlink" href="#protocol.event.EventTypePriority.CLICK" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.event.EventTypePriority.CONVERSION">
+<tt class="descname">CONVERSION</tt><em class="property"> = 0</em><a class="headerlink" href="#protocol.event.EventTypePriority.CONVERSION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.event.EventTypePriority.CUSTOM">
+<tt class="descname">CUSTOM</tt><em class="property"> = 1</em><a class="headerlink" href="#protocol.event.EventTypePriority.CUSTOM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.event.EventTypePriority.IMPRESSION">
+<tt class="descname">IMPRESSION</tt><em class="property"> = 3</em><a class="headerlink" href="#protocol.event.EventTypePriority.IMPRESSION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-protocol.http">
+<span id="http-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">http</span></tt> Module<a class="headerlink" href="#module-protocol.http" title="Permalink to this headline">¶</a></h2>
+<p>Components: HTTP Protocol</p>
+<p>Description coming soon.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+<dl class="class">
+<dt id="protocol.http.DataSlot">
+<em class="property">class </em><tt class="descclassname">protocol.http.</tt><tt class="descname">DataSlot</tt><a class="reference internal" href="_modules/protocol/http.html#DataSlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.http.DataSlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#protocol.meta.ProtocolDefinition" title="protocol.meta.ProtocolDefinition"><tt class="xref py py-class docutils literal"><span class="pre">protocol.meta.ProtocolDefinition</span></tt></a></p>
+<p>Maps HTTP data slots to discrete values.</p>
+<dl class="attribute">
+<dt id="protocol.http.DataSlot.COOKIE">
+<tt class="descname">COOKIE</tt><em class="property"> = 4</em><a class="headerlink" href="#protocol.http.DataSlot.COOKIE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.http.DataSlot.ETAG">
+<tt class="descname">ETAG</tt><em class="property"> = 1</em><a class="headerlink" href="#protocol.http.DataSlot.ETAG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.http.DataSlot.HEADER">
+<tt class="descname">HEADER</tt><em class="property"> = 3</em><a class="headerlink" href="#protocol.http.DataSlot.HEADER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.http.DataSlot.PARAM">
+<tt class="descname">PARAM</tt><em class="property"> = 2</em><a class="headerlink" href="#protocol.http.DataSlot.PARAM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="protocol.http.RequestMethod">
+<em class="property">class </em><tt class="descclassname">protocol.http.</tt><tt class="descname">RequestMethod</tt><a class="reference internal" href="_modules/protocol/http.html#RequestMethod"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.http.RequestMethod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#protocol.meta.ProtocolDefinition" title="protocol.meta.ProtocolDefinition"><tt class="xref py py-class docutils literal"><span class="pre">protocol.meta.ProtocolDefinition</span></tt></a></p>
+<p>Maps HTTP verbs to discrete values.</p>
+<dl class="attribute">
+<dt id="protocol.http.RequestMethod.DELETE">
+<tt class="descname">DELETE</tt><em class="property"> = 4</em><a class="headerlink" href="#protocol.http.RequestMethod.DELETE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.http.RequestMethod.GET">
+<tt class="descname">GET</tt><em class="property"> = 1</em><a class="headerlink" href="#protocol.http.RequestMethod.GET" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.http.RequestMethod.HEAD">
+<tt class="descname">HEAD</tt><em class="property"> = 5</em><a class="headerlink" href="#protocol.http.RequestMethod.HEAD" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.http.RequestMethod.OPTIONS">
+<tt class="descname">OPTIONS</tt><em class="property"> = 6</em><a class="headerlink" href="#protocol.http.RequestMethod.OPTIONS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.http.RequestMethod.POST">
+<tt class="descname">POST</tt><em class="property"> = 2</em><a class="headerlink" href="#protocol.http.RequestMethod.POST" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.http.RequestMethod.PUT">
+<tt class="descname">PUT</tt><em class="property"> = 3</em><a class="headerlink" href="#protocol.http.RequestMethod.PUT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.http.RequestMethod.TRACE">
+<tt class="descname">TRACE</tt><em class="property"> = 7</em><a class="headerlink" href="#protocol.http.RequestMethod.TRACE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-protocol.intake">
+<span id="intake-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">intake</span></tt> Module<a class="headerlink" href="#module-protocol.intake" title="Permalink to this headline">¶</a></h2>
+<p>Components: HTTP Protocol</p>
+<p>Description coming soon.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+<dl class="class">
+<dt id="protocol.intake.InputChannels">
+<em class="property">class </em><tt class="descclassname">protocol.intake.</tt><tt class="descname">InputChannels</tt><a class="reference internal" href="_modules/protocol/intake.html#InputChannels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.intake.InputChannels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#protocol.meta.ProtocolDefinition" title="protocol.meta.ProtocolDefinition"><tt class="xref py py-class docutils literal"><span class="pre">protocol.meta.ProtocolDefinition</span></tt></a></p>
+<p>Maps channels of input to discrete values.</p>
+<dl class="attribute">
+<dt id="protocol.intake.InputChannels.HTTP">
+<tt class="descname">HTTP</tt><em class="property"> = 2</em><a class="headerlink" href="#protocol.intake.InputChannels.HTTP" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.intake.InputChannels.INTERNAL">
+<tt class="descname">INTERNAL</tt><em class="property"> = 3</em><a class="headerlink" href="#protocol.intake.InputChannels.INTERNAL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.intake.InputChannels.RPC">
+<tt class="descname">RPC</tt><em class="property"> = 1</em><a class="headerlink" href="#protocol.intake.InputChannels.RPC" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-protocol.meta">
+<span id="meta-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">meta</span></tt> Module<a class="headerlink" href="#module-protocol.meta" title="Permalink to this headline">¶</a></h2>
+<p>Protocol: Meta Bindings</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 Ampush.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - all rights are reserved. For details about
+embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="protocol.meta.Definition">
+<em class="property">class </em><tt class="descclassname">protocol.meta.</tt><tt class="descname">Definition</tt><a class="reference internal" href="_modules/protocol/meta.html#Definition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.meta.Definition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Definition.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="protocol.meta.ProtocolBinding">
+<em class="property">class </em><tt class="descclassname">protocol.meta.</tt><tt class="descname">ProtocolBinding</tt><a class="reference internal" href="_modules/protocol/meta.html#ProtocolBinding"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.meta.ProtocolBinding" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#protocol.meta.Definition" title="protocol.meta.Definition"><tt class="xref py py-class docutils literal"><span class="pre">protocol.meta.Definition</span></tt></a></p>
+<p>ProtocolBinding.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="protocol.meta.ProtocolDefinition">
+<em class="property">class </em><tt class="descclassname">protocol.meta.</tt><tt class="descname">ProtocolDefinition</tt><a class="reference internal" href="_modules/protocol/meta.html#ProtocolDefinition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.meta.ProtocolDefinition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#protocol.meta.Definition" title="protocol.meta.Definition"><tt class="xref py py-class docutils literal"><span class="pre">protocol.meta.Definition</span></tt></a></p>
+<p>ProtocolDefinition.</p>
+<dl class="classmethod">
+<dt id="protocol.meta.ProtocolDefinition.reverse_resolve">
+<em class="property">classmethod </em><tt class="descname">reverse_resolve</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="_modules/protocol/meta.html#ProtocolDefinition.reverse_resolve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.meta.ProtocolDefinition.reverse_resolve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resolve an enumerated key by value.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-protocol.param">
+<span id="param-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">param</span></tt> Module<a class="headerlink" href="#module-protocol.param" title="Permalink to this headline">¶</a></h2>
+<p>Components: Parameter Protocol</p>
+<p>Description coming soon.</p>
+<p>-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+<dl class="class">
+<dt id="protocol.param.ParameterBasetype">
+<em class="property">class </em><tt class="descclassname">protocol.param.</tt><tt class="descname">ParameterBasetype</tt><a class="reference internal" href="_modules/protocol/param.html#ParameterBasetype"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.param.ParameterBasetype" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#protocol.meta.ProtocolDefinition" title="protocol.meta.ProtocolDefinition"><tt class="xref py py-class docutils literal"><span class="pre">protocol.meta.ProtocolDefinition</span></tt></a></p>
+<p>Binds available parameter bastypes to type classes and IDs.</p>
+<dl class="attribute">
+<dt id="protocol.param.ParameterBasetype.BOOLEAN">
+<tt class="descname">BOOLEAN</tt><a class="headerlink" href="#protocol.param.ParameterBasetype.BOOLEAN" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">bool</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.param.ParameterBasetype.FLOAT">
+<tt class="descname">FLOAT</tt><a class="headerlink" href="#protocol.param.ParameterBasetype.FLOAT" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">float</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.param.ParameterBasetype.INTEGER">
+<tt class="descname">INTEGER</tt><a class="headerlink" href="#protocol.param.ParameterBasetype.INTEGER" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">int</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.param.ParameterBasetype.STRING">
+<tt class="descname">STRING</tt><a class="headerlink" href="#protocol.param.ParameterBasetype.STRING" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">basestring</span></tt></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="protocol.param.ParameterPolicy">
+<em class="property">class </em><tt class="descclassname">protocol.param.</tt><tt class="descname">ParameterPolicy</tt><a class="reference internal" href="_modules/protocol/param.html#ParameterPolicy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.param.ParameterPolicy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#protocol.meta.ProtocolDefinition" title="protocol.meta.ProtocolDefinition"><tt class="xref py py-class docutils literal"><span class="pre">protocol.meta.ProtocolDefinition</span></tt></a></p>
+<p>Maps policy options for a parameter to named items.</p>
+<dl class="attribute">
+<dt id="protocol.param.ParameterPolicy.ENFORCED">
+<tt class="descname">ENFORCED</tt><em class="property"> = 0</em><a class="headerlink" href="#protocol.param.ParameterPolicy.ENFORCED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.param.ParameterPolicy.OPTIONAL">
+<tt class="descname">OPTIONAL</tt><em class="property"> = 3</em><a class="headerlink" href="#protocol.param.ParameterPolicy.OPTIONAL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.param.ParameterPolicy.PREFERRED">
+<tt class="descname">PREFERRED</tt><em class="property"> = 2</em><a class="headerlink" href="#protocol.param.ParameterPolicy.PREFERRED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.param.ParameterPolicy.REQUIRED">
+<tt class="descname">REQUIRED</tt><em class="property"> = 1</em><a class="headerlink" href="#protocol.param.ParameterPolicy.REQUIRED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="protocol.param.ParameterType">
+<em class="property">class </em><tt class="descclassname">protocol.param.</tt><tt class="descname">ParameterType</tt><a class="reference internal" href="_modules/protocol/param.html#ParameterType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.param.ParameterType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#protocol.meta.ProtocolDefinition" title="protocol.meta.ProtocolDefinition"><tt class="xref py py-class docutils literal"><span class="pre">protocol.meta.ProtocolDefinition</span></tt></a></p>
+<p>Maps groups of params to custom prefixes.</p>
+<dl class="attribute">
+<dt id="protocol.param.ParameterType.AMPUSH">
+<tt class="descname">AMPUSH</tt><em class="property"> = 'a'</em><a class="headerlink" href="#protocol.param.ParameterType.AMPUSH" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.param.ParameterType.CUSTOM">
+<tt class="descname">CUSTOM</tt><em class="property"> = 'c'</em><a class="headerlink" href="#protocol.param.ParameterType.CUSTOM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.param.ParameterType.DATA">
+<tt class="descname">DATA</tt><em class="property"> = 'd'</em><a class="headerlink" href="#protocol.param.ParameterType.DATA" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.param.ParameterType.INTERNAL">
+<tt class="descname">INTERNAL</tt><em class="property"> = 'i'</em><a class="headerlink" href="#protocol.param.ParameterType.INTERNAL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-protocol.timedelta">
+<span id="timedelta-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">timedelta</span></tt> Module<a class="headerlink" href="#module-protocol.timedelta" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="protocol.timedelta.TimeWindow">
+<em class="property">class </em><tt class="descclassname">protocol.timedelta.</tt><tt class="descname">TimeWindow</tt><a class="reference internal" href="_modules/protocol/timedelta.html#TimeWindow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.timedelta.TimeWindow" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="protocol.timedelta.TimeWindow.FIVE_WEEKS">
+<tt class="descname">FIVE_WEEKS</tt><em class="property"> = 6</em><a class="headerlink" href="#protocol.timedelta.TimeWindow.FIVE_WEEKS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.timedelta.TimeWindow.FOREVER">
+<tt class="descname">FOREVER</tt><em class="property"> = 0</em><a class="headerlink" href="#protocol.timedelta.TimeWindow.FOREVER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.timedelta.TimeWindow.FOUR_WEEKS">
+<tt class="descname">FOUR_WEEKS</tt><em class="property"> = 5</em><a class="headerlink" href="#protocol.timedelta.TimeWindow.FOUR_WEEKS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.timedelta.TimeWindow.ONE_DAY">
+<tt class="descname">ONE_DAY</tt><em class="property"> = 1</em><a class="headerlink" href="#protocol.timedelta.TimeWindow.ONE_DAY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.timedelta.TimeWindow.ONE_WEEK">
+<tt class="descname">ONE_WEEK</tt><em class="property"> = 2</em><a class="headerlink" href="#protocol.timedelta.TimeWindow.ONE_WEEK" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.timedelta.TimeWindow.SIX_WEEKS">
+<tt class="descname">SIX_WEEKS</tt><em class="property"> = 7</em><a class="headerlink" href="#protocol.timedelta.TimeWindow.SIX_WEEKS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.timedelta.TimeWindow.THREE_WEEKS">
+<tt class="descname">THREE_WEEKS</tt><em class="property"> = 4</em><a class="headerlink" href="#protocol.timedelta.TimeWindow.THREE_WEEKS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol.timedelta.TimeWindow.TWO_WEEKS">
+<tt class="descname">TWO_WEEKS</tt><em class="property"> = 3</em><a class="headerlink" href="#protocol.timedelta.TimeWindow.TWO_WEEKS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">protocol Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">protocol</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-protocol.builtin"><tt class="docutils literal"><span class="pre">builtin</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-protocol.environment"><tt class="docutils literal"><span class="pre">environment</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-protocol.event"><tt class="docutils literal"><span class="pre">event</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-protocol.http"><tt class="docutils literal"><span class="pre">http</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-protocol.intake"><tt class="docutils literal"><span class="pre">intake</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-protocol.meta"><tt class="docutils literal"><span class="pre">meta</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-protocol.param"><tt class="docutils literal"><span class="pre">param</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-protocol.timedelta"><tt class="docutils literal"><span class="pre">timedelta</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="main.html"
+                        title="previous chapter">main Module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="tools.html"
+                        title="next chapter">tools Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/protocol.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tools.html" title="tools Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="main.html" title="main Module"
+             >previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>
