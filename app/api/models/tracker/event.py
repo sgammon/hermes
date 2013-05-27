@@ -11,7 +11,6 @@ expressing/persisting individual events.
 '''
 
 # stdlib
-import time
 import datetime
 
 # apptools models
@@ -29,7 +28,6 @@ from protocol import event
 
 
 ## EventAction
-# Represents an action taken in response to an event.
 class EventAction(model.Model):
 
     ''' An action performed by the `EventTracker` in response to an occurrence of a `TrackedEvent`.
@@ -44,12 +42,11 @@ class EventAction(model.Model):
                         :py:class:`EventAction`. '''
 
     success = bool, {'default': False, 'indexed': True}  # whether this `EventAction` was successful
-    started = datetime.datetime, {'required': False, 'indexed': True}  # timestamp for when this `EventAction` started work
-    routine = integration.Routine, {'repeated': True, 'indexed': True}  # linked routine set to fulfill this `EventAction`
+    started = datetime.datetime, {'required': False, 'indexed': True}  # timestamp for when this action started work
+    routine = integration.Routine, {'repeated': True, 'indexed': True}  # linked routine to fulfill this `EventAction`
 
 
 ## TrackedEvent
-# Represents a single `EventTracker` URL hit.
 class TrackedEvent(model.Model):
 
     ''' A single hit to the ``EventTracker`` server, linked to a :py:class:`tracker.Tracker`

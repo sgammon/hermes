@@ -15,7 +15,6 @@ from apptools import model
 
 
 ## AggregationGroup
-# Represents a group of aggregations linked to a value or `Tracker`/`Profile`.
 class AggregationGroup(model.Model):
 
     ''' Represents a group of `Aggregation` objects linked to a `Tracker` or `Profile`. '''
@@ -25,7 +24,6 @@ class AggregationGroup(model.Model):
 
 
 ## Aggregation
-# Represents an aggregation "matched-to" a `TrackedEvent`.
 class Aggregation(model.Model):
 
     ''' Represents a single aggregation match from an event=>property or event=>object. '''

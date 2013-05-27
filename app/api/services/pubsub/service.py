@@ -13,30 +13,23 @@ PubSub API: Service
 from . import messages
 from . import exceptions
 
-# apptools services / protorpc
+# apptools rpc
 from apptools import rpc
-from protorpc import message_types
-
-# apptools util
-from apptools.util import datastructures
-
-# API Service
-from api.services import APIService
 
 
 ## PubSubService - exposes methods for publishing and subscribing to `TrackedEvent`(s).
 @rpc.service
-class PubSubService(APIService):
+class PubSubService(rpc.Service):
 
     ''' Exposes methods for publishing and subscribing to the `TrackedEvent` stream. '''
 
     _config_path = 'hermes.api.tracker.PubSubAPI'
 
-    exceptions = datastructures.DictProxy(**{
+    exceptions = rpc.Exceptions(**{
         'generic': exceptions.Error
     })
 
-    @rpc.method(messages.BatchPublish, message_types.VoidMessage)
+    @rpc.method(messages.BatchPublish, rpc.messages.VoidMessage)
     def publish(self, request):
 
         ''' Publish a message to the global eventstream. '''
@@ -50,7 +43,7 @@ class PubSubService(APIService):
 
         pass
 
-    @rpc.method(messages.Subscription, message_types.VoidMessage)
+    @rpc.method(messages.Subscription, rpc.messages.VoidMessage)
     def unsubscribe(self, request):
 
         ''' Close and destroy an existing subscription. '''

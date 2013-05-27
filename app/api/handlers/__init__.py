@@ -12,22 +12,21 @@ cycle. All project handlers should inherit from this.
 '''
 
 # Base Imports
-import os
 import config
-import hashlib
 
 # Webapp2 Imports
 import webapp2
 
 # AppTools Imports
+from apptools import rpc
 from apptools import core
 
 # AppTools Util Imports
-from apptools.util import debug
+from apptools.util import decorators
 
 
 ## WebHanlder - parent class for all site request handler classes
-class WebHandler(core.BaseHandler):
+class WebHandler(core.BaseHandler, rpc.ConfiguredClass):
 
     ''' Handler for desktop web requests. '''
 
@@ -37,8 +36,8 @@ class WebHandler(core.BaseHandler):
     template = None  # string path to associated template
 
     # Config Paths
+    _config_path = 'api.classes.WebHandler'
     _jinja2_config_path = 'webapp2_extras.jinja2'
-    _handler_config_path = 'api.classes.WebHandler'
     _p_output_config_path = 'apptools.project.output'
 
     # RPC Transport Settings
@@ -57,70 +56,9 @@ class WebHandler(core.BaseHandler):
     }
 
     ## ++ Internal Shortcuts ++ ##
-
-    ## Debug Pipe
-    @webapp2.cached_property
-    def debug(self):  # pragma: no cover
-
-        ''' Shortcut to AppTools debugging utilities.
-            :returns: Boolean value indicating whether debug mode is active. '''
-
-        return debug
-
-    ## Logging Pipe
-    @webapp2.cached_property
-    def logging(self):  # pragma: no cover
-
-        ''' Named logging pipe / shortcut.
-
-            :returns: Customized log pipe, with ``path``, ``name`` and
-                      ``condition`` set according to config. '''
-
-        return debug.AppToolsLogger(path='api.handlers', name='WebHandler')._setcondition(config.debug)
-
-    ## Config Shortcuts
-    @webapp2.cached_property
-    def config(self):  # pragma: no cover
-
-        ''' Cached access to main config for this handler.
-
-            :returns: Configuration ``dict`` for current
-                      ``WebHandler`` descendent. '''
-
-        return self._webHandlerConfig
-
-    @webapp2.cached_property
-    def _webHandlerConfig(self):  # pragma: no cover
-
-        ''' Cached access to this handler's config.
-
-            :returns: Configuration ``dict`` for base ``WebHandler``. '''
-
-        return config.config.get(self._handler_config_path)
-
-    @webapp2.cached_property
-    def _jinjaConfig(self):  # pragma: no cover
-
-        ''' Cached access to Jinja2 base config.
-
-            :returns: Configuration ``dict`` for :py:mod:`jinja2`
-                      integration. '''
-
-        return config.config.get(self._jinja2_config_path)
-
-    @webapp2.cached_property
-    def _integrationConfig(self):  # pragma: no cover
-
-        ''' Cached access to this handler's integration config.
-
-            :returns: Configuration ``dict`` for integration
-                      components that are encapsulated by
-                      ``WebHandler``. '''
-
-        return self._webHandlerConfig.get('integrations')
-
-    @webapp2.cached_property
-    def _outputConfig(self):  # pragma: no cover
+    @decorators.memoize
+    @decorators.classproperty
+    def _outputConfig(cls):  # pragma: no cover
 
         ''' Cached access to base output config.
 
@@ -128,10 +66,22 @@ class WebHandler(core.BaseHandler):
                       *Core Output API*, which provides integration with
                       :py:mod:`jinja2`, among other things. '''
 
-        return config.config.get(self._p_output_config_path)
+        return config.config.get(cls._p_output_config_path)
+
+    @decorators.memoize
+    @decorators.classproperty
+    def _jinjaConfig(cls):  # pragma: no cover
+
+        ''' Cached access to base output config.
+
+            :returns: Configuration ``dict`` for the :py:mod:`apptools`
+                      *Core Output API*, which provides integration with
+                      :py:mod:`jinja2`, among other things. '''
+
+        return config.config.get(cls._jinja2_config_path)
 
     ## Internals
-    @webapp2.cached_property
+    @decorators.memoize
     def hostname(self):
 
         ''' Return proxied or request hostname. In cases where :py:mod:`apptools`
@@ -146,7 +96,7 @@ class WebHandler(core.BaseHandler):
 
         return self.request.host if not self.force_hostname else self.force_hostname
 
-    @webapp2.cached_property
+    @decorators.memoize
     def baseTransport(self):
 
         ''' Return a clean set of transport base settings.
@@ -163,7 +113,7 @@ class WebHandler(core.BaseHandler):
             'make_object': lambda x: self._make_services_object(x)
         }
 
-    @webapp2.cached_property
+    @decorators.memoize
     def computedTransport(self):
 
         ''' Overlay this handler's transport settings on the app's base settings and return.
@@ -175,7 +125,7 @@ class WebHandler(core.BaseHandler):
         b.update(self.transport)
         return b
 
-    @webapp2.cached_property
+    @decorators.memoize
     def template_environment(self):
 
         ''' Return a new environment, because if we're already here it's not cached.
@@ -184,7 +134,7 @@ class WebHandler(core.BaseHandler):
 
         return self.jinja2
 
-    @webapp2.cached_property
+    @decorators.memoize
     def jinja2(self):
 
         ''' Cached access to Jinja2.

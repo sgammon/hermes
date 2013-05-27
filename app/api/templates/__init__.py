@@ -23,14 +23,14 @@ case, you can simply execute `cake compile:templates` to compile, and
 
 Notable template directories:
 
-	-- source/core
-	   Contains base templates, including the root (__base.html).
+    * source/core
+      Contains base templates, including the root (__base.html).
 
-	-- source/macros
-	   Contains built-in and custom importable macros for various things.
+    * source/macros
+      Contains built-in and custom importable macros for various things.
 
-	-- source/*
-	   App templates! :)
+    * source/*
+      App templates! :)
 
 
 -sam (<sam.gammon@ampush.com>)

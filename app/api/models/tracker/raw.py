@@ -28,12 +28,12 @@ class Event(model.Model):
 
     url = basestring, {'required': True, 'indexed': False}  # full text of URL hit (including params + hash, if any)
     method = basestring, {'required': True, 'indexed': True}  # request method used to hit the URL that was invoked
-    session = bool, {'default': False, 'indexed': True}  # whether the request came in with a session (True) or one was created (False)
-    processed = bool, {'default': False, 'indexed': True}  # whether this `RawEvent` has been processed into a `TrackedEvent` yet
+    session = bool, {'default': False, 'indexed': True}  # hit came in with a session (True) or one was created (False)
+    processed = bool, {'default': False, 'indexed': True}  # whether this `RawEvent` has been processed yet
     cookie = basestring, {'indexed': True, 'indexed': True}  # plaintext value of the cookie in this event
     error = bool, {'default': False, 'indexed': True}  # flag indicating this might be an error
-    modified = datetime.datetime, {'required': True, 'auto_now': True}  # timestamp for when this record was last modified
-    timestamp = datetime.datetime, {'required': True, 'auto_now_add': True}  # timestamp for when this record was created
+    modified = datetime.datetime, {'required': True, 'auto_now': True}  # timestamp for when this was last modified
+    timestamp = datetime.datetime, {'required': True, 'auto_now_add': True}  # timestamp for when this was created
 
     @classmethod
     def inflate(cls, request):

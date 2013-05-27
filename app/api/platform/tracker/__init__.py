@@ -10,11 +10,11 @@ is the primary location for app-wide business logic.
           embedded licenses and other legalese, see `LICENSE.md`.
 """
 
-# Base Imports
-import webapp2
-
 # Platform Parent
 from api.platform import Platform
+
+# apptools util
+from apptools.util import decorators
 
 # Platform Bridges
 from api.platform.tracker import event
@@ -59,7 +59,7 @@ class Tracker(Platform):
 
         return True
 
-    @webapp2.cached_property
+    @decorators.memoize
     def shortcut_exports(self):
 
         ''' Return shortcuts.
@@ -71,7 +71,7 @@ class Tracker(Platform):
             ('tracker', self)
         ]
 
-    @webapp2.cached_property
+    @decorators.memoize
     def template_context(self):
 
         ''' Inject Tracker-specific template context.

@@ -107,14 +107,14 @@ class EventEngine(PlatformBridge):
                       operation. '''
 
         from protorpc import messages
-        from apptools.services import mappers
+        from apptools.rpc import mappers
 
         # first, resolve value
         if not isinstance(value, (dict, messages.Message, basestring)):
             raise ValueError('Can only pubsub strings, `protorpc.Message` and `dict`.')
 
         elif isinstance(value, (dict, messages.Message)):
-            encoded = mappers._MessageJSONEncoder().encode(value)
+            encoded = mappers.JSONRPC._MessageJSONEncoder().encode(value)
         else:
             encoded = value  # must be a string
 
