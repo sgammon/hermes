@@ -10,11 +10,10 @@ Event Data API: Service
 '''
 
 # Local Imports
-from . import messages
 from . import exceptions
 
-# apptools services
-from apptools import services
+# apptools rpc
+from apptools import rpc
 
 # apptools util
 from apptools.util import datastructures
@@ -24,6 +23,7 @@ from api.services import APIService
 
 
 ## EventDataService - exposes methods for extracting data from `EventTracker`.
+@rpc.service
 class EventDataService(APIService):
 
     ''' Exposes methods for interacting with & extracting data from `EventTracker`. '''

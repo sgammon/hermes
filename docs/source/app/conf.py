@@ -96,7 +96,7 @@ show_authors = True
 pygments_style = 'sphinx'
 
 # A list of ignored prefixes for module index sorting.
-#modindex_common_prefix = []
+modindex_common_prefix = ['lib', 'lib.dist']
 
 # If true, keep warnings as "system message" paragraphs in the built documents.
 #keep_warnings = False
@@ -173,7 +173,7 @@ html_show_copyright = True
 # If true, an OpenSearch description file will be output, and all pages will
 # contain a <link> tag referring to it.  The value of this option must be the
 # base URL from which the finished HTML is served.
-html_use_opensearch = 'http://docs.amp.sh/hermes/0.5-alpha-dev/app/'
+html_use_opensearch = 'http://docs.amp.sh/hermes/0.5-alpha/app/'
 
 # This is the file name suffix for HTML files (e.g. ".xhtml").
 #html_file_suffix = None
@@ -243,7 +243,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'Hermes', u'Hermes Documentation',
-   u'Sam Gammon (sam.gammon@ampush.com)', 'Hermes', 'One line description of project.',
+   u'Sam Gammon (sam.gammon@ampush.com)', 'Hermes', 'API hosting platform and Event Tracker container.',
    'Miscellaneous'),
 ]
 
@@ -318,7 +318,7 @@ epub_copyright = u'Ampush, Inc (ampush.com)'
 #epub_use_index = True
 
 intersphinx_mapping = {'python': ('http://docs.python.org/2.7', None),
-                       'apptools': ('http://docs.amp.sh/apptools/latest', None),
                        'webapp2': ('http://webapp-improved.appspot.com/', None),
-                       'jinja2': ('http://jina.pocoo.org/', None)}
+                       'jinja2': ('http://jinja.pocoo.org/docs/', None)}
+                       #'apptools': ('http://docs.amp.sh/apptools/latest', None)}
 

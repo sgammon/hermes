@@ -260,8 +260,6 @@ class AppBootstrapper(object):
             from api.templates.compiled import layout
             from api.templates.compiled import harness
         except:
-            if _DEBUG:
-                print "Failed to preload compiled templates."
             pass
 
         return cls
@@ -303,14 +301,7 @@ class AppBootstrapper(object):
             try:
                 routine(_DEBUG)  # preload modules
             except ImportError:
-                print "ERROR: Failed to preload module bundle \"%s\"." % name
-                if _DEBUG:
-                    raise
-                else:
-                    pass
-            else:
-                if _DEBUG:
-                    print "Preloaded module bundle: \"%s\"." % name
+                pass
 
         return cls
 

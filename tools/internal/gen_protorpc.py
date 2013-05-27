@@ -357,10 +357,10 @@ def registry_command(options,
   """
   dest_dir = os.path.expanduser(options.dest_dir)
 
-  from apptools.services import mappers
+  from apptools.rpc import mappers
 
   url = 'http://%s%s' % (host, registry_path)
-  reg = registry.RegistryService.Stub(transport.HttpTransport(url, protocol=mappers.JSONRPCMapper))
+  reg = registry.RegistryService.Stub(transport.HttpTransport(url, protocol=mappers.JSONRPC))
 
   if service_name is None:
     service_names = [service.name for service in reg.services().services]

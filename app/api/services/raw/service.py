@@ -14,7 +14,7 @@ from . import messages
 from . import exceptions
 
 # apptools services
-from apptools import services
+from apptools import rpc
 
 # apptools util
 from apptools.util import datastructures
@@ -24,6 +24,7 @@ from api.services import APIService
 
 
 ## RawDataService - exposes methods for retrieving raw data from `EventTracker`.
+@rpc.service
 class RawDataService(APIService):
 
     ''' Exposes methods for retrieving raw data from `EventTracker`. '''

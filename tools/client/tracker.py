@@ -1,5 +1,5 @@
 from protorpc import message_types
-from apptools import services
+from apptools import rpc
 from protorpc import messages
 from protorpc import remote
 package = 'tracker'
@@ -7,8 +7,8 @@ package = 'tracker'
 
 class Echo(messages.Message):
   
-  key = services.VariantField(1, variant=messages.Variant.MESSAGE)
-  message = services.VariantField(2, default='Hello, world!')
+  key = rpc.VariantField(1, variant=messages.Variant.MESSAGE)
+  message = rpc.VariantField(2, default='Hello, world!')
 
 
 class TrackerService(remote.Service):
