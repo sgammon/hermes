@@ -16,4 +16,4 @@ and dispatched by the Service Layer. Register middleware classes in config at
 try:
     from apptools import rpc
 except:
-    from apptools import services as rpc
+    from apptools import services as rpc  # pragma: no cover
