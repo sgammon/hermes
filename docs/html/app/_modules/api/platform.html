@@ -53,10 +53,6 @@
 <span class="c"># -*- coding: utf-8 -*-</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">~~~~~~~~~~~~~~</span>
-<span class="sd">API: Platforms</span>
-<span class="sd">~~~~~~~~~~~~~~</span>
-
 <span class="sd">This package contains platform classes. AppTools platform classes contain</span>
 <span class="sd">business logic code that must be distributed to all base classes in an app.</span>
 <span class="sd">Platforms are registered at ``apptools.system.platform``, and are picked up</span>
@@ -70,7 +66,8 @@
 <span class="sd">attributes are picked up and considered by the ``apptools`` platform</span>
 <span class="sd">runtime (see: :py:mod:`apptools.util.platform`):</span>
 
-<span class="sd">  * :py:meth:`Platform.check_environment`</span>
+<span class="sd">  * :py:meth:`Platform.check_environment`:</span>
+
 <span class="sd">    Executed by apptools internals before injection and after import,</span>
 <span class="sd">    to delegate environment compatibility detection to the Platform.</span>
 <span class="sd">    Must return ``True`` or ``False`` to indicate whether this platform</span>
@@ -94,7 +91,9 @@
 <span class="sd">                  return False</span>
 <span class="sd">                return True</span>
 
-<span class="sd">  * :py:attr:`Platform.shortcut_exports`</span>
+
+<span class="sd">  * :py:attr:`Platform.shortcut_exports`:</span>
+
 <span class="sd">    Accessed by apptools internals. Must be a structure in the format</span>
 <span class="sd">    ``[(&lt;string&gt;, &lt;obj&gt;)]``. Shortcuts exported in this way</span>
 <span class="sd">    will appear on injected base classes as directly attached at the</span>
@@ -133,7 +132,8 @@
 <span class="sd">                self.my_cool_platform == MyPlatform  # this is also truthy</span>
 
 
-<span class="sd">  * :py:attr:`Platform.template_context`</span>
+<span class="sd">  * :py:attr:`Platform.template_context`:</span>
+
 <span class="sd">    Loaded by the AppTools output API to allow a Platform to inject data</span>
 <span class="sd">    into the global Jinja2 template context. This is evaluated at runtime</span>
 <span class="sd">    during the request processing flow, and thus has access to request</span>
@@ -181,7 +181,8 @@
 <span class="sd">        &lt;/ul&gt;</span>
 
 
-<span class="sd">  * :py:attr:`Platform.config_shortcuts`</span>
+<span class="sd">  * :py:attr:`Platform.config_shortcuts`:</span>
+
 <span class="sd">    Loaded and attached by the apptools internals to base classes in a very</span>
 <span class="sd">    similar way to ``shortcut_exports``. This structure, however, accepts</span>
 <span class="sd">    a list of the form ``list(tuple(&lt;string&gt;, &lt;obj&gt;))``, where ``&lt;string&gt;``</span>
@@ -197,15 +198,26 @@
 <span class="sd">Platforms can also export method hooks, which are dispatched by ``apptools``</span>
 <span class="sd">at various stages of the request/response execution flow:</span>
 
-<span class="sd">    * :py:meth:`Platform.pre_dispatch`</span>
+<span class="sd">    * :py:meth:`Platform.pre_dispatch`:</span>
 <span class="sd">      Hook method that, if defined, is executed right before handler dispatch.</span>
 <span class="sd">      The request flow can be stopped by raising an exception, but the return</span>
 <span class="sd">      value of this function is ignored, so it&#39;s mostly for initialization.</span>
 
-<span class="sd">    * :py:meth:`Platform.post_dispatch`</span>
+<span class="sd">      :param handler: The currently-active :py:class:`webapp.RequestHandler`.</span>
+<span class="sd">      :returns: *Must* return the current handler.</span>
+
+
+<span class="sd">    * :py:meth:`Platform.post_dispatch`:</span>
 <span class="sd">      Hook method that, if defined, is executed right after the response is</span>
 <span class="sd">      returned from the handler. Once again, the request flow can be stopped</span>
 <span class="sd">      via exceptions but the return value is ignored.</span>
+
+<span class="sd">      :param handler: The currently-active :py:class:`webapp.RequestHandler`.</span>
+<span class="sd">      :param response: The currently-active :py:class:`webapp.Response`.</span>
+<span class="sd">      :returns: Return value is discarded - since the request execution flow</span>
+<span class="sd">                has already ceased, the return value from this method is</span>
+<span class="sd">                discarded.</span>
+
 
 
 <span class="sd">:author: Sam Gammon (sam.gammon@ampush.com)</span>
@@ -228,6 +240,13 @@
 <div class="viewcode-block" id="Platform"><a class="viewcode-back" href="../../api.platform.html#api.platform.Platform">[docs]</a><span class="k">class</span> <span class="nc">Platform</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
     <span class="sd">&#39;&#39;&#39; Root abstract class for platform objects. &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Initialize this ``Platform`. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;initialize&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
 
     <span class="nd">@decorators.classproperty</span>
     <span class="k">def</span> <span class="nf">_config_path</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>

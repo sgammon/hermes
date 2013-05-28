@@ -33,7 +33,7 @@ class Hermes(Platform):
             :param environ: Current non-runtime environment ``dict``.
             :param config: System-wide configuration ``dict``.
             :returns: Boolean indicating whether this ``Platform``
-                      should be loaded. '''
+            should be loaded. '''
 
         return True
 
@@ -41,8 +41,9 @@ class Hermes(Platform):
     def shortcut_exports(self):
 
         ''' Return shortcuts.
+
             :returns: List of ``(<name>, <obj>)`` pairs to create
-                      shortcuts on target base classes for. '''
+            shortcuts on target base classes for. '''
 
         # Shortcut exports
         return [
@@ -53,10 +54,11 @@ class Hermes(Platform):
     def template_context(self):
 
         ''' Inject Hermes-specific template context.
+
             :returns: Callable function :py:func:`inject_hermes`,
-                      which can be deferred until template
-                      construction time, and returns context
-                      mutations for this particular ``Platform``. '''
+            which can be deferred until template construction
+            time, and returns context mutations for this
+            particular ``Platform``. '''
 
         def inject_hermes(handler, context):
 

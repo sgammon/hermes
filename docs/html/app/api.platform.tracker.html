@@ -1,0 +1,808 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>tracker Package &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="index.html" />
+    <link rel="up" title="platform Package" href="api.platform.html" />
+    <link rel="next" title="services Package" href="api.services.html" />
+    <link rel="prev" title="hermes Package" href="api.platform.hermes.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.services.html" title="services Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="api.platform.hermes.html" title="hermes Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
+          <li><a href="api.html" >api Package</a> &raquo;</li>
+          <li><a href="api.platform.html" accesskey="U">platform Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="tracker-package">
+<h1>tracker Package<a class="headerlink" href="#tracker-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">tracker</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-api.platform.tracker"></span><p>This package contains platform-specific code for <cite>EventTracker</cite>, and
+is the primary location for app-wide business logic.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 Ampush.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - all rights are reserved. For details about
+embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="api.platform.tracker.Tracker">
+<em class="property">class </em><tt class="descclassname">api.platform.tracker.</tt><tt class="descname">Tracker</tt><a class="reference internal" href="_modules/api/platform/tracker.html#Tracker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.Tracker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="api.platform.html#api.platform.Platform" title="api.platform.Platform"><tt class="xref py py-class docutils literal"><span class="pre">api.platform.Platform</span></tt></a></p>
+<p>Version 0.1 of <cite>EventTracker</cite> platform.</p>
+<dl class="classmethod">
+<dt id="api.platform.tracker.Tracker.check_environment">
+<em class="property">classmethod </em><tt class="descname">check_environment</tt><big>(</big><em>environ</em>, <em>config</em><big>)</big><a class="reference internal" href="_modules/api/platform/tracker.html#Tracker.check_environment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.Tracker.check_environment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the current environment supports Tantric.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>environ</strong> &#8211; Current non-runtime environment <tt class="docutils literal"><span class="pre">dict</span></tt>.</li>
+<li><strong>config</strong> &#8211; System-wide configuration <tt class="docutils literal"><span class="pre">dict</span></tt>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Boolean indicating whether this <tt class="docutils literal"><span class="pre">Platform</span></tt>
+should be loaded.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.platform.tracker.Tracker.initialize">
+<tt class="descname">initialize</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/api/platform/tracker.html#Tracker.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.Tracker.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the <tt class="docutils literal"><span class="pre">Tracker</span></tt> platform, and attach
+any encapsulated classes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The currently-active <a class="reference internal" href="#api.platform.tracker.Tracker" title="api.platform.tracker.Tracker"><tt class="xref py py-class docutils literal"><span class="pre">Tracker</span></tt></a>, for chainability.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.platform.tracker.Tracker.post_dispatch">
+<tt class="descname">post_dispatch</tt><big>(</big><em>handler</em>, <em>response</em><big>)</big><a class="reference internal" href="_modules/api/platform/tracker.html#Tracker.post_dispatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.Tracker.post_dispatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Invoked right after handler dispatch.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>handler</strong> &#8211; The currently-active descendent of
+<a class="reference external" href="http://webapp-improved.appspot.com/api/webapp2.html#webapp2.RequestHandler" title="(in webapp2 v2.5.1)"><tt class="xref py py-class docutils literal"><span class="pre">webapp2.RequestHandler</span></tt></a>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Nothing, the return value from this method is
+<strong>discarded</strong>, since the response has already
+been relayed to the requesting party.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.platform.tracker.Tracker.pre_dispatch">
+<tt class="descname">pre_dispatch</tt><big>(</big><em>handler</em><big>)</big><a class="reference internal" href="_modules/api/platform/tracker.html#Tracker.pre_dispatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.Tracker.pre_dispatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Invoked right before handler dispatch.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>handler</strong> &#8211; The currently-active descendent of
+<a class="reference external" href="http://webapp-improved.appspot.com/api/webapp2.html#webapp2.RequestHandler" title="(in webapp2 v2.5.1)"><tt class="xref py py-class docutils literal"><span class="pre">webapp2.RequestHandler</span></tt></a>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The very same <tt class="docutils literal"><span class="pre">handler</span></tt>, post-mutation.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.platform.tracker.Tracker.provision">
+<tt class="descname">provision</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/api/platform/tracker.html#Tracker.provision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.Tracker.provision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Entrypoint for provisioning/creating a new
+<a class="reference internal" href="api.models.tracker.html#api.models.tracker.endpoint.Tracker" title="api.models.tracker.endpoint.Tracker"><tt class="xref py py-class docutils literal"><span class="pre">api.models.tracker.endpoint.Tracker</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>*args</strong> &#8211; <p>Positional arguments to pass to
+the <tt class="xref py py-class docutils literal"><span class="pre">endpoint.Tracker</span></tt>
+construction routine.</p>
+</li>
+<li><strong>**kwargs</strong> &#8211; <p>Keyword arguments to pass to
+the <tt class="xref py py-class docutils literal"><span class="pre">endpoint.Tracker</span></tt>
+construction routine.</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The newly-created <tt class="xref py py-class docutils literal"><span class="pre">endpoint.Tracker</span></tt>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.platform.tracker.Tracker.resolve">
+<tt class="descname">resolve</tt><big>(</big><em>raw_event</em><big>)</big><a class="reference internal" href="_modules/api/platform/tracker.html#Tracker.resolve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.Tracker.resolve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resolves a <tt class="docutils literal"><span class="pre">model.Tracker</span></tt> for a given
+<tt class="docutils literal"><span class="pre">model.RawEvent</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>raw_event</strong> &#8211; Object <tt class="xref py py-class docutils literal"><span class="pre">model.RawEvent</span></tt> to
+resolve a <tt class="xref py py-class docutils literal"><span class="pre">model.Tracker</span></tt> for.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An inflated <tt class="docutils literal"><span class="pre">model.Tracker</span></tt> object.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.platform.tracker.Tracker.shortcut_exports">
+<tt class="descname">shortcut_exports</tt><em class="property"> = [('tracker', &lt;api.platform.tracker.Tracker object at 0x111956cd0&gt;)]</em><a class="reference internal" href="_modules/api/platform/tracker.html#Tracker.shortcut_exports"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.Tracker.shortcut_exports" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="api.platform.tracker.Tracker.template_context">
+<em class="property">static </em><tt class="descname">template_context</tt><big>(</big><em>handler</em>, <em>context</em><big>)</big><a class="reference internal" href="_modules/api/platform/tracker.html#Tracker.template_context"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.Tracker.template_context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Protocol/platform stuff.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>handler</strong> &#8211; The currently-active descendent of
+<a class="reference external" href="http://webapp-improved.appspot.com/api/webapp2.html#webapp2.RequestHandler" title="(in webapp2 v2.5.1)"><tt class="xref py py-class docutils literal"><span class="pre">webapp2.RequestHandler</span></tt></a>.</li>
+<li><strong>context</strong> &#8211; Template context <tt class="docutils literal"><span class="pre">dict</span></tt> to be
+optionally mutated and returned.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Materialized context <tt class="docutils literal"><span class="pre">dict</span></tt>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.platform.tracker.Tracker.vesion">
+<tt class="descname">vesion</tt><em class="property"> = (0, 1)</em><a class="headerlink" href="#api.platform.tracker.Tracker.vesion" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-api.platform.tracker.engine">
+<span id="engine-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">engine</span></tt> Module<a class="headerlink" href="#module-api.platform.tracker.engine" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="#api.platform.tracker.engine.EventEngine" title="api.platform.tracker.engine.EventEngine"><tt class="xref py py-class docutils literal"><span class="pre">EventEngine</span></tt></a> class handles calls to
+underlying storage mechanisms.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 Ampush.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - all rights are reserved. For details about
+embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="api.platform.tracker.engine.EventEngine">
+<em class="property">class </em><tt class="descclassname">api.platform.tracker.engine.</tt><tt class="descname">EventEngine</tt><big>(</big><em>bus=None</em><big>)</big><a class="reference internal" href="_modules/api/platform/tracker/engine.html#EventEngine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.engine.EventEngine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="api.platform.html#api.platform.PlatformBridge" title="api.platform.PlatformBridge"><tt class="xref py py-class docutils literal"><span class="pre">api.platform.PlatformBridge</span></tt></a></p>
+<p>Handles datastore integration and
+propagation of data to underlying
+storage mechanisms.</p>
+<dl class="class">
+<dt id="api.platform.tracker.engine.EventEngine.Datastore">
+<em class="property">class </em><tt class="descname">Datastore</tt><a class="reference internal" href="_modules/api/platform/tracker/engine.html#EventEngine.Datastore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.engine.EventEngine.Datastore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Encapsulated attachment of symbols to
+<tt class="xref py py-mod docutils literal"><span class="pre">model.adapter.redis</span></tt> and
+<tt class="xref py py-mod docutils literal"><span class="pre">model.adapter.inmemory</span></tt>.</p>
+<dl class="attribute">
+<dt id="api.platform.tracker.engine.EventEngine.Datastore.memcache">
+<tt class="descname">memcache</tt><a class="headerlink" href="#api.platform.tracker.engine.EventEngine.Datastore.memcache" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">MemcacheAdapter</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.platform.tracker.engine.EventEngine.Datastore.memory">
+<tt class="descname">memory</tt><a class="headerlink" href="#api.platform.tracker.engine.EventEngine.Datastore.memory" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">InMemoryAdapter</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.platform.tracker.engine.EventEngine.Datastore.redis">
+<tt class="descname">redis</tt><a class="headerlink" href="#api.platform.tracker.engine.EventEngine.Datastore.redis" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">RedisAdapter</span></tt></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="method">
+<dt id="api.platform.tracker.engine.EventEngine.adapter">
+<tt class="descclassname">EventEngine.</tt><tt class="descname">adapter</tt><big>(</big><em>engine</em>, <em>kind=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/api/platform/tracker/engine.html#EventEngine.adapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.engine.EventEngine.adapter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Acquire a write-capable driver for <tt class="docutils literal"><span class="pre">engine</span></tt>, constructing
+if needed. Available options for <tt class="docutils literal"><span class="pre">engine</span></tt> are enumerated
+at <a class="reference internal" href="#api.platform.tracker.engine.EventEngine.Datastore" title="api.platform.tracker.engine.EventEngine.Datastore"><tt class="xref py py-attr docutils literal"><span class="pre">EventEngine.Datastore</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>engine</strong> &#8211; Engine <tt class="xref py py-class docutils literal"><span class="pre">model.adapter.ModelAdapter</span></tt>
+to acquire an adapter to.</li>
+<li><strong>**kwargs</strong> &#8211; <p>Keyword arguments to pass to the newly-
+acquired adapter.</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Newly-prepared/constructed <tt class="xref py py-class docutils literal"><span class="pre">RedisAdapter</span></tt>,
+<tt class="xref py py-class docutils literal"><span class="pre">MemcacheAdapter</span></tt>, or <tt class="xref py py-class docutils literal"><span class="pre">InMemoryAdapter</span></tt>,
+depending on the value passed in at <tt class="docutils literal"><span class="pre">engine</span></tt>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.platform.tracker.engine.EventEngine.pipeline">
+<tt class="descclassname">EventEngine.</tt><tt class="descname">pipeline</tt><big>(</big><em>engine=&lt;class 'apptools.model.adapter.redis.RedisAdapter'&gt;</em>, <em>kind='Realtime'</em><big>)</big><a class="reference internal" href="_modules/api/platform/tracker/engine.html#EventEngine.pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.engine.EventEngine.pipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Begin execution buffering in the context of an existing
+or newly-created <tt class="docutils literal"><span class="pre">Redis</span></tt> pipeline.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>kind</strong> &#8211; String <tt class="docutils literal"><span class="pre">kind</span></tt> name to pass to adapter
+methods like <tt class="xref py py-meth docutils literal"><span class="pre">adapter.channel()</span></tt>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">redis.client.StrictPipeline</span></tt>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.platform.tracker.engine.EventEngine.publish">
+<tt class="descclassname">EventEngine.</tt><tt class="descname">publish</tt><big>(</big><em>channels</em>, <em>value</em><big>)</big><a class="reference internal" href="_modules/api/platform/tracker/engine.html#EventEngine.publish"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.engine.EventEngine.publish" title="Permalink to this definition">¶</a></dt>
+<dd><p>Low-level method to publish a message to
+<tt class="docutils literal"><span class="pre">Redis</span></tt> pub/sub.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>channels</strong> &#8211; Either a <tt class="docutils literal"><span class="pre">str</span></tt> name for a channel
+to publish this value on, or an
+iterable of <tt class="docutils literal"><span class="pre">str</span></tt> channel names.</li>
+<li><strong>value</strong> &#8211; <tt class="docutils literal"><span class="pre">protorpc.Message</span></tt> class, <tt class="docutils literal"><span class="pre">dict</span></tt>,
+or raw string to publish.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The result of the low-level publish
+operation.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.platform.tracker.engine.EventEngine.subscribe">
+<tt class="descclassname">EventEngine.</tt><tt class="descname">subscribe</tt><big>(</big><em>channel</em>, <em>pattern=False</em><big>)</big><a class="reference internal" href="_modules/api/platform/tracker/engine.html#EventEngine.subscribe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.engine.EventEngine.subscribe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Low-level method to subscribe to one or
+multiple <tt class="docutils literal"><span class="pre">Redis</span></tt> pub/sub streams.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>_start</strong> &#8211; Schedule the <tt class="docutils literal"><span class="pre">Greenlet</span></tt> for
+immediate execution before
+returning.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An optionally-started <tt class="docutils literal"><span class="pre">Greenlet</span></tt>,
+which block-listens for new subscribed
+messages.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-api.platform.tracker.event">
+<span id="event-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">event</span></tt> Module<a class="headerlink" href="#module-api.platform.tracker.event" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="#api.platform.tracker.event.EventBuilder" title="api.platform.tracker.event.EventBuilder"><tt class="xref py py-class docutils literal"><span class="pre">EventBuilder</span></tt></a> class handles the construction and
+interpretation of <tt class="xref py py-class docutils literal"><span class="pre">model.event.TrackedEvent</span></tt> entities.
+Execution flow for collapsing :py:class`model.profile.EventProfile`
+records and gathering followup tasks happens here - although it
+is enforced by <tt class="xref py py-class docutils literal"><span class="pre">platform.ampush.tracker.policy.PolicyEngine</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 Ampush.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - all rights are reserved. For details about
+embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="api.platform.tracker.event.EventBuilder">
+<em class="property">class </em><tt class="descclassname">api.platform.tracker.event.</tt><tt class="descname">EventBuilder</tt><big>(</big><em>bus=None</em><big>)</big><a class="reference internal" href="_modules/api/platform/tracker/event.html#EventBuilder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.event.EventBuilder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="api.platform.html#api.platform.PlatformBridge" title="api.platform.PlatformBridge"><tt class="xref py py-class docutils literal"><span class="pre">api.platform.PlatformBridge</span></tt></a></p>
+<p>Manages the inflation, construction, and
+interpretation of <tt class="docutils literal"><span class="pre">TrackedEvent</span></tt> entities.</p>
+<dl class="method">
+<dt id="api.platform.tracker.event.EventBuilder.error">
+<tt class="descname">error</tt><big>(</big><em>event</em>, <em>reason='Unknown reason.'</em>, <em>propagate=True</em><big>)</big><a class="reference internal" href="_modules/api/platform/tracker/event.html#EventBuilder.error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.event.EventBuilder.error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a <tt class="xref py py-class docutils literal"><span class="pre">model.raw.Event</span></tt> or a full
+<tt class="xref py py-class docutils literal"><span class="pre">model.event.TrackedEvent</span></tt> as a potential
+error event.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>event</strong> &#8211; The event to register in the error
+eventstream.</li>
+<li><strong>reason</strong> &#8211; String reason describing why this
+event was found to be an error.</li>
+<li><strong>propagate</strong> &#8211; Flag indicating whether this
+error event is happening live
+and should be propagated to
+the global eventstream.
+Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The <tt class="docutils literal"><span class="pre">event</span></tt> it was handed, for chainability.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.platform.tracker.event.EventBuilder.raw">
+<tt class="descname">raw</tt><big>(</big><em>request</em>, <em>propagate=True</em><big>)</big><a class="reference internal" href="_modules/api/platform/tracker/event.html#EventBuilder.raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.event.EventBuilder.raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Entrypoint for recording raw events and producing
+<tt class="xref py py-class docutils literal"><span class="pre">model.raw.Event</span></tt>.</p>
+<p>If requested, this method will also produce a <tt class="docutils literal"><span class="pre">guess</span></tt>
+as to how the request can be handled, if any. Available
+<tt class="docutils literal"><span class="pre">guess</span></tt> options are enumerated in a bidirectional
+protocol enum at <tt class="xref py py-class docutils literal"><span class="pre">protocol.flow.ResponseVector</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>request</strong> &#8211; The current <a class="reference external" href="http://webapp-improved.appspot.com/api/webapp2.html#webapp2.Request" title="(in webapp2 v2.5.1)"><tt class="xref py py-class docutils literal"><span class="pre">webapp2.Request</span></tt></a>, or a
+valid <tt class="xref py py-class docutils literal"><span class="pre">model.raw.Event</span></tt> to inject
+directly into the raw eventstream.</li>
+<li><strong>propagate</strong> &#8211; Flag indicating that this event should be
+propagated to the global eventstream.
+Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Published (and possibly new) <tt class="xref py py-class docutils literal"><span class="pre">model.raw.Event</span></tt>,
+and, if requested via <tt class="docutils literal"><span class="pre">live</span></tt>, a guess about how to
+handle the request, like: <tt class="docutils literal"><span class="pre">tuple(&lt;event&gt;,</span> <span class="pre">&lt;guess&gt;)</span></tt>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-api.platform.tracker.policy">
+<span id="policy-module"></span><h2><a class="reference internal" href="policy.html#module-policy" title="policy"><tt class="xref py py-mod docutils literal"><span class="pre">policy</span></tt></a> Module<a class="headerlink" href="#module-api.platform.tracker.policy" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="#api.platform.tracker.policy.PolicyEngine" title="api.platform.tracker.policy.PolicyEngine"><tt class="xref py py-class docutils literal"><span class="pre">PolicyEngine</span></tt></a> class handles the application and
+enforcement of event policies. Execution flow for extracting
+parameters, generating followup tasks, and aggregation /
+attribution happens here.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 Ampush.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - all rights are reserved. For details about
+embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="api.platform.tracker.policy.PolicyEngine">
+<em class="property">class </em><tt class="descclassname">api.platform.tracker.policy.</tt><tt class="descname">PolicyEngine</tt><big>(</big><em>bus=None</em><big>)</big><a class="reference internal" href="_modules/api/platform/tracker/policy.html#PolicyEngine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.policy.PolicyEngine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="api.platform.html#api.platform.PlatformBridge" title="api.platform.PlatformBridge"><tt class="xref py py-class docutils literal"><span class="pre">api.platform.PlatformBridge</span></tt></a></p>
+<p>Receives resultant/collapsed/materialized policy from
+<tt class="xref py py-class docutils literal"><span class="pre">platform.ampush.tracker.event.EventBuilder</span></tt>,
+and manages execution flow for applying that policy.</p>
+<dl class="method">
+<dt id="api.platform.tracker.policy.PolicyEngine.build">
+<tt class="descname">build</tt><big>(</big><em>policies</em><big>)</big><a class="reference internal" href="_modules/api/platform/tracker/policy.html#PolicyEngine.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.policy.PolicyEngine.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compile multiple <tt class="xref py py-class docutils literal"><span class="pre">model.profile.Profile</span></tt>
+classes into a single, compound policy class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>policies</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.platform.tracker.policy.PolicyEngine.enforce">
+<tt class="descname">enforce</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/api/platform/tracker/policy.html#PolicyEngine.enforce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.policy.PolicyEngine.enforce" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a materialized <tt class="xref py py-class docutils literal"><span class="pre">model.event.TrackedEvent</span></tt>,
+enforce policy decisions, potentially raising exceptions
+encountered along the way.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>suite</strong> &#8211; </li>
+<li><strong>strict</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Boolean indicating whether the compound policy
+was found to be valid.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.platform.tracker.policy.PolicyEngine.gather">
+<tt class="descname">gather</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/api/platform/tracker/policy.html#PolicyEngine.gather"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.policy.PolicyEngine.gather" title="Permalink to this definition">¶</a></dt>
+<dd><p>Walk the class inheritance chain and gather applicable
+<tt class="xref py py-class docutils literal"><span class="pre">model.profile.Profile</span></tt> classes, for construction
+into a compound policy for handling an event.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tracker</strong> &#8211; </li>
+<li><strong>context</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.platform.tracker.policy.PolicyEngine.interpret">
+<tt class="descname">interpret</tt><big>(</big><em>tracker</em>, <em>raw_event</em><big>)</big><a class="reference internal" href="_modules/api/platform/tracker/policy.html#PolicyEngine.interpret"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.policy.PolicyEngine.interpret" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gather, build, enforce and map policy for the
+given <tt class="xref py py-class docutils literal"><span class="pre">model.tracker.Tracker</span></tt> and
+<tt class="xref py py-class docutils literal"><span class="pre">model.raw.Event</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tracker</strong> &#8211; </li>
+<li><strong>raw_event</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A newly-inflated and provably-valid
+<tt class="xref py py-class docutils literal"><span class="pre">model.event.TrackedEvent</span></tt></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-api.platform.tracker.stream">
+<span id="stream-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">stream</span></tt> Module<a class="headerlink" href="#module-api.platform.tracker.stream" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="#api.platform.tracker.stream.EventStream" title="api.platform.tracker.stream.EventStream"><tt class="xref py py-class docutils literal"><span class="pre">EventStream</span></tt></a> class handles calls to publish
+and subscribe to global or contextual streams of events
+from <tt class="docutils literal"><span class="pre">EventTracker</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 Ampush.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - all rights are reserved. For details about
+embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="api.platform.tracker.stream.EventStream">
+<em class="property">class </em><tt class="descclassname">api.platform.tracker.stream.</tt><tt class="descname">EventStream</tt><big>(</big><em>bus=None</em><big>)</big><a class="reference internal" href="_modules/api/platform/tracker/stream.html#EventStream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.stream.EventStream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="api.platform.html#api.platform.PlatformBridge" title="api.platform.PlatformBridge"><tt class="xref py py-class docutils literal"><span class="pre">api.platform.PlatformBridge</span></tt></a></p>
+<p>Manages state for global (and contextual) event
+streams in <tt class="docutils literal"><span class="pre">EventTracker</span></tt>.</p>
+<dl class="method">
+<dt id="api.platform.tracker.stream.EventStream.publish">
+<tt class="descname">publish</tt><big>(</big><em>ev</em>, <em>error=False</em>, <em>propagate=True</em><big>)</big><a class="reference internal" href="_modules/api/platform/tracker/stream.html#EventStream.publish"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.stream.EventStream.publish" title="Permalink to this definition">¶</a></dt>
+<dd><p>Publish an event to one or more streams. Descendents of
+both <tt class="xref py py-class docutils literal"><span class="pre">models.tracker.event.RawEvent</span></tt> and
+<tt class="xref py py-class docutils literal"><span class="pre">models.tracker.event.TrackedEvent</span></tt> are supported
+for publishing.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>event</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">models.tracker.event.RawEvent</span></tt> or
+<tt class="xref py py-class docutils literal"><span class="pre">models.tracker.event.TrackedEvent</span></tt> to
+publish.</li>
+<li><strong>error</strong> &#8211; Indicates that we&#8217;re publishing an event describing
+the attached hit as an <tt class="docutils literal"><span class="pre">error</span></tt>. Defaults to <tt class="docutils literal"><span class="pre">False</span></tt>
+in a humerous attempt at optimism.</li>
+<li><strong>propagate</strong> &#8211; Boolean (defaulting to <tt class="docutils literal"><span class="pre">True</span></tt>) indicating
+whether this publish should propagate globally.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The <tt class="docutils literal"><span class="pre">event</span></tt> that was handed in and published.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.platform.tracker.stream.EventStream.stats">
+<tt class="descname">stats</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/api/platform/tracker/stream.html#EventStream.stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.stream.EventStream.stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve statistics about the desired <em>Event Stream</em>.
+Will return basic stuff like current rate-per-minute,
+message counter, last message timestamp and client list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>channel</strong> &#8211; String channel name to retrieve stats for.
+Passing <tt class="docutils literal"><span class="pre">None</span></tt> indicates a desire for
+global <em>Event Stream</em> statistics.</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Raises ValueError:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body">In the case of an invalid or unknown
+channel.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Record <tt class="docutils literal"><span class="pre">dict</span></tt> describing the requested statistics,
+like: <tt class="docutils literal"><span class="pre">{'rate':</span> <span class="pre">50,</span> <span class="pre">'count':</span> <span class="pre">100,</span> <span class="pre">'clients':</span> <span class="pre">{'count':</span> <span class="pre">2,</span> <span class="pre">'list':</span> <span class="pre">['one',</span> <span class="pre">'two']}}</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.platform.tracker.stream.EventStream.subscribe">
+<tt class="descname">subscribe</tt><big>(</big><em>stream=None</em>, <em>_start=True</em><big>)</big><a class="reference internal" href="_modules/api/platform/tracker/stream.html#EventStream.subscribe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.platform.tracker.stream.EventStream.subscribe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subscribe to one-or-more event streams in <tt class="docutils literal"><span class="pre">EventTracker</span></tt>.
+Channels are persistently subscribed-to via <tt class="docutils literal"><span class="pre">Redis</span></tt> pubsub.</p>
+<p>Iterables, strings, regexes (for <tt class="docutils literal"><span class="pre">PSUBSCRIBE</span></tt>) and <tt class="docutils literal"><span class="pre">None</span></tt>
+are acceptable as streams - <tt class="docutils literal"><span class="pre">None</span></tt> indicates a subscription
+to the global <em>Event Stream</em>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>stream</strong> &#8211; String channel name (<tt class="docutils literal"><span class="pre">&quot;coolchannel&quot;</span></tt>), regex channel name
+(<tt class="docutils literal"><span class="pre">r&quot;coolch*&quot;</span></tt>) or iterable of those. Defaults to <tt class="docutils literal"><span class="pre">None</span></tt>,
+indicating a global <tt class="docutils literal"><span class="pre">EventTracker</span></tt> subscription is desired.</li>
+<li><strong>_start</strong> &#8211; Immediately schedule the subscription <tt class="docutils literal"><span class="pre">Greenlet</span></tt> for
+execution, before returning. Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Result of the low-level subscribe operation, and the new <tt class="docutils literal"><span class="pre">Greenlet</span></tt>
+which will do the listening.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">tracker Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">tracker</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-api.platform.tracker.engine"><tt class="docutils literal"><span class="pre">engine</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-api.platform.tracker.event"><tt class="docutils literal"><span class="pre">event</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-api.platform.tracker.policy"><tt class="docutils literal"><span class="pre">policy</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-api.platform.tracker.stream"><tt class="docutils literal"><span class="pre">stream</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="api.platform.hermes.html"
+                        title="previous chapter">hermes Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="api.services.html"
+                        title="next chapter">services Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/api.platform.tracker.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.services.html" title="services Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="api.platform.hermes.html" title="hermes Package"
+             >previous</a> |</li>
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
+          <li><a href="api.html" >api Package</a> &raquo;</li>
+          <li><a href="api.platform.html" >platform Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

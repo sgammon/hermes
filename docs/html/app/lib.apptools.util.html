@@ -48,6 +48,7 @@
           <a href="lib.apptools.tests.test_model.test_adapters.html" title="test_adapters Package"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
           <li><a href="lib.html" >lib Package</a> &raquo;</li>
           <li><a href="lib.apptools.html" accesskey="U">apptools Package</a> &raquo;</li> 
       </ul>
@@ -543,7 +544,7 @@ sequence.</p>
 
 <dl class="attribute">
 <dt id="lib.apptools.util.debug.AppToolsLogger.handlers">
-<tt class="descname">handlers</tt><em class="property"> = [&lt;logging.StreamHandler object at 0x10d859510&gt;]</em><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogger.handlers" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">handlers</tt><em class="property"> = [&lt;logging.StreamHandler object at 0x111fdeb50&gt;]</em><a class="headerlink" href="#lib.apptools.util.debug.AppToolsLogger.handlers" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -602,13 +603,50 @@ sequence.</p>
 </div>
 <div class="section" id="module-lib.apptools.util.decorators">
 <span id="decorators-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">decorators</span></tt> Module<a class="headerlink" href="#module-lib.apptools.util.decorators" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="apptools2-utility-decorators">
+<h3>apptools2: utility decorators<a class="headerlink" href="#apptools2-utility-decorators" title="Permalink to this headline">¶</a></h3>
+<p>this package provides useful decorators that crosscut the regular
+functional bounds of apptools&#8217; main packages. stuff in here is
+generally used everywhere.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 momentum labs.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - Ampush has been granted an
+unlimited, exclusive license for embedded use. For details
+about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="class">
 <dt id="lib.apptools.util.decorators.classproperty">
 <em class="property">class </em><tt class="descclassname">lib.apptools.util.decorators.</tt><tt class="descname">classproperty</tt><a class="reference internal" href="_modules/lib/apptools/util/decorators.html#classproperty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.decorators.classproperty" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">property</span></tt></p>
-<p>Custom decorator for class-level property getters.</p>
+<p>Custom decorator for class-level property getters.
+Usable like <tt class="docutils literal"><span class="pre">&#64;property</span></tt> and chainable with
+<tt class="docutils literal"><span class="pre">&#64;memoize</span></tt>, as long as <tt class="docutils literal"><span class="pre">&#64;memoize</span></tt> is used as
+the inner decorator.</p>
 </dd></dl>
 
+<dl class="class">
+<dt id="lib.apptools.util.decorators.memoize">
+<em class="property">class </em><tt class="descclassname">lib.apptools.util.decorators.</tt><tt class="descname">memoize</tt><a class="reference internal" href="_modules/lib/apptools/util/decorators.html#memoize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.util.decorators.memoize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">property</span></tt></p>
+<p>Custom decorator for property memoization. Usable
+like <tt class="docutils literal"><span class="pre">&#64;property</span></tt> and chainable with <tt class="docutils literal"><span class="pre">&#64;classproperty</span></tt>,
+the utility decorator above.</p>
+</dd></dl>
+
+</div>
 </div>
 <div class="section" id="module-lib.apptools.util.httpagentparser">
 <span id="httpagentparser-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">httpagentparser</span></tt> Module<a class="headerlink" href="#module-lib.apptools.util.httpagentparser" title="Permalink to this headline">¶</a></h2>
@@ -1213,7 +1251,10 @@ possible outputs, but &#8220;2 weeks, 3 hours&#8221; and &#8220;1 year, 5 days&#
 <li><a class="reference internal" href="#module-lib.apptools.util.byteconvert"><tt class="docutils literal"><span class="pre">byteconvert</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-lib.apptools.util.datastructures"><tt class="docutils literal"><span class="pre">datastructures</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-lib.apptools.util.debug"><tt class="docutils literal"><span class="pre">debug</span></tt> Module</a></li>
-<li><a class="reference internal" href="#module-lib.apptools.util.decorators"><tt class="docutils literal"><span class="pre">decorators</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.util.decorators"><tt class="docutils literal"><span class="pre">decorators</span></tt> Module</a><ul>
+<li><a class="reference internal" href="#apptools2-utility-decorators">apptools2: utility decorators</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#module-lib.apptools.util.httpagentparser"><tt class="docutils literal"><span class="pre">httpagentparser</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-lib.apptools.util.platform"><tt class="docutils literal"><span class="pre">platform</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-lib.apptools.util.runtools"><tt class="docutils literal"><span class="pre">runtools</span></tt> Module</a></li>
@@ -1266,6 +1307,7 @@ possible outputs, but &#8220;2 weeks, 3 hours&#8221; and &#8220;1 year, 5 days&#
           <a href="lib.apptools.tests.test_model.test_adapters.html" title="test_adapters Package"
              >previous</a> |</li>
         <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
           <li><a href="lib.html" >lib Package</a> &raquo;</li>
           <li><a href="lib.apptools.html" >apptools Package</a> &raquo;</li> 
       </ul>

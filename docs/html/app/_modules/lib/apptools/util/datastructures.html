@@ -466,7 +466,7 @@
 
 <span class="c">## ProxiedStructure</span>
 <span class="c"># Metaclass for doubly-indexed mappings. Used in BidirectionalEnum.</span></div>
-<div class="viewcode-block" id="ProxiedStructure"><a class="viewcode-back" href="../../../../lib.apptools.util.html#lib.apptools.util.datastructures.ProxiedStructure">[docs]</a><span class="k">class</span> <span class="nc">ProxiedStructure</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+<div class="viewcode-block" id="ProxiedStructure"><a class="viewcode-back" href="../../../../lib.apptools.util.html#lib.apptools.util.datastructures.ProxiedStructure">[docs]</a><span class="k">class</span> <span class="nc">ProxiedStructure</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
 
     <span class="sd">&#39;&#39;&#39; Metaclass for property-gather-enabled classes. &#39;&#39;&#39;</span>
 
@@ -508,15 +508,14 @@
         <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">[</span><span class="n">mappings</span><span class="p">[</span><span class="s">&#39;_pmap&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span> <span class="n">mappings</span><span class="p">[</span><span class="s">&#39;_plookup&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]])],</span>
             <span class="p">(((</span><span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">),</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span> <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">mappings</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;_&#39;</span><span class="p">)))</span>
 
-        <span class="c"># Map methods</span>
-        <span class="n">mappings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
-            <span class="s">&#39;__getitem__&#39;</span><span class="p">:</span> <span class="n">_getitem</span><span class="p">,</span>
-            <span class="s">&#39;__setitem__&#39;</span><span class="p">:</span> <span class="n">_setitem</span><span class="p">,</span>
-            <span class="s">&#39;__contains__&#39;</span><span class="p">:</span> <span class="n">_contains</span>
-        <span class="p">})</span>
+        <span class="k">if</span> <span class="s">&#39;__getitem__&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mappings</span><span class="p">:</span>
+            <span class="n">mappings</span><span class="p">[</span><span class="s">&#39;__getitem__&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_getitem</span>
+        <span class="k">if</span> <span class="s">&#39;__setitem__&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mappings</span><span class="p">:</span>
+            <span class="n">mappings</span><span class="p">[</span><span class="s">&#39;__setitem__&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_setitem</span>
+        <span class="k">if</span> <span class="s">&#39;__contains__&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mappings</span><span class="p">:</span>
+            <span class="n">mappings</span><span class="p">[</span><span class="s">&#39;__contains__&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_contains</span>
 
-        <span class="n">new_cls</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">chain</span><span class="p">,</span> <span class="n">mappings</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">new_cls</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">cls</span><span class="p">)</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">chain</span><span class="p">,</span> <span class="n">mappings</span><span class="p">)</span>
 
 
 <span class="c">## BidirectionalEnum</span>

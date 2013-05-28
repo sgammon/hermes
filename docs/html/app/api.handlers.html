@@ -48,6 +48,7 @@
           <a href="api.html" title="api Package"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
           <li><a href="api.html" accesskey="U">api Package</a> &raquo;</li> 
       </ul>
     </div>  
@@ -85,60 +86,8 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.-sam (&lt;<a c
 <dl class="class">
 <dt id="api.handlers.WebHandler">
 <em class="property">class </em><tt class="descclassname">api.handlers.</tt><tt class="descname">WebHandler</tt><big>(</big><em>request=None</em>, <em>response=None</em><big>)</big><a class="reference internal" href="_modules/api/handlers.html#WebHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.WebHandler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.core.BaseHandler</span></tt></p>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.core.BaseHandler</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">apptools.rpc.ConfiguredClass</span></tt></p>
 <p>Handler for desktop web requests.</p>
-<dl class="attribute">
-<dt id="api.handlers.WebHandler.baseTransport">
-<tt class="descname">baseTransport</tt><a class="reference internal" href="_modules/api/handlers.html#WebHandler.baseTransport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.WebHandler.baseTransport" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a clean set of transport base settings.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Base configuration <tt class="docutils literal"><span class="pre">dict</span></tt> for page transports, like
-JSONRPC and WebSockets.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="api.handlers.WebHandler.computedTransport">
-<tt class="descname">computedTransport</tt><a class="reference internal" href="_modules/api/handlers.html#WebHandler.computedTransport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.WebHandler.computedTransport" title="Permalink to this definition">¶</a></dt>
-<dd><p>Overlay this handler&#8217;s transport settings on the app&#8217;s base settings and return.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Computed + collapsed configuration <tt class="docutils literal"><span class="pre">dict</span></tt> for page
-transports, like JSONRPC and WebSockets.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="api.handlers.WebHandler.config">
-<tt class="descname">config</tt><a class="reference internal" href="_modules/api/handlers.html#WebHandler.config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.WebHandler.config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Cached access to main config for this handler.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Configuration <tt class="docutils literal"><span class="pre">dict</span></tt> for current
-<tt class="docutils literal"><span class="pre">WebHandler</span></tt> descendent.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="api.handlers.WebHandler.debug">
-<tt class="descname">debug</tt><a class="reference internal" href="_modules/api/handlers.html#WebHandler.debug"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.WebHandler.debug" title="Permalink to this definition">¶</a></dt>
-<dd><p>Shortcut to AppTools debugging utilities.
-:returns: Boolean value indicating whether debug mode is active.</p>
-</dd></dl>
-
 <dl class="method">
 <dt id="api.handlers.WebHandler.dispatch">
 <tt class="descname">dispatch</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/api/handlers.html#WebHandler.dispatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.WebHandler.dispatch" title="Permalink to this definition">¶</a></dt>
@@ -169,26 +118,6 @@ method, such as <tt class="docutils literal"><span class="pre">WebHandler.GET</s
 </table>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="api.handlers.WebHandler.hostname">
-<tt class="descname">hostname</tt><a class="reference internal" href="_modules/api/handlers.html#WebHandler.hostname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.WebHandler.hostname" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return proxied or request hostname. In cases where <tt class="xref py py-mod docutils literal"><span class="pre">apptools</span></tt>
-is running on specialized infrastructure, <tt class="xref py py-mod docutils literal"><span class="pre">appfactory</span></tt> provides
-the ability to override the current hostname via the <tt class="docutils literal"><span class="pre">XAF-Hostname</span></tt>
-header.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Active hostname (<tt class="docutils literal"><span class="pre">str</span></tt>). Either parses from the
-current <a class="reference external" href="http://webapp-improved.appspot.com/api/webapp2.html#webapp2.Request" title="(in webapp2 v2.5.1)"><tt class="xref py py-class docutils literal"><span class="pre">webapp2.Request</span></tt></a> (which uses
-uses the <tt class="docutils literal"><span class="pre">Host:</span></tt> header), or returns an overridden
-hostname from <tt class="xref py py-mod docutils literal"><span class="pre">appfactory</span></tt>.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
 <dl class="method">
 <dt id="api.handlers.WebHandler.initialize">
 <tt class="descname">initialize</tt><big>(</big><em>request</em>, <em>response</em><big>)</big><a class="reference internal" href="_modules/api/handlers.html#WebHandler.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.WebHandler.initialize" title="Permalink to this definition">¶</a></dt>
@@ -206,35 +135,6 @@ hostname from <tt class="xref py py-mod docutils literal"><span class="pre">appf
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Currently-active <tt class="docutils literal"><span class="pre">WebHandler</span></tt> descendent, for method
 chainability.</p>
 </td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="api.handlers.WebHandler.jinja2">
-<tt class="descname">jinja2</tt><a class="reference internal" href="_modules/api/handlers.html#WebHandler.jinja2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.WebHandler.jinja2" title="Permalink to this definition">¶</a></dt>
-<dd><p>Cached access to Jinja2.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">New or existing <tt class="xref py py-class docutils literal"><span class="pre">jinja2.environment.Environment</span></tt>.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="api.handlers.WebHandler.logging">
-<tt class="descname">logging</tt><a class="reference internal" href="_modules/api/handlers.html#WebHandler.logging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.WebHandler.logging" title="Permalink to this definition">¶</a></dt>
-<dd><p>Named logging pipe / shortcut.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Customized log pipe, with <tt class="docutils literal"><span class="pre">path</span></tt>, <tt class="docutils literal"><span class="pre">name</span></tt> and
-<tt class="docutils literal"><span class="pre">condition</span></tt> set according to config.</td>
 </tr>
 </tbody>
 </table>
@@ -274,7 +174,7 @@ with <tt class="docutils literal"><span class="pre">GET</span></tt> response bod
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Rendered content, via <tt class="xref py py-mod docutils literal"><span class="pre">jinja2</span></tt>.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Rendered content, via <a class="reference external" href="http://jinja.pocoo.org/docs/changelog/#jinja2" title="(in Jinja2 v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">jinja2</span></tt></a>.</p>
 </td>
 </tr>
 </tbody>
@@ -290,20 +190,6 @@ with <tt class="docutils literal"><span class="pre">GET</span></tt> response bod
 <dt id="api.handlers.WebHandler.template">
 <tt class="descname">template</tt><em class="property"> = None</em><a class="headerlink" href="#api.handlers.WebHandler.template" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="attribute">
-<dt id="api.handlers.WebHandler.template_environment">
-<tt class="descname">template_environment</tt><a class="reference internal" href="_modules/api/handlers.html#WebHandler.template_environment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.WebHandler.template_environment" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a new environment, because if we&#8217;re already here it&#8217;s not cached.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">New or existing <tt class="xref py py-class docutils literal"><span class="pre">jinja2.environment.Environment</span></tt>.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
 
 <dl class="attribute">
 <dt id="api.handlers.WebHandler.transport">
@@ -365,6 +251,44 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.-sam (&lt;<a c
 </dd></dl>
 
 </div>
+<div class="section" id="module-api.handlers.tracker">
+<span id="tracker-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">tracker</span></tt> Module<a class="headerlink" href="#module-api.handlers.tracker" title="Permalink to this headline">¶</a></h2>
+<p>Handlers for the <tt class="docutils literal"><span class="pre">EventTracker</span></tt> subsystem. These handlers
+deal with hits to <tt class="docutils literal"><span class="pre">Tracker</span></tt> classes, and produce/yield
+<tt class="docutils literal"><span class="pre">RawEvent</span></tt> models.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 Ampush.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - all rights are reserved. For details about
+embedded licenses and other legalese, see <cite>LICENSE.md</cite>.-sam (&lt;<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>&gt;)</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="api.handlers.tracker.TrackerEndpoint">
+<em class="property">class </em><tt class="descclassname">api.handlers.tracker.</tt><tt class="descname">TrackerEndpoint</tt><big>(</big><em>request=None</em>, <em>response=None</em><big>)</big><a class="reference internal" href="_modules/api/handlers/tracker.html#TrackerEndpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.tracker.TrackerEndpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#api.handlers.WebHandler" title="api.handlers.WebHandler"><tt class="xref py py-class docutils literal"><span class="pre">api.handlers.WebHandler</span></tt></a></p>
+<p>Handles <cite>EventTracker</cite> hits.</p>
+<dl class="method">
+<dt id="api.handlers.tracker.TrackerEndpoint.get">
+<tt class="descname">get</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/api/handlers/tracker.html#TrackerEndpoint.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.handlers.tracker.TrackerEndpoint.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>HTTP GET
+:returns: Response to a tracker hit.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 </div>
 
 
@@ -381,6 +305,7 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.-sam (&lt;<a c
 <li><a class="reference internal" href="#">handlers Package</a><ul>
 <li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">handlers</span></tt> Package</a></li>
 <li><a class="reference internal" href="#module-api.handlers.harness"><tt class="docutils literal"><span class="pre">harness</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-api.handlers.tracker"><tt class="docutils literal"><span class="pre">tracker</span></tt> Module</a></li>
 </ul>
 </li>
 </ul>
@@ -429,6 +354,7 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.-sam (&lt;<a c
           <a href="api.html" title="api Package"
              >previous</a> |</li>
         <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
           <li><a href="api.html" >api Package</a> &raquo;</li> 
       </ul>
     </div>

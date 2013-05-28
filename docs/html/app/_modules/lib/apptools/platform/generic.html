@@ -66,8 +66,20 @@
 <span class="sd">&#39;&#39;&#39;</span>
 
 <span class="c"># Base Imports</span>
-<span class="kn">import</span> <span class="nn">config</span>
 <span class="kn">import</span> <span class="nn">webapp2</span>
+
+<span class="c"># Appconfig</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">config</span><span class="p">;</span> <span class="n">_APPCONFIG</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">_APPCONFIG</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="c"># build fake config</span>
+    <span class="k">class</span> <span class="nc">FakeConfig</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        <span class="n">debug</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;debug&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="n">FakeConfig</span><span class="p">()</span>
 
 <span class="c"># Util Imports</span>
 <span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">_loadModule</span>

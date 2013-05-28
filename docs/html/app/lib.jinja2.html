@@ -48,6 +48,7 @@
           <a href="lib.dist.html" title="dist Package"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
           <li><a href="lib.html" accesskey="U">lib Package</a> &raquo;</li> 
       </ul>
     </div>  
@@ -60,7 +61,7 @@
   <div class="section" id="jinja2-package">
 <h1>jinja2 Package<a class="headerlink" href="#jinja2-package" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="id1">
-<h2><tt class="xref py py-mod docutils literal"><span class="pre">jinja2</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<h2><a class="reference external" href="http://jinja.pocoo.org/docs/changelog/#jinja2" title="(in Jinja2 v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">jinja2</span></tt></a> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <span class="target" id="module-lib.jinja2"></span><div class="section" id="jinja2">
 <h3>jinja2<a class="headerlink" href="#jinja2" title="Permalink to this headline">¶</a></h3>
 <p>Jinja2 is a template engine written in pure Python.  It provides a
@@ -122,10 +123,10 @@ Defaults to <tt class="docutils literal"><span class="pre">'{{'</span></tt>.</dd
 <dd>The string marking the end of a comment.  Defaults to <tt class="docutils literal"><span class="pre">'#}'</span></tt>.</dd>
 <dt><cite>line_statement_prefix</cite></dt>
 <dd>If given and a string, this will be used as prefix for line based
-statements.  See also <em class="xref std std-ref">line-statements</em>.</dd>
+statements.  See also <a class="reference external" href="http://jinja.pocoo.org/docs/templates/#line-statements" title="(in Jinja2 v2.7)"><em>Line Statements</em></a>.</dd>
 <dt><cite>line_comment_prefix</cite></dt>
 <dd><p class="first">If given and a string, this will be used as prefix for line based
-based comments.  See also <em class="xref std std-ref">line-statements</em>.</p>
+based comments.  See also <a class="reference external" href="http://jinja.pocoo.org/docs/templates/#line-statements" title="(in Jinja2 v2.7)"><em>Line Statements</em></a>.</p>
 <div class="last versionadded">
 <p><span>New in version 2.2.</span></p>
 </div>
@@ -141,7 +142,7 @@ applications.</dd>
 <dt><cite>extensions</cite></dt>
 <dd>List of Jinja extensions to use.  This can either be import paths
 as strings or extension classes.  For more information have a
-look at <em class="xref std std-ref">the extensions documentation</em>.</dd>
+look at <a class="reference external" href="http://jinja.pocoo.org/docs/extensions/#jinja-extensions" title="(in Jinja2 v2.7)"><em class="xref std std-ref">the extensions documentation</em></a>.</dd>
 <dt><cite>optimized</cite></dt>
 <dd>should the optimizer be enabled?  Default is <cite>True</cite>.</dd>
 <dt><cite>undefined</cite></dt>
@@ -181,7 +182,7 @@ disable that.</dd>
 <dd><p class="first">If set to a bytecode cache object, this object will provide a
 cache for the internal Jinja bytecode so that templates don&#8217;t
 have to be parsed if they were not changed.</p>
-<p class="last">See <em class="xref std std-ref">bytecode-cache</em> for more information.</p>
+<p class="last">See <a class="reference external" href="http://jinja.pocoo.org/docs/api/#bytecode-cache" title="(in Jinja2 v2.7)"><em>Bytecode Cache</em></a> for more information.</p>
 </dd>
 </dl>
 </div></blockquote>
@@ -282,7 +283,7 @@ target instead of standard .py files.</p>
 <dt id="lib.jinja2.Environment.extend">
 <tt class="descname">extend</tt><big>(</big><em>**attributes</em><big>)</big><a class="headerlink" href="#lib.jinja2.Environment.extend" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add the items to the instance of the environment if they do not exist
-yet.  This is used by <em class="xref std std-ref">extensions</em> to register
+yet.  This is used by <a class="reference external" href="http://jinja.pocoo.org/docs/extensions/#writing-extensions" title="(in Jinja2 v2.7)"><em class="xref std std-ref">extensions</em></a> to register
 callbacks and configuration values without breaking inheritance.</p>
 </dd></dl>
 
@@ -364,7 +365,7 @@ joining here.</p>
 <tt class="descname">lex</tt><big>(</big><em>source</em>, <em>name=None</em>, <em>filename=None</em><big>)</big><a class="headerlink" href="#lib.jinja2.Environment.lex" title="Permalink to this definition">¶</a></dt>
 <dd><p>Lex the given sourcecode and return a generator that yields
 tokens as tuples in the form <tt class="docutils literal"><span class="pre">(lineno,</span> <span class="pre">token_type,</span> <span class="pre">value)</span></tt>.
-This can be useful for <em class="xref std std-ref">extension development</em>
+This can be useful for <a class="reference external" href="http://jinja.pocoo.org/docs/extensions/#writing-extensions" title="(in Jinja2 v2.7)"><em class="xref std std-ref">extension development</em></a>
 and debugging templates.</p>
 <p>This does not perform preprocessing.  If you want the preprocessing
 of the extensions to be applied you have to filter source through
@@ -432,7 +433,7 @@ through.</p>
 tree of nodes is used by the compiler to convert the template into
 executable source- or bytecode.  This is useful for debugging or to
 extract information from templates.</p>
-<p>If you are <em class="xref std std-ref">developing Jinja2 extensions</em>
+<p>If you are <a class="reference external" href="http://jinja.pocoo.org/docs/extensions/#writing-extensions" title="(in Jinja2 v2.7)"><em class="xref std std-ref">developing Jinja2 extensions</em></a>
 this gives you a good overview of the node tree generated.</p>
 </dd></dl>
 
@@ -845,7 +846,7 @@ from a different location.</p>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>To implement your own bytecode cache you have to subclass this class
 and override <a class="reference internal" href="#lib.jinja2.BytecodeCache.load_bytecode" title="lib.jinja2.BytecodeCache.load_bytecode"><tt class="xref py py-meth docutils literal"><span class="pre">load_bytecode()</span></tt></a> and <a class="reference internal" href="#lib.jinja2.BytecodeCache.dump_bytecode" title="lib.jinja2.BytecodeCache.dump_bytecode"><tt class="xref py py-meth docutils literal"><span class="pre">dump_bytecode()</span></tt></a>.  Both of
-these methods are passed a <tt class="xref py py-class docutils literal"><span class="pre">Bucket</span></tt>.</p>
+these methods are passed a <a class="reference external" href="http://jinja.pocoo.org/docs/api/#jinja2.bccache.Bucket" title="(in Jinja2 v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">Bucket</span></tt></a>.</p>
 <p>A very basic bytecode cache that saves the bytecode on the file system:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">path</span>
 
@@ -1289,7 +1290,7 @@ If chars is a str, it will be converted to unicode before stripping</p>
 
 <dl class="attribute">
 <dt id="lib.jinja2.Markup.partition">
-<tt class="descname">partition</tt><em class="property"> = (&lt;function partition at 0x10902b488&gt;,)</em><a class="headerlink" href="#lib.jinja2.Markup.partition" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">partition</tt><em class="property"> = (&lt;function partition at 0x11042c488&gt;,)</em><a class="headerlink" href="#lib.jinja2.Markup.partition" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -1485,7 +1486,7 @@ this:</p>
 <tt class="descclassname">lib.jinja2.</tt><tt class="descname">evalcontextfilter</tt><big>(</big><em>f</em><big>)</big><a class="headerlink" href="#lib.jinja2.evalcontextfilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decorator for marking eval-context dependent filters.  An eval
 context object is passed as first argument.  For more information
-about the eval context, see <em class="xref std std-ref">eval-context</em>.</p>
+about the eval context, see <a class="reference external" href="http://jinja.pocoo.org/docs/api/#eval-context" title="(in Jinja2 v2.7)"><em>Evaluation Context</em></a>.</p>
 <div class="versionadded">
 <p><span>New in version 2.4.</span></p>
 </div>
@@ -1498,7 +1499,7 @@ about the eval context, see <em class="xref std std-ref">eval-context</em>.</p>
 context callable.  This is similar to the <a class="reference internal" href="#lib.jinja2.contextfunction" title="lib.jinja2.contextfunction"><tt class="xref py py-func docutils literal"><span class="pre">contextfunction()</span></tt></a>
 but instead of passing the context, an evaluation context object is
 passed.  For more information about the eval context, see
-<em class="xref std std-ref">eval-context</em>.</p>
+<a class="reference external" href="http://jinja.pocoo.org/docs/api/#eval-context" title="(in Jinja2 v2.7)"><em>Evaluation Context</em></a>.</p>
 <div class="versionadded">
 <p><span>New in version 2.4.</span></p>
 </div>
@@ -1608,7 +1609,7 @@ cache subclasses don&#8217;t have to care about cache invalidation.</p>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>To implement your own bytecode cache you have to subclass this class
 and override <a class="reference internal" href="#lib.jinja2.bccache.BytecodeCache.load_bytecode" title="lib.jinja2.bccache.BytecodeCache.load_bytecode"><tt class="xref py py-meth docutils literal"><span class="pre">load_bytecode()</span></tt></a> and <a class="reference internal" href="#lib.jinja2.bccache.BytecodeCache.dump_bytecode" title="lib.jinja2.bccache.BytecodeCache.dump_bytecode"><tt class="xref py py-meth docutils literal"><span class="pre">dump_bytecode()</span></tt></a>.  Both of
-these methods are passed a <tt class="xref py py-class docutils literal"><span class="pre">Bucket</span></tt>.</p>
+these methods are passed a <a class="reference external" href="http://jinja.pocoo.org/docs/api/#jinja2.bccache.Bucket" title="(in Jinja2 v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">Bucket</span></tt></a>.</p>
 <p>A very basic bytecode cache that saves the bytecode on the file system:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">path</span>
 
@@ -2688,10 +2689,10 @@ Defaults to <tt class="docutils literal"><span class="pre">'{{'</span></tt>.</dd
 <dd>The string marking the end of a comment.  Defaults to <tt class="docutils literal"><span class="pre">'#}'</span></tt>.</dd>
 <dt><cite>line_statement_prefix</cite></dt>
 <dd>If given and a string, this will be used as prefix for line based
-statements.  See also <em class="xref std std-ref">line-statements</em>.</dd>
+statements.  See also <a class="reference external" href="http://jinja.pocoo.org/docs/templates/#line-statements" title="(in Jinja2 v2.7)"><em>Line Statements</em></a>.</dd>
 <dt><cite>line_comment_prefix</cite></dt>
 <dd><p class="first">If given and a string, this will be used as prefix for line based
-based comments.  See also <em class="xref std std-ref">line-statements</em>.</p>
+based comments.  See also <a class="reference external" href="http://jinja.pocoo.org/docs/templates/#line-statements" title="(in Jinja2 v2.7)"><em>Line Statements</em></a>.</p>
 <div class="last versionadded">
 <p><span>New in version 2.2.</span></p>
 </div>
@@ -2707,7 +2708,7 @@ applications.</dd>
 <dt><cite>extensions</cite></dt>
 <dd>List of Jinja extensions to use.  This can either be import paths
 as strings or extension classes.  For more information have a
-look at <em class="xref std std-ref">the extensions documentation</em>.</dd>
+look at <a class="reference external" href="http://jinja.pocoo.org/docs/extensions/#jinja-extensions" title="(in Jinja2 v2.7)"><em class="xref std std-ref">the extensions documentation</em></a>.</dd>
 <dt><cite>optimized</cite></dt>
 <dd>should the optimizer be enabled?  Default is <cite>True</cite>.</dd>
 <dt><cite>undefined</cite></dt>
@@ -2747,7 +2748,7 @@ disable that.</dd>
 <dd><p class="first">If set to a bytecode cache object, this object will provide a
 cache for the internal Jinja bytecode so that templates don&#8217;t
 have to be parsed if they were not changed.</p>
-<p class="last">See <em class="xref std std-ref">bytecode-cache</em> for more information.</p>
+<p class="last">See <a class="reference external" href="http://jinja.pocoo.org/docs/api/#bytecode-cache" title="(in Jinja2 v2.7)"><em>Bytecode Cache</em></a> for more information.</p>
 </dd>
 </dl>
 </div></blockquote>
@@ -2849,7 +2850,7 @@ target instead of standard .py files.</p>
 <dt id="lib.jinja2.environment.Environment.extend">
 <tt class="descname">extend</tt><big>(</big><em>**attributes</em><big>)</big><a class="reference internal" href="_modules/lib/jinja2/environment.html#Environment.extend"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.jinja2.environment.Environment.extend" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add the items to the instance of the environment if they do not exist
-yet.  This is used by <em class="xref std std-ref">extensions</em> to register
+yet.  This is used by <a class="reference external" href="http://jinja.pocoo.org/docs/extensions/#writing-extensions" title="(in Jinja2 v2.7)"><em class="xref std std-ref">extensions</em></a> to register
 callbacks and configuration values without breaking inheritance.</p>
 </dd></dl>
 
@@ -2931,7 +2932,7 @@ joining here.</p>
 <tt class="descname">lex</tt><big>(</big><em>source</em>, <em>name=None</em>, <em>filename=None</em><big>)</big><a class="reference internal" href="_modules/lib/jinja2/environment.html#Environment.lex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.jinja2.environment.Environment.lex" title="Permalink to this definition">¶</a></dt>
 <dd><p>Lex the given sourcecode and return a generator that yields
 tokens as tuples in the form <tt class="docutils literal"><span class="pre">(lineno,</span> <span class="pre">token_type,</span> <span class="pre">value)</span></tt>.
-This can be useful for <em class="xref std std-ref">extension development</em>
+This can be useful for <a class="reference external" href="http://jinja.pocoo.org/docs/extensions/#writing-extensions" title="(in Jinja2 v2.7)"><em class="xref std std-ref">extension development</em></a>
 and debugging templates.</p>
 <p>This does not perform preprocessing.  If you want the preprocessing
 of the extensions to be applied you have to filter source through
@@ -3001,7 +3002,7 @@ through.</p>
 tree of nodes is used by the compiler to convert the template into
 executable source- or bytecode.  This is useful for debugging or to
 extract information from templates.</p>
-<p>If you are <em class="xref std std-ref">developing Jinja2 extensions</em>
+<p>If you are <a class="reference external" href="http://jinja.pocoo.org/docs/extensions/#writing-extensions" title="(in Jinja2 v2.7)"><em class="xref std std-ref">developing Jinja2 extensions</em></a>
 this gives you a good overview of the node tree generated.</p>
 </dd></dl>
 
@@ -3190,7 +3191,7 @@ are given the context will be empty.  These two calls do the same:</p>
 <dt id="lib.jinja2.environment.TemplateExpression">
 <em class="property">class </em><tt class="descclassname">lib.jinja2.environment.</tt><tt class="descname">TemplateExpression</tt><big>(</big><em>template</em>, <em>undefined_to_none</em><big>)</big><a class="reference internal" href="_modules/lib/jinja2/environment.html#TemplateExpression"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.jinja2.environment.TemplateExpression" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>The <tt class="xref py py-meth docutils literal"><span class="pre">jinja2.Environment.compile_expression()</span></tt> method returns an
+<p>The <a class="reference external" href="http://jinja.pocoo.org/docs/api/#jinja2.Environment.compile_expression" title="(in Jinja2 v2.7)"><tt class="xref py py-meth docutils literal"><span class="pre">jinja2.Environment.compile_expression()</span></tt></a> method returns an
 instance of this object.  It encapsulates the expression-like access
 to the template with an expression it wraps.</p>
 </dd></dl>
@@ -3493,16 +3494,16 @@ to pass constants on extensions to generated template code.</p>
 <dt id="lib.jinja2.ext.Extension.call_method">
 <tt class="descname">call_method</tt><big>(</big><em>name</em>, <em>args=None</em>, <em>kwargs=None</em>, <em>dyn_args=None</em>, <em>dyn_kwargs=None</em>, <em>lineno=None</em><big>)</big><a class="reference internal" href="_modules/lib/jinja2/ext.html#Extension.call_method"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.jinja2.ext.Extension.call_method" title="Permalink to this definition">¶</a></dt>
 <dd><p>Call a method of the extension.  This is a shortcut for
-<a class="reference internal" href="#lib.jinja2.ext.Extension.attr" title="lib.jinja2.ext.Extension.attr"><tt class="xref py py-meth docutils literal"><span class="pre">attr()</span></tt></a> + <tt class="xref py py-class docutils literal"><span class="pre">jinja2.nodes.Call</span></tt>.</p>
+<a class="reference internal" href="#lib.jinja2.ext.Extension.attr" title="lib.jinja2.ext.Extension.attr"><tt class="xref py py-meth docutils literal"><span class="pre">attr()</span></tt></a> + <a class="reference external" href="http://jinja.pocoo.org/docs/extensions/#jinja2.nodes.Call" title="(in Jinja2 v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">jinja2.nodes.Call</span></tt></a>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="lib.jinja2.ext.Extension.filter_stream">
 <tt class="descname">filter_stream</tt><big>(</big><em>stream</em><big>)</big><a class="reference internal" href="_modules/lib/jinja2/ext.html#Extension.filter_stream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.jinja2.ext.Extension.filter_stream" title="Permalink to this definition">¶</a></dt>
-<dd><p>It&#8217;s passed a <tt class="xref py py-class docutils literal"><span class="pre">TokenStream</span></tt> that can be used
+<dd><p>It&#8217;s passed a <a class="reference external" href="http://jinja.pocoo.org/docs/extensions/#jinja2.lexer.TokenStream" title="(in Jinja2 v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">TokenStream</span></tt></a> that can be used
 to filter tokens returned.  This method has to return an iterable of
-<tt class="xref py py-class docutils literal"><span class="pre">Token</span></tt>s, but it doesn&#8217;t have to return a
-<tt class="xref py py-class docutils literal"><span class="pre">TokenStream</span></tt>.</p>
+<a class="reference external" href="http://jinja.pocoo.org/docs/extensions/#jinja2.lexer.Token" title="(in Jinja2 v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">Token</span></tt></a>s, but it doesn&#8217;t have to return a
+<a class="reference external" href="http://jinja.pocoo.org/docs/extensions/#jinja2.lexer.TokenStream" title="(in Jinja2 v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">TokenStream</span></tt></a>.</p>
 <p>In the <cite>ext</cite> folder of the Jinja2 source distribution there is a file
 called <cite>inlinegettext.py</cite> which implements a filter that utilizes this
 method.</p>
@@ -3990,7 +3991,7 @@ escaping enabled this variable will not be escaped.</p>
 <dl class="function">
 <dt id="lib.jinja2.filters.do_mark_unsafe">
 <tt class="descclassname">lib.jinja2.filters.</tt><tt class="descname">do_mark_unsafe</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="_modules/lib/jinja2/filters.html#do_mark_unsafe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.jinja2.filters.do_mark_unsafe" title="Permalink to this definition">¶</a></dt>
-<dd><p>Mark a value as unsafe.  This is the reverse operation for <tt class="xref py py-func docutils literal"><span class="pre">safe()</span></tt>.</p>
+<dd><p>Mark a value as unsafe.  This is the reverse operation for <a class="reference external" href="http://jinja.pocoo.org/docs/templates/#safe" title="(in Jinja2 v2.7)"><tt class="xref py py-func docutils literal"><span class="pre">safe()</span></tt></a>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -4218,7 +4219,7 @@ if the filter returned something unless the second parameter is false.</p>
 <tt class="descclassname">lib.jinja2.filters.</tt><tt class="descname">evalcontextfilter</tt><big>(</big><em>f</em><big>)</big><a class="reference internal" href="_modules/lib/jinja2/filters.html#evalcontextfilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.jinja2.filters.evalcontextfilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decorator for marking eval-context dependent filters.  An eval
 context object is passed as first argument.  For more information
-about the eval context, see <em class="xref std std-ref">eval-context</em>.</p>
+about the eval context, see <a class="reference external" href="http://jinja.pocoo.org/docs/api/#eval-context" title="(in Jinja2 v2.7)"><em>Evaluation Context</em></a>.</p>
 <div class="versionadded">
 <p><span>New in version 2.4.</span></p>
 </div>
@@ -4367,7 +4368,7 @@ one token ahead.  The current active token is stored as <tt class="xref py py-at
 <dt id="lib.jinja2.lexer.TokenStream.expect">
 <tt class="descname">expect</tt><big>(</big><em>expr</em><big>)</big><a class="reference internal" href="_modules/lib/jinja2/lexer.html#TokenStream.expect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.jinja2.lexer.TokenStream.expect" title="Permalink to this definition">¶</a></dt>
 <dd><p>Expect a given token type and return it.  This accepts the same
-argument as <tt class="xref py py-meth docutils literal"><span class="pre">jinja2.lexer.Token.test()</span></tt>.</p>
+argument as <a class="reference external" href="http://jinja.pocoo.org/docs/extensions/#jinja2.lexer.Token.test" title="(in Jinja2 v2.7)"><tt class="xref py py-meth docutils literal"><span class="pre">jinja2.lexer.Token.test()</span></tt></a>.</p>
 </dd></dl>
 
 <dl class="method">
@@ -5194,7 +5195,7 @@ an <cite>Impossible</cite> exception.</p>
 <dd><p>Bases: <a class="reference internal" href="#lib.jinja2.nodes.Expr" title="lib.jinja2.nodes.Expr"><tt class="xref py py-class docutils literal"><span class="pre">lib.jinja2.nodes.Expr</span></tt></a></p>
 <p>Returns the current template context.  It can be used like a
 <a class="reference internal" href="#lib.jinja2.nodes.Name" title="lib.jinja2.nodes.Name"><tt class="xref py py-class docutils literal"><span class="pre">Name</span></tt></a> node, with a <tt class="docutils literal"><span class="pre">'load'</span></tt> ctx and will return the
-current <tt class="xref py py-class docutils literal"><span class="pre">Context</span></tt> object.</p>
+current <a class="reference external" href="http://jinja.pocoo.org/docs/api/#jinja2.runtime.Context" title="(in Jinja2 v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">Context</span></tt></a> object.</p>
 <p>Here an example that assigns the current template name to a
 variable named <cite>foo</cite>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">Assign</span><span class="p">(</span><span class="n">Name</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="s">&#39;store&#39;</span><span class="p">),</span>
@@ -5455,7 +5456,7 @@ an attached environment.</p>
 <p>Returns the attribute of an extension bound to the environment.
 The identifier is the identifier of the <tt class="xref py py-class docutils literal"><span class="pre">Extension</span></tt>.</p>
 <p>This node is usually constructed by calling the
-<tt class="xref py py-meth docutils literal"><span class="pre">attr()</span></tt> method on an extension.</p>
+<a class="reference external" href="http://jinja.pocoo.org/docs/extensions/#jinja2.ext.Extension.attr" title="(in Jinja2 v2.7)"><tt class="xref py py-meth docutils literal"><span class="pre">attr()</span></tt></a> method on an extension.</p>
 <dl class="attribute">
 <dt id="lib.jinja2.nodes.ExtensionAttribute.abstract">
 <tt class="descname">abstract</tt><em class="property"> = False</em><a class="headerlink" href="#lib.jinja2.nodes.ExtensionAttribute.abstract" title="Permalink to this definition">¶</a></dt>
@@ -5799,7 +5800,7 @@ compiler so there is no need to assign them to local variables.</p>
 <dd><p>Bases: <a class="reference internal" href="#lib.jinja2.nodes.Expr" title="lib.jinja2.nodes.Expr"><tt class="xref py py-class docutils literal"><span class="pre">lib.jinja2.nodes.Expr</span></tt></a></p>
 <p>An internal name in the compiler.  You cannot create these nodes
 yourself but the parser provides a
-<tt class="xref py py-meth docutils literal"><span class="pre">free_identifier()</span></tt> method that creates
+<a class="reference external" href="http://jinja.pocoo.org/docs/extensions/#jinja2.parser.Parser.free_identifier" title="(in Jinja2 v2.7)"><tt class="xref py py-meth docutils literal"><span class="pre">free_identifier()</span></tt></a> method that creates
 a new identifier for you.  This identifier is not available from the
 template and is not threated specially by the compiler.</p>
 <dl class="attribute">
@@ -6402,7 +6403,7 @@ This is used both for the <cite>print</cite> statement and the regular template 
 <dd><p>Bases: <a class="reference internal" href="#lib.jinja2.nodes.EvalContextModifier" title="lib.jinja2.nodes.EvalContextModifier"><tt class="xref py py-class docutils literal"><span class="pre">lib.jinja2.nodes.EvalContextModifier</span></tt></a></p>
 <p>Modifies the eval context and reverts it later.  Works exactly like
 <a class="reference internal" href="#lib.jinja2.nodes.EvalContextModifier" title="lib.jinja2.nodes.EvalContextModifier"><tt class="xref py py-class docutils literal"><span class="pre">EvalContextModifier</span></tt></a> but will only modify the
-<tt class="xref py py-class docutils literal"><span class="pre">EvalContext</span></tt> for nodes in the <tt class="xref py py-attr docutils literal"><span class="pre">body</span></tt>.</p>
+<a class="reference external" href="http://jinja.pocoo.org/docs/api/#jinja2.nodes.EvalContext" title="(in Jinja2 v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">EvalContext</span></tt></a> for nodes in the <tt class="xref py py-attr docutils literal"><span class="pre">body</span></tt>.</p>
 <dl class="attribute">
 <dt id="lib.jinja2.nodes.ScopedEvalContextModifier.abstract">
 <tt class="descname">abstract</tt><em class="property"> = False</em><a class="headerlink" href="#lib.jinja2.nodes.ScopedEvalContextModifier.abstract" title="Permalink to this definition">¶</a></dt>
@@ -6853,7 +6854,7 @@ the problem.</p>
 <dl class="method">
 <dt id="lib.jinja2.parser.Parser.free_identifier">
 <tt class="descname">free_identifier</tt><big>(</big><em>lineno=None</em><big>)</big><a class="reference internal" href="_modules/lib/jinja2/parser.html#Parser.free_identifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.jinja2.parser.Parser.free_identifier" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a new free identifier as <tt class="xref py py-class docutils literal"><span class="pre">InternalName</span></tt>.</p>
+<dd><p>Return a new free identifier as <a class="reference external" href="http://jinja.pocoo.org/docs/extensions/#jinja2.nodes.InternalName" title="(in Jinja2 v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">InternalName</span></tt></a>.</p>
 </dd></dl>
 
 <dl class="method">
@@ -7098,7 +7099,7 @@ can be set to <cite>True</cite> and the end token is removed.</p>
 <dt id="lib.jinja2.parser.Parser.parse_tuple">
 <tt class="descname">parse_tuple</tt><big>(</big><em>simplified=False</em>, <em>with_condexpr=True</em>, <em>extra_end_rules=None</em>, <em>explicit_parentheses=False</em><big>)</big><a class="reference internal" href="_modules/lib/jinja2/parser.html#Parser.parse_tuple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.jinja2.parser.Parser.parse_tuple" title="Permalink to this definition">¶</a></dt>
 <dd><p>Works like <cite>parse_expression</cite> but if multiple expressions are
-delimited by a comma a <tt class="xref py py-class docutils literal"><span class="pre">Tuple</span></tt> node is created.
+delimited by a comma a <a class="reference external" href="http://jinja.pocoo.org/docs/extensions/#jinja2.nodes.Tuple" title="(in Jinja2 v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">Tuple</span></tt></a> node is created.
 This method could also return a regular expression instead of a tuple
 if no commas where found.</p>
 <p>The default parsing mode is a full tuple.  If <cite>simplified</cite> is <cite>True</cite>
@@ -7313,7 +7314,7 @@ If chars is a str, it will be converted to unicode before stripping</p>
 
 <dl class="attribute">
 <dt id="lib.jinja2.runtime.Markup.partition">
-<tt class="descname">partition</tt><em class="property"> = (&lt;function partition at 0x10902b488&gt;,)</em><a class="headerlink" href="#lib.jinja2.runtime.Markup.partition" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">partition</tt><em class="property"> = (&lt;function partition at 0x11042c488&gt;,)</em><a class="headerlink" href="#lib.jinja2.runtime.Markup.partition" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -7811,7 +7812,7 @@ MAX_RANGE items.</p>
 <span class="cp">{%</span> <span class="k">endif</span> <span class="cp">%}</span><span class="x"></span>
 </pre></div>
 </div>
-<p>See the <tt class="xref py py-func docutils literal"><span class="pre">default()</span></tt> filter for a simple way to set undefined
+<p>See the <a class="reference external" href="http://jinja.pocoo.org/docs/templates/#default" title="(in Jinja2 v2.7)"><tt class="xref py py-func docutils literal"><span class="pre">default()</span></tt></a> filter for a simple way to set undefined
 variables.</p>
 </dd></dl>
 
@@ -7900,7 +7901,7 @@ that are iterable.</p>
 <dl class="function">
 <dt id="lib.jinja2.tests.test_undefined">
 <tt class="descclassname">lib.jinja2.tests.</tt><tt class="descname">test_undefined</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="_modules/lib/jinja2/tests.html#test_undefined"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.jinja2.tests.test_undefined" title="Permalink to this definition">¶</a></dt>
-<dd><p>Like <tt class="xref py py-func docutils literal"><span class="pre">defined()</span></tt> but the other way round.</p>
+<dd><p>Like <a class="reference external" href="http://jinja.pocoo.org/docs/templates/#defined" title="(in Jinja2 v2.7)"><tt class="xref py py-func docutils literal"><span class="pre">defined()</span></tt></a> but the other way round.</p>
 </dd></dl>
 
 <dl class="function">
@@ -8086,7 +8087,7 @@ and not context.</p>
 context callable.  This is similar to the <a class="reference internal" href="#lib.jinja2.utils.contextfunction" title="lib.jinja2.utils.contextfunction"><tt class="xref py py-func docutils literal"><span class="pre">contextfunction()</span></tt></a>
 but instead of passing the context, an evaluation context object is
 passed.  For more information about the eval context, see
-<em class="xref std std-ref">eval-context</em>.</p>
+<a class="reference external" href="http://jinja.pocoo.org/docs/api/#eval-context" title="(in Jinja2 v2.7)"><em>Evaluation Context</em></a>.</p>
 <div class="versionadded">
 <p><span>New in version 2.4.</span></p>
 </div>
@@ -8415,6 +8416,7 @@ used instead.</p>
           <a href="lib.dist.html" title="dist Package"
              >previous</a> |</li>
         <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
           <li><a href="lib.html" >lib Package</a> &raquo;</li> 
       </ul>
     </div>

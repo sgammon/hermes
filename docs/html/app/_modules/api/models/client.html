@@ -54,15 +54,14 @@
 <span class="c"># -*- coding: utf-8 -*-</span>
 
 <span class="sd">&#39;&#39;&#39;</span>
-
-<span class="sd">Models: Client</span>
-
 <span class="sd">This package holds model classes related to Ampush clients,</span>
 <span class="sd">and modelling relationships between them, contracts, and</span>
 <span class="sd">ad/aggregation models.</span>
 
-<span class="sd">-sam (&lt;sam.gammon@ampush.com&gt;)</span>
-
+<span class="sd">:author: Sam Gammon (sam.gammon@ampush.com)</span>
+<span class="sd">:copyright: (c) 2013 Ampush.</span>
+<span class="sd">:license: This is private source code - all rights are reserved. For details about</span>
+<span class="sd">          embedded licenses and other legalese, see `LICENSE.md`.</span>
 <span class="sd">&#39;&#39;&#39;</span>
 
 <span class="c"># tracker models</span>
@@ -73,20 +72,34 @@
 <span class="c"># Represents a client of Ampush&#39;s that holds active contracts.</span>
 <div class="viewcode-block" id="Client"><a class="viewcode-back" href="../../../api.models.html#api.models.client.Client">[docs]</a><span class="k">class</span> <span class="nc">Client</span><span class="p">(</span><span class="n">TrackerModel</span><span class="p">):</span>
 
-	<span class="sd">&#39;&#39;&#39; Represents an Ampush client with active contracts. &#39;&#39;&#39;</span>
+    <span class="sd">&#39;&#39;&#39; Represents an Ampush client with active contracts.</span>
 
-	<span class="n">name</span> <span class="o">=</span> <span class="nb">basestring</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>
-	<span class="n">label</span> <span class="o">=</span> <span class="nb">basestring</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>
+<span class="sd">        :param name: String shortname for a client - must be all lowercase and</span>
+<span class="sd">                     absent of any special symbols, as it will be used in URLs</span>
+<span class="sd">                     and unique IDs (this is used as the key name for a</span>
+<span class="sd">                     :py:class:`Client`)</span>
+
+<span class="sd">        :param label: Longer, human-readable name for a client. Casing and</span>
+<span class="sd">                      symbols are allowed, as this value is used in UIs. &#39;&#39;&#39;</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="nb">basestring</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="nb">basestring</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>
 
 
 <span class="c">## Contract</span>
 <span class="c"># Represents a contract held by an Ampush client.</span></div>
 <div class="viewcode-block" id="Contract"><a class="viewcode-back" href="../../../api.models.html#api.models.client.Contract">[docs]</a><span class="k">class</span> <span class="nc">Contract</span><span class="p">(</span><span class="n">TrackerModel</span><span class="p">):</span>
 
-	<span class="sd">&#39;&#39;&#39; Represents a contract held by an Ampush client. &#39;&#39;&#39;</span>
+    <span class="sd">&#39;&#39;&#39; Represents a contract held by an Ampush client.</span>
 
-	<span class="n">active</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>
-	<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span></div>
+<span class="sd">        :param active: Boolean indicating whether this :py:class:`Contract` is</span>
+<span class="sd">                       currently active. Defaults to ``False``.</span>
+
+<span class="sd">        :param client: Reference :py:class:`apptools.model.Key` to the owner</span>
+<span class="sd">                       :py:class:`Client` for this :py:class:`Contract`. &#39;&#39;&#39;</span>
+
+    <span class="n">active</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span></div>
 </pre></div>
 
           </div>

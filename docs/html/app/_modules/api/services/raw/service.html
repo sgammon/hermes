@@ -27,7 +27,7 @@
           title="Search within Hermes v2.0 Docs"
           href="../../../../_static/opensearch.xml"/>
     <link rel="top" title="Hermes v2.0 Docs" href="../../../../index.html" />
-    <link rel="up" title="api.services" href="../../services.html" /> 
+    <link rel="up" title="Module code" href="../../../index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -40,8 +40,7 @@
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
-          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
-          <li><a href="../../services.html" accesskey="U">api.services</a> &raquo;</li> 
+          <li><a href="../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -54,57 +53,35 @@
 <span class="c"># -*- coding: utf-8 -*-</span>
 
 <span class="sd">&#39;&#39;&#39;</span>
-
 <span class="sd">Raw Data API: Service</span>
 
-<span class="sd">-sam (&lt;sam.gammon@ampush.com&gt;)</span>
-
+<span class="sd">:author: Sam Gammon (sam.gammon@ampush.com)</span>
+<span class="sd">:copyright: (c) 2013 Ampush.</span>
+<span class="sd">:license: This is private source code - all rights are reserved. For details about</span>
+<span class="sd">          embedded licenses and other legalese, see `LICENSE.md`.</span>
 <span class="sd">&#39;&#39;&#39;</span>
-
-<span class="c"># Base Imports</span>
-<span class="kn">import</span> <span class="nn">config</span>
-<span class="kn">import</span> <span class="nn">webapp2</span>
 
 <span class="c"># Local Imports</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">messages</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">exceptions</span>
 
 <span class="c"># apptools services</span>
-<span class="kn">from</span> <span class="nn">apptools</span> <span class="kn">import</span> <span class="n">services</span>
-
-<span class="c"># apptools util</span>
-<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">debug</span>
-<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">datastructures</span>
-
-<span class="c"># API Service</span>
-<span class="kn">from</span> <span class="nn">api.services</span> <span class="kn">import</span> <span class="n">APIService</span>
+<span class="kn">from</span> <span class="nn">apptools</span> <span class="kn">import</span> <span class="n">rpc</span>
 
 
 <span class="c">## RawDataService - exposes methods for retrieving raw data from `EventTracker`.</span>
-<div class="viewcode-block" id="RawDataService"><a class="viewcode-back" href="../../../../api.services.raw.html#api.services.raw.service.RawDataService">[docs]</a><span class="k">class</span> <span class="nc">RawDataService</span><span class="p">(</span><span class="n">APIService</span><span class="p">):</span>
+<span class="nd">@rpc.service</span>
+<div class="viewcode-block" id="RawDataService"><a class="viewcode-back" href="../../../../api.services.raw.html#api.services.raw.service.RawDataService">[docs]</a><span class="k">class</span> <span class="nc">RawDataService</span><span class="p">(</span><span class="n">rpc</span><span class="o">.</span><span class="n">Service</span><span class="p">):</span>
 
     <span class="sd">&#39;&#39;&#39; Exposes methods for retrieving raw data from `EventTracker`. &#39;&#39;&#39;</span>
 
     <span class="n">_config_path</span> <span class="o">=</span> <span class="s">&#39;hermes.api.tracker.RawDataAPI&#39;</span>
 
-    <span class="n">exceptions</span> <span class="o">=</span> <span class="n">datastructures</span><span class="o">.</span><span class="n">DictProxy</span><span class="p">(</span><span class="o">**</span><span class="p">{</span>
+    <span class="n">exceptions</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">Exceptions</span><span class="p">(</span><span class="o">**</span><span class="p">{</span>
         <span class="s">&#39;generic&#39;</span><span class="p">:</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">Error</span>
     <span class="p">})</span>
 
-    <span class="nd">@webapp2.cached_property</span>
-<div class="viewcode-block" id="RawDataService.config"><a class="viewcode-back" href="../../../../api.services.raw.html#api.services.raw.service.RawDataService.config">[docs]</a>    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
-        <span class="sd">&#39;&#39;&#39; Cached access to `RawDataService` config. &#39;&#39;&#39;</span>
-
-        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config_path</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;debug&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">})</span>
-</div>
-    <span class="nd">@webapp2.cached_property</span>
-<div class="viewcode-block" id="RawDataService.logging"><a class="viewcode-back" href="../../../../api.services.raw.html#api.services.raw.service.RawDataService.logging">[docs]</a>    <span class="k">def</span> <span class="nf">logging</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
-        <span class="sd">&#39;&#39;&#39; Cached access to dedicated log pipe. &#39;&#39;&#39;</span>
-
-        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">debug</span><span class="o">.</span><span class="n">AppToolsLogger</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">name</span><span class="o">=</span><span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">_setcondition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;debug&#39;</span><span class="p">))</span></div></div>
+    <span class="k">pass</span></div>
 </pre></div>
 
           </div>
@@ -142,8 +119,7 @@
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
-          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
-          <li><a href="../../services.html" >api.services</a> &raquo;</li> 
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

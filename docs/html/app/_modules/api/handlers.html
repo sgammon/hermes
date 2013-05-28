@@ -53,36 +53,32 @@
 <span class="c"># -*- coding: utf-8 -*-</span>
 
 <span class="sd">&#39;&#39;&#39;</span>
-
-<span class="sd">API: Handlers</span>
-
 <span class="sd">This module contains the top level WebHandler, which is responsible for</span>
 <span class="sd">responding to regular HTTP requests in a traditional HTTP request/response</span>
 <span class="sd">cycle. All project handlers should inherit from this.</span>
 
-<span class="sd">-sam (&lt;sam.gammon@ampush.com&gt;)</span>
-
+<span class="sd">:author: Sam Gammon (sam.gammon@ampush.com)</span>
+<span class="sd">:copyright: (c) 2013 Ampush.</span>
+<span class="sd">:license: This is private source code - all rights are reserved. For details about</span>
+<span class="sd">          embedded licenses and other legalese, see `LICENSE.md`.-sam (&lt;sam.gammon@ampush.com&gt;)</span>
 <span class="sd">&#39;&#39;&#39;</span>
 
 <span class="c"># Base Imports</span>
-<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">config</span>
-<span class="kn">import</span> <span class="nn">hashlib</span>
 
 <span class="c"># Webapp2 Imports</span>
 <span class="kn">import</span> <span class="nn">webapp2</span>
 
 <span class="c"># AppTools Imports</span>
+<span class="kn">from</span> <span class="nn">apptools</span> <span class="kn">import</span> <span class="n">rpc</span>
 <span class="kn">from</span> <span class="nn">apptools</span> <span class="kn">import</span> <span class="n">core</span>
 
 <span class="c"># AppTools Util Imports</span>
-<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">json</span>
-<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">debug</span>
-<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">datastructures</span>
+<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">decorators</span>
 
 
 <span class="c">## WebHanlder - parent class for all site request handler classes</span>
-<div class="viewcode-block" id="WebHandler"><a class="viewcode-back" href="../../api.handlers.html#api.handlers.WebHandler">[docs]</a><span class="k">class</span> <span class="nc">WebHandler</span><span class="p">(</span><span class="n">core</span><span class="o">.</span><span class="n">BaseHandler</span><span class="p">):</span>
+<div class="viewcode-block" id="WebHandler"><a class="viewcode-back" href="../../api.handlers.html#api.handlers.WebHandler">[docs]</a><span class="k">class</span> <span class="nc">WebHandler</span><span class="p">(</span><span class="n">core</span><span class="o">.</span><span class="n">BaseHandler</span><span class="p">,</span> <span class="n">rpc</span><span class="o">.</span><span class="n">ConfiguredClass</span><span class="p">):</span>
 
     <span class="sd">&#39;&#39;&#39; Handler for desktop web requests. &#39;&#39;&#39;</span>
 
@@ -92,16 +88,16 @@
     <span class="n">template</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># string path to associated template</span>
 
     <span class="c"># Config Paths</span>
+    <span class="n">_config_path</span> <span class="o">=</span> <span class="s">&#39;api.classes.WebHandler&#39;</span>
     <span class="n">_jinja2_config_path</span> <span class="o">=</span> <span class="s">&#39;webapp2_extras.jinja2&#39;</span>
-    <span class="n">_handler_config_path</span> <span class="o">=</span> <span class="s">&#39;api.classes.WebHandler&#39;</span>
     <span class="n">_p_output_config_path</span> <span class="o">=</span> <span class="s">&#39;apptools.project.output&#39;</span>
 
     <span class="c"># RPC Transport Settings</span>
     <span class="n">transport</span> <span class="o">=</span> <span class="p">{</span>
 
         <span class="s">&#39;secure&#39;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">production</span><span class="p">,</span>  <span class="c"># whether to communicate over HTTPS (switches on production deployment)</span>
-        <span class="s">&#39;consumer&#39;</span><span class="p">:</span> <span class="s">&#39;hermes&#39;</span> <span class="k">if</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">production</span> <span class="o">==</span> <span class="bp">True</span><span class="p">)</span> <span class="k">else</span> <span class="s">&#39;hermes-sandbox&#39;</span><span class="p">,</span>  <span class="c"># API consumer name (logging/simple access control)</span>
-        <span class="s">&#39;endpoint&#39;</span><span class="p">:</span> <span class="s">&#39;api.amp.sh&#39;</span> <span class="k">if</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">production</span> <span class="o">==</span> <span class="bp">True</span><span class="p">)</span> <span class="k">else</span> <span class="s">&#39;127.0.0.1:8080&#39;</span><span class="p">,</span>  <span class="c"># API endpoint (passed to client)</span>
+        <span class="s">&#39;consumer&#39;</span><span class="p">:</span> <span class="s">&#39;hermes&#39;</span> <span class="k">if</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">production</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">)</span> <span class="k">else</span> <span class="s">&#39;hermes-sandbox&#39;</span><span class="p">,</span>  <span class="c"># API consumer name</span>
+        <span class="s">&#39;endpoint&#39;</span><span class="p">:</span> <span class="s">&#39;api.amp.sh&#39;</span> <span class="k">if</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">production</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">)</span> <span class="k">else</span> <span class="s">&#39;127.0.0.1:8080&#39;</span><span class="p">,</span>  <span class="c"># API endpoint</span>
 
         <span class="s">&#39;realtime&#39;</span><span class="p">:</span> <span class="p">{</span>  <span class="c"># realtime / websocket settings</span>
             <span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>  <span class="c"># enable/disable realtime</span>
@@ -112,120 +108,109 @@
     <span class="p">}</span>
 
     <span class="c">## ++ Internal Shortcuts ++ ##</span>
+    <span class="nd">@decorators.memoize</span>
+    <span class="nd">@decorators.classproperty</span>
+    <span class="k">def</span> <span class="nf">_outputConfig</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>  <span class="c"># pragma: no cover</span>
 
-    <span class="c">## Debug Pipe</span>
-    <span class="nd">@webapp2.cached_property</span>
-<div class="viewcode-block" id="WebHandler.debug"><a class="viewcode-back" href="../../api.handlers.html#api.handlers.WebHandler.debug">[docs]</a>    <span class="k">def</span> <span class="nf">debug</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Cached access to base output config.</span>
 
-        <span class="sd">&#39;&#39;&#39; Shortcut to AppTools debugging utilities. &#39;&#39;&#39;</span>
+<span class="sd">            :returns: Configuration ``dict`` for the :py:mod:`apptools`</span>
+<span class="sd">                      *Core Output API*, which provides integration with</span>
+<span class="sd">                      :py:mod:`jinja2`, among other things. &#39;&#39;&#39;</span>
 
-        <span class="k">return</span> <span class="n">debug</span>
+        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">_p_output_config_path</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;debug&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">})</span>  <span class="c"># pragma: no cover</span>
 
-    <span class="c">## Logging Pipe</span></div>
-    <span class="nd">@webapp2.cached_property</span>
-<div class="viewcode-block" id="WebHandler.logging"><a class="viewcode-back" href="../../api.handlers.html#api.handlers.WebHandler.logging">[docs]</a>    <span class="k">def</span> <span class="nf">logging</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_jinjaConfig</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>  <span class="c"># pragma: no cover</span>
 
-        <span class="sd">&#39;&#39;&#39; Named logging pipe / shortcut. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Cached access to base output config.</span>
 
-        <span class="k">return</span> <span class="n">debug</span><span class="o">.</span><span class="n">AppToolsLogger</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s">&#39;api.handlers&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;WebHandler&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">_setcondition</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">debug</span><span class="p">)</span>
+<span class="sd">            :returns: Configuration ``dict`` for the :py:mod:`apptools`</span>
+<span class="sd">                      *Core Output API*, which provides integration with</span>
+<span class="sd">                      :py:mod:`jinja2`, among other things. &#39;&#39;&#39;</span>
 
-    <span class="c">## Config Shortcuts</span></div>
-    <span class="nd">@webapp2.cached_property</span>
-<div class="viewcode-block" id="WebHandler.config"><a class="viewcode-back" href="../../api.handlers.html#api.handlers.WebHandler.config">[docs]</a>    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
-        <span class="sd">&#39;&#39;&#39; Cached access to main config for this handler. &#39;&#39;&#39;</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_webHandlerConfig</span>
-</div>
-    <span class="nd">@webapp2.cached_property</span>
-    <span class="k">def</span> <span class="nf">_webHandlerConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
-        <span class="sd">&#39;&#39;&#39; Cached access to this handler&#39;s config. &#39;&#39;&#39;</span>
-
-        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_handler_config_path</span><span class="p">)</span>
-
-    <span class="nd">@webapp2.cached_property</span>
-    <span class="k">def</span> <span class="nf">_jinjaConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
-        <span class="sd">&#39;&#39;&#39; Cached access to Jinja2 base config. &#39;&#39;&#39;</span>
-
-        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jinja2_config_path</span><span class="p">)</span>
-
-    <span class="nd">@webapp2.cached_property</span>
-    <span class="k">def</span> <span class="nf">_integrationConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
-        <span class="sd">&#39;&#39;&#39; Cached access to this handler&#39;s integration config. &#39;&#39;&#39;</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_webHandlerConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;integrations&#39;</span><span class="p">)</span>
-
-    <span class="nd">@webapp2.cached_property</span>
-    <span class="k">def</span> <span class="nf">_outputConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
-        <span class="sd">&#39;&#39;&#39; Cached access to base output config. &#39;&#39;&#39;</span>
-
-        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_p_output_config_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">_jinja2_config_path</span><span class="p">)</span>  <span class="c"># pragma: no cover</span>
 
     <span class="c">## Internals</span>
-    <span class="nd">@webapp2.cached_property</span>
-<div class="viewcode-block" id="WebHandler.hostname"><a class="viewcode-back" href="../../api.handlers.html#api.handlers.WebHandler.hostname">[docs]</a>    <span class="k">def</span> <span class="nf">hostname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nd">@decorators.memoize</span>
+    <span class="k">def</span> <span class="nf">hostname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Return proxied or request hostname. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Return proxied or request hostname. In cases where :py:mod:`apptools`</span>
+<span class="sd">            is running on specialized infrastructure, :py:mod:`appfactory` provides</span>
+<span class="sd">            the ability to override the current hostname via the ``XAF-Hostname``</span>
+<span class="sd">            header.</span>
+
+<span class="sd">            :returns: Active hostname (``str``). Either parses from the</span>
+<span class="sd">                      current :py:class:`webapp2.Request` (which uses</span>
+<span class="sd">                      uses the ``Host:`` header), or returns an overridden</span>
+<span class="sd">                      hostname from :py:mod:`appfactory`. &#39;&#39;&#39;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">host</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_hostname</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_hostname</span>
-</div>
-    <span class="nd">@webapp2.cached_property</span>
-<div class="viewcode-block" id="WebHandler.baseTransport"><a class="viewcode-back" href="../../api.handlers.html#api.handlers.WebHandler.baseTransport">[docs]</a>    <span class="k">def</span> <span class="nf">baseTransport</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Return a clean set of transport base settings. &#39;&#39;&#39;</span>
+    <span class="nd">@decorators.memoize</span>
+    <span class="k">def</span> <span class="nf">baseTransport</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Return a clean set of transport base settings.</span>
+
+<span class="sd">            :returns: Base configuration ``dict`` for page transports, like</span>
+<span class="sd">                      JSONRPC and WebSockets. &#39;&#39;&#39;</span>
 
         <span class="k">return</span> <span class="p">{</span>
             <span class="s">&#39;secure&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
             <span class="s">&#39;endpoint&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hostname</span><span class="p">,</span>
             <span class="s">&#39;consumer&#39;</span><span class="p">:</span> <span class="s">&#39;apptools-sandbox&#39;</span><span class="p">,</span>
             <span class="s">&#39;scope&#39;</span><span class="p">:</span> <span class="s">&#39;readonly&#39;</span><span class="p">,</span>
-            <span class="s">&#39;realtime&#39;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">False</span>
-            <span class="p">},</span>
+            <span class="s">&#39;realtime&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">},</span>
             <span class="s">&#39;make_object&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_services_object</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="p">}</span>
-</div>
-    <span class="nd">@webapp2.cached_property</span>
-<div class="viewcode-block" id="WebHandler.computedTransport"><a class="viewcode-back" href="../../api.handlers.html#api.handlers.WebHandler.computedTransport">[docs]</a>    <span class="k">def</span> <span class="nf">computedTransport</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Overlay this handler&#39;s transport settings on the app&#39;s base settings and return. &#39;&#39;&#39;</span>
+    <span class="nd">@decorators.memoize</span>
+    <span class="k">def</span> <span class="nf">computedTransport</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Overlay this handler&#39;s transport settings on the app&#39;s base settings and return.</span>
+
+<span class="sd">            :returns: Computed + collapsed configuration ``dict`` for page</span>
+<span class="sd">                      transports, like JSONRPC and WebSockets. &#39;&#39;&#39;</span>
 
         <span class="n">b</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseTransport</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
         <span class="n">b</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transport</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">b</span>
-</div>
-    <span class="nd">@webapp2.cached_property</span>
-<div class="viewcode-block" id="WebHandler.template_environment"><a class="viewcode-back" href="../../api.handlers.html#api.handlers.WebHandler.template_environment">[docs]</a>    <span class="k">def</span> <span class="nf">template_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Return a new environment, because if we&#39;re already here it&#39;s not cached. &#39;&#39;&#39;</span>
+    <span class="nd">@decorators.memoize</span>
+    <span class="k">def</span> <span class="nf">template_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Return a new environment, because if we&#39;re already here it&#39;s not cached.</span>
+
+<span class="sd">            :returns: New or existing :py:class:`jinja2.environment.Environment`. &#39;&#39;&#39;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">jinja2</span>
-</div>
-    <span class="nd">@webapp2.cached_property</span>
-<div class="viewcode-block" id="WebHandler.jinja2"><a class="viewcode-back" href="../../api.handlers.html#api.handlers.WebHandler.jinja2">[docs]</a>    <span class="k">def</span> <span class="nf">jinja2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Cached access to Jinja2. &#39;&#39;&#39;</span>
+    <span class="nd">@decorators.memoize</span>
+    <span class="k">def</span> <span class="nf">jinja2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Cached access to Jinja2.</span>
+
+<span class="sd">            :returns: New or existing :py:class:`jinja2.environment.Environment`. &#39;&#39;&#39;</span>
 
         <span class="c">## Patch in dynamic content support</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;dynamicEnvironmentFactory&#39;</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_api</span><span class="o">.</span><span class="n">get_jinja</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamicEnvironmentFactory</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_api</span><span class="o">.</span><span class="n">get_jinja</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">jinja2EnvironmentFactory</span><span class="p">)</span>
-</div>
+
     <span class="k">def</span> <span class="nf">_preload_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Preloaded data support. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Preloaded data support.</span>
+
+<span class="sd">            :returns: Current ``WebHandler`` (``self``) for method chainability. &#39;&#39;&#39;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Data preloading currently disabled.&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">_preload_template</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Preloaded template support. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Preloaded template support.</span>
+
+<span class="sd">            :returns: Current ``WebHandler`` (``self``) for method chainability. &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;template&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;template&#39;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">frozenset</span><span class="p">([</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">False</span><span class="p">]):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">preload_template</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="p">)</span>
@@ -233,7 +218,13 @@
 
     <span class="k">def</span> <span class="nf">_make_services_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">services</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Make a dict suitable for JSON representing an API service. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Make a dict suitable for JSON representing an API service.</span>
+
+<span class="sd">            :param services: Dictionary service configuration to generate</span>
+<span class="sd">                             service description object from.</span>
+
+<span class="sd">            :returns: Materialized configuration array, suitable for</span>
+<span class="sd">                      serilization and inlining into the page. &#39;&#39;&#39;</span>
 
         <span class="k">return</span> <span class="p">[[</span>
             <span class="n">service</span><span class="p">,</span>
@@ -243,7 +234,12 @@
 
     <span class="k">def</span> <span class="nf">_bindRuntimeTemplateContext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Bind a bunch of utils-n-stuff at runtime. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Bind a bunch of utils-n-stuff at runtime.</span>
+
+<span class="sd">            :param context: Current :py:mod:`jinja2` template context ``dict``.</span>
+
+<span class="sd">            :returns: Updated context ``dict``. This method **must** return the</span>
+<span class="sd">                      appropriately-mutated context, or it will be dropped. &#39;&#39;&#39;</span>
 
         <span class="n">context</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
 
@@ -267,14 +263,24 @@
     <span class="c">## ++ External Methods ++ ##</span>
 <div class="viewcode-block" id="WebHandler.initialize"><a class="viewcode-back" href="../../api.handlers.html#api.handlers.WebHandler.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Initialize this handler. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Initialize this handler.</span>
+
+<span class="sd">            :param request: Current or empty :py:class:`webapp2.Request`.</span>
+<span class="sd">            :param response: Current or empty :py:class:`webapp2.Response`.</span>
+
+<span class="sd">            :returns: Currently-active ``WebHandler`` descendent, for method</span>
+<span class="sd">                      chainability. &#39;&#39;&#39;</span>
 
         <span class="nb">super</span><span class="p">(</span><span class="n">core</span><span class="o">.</span><span class="n">BaseHandler</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 </div>
 <div class="viewcode-block" id="WebHandler.dispatch"><a class="viewcode-back" href="../../api.handlers.html#api.handlers.WebHandler.dispatch">[docs]</a>    <span class="k">def</span> <span class="nf">dispatch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Dispatch a response for a given request using this handler. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Dispatch a response for a given request using this handler.</span>
+
+<span class="sd">            :returns: Attribute :py:attr:`WebHandler.response`, which is</span>
+<span class="sd">                      the resulting response from a dispatched HTTP-based</span>
+<span class="sd">                      method, such as ``WebHandler.GET``. &#39;&#39;&#39;</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">_super</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">WebHandler</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
@@ -301,7 +307,11 @@
     <span class="c">## Render APIs</span></div>
 <div class="viewcode-block" id="WebHandler.render"><a class="viewcode-back" href="../../api.handlers.html#api.handlers.WebHandler.render">[docs]</a>    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; If supported, pass off to dynamic render, which rolls-in support for editable content blocks. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; If supported, pass off to dynamic render, which rolls-in support for editable content blocks.</span>
+
+<span class="sd">            :param args: Positional arguments to :py:meth:`jinja2.render_template`.</span>
+<span class="sd">            :param kwargs: Keyword arguments to overlay onto the active template context.</span>
+<span class="sd">            :returns: Rendered content, via :py:mod:`jinja2`. &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;content&#39;</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -311,7 +321,9 @@
     <span class="c">## HTTP Methods</span></div>
 <div class="viewcode-block" id="WebHandler.head"><a class="viewcode-back" href="../../api.handlers.html#api.handlers.WebHandler.head">[docs]</a>    <span class="k">def</span> <span class="nf">head</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Run GET, if defined, and return the headers only. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Run GET, if defined, and return the headers only (method for ``HTTP HEAD``).</span>
+
+<span class="sd">            :returns: Stringified response from ``GET`` call, with response body removed. &#39;&#39;&#39;</span>
 
         <span class="n">response</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;get&#39;</span><span class="p">):</span>
@@ -323,16 +335,20 @@
 </div>
 <div class="viewcode-block" id="WebHandler.options"><a class="viewcode-back" href="../../api.handlers.html#api.handlers.WebHandler.options">[docs]</a>    <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Run GET, clear response, return headers only. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Run GET, clear response, return headers only (method for ``HTTP OPTIONS``).</span>
+
+<span class="sd">            :returns: Stringified list of supported HTTP methods, including headers like ``HEAD``,</span>
+<span class="sd">                      with ``GET`` response body removed. &#39;&#39;&#39;</span>
 
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseHeaders</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#39;access-control-allow-origin&#39;</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">&#39;origin&#39;</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">frozenset</span><span class="p">([</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;HEAD&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">,</span> <span class="s">&#39;PUT&#39;</span><span class="p">,</span> <span class="s">&#39;DELETE&#39;</span><span class="p">,</span> <span class="s">&#39;OPTIONS&#39;</span><span class="p">])</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">lower</span><span class="p">())]))</span></div></div>
-</pre></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">frozenset</span><span class="p">([</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;HEAD&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">,</span> <span class="s">&#39;PUT&#39;</span><span class="p">,</span> <span class="s">&#39;DELETE&#39;</span><span class="p">,</span> <span class="s">&#39;OPTIONS&#39;</span><span class="p">])</span>
+                                             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">lower</span><span class="p">())]))</span>
+</pre></div></div></div>
 
           </div>
         </div>

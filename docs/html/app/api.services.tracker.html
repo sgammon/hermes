@@ -48,6 +48,7 @@
           <a href="api.services.raw.html" title="raw Package"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
           <li><a href="api.html" >api Package</a> &raquo;</li>
           <li><a href="api.services.html" accesskey="U">services Package</a> &raquo;</li> 
       </ul>
@@ -156,67 +157,20 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 </table>
 <dl class="class">
 <dt id="api.services.tracker.service.Echo">
-<em class="property">class </em><tt class="descclassname">api.services.tracker.service.</tt><tt class="descname">Echo</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/api/services/tracker/service.html#Echo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.tracker.service.Echo" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">protorpc.messages.Message</span></tt></p>
-<dl class="attribute">
-<dt id="api.services.tracker.service.Echo.key">
-<tt class="descname">key</tt><a class="headerlink" href="#api.services.tracker.service.Echo.key" title="Permalink to this definition">¶</a></dt>
-<dd><p>Field definition for sub-message values.</p>
-<p>Message fields contain instance of other messages.  Instances stored
-on messages stored on message fields  are considered to be owned by
-the containing message instance and should not be shared between
-owning instances.</p>
-<p>Message fields must be defined to reference a single type of message.
-Normally message field are defined by passing the referenced message
-class in to the constructor.</p>
-<p>It is possible to define a message field for a type that does not yet
-exist by passing the name of the message in to the constructor instead
-of a message class.  Resolution of the actual type of the message is
-deferred until it is needed, for example, during message verification.
-Names provided to the constructor must refer to a class within the same
-python module as the class that is using it.  Names refer to messages
-relative to the containing messages scope.  For example, the two fields
-of OuterMessage refer to the same message type:</p>
-<blockquote>
-<div><p>class Outer(Message):</p>
-<blockquote>
-<div><p>inner_relative = MessageField(&#8216;Inner&#8217;, 1)
-inner_absolute = MessageField(&#8216;Outer.Inner&#8217;, 2)</p>
-<dl class="docutils">
-<dt>class Inner(Message):</dt>
-<dd>...</dd>
-</dl>
-</div></blockquote>
-</div></blockquote>
-<p>When resolving an actual type, MessageField will traverse the entire
-scope of nested messages to match a message name.  This makes it easy
-for siblings to reference siblings:</p>
-<blockquote>
-<div><p>class Outer(Message):</p>
-<blockquote>
-<div><p>class Inner(Message):</p>
-<blockquote>
-<div>sibling = MessageField(&#8216;Sibling&#8217;, 1)</div></blockquote>
-<dl class="docutils">
-<dt>class Sibling(Message):</dt>
-<dd>...</dd>
-</dl>
-</div></blockquote>
-</div></blockquote>
-</dd></dl>
-
+<em class="property">class </em><tt class="descclassname">api.services.tracker.service.</tt><tt class="descname">Echo</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/api/services/tracker/service.html#Echo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.tracker.service.Echo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
+<p>Sample model =&gt; message.</p>
 <dl class="attribute">
 <dt id="api.services.tracker.service.Echo.message">
-<tt class="descname">message</tt><a class="headerlink" href="#api.services.tracker.service.Echo.message" title="Permalink to this definition">¶</a></dt>
-<dd><p>Field definition for unicode string values.</p>
-</dd></dl>
+<tt class="descname">message</tt><em class="property"> = 'Hello, world!'</em><a class="headerlink" href="#api.services.tracker.service.Echo.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="api.services.tracker.service.TrackerService">
-<em class="property">class </em><tt class="descclassname">api.services.tracker.service.</tt><tt class="descname">TrackerService</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/api/services/tracker/service.html#TrackerService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.tracker.service.TrackerService" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="api.services.html#api.services.APIService" title="api.services.APIService"><tt class="xref py py-class docutils literal"><span class="pre">api.services.APIService</span></tt></a></p>
+<em class="property">class </em><tt class="descclassname">api.services.tracker.service.</tt><tt class="descname">TrackerService</tt><a class="reference internal" href="_modules/api/services/tracker/service.html#TrackerService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.tracker.service.TrackerService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.rpc.Service</span></tt></p>
 <p>Exposes methods for managing the <cite>EventTracker</cite>.</p>
 <dl class="class">
 <dt id="api.services.tracker.service.TrackerService.AsyncStub">
@@ -267,12 +221,6 @@ args: Tuple (request,):</p>
 
 </dd></dl>
 
-<dl class="attribute">
-<dt id="api.services.tracker.service.TrackerService.config">
-<tt class="descclassname">TrackerService.</tt><tt class="descname">config</tt><a class="reference internal" href="_modules/api/services/tracker/service.html#TrackerService.config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.tracker.service.TrackerService.config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Cached access to <cite>TrackerService</cite> config.</p>
-</dd></dl>
-
 <dl class="method">
 <dt id="api.services.tracker.service.TrackerService.echo">
 <tt class="descclassname">TrackerService.</tt><tt class="descname">echo</tt><big>(</big><em>service_instance</em>, <em>request</em><big>)</big><a class="reference internal" href="_modules/api/services/tracker/service.html#TrackerService.echo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.tracker.service.TrackerService.echo" title="Permalink to this definition">¶</a></dt>
@@ -299,14 +247,8 @@ ServerError: Response object is not of the correct type.</dd>
 
 <dl class="attribute">
 <dt id="api.services.tracker.service.TrackerService.exceptions">
-<tt class="descclassname">TrackerService.</tt><tt class="descname">exceptions</tt><em class="property"> = &lt;apptools.util.datastructures.DictProxy object at 0x10a1a3150&gt;</em><a class="headerlink" href="#api.services.tracker.service.TrackerService.exceptions" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">TrackerService.</tt><tt class="descname">exceptions</tt><em class="property"> = &lt;apptools.util.datastructures.DictProxy object at 0x111d202d0&gt;</em><a class="headerlink" href="#api.services.tracker.service.TrackerService.exceptions" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="attribute">
-<dt id="api.services.tracker.service.TrackerService.logging">
-<tt class="descclassname">TrackerService.</tt><tt class="descname">logging</tt><a class="reference internal" href="_modules/api/services/tracker/service.html#TrackerService.logging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.tracker.service.TrackerService.logging" title="Permalink to this definition">¶</a></dt>
-<dd><p>Cached access to dedicated log pipe.</p>
-</dd></dl>
 
 </dd></dl>
 
@@ -377,6 +319,7 @@ ServerError: Response object is not of the correct type.</dd>
           <a href="api.services.raw.html" title="raw Package"
              >previous</a> |</li>
         <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
           <li><a href="api.html" >api Package</a> &raquo;</li>
           <li><a href="api.services.html" >services Package</a> &raquo;</li> 
       </ul>

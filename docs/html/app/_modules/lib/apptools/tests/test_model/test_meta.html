@@ -55,28 +55,21 @@
   <h1>Source code for lib.apptools.tests.test_model.test_meta</h1><div class="highlight"><pre>
 <span class="c"># -*- coding: utf-8 -*-</span>
 
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">---------------------------</span>
+<span class="sd">apptools2: model meta tests</span>
+<span class="sd">---------------------------</span>
 
-<span class="sd">    apptools2: meta model tests</span>
-<span class="sd">    -------------------------------------------------</span>
-<span class="sd">    |                                               |</span>
-<span class="sd">    |   `apptools.tests.model.meta`                 |</span>
-<span class="sd">    |                                               |</span>
-<span class="sd">    |   test cases for the `model.MetaFactory`,     |</span>
-<span class="sd">    |   which acts as an abstract metaclass that    |</span>
-<span class="sd">    |   provides common methods to other meta       |</span>
-<span class="sd">    |   actors in the model API.                    |</span>
-<span class="sd">    |                                               |</span>
-<span class="sd">    -------------------------------------------------</span>
-<span class="sd">    |   authors:                                    |</span>
-<span class="sd">    |       -- sam gammon (sam@momentum.io)         |</span>
-<span class="sd">    -------------------------------------------------</span>
-<span class="sd">    |   changelog:                                  |</span>
-<span class="sd">    |       -- apr 1, 2013: initial draft           |</span>
-<span class="sd">    -------------------------------------------------</span>
+<span class="sd">makes sure that abstract classes work abstractly,</span>
+<span class="sd">and not concretely. also makes sure that concrete</span>
+<span class="sd">classes can be extended and construct properly.</span>
 
-<span class="sd">&#39;&#39;&#39;</span>
-
+<span class="sd">:author: Sam Gammon (sam@momentum.io)</span>
+<span class="sd">:copyright: (c) 2013 momentum labs.</span>
+<span class="sd">:license: This is private source code - Ampush has been granted an</span>
+<span class="sd">          unlimited, exclusive license for embedded use. For details</span>
+<span class="sd">          about embedded licenses and other legalese, see `LICENSE.md`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="c"># stdlib</span>
 <span class="kn">import</span> <span class="nn">inspect</span>

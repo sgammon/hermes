@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>api.platform.tracker.event &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../../index.html" />
+    <link rel="up" title="api.platform.tracker" href="../tracker.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../platform.html" >api.platform</a> &raquo;</li>
+          <li><a href="../tracker.html" accesskey="U">api.platform.tracker</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for api.platform.tracker.event</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">The :py:class:`EventBuilder` class handles the construction and</span>
+<span class="sd">interpretation of :py:class:`model.event.TrackedEvent` entities.</span>
+<span class="sd">Execution flow for collapsing :py:class`model.profile.EventProfile`</span>
+<span class="sd">records and gathering followup tasks happens here - although it</span>
+<span class="sd">is enforced by :py:class:`platform.ampush.tracker.policy.PolicyEngine`.</span>
+
+<span class="sd">:author: Sam Gammon (sam.gammon@ampush.com)</span>
+<span class="sd">:copyright: (c) 2013 Ampush.</span>
+<span class="sd">:license: This is private source code - all rights are reserved. For details about</span>
+<span class="sd">          embedded licenses and other legalese, see `LICENSE.md`.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c"># Tracker Models</span>
+<span class="kn">from</span> <span class="nn">api.models.tracker.raw</span> <span class="kn">import</span> <span class="n">Event</span>
+
+<span class="c"># Platform Parent</span>
+<span class="kn">from</span> <span class="nn">api.platform</span> <span class="kn">import</span> <span class="n">PlatformBridge</span>
+
+
+<span class="c">## EventBuilder - handles the construction of ``TrackedEvent`` records.</span>
+<div class="viewcode-block" id="EventBuilder"><a class="viewcode-back" href="../../../../api.platform.tracker.html#api.platform.tracker.event.EventBuilder">[docs]</a><span class="k">class</span> <span class="nc">EventBuilder</span><span class="p">(</span><span class="n">PlatformBridge</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Manages the inflation, construction, and</span>
+<span class="sd">        interpretation of ``TrackedEvent`` entities. &#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="EventBuilder.raw"><a class="viewcode-back" href="../../../../api.platform.tracker.html#api.platform.tracker.event.EventBuilder.raw">[docs]</a>    <span class="k">def</span> <span class="nf">raw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">propagate</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Entrypoint for recording raw events and producing</span>
+<span class="sd">            :py:class:`model.raw.Event`.</span>
+
+<span class="sd">            If requested, this method will also produce a ``guess``</span>
+<span class="sd">            as to how the request can be handled, if any. Available</span>
+<span class="sd">            ``guess`` options are enumerated in a bidirectional</span>
+<span class="sd">            protocol enum at :py:class:`protocol.flow.ResponseVector`.</span>
+
+<span class="sd">            :param request: The current :py:class:`webapp2.Request`, or a</span>
+<span class="sd">                            valid :py:class:`model.raw.Event` to inject</span>
+<span class="sd">                            directly into the raw eventstream.</span>
+
+<span class="sd">            :keyword propagate: Flag indicating that this event should be</span>
+<span class="sd">                                propagated to the global eventstream.</span>
+<span class="sd">                                Defaults to ``True``.</span>
+
+<span class="sd">            :returns: Published (and possibly new) :py:class:`model.raw.Event`,</span>
+<span class="sd">                      and, if requested via ``live``, a guess about how to</span>
+<span class="sd">                      handle the request, like: ``tuple(&lt;event&gt;, &lt;guess&gt;)``. &#39;&#39;&#39;</span>
+
+        <span class="c"># inflate raw event &amp; publish to pubsub</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">stream</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">Event</span><span class="o">.</span><span class="n">inflate</span><span class="p">(</span><span class="n">request</span><span class="p">),</span> <span class="n">propagate</span><span class="o">=</span><span class="n">propagate</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="EventBuilder.error"><a class="viewcode-back" href="../../../../api.platform.tracker.html#api.platform.tracker.event.EventBuilder.error">[docs]</a>    <span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s">&quot;Unknown reason.&quot;</span><span class="p">,</span> <span class="n">propagate</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Register a :py:class:`model.raw.Event` or a full</span>
+<span class="sd">            :py:class:`model.event.TrackedEvent` as a potential</span>
+<span class="sd">            error event.</span>
+
+<span class="sd">            :param event: The event to register in the error</span>
+<span class="sd">                          eventstream.</span>
+
+<span class="sd">            :keyword reason: String reason describing why this</span>
+<span class="sd">                             event was found to be an error.</span>
+
+<span class="sd">            :keyword propagate: Flag indicating whether this</span>
+<span class="sd">                                error event is happening live</span>
+<span class="sd">                                and should be propagated to</span>
+<span class="sd">                                the global eventstream.</span>
+<span class="sd">                                Defaults to ``True``.</span>
+
+<span class="sd">            :returns: The ``event`` it was handed, for chainability. &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">stream</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">pass</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../index.html">
+              <img class="logo" src="../../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../platform.html" >api.platform</a> &raquo;</li>
+          <li><a href="../tracker.html" >api.platform.tracker</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

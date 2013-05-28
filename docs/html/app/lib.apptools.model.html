@@ -48,6 +48,7 @@
           <a href="lib.apptools.ext.html" title="ext Package"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
           <li><a href="lib.html" >lib Package</a> &raquo;</li>
           <li><a href="lib.apptools.html" accesskey="U">apptools Package</a> &raquo;</li> 
       </ul>
@@ -404,6 +405,17 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 </dd></dl>
 
 <dl class="exception">
+<dt id="lib.apptools.model.exceptions.InvalidKeyAttributeWrite">
+<em class="property">exception </em><tt class="descclassname">lib.apptools.model.exceptions.</tt><tt class="descname">InvalidKeyAttributeWrite</tt><a class="reference internal" href="_modules/lib/apptools/model/exceptions.html#InvalidKeyAttributeWrite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.exceptions.InvalidKeyAttributeWrite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.AttributeError</span></tt></p>
+<dl class="attribute">
+<dt id="lib.apptools.model.exceptions.InvalidKeyAttributeWrite.message">
+<tt class="descname">message</tt><em class="property"> = 'Cannot %s property &quot;%s&quot; of key &quot;%s&quot; before instantiation.'</em><a class="headerlink" href="#lib.apptools.model.exceptions.InvalidKeyAttributeWrite.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
 <dt id="lib.apptools.model.exceptions.InvalidPropertyValue">
 <em class="property">exception </em><tt class="descclassname">lib.apptools.model.exceptions.</tt><tt class="descname">InvalidPropertyValue</tt><a class="reference internal" href="_modules/lib/apptools/model/exceptions.html#InvalidPropertyValue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.exceptions.InvalidPropertyValue" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.exceptions.PropertyBasetypeViolation" title="lib.apptools.model.exceptions.PropertyBasetypeViolation"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.exceptions.PropertyBasetypeViolation</span></tt></a></p>
@@ -538,42 +550,15 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="lib.apptools.model.adapter.html">adapter Package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="lib.apptools.model.adapter.html#id1"><tt class="docutils literal"><span class="pre">adapter</span></tt> Package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lib.apptools.model.adapter.html#abstract-module"><tt class="docutils literal"><span class="pre">abstract</span></tt> Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-abstract-model-adapters">apptools2: abstract model adapters</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.core"><tt class="docutils literal"><span class="pre">core</span></tt> Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-core-model-adapters">apptools2: core model adapters</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.inmemory"><tt class="docutils literal"><span class="pre">inmemory</span></tt> Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-thread-memory">apptools2: model adapter for thread memory</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.memcache"><tt class="docutils literal"><span class="pre">memcache</span></tt> Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-memcache">apptools2: model adapter for memcache</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.mongo"><tt class="docutils literal"><span class="pre">mongo</span></tt> Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-mongo">apptools2: model adapter for mongo</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.pipeline"><tt class="docutils literal"><span class="pre">pipeline</span></tt> Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-pipelines">apptools2: model adapter for pipelines</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.protorpc"><tt class="docutils literal"><span class="pre">protorpc</span></tt> Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-protorpc">apptools2: model adapter for protorpc</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.redis"><tt class="docutils literal"><span class="pre">redis</span></tt> Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-redis">apptools2: model adapter for redis</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.sql"><tt class="docutils literal"><span class="pre">sql</span></tt> Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-sql">apptools2: model adapter for SQL</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.abstract"><tt class="docutils literal"><span class="pre">abstract</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.core"><tt class="docutils literal"><span class="pre">core</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.inmemory"><tt class="docutils literal"><span class="pre">inmemory</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.memcache"><tt class="docutils literal"><span class="pre">memcache</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.mongo"><tt class="docutils literal"><span class="pre">mongo</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.pipeline"><tt class="docutils literal"><span class="pre">pipeline</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.protorpc"><tt class="docutils literal"><span class="pre">protorpc</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.redis"><tt class="docutils literal"><span class="pre">redis</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.sql"><tt class="docutils literal"><span class="pre">sql</span></tt> Module</a></li>
 </ul>
 </li>
 </ul>
@@ -647,6 +632,7 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
           <a href="lib.apptools.ext.html" title="ext Package"
              >previous</a> |</li>
         <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
           <li><a href="lib.html" >lib Package</a> &raquo;</li>
           <li><a href="lib.apptools.html" >apptools Package</a> &raquo;</li> 
       </ul>

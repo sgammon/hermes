@@ -53,16 +53,15 @@
 <span class="c"># -*- coding: utf-8 -*-</span>
 
 <span class="sd">&#39;&#39;&#39;</span>
-
-<span class="sd">API: Models</span>
-
 <span class="sd">This package holds classes that describe data structures. Expressing a data</span>
 <span class="sd">structure as a model allows use of hot-pluggable persistence and caching</span>
 <span class="sd">backends, among other handy bridges. apptools models can quickly be</span>
 <span class="sd">converted to ProtoRPC messages, JSON structures, dictionaries, and more.</span>
 
-<span class="sd">-sam (&lt;sam.gammon@ampush.com&gt;)</span>
-
+<span class="sd">:author: Sam Gammon (sam.gammon@ampush.com)</span>
+<span class="sd">:copyright: (c) 2013 Ampush.</span>
+<span class="sd">:license: This is private source code - all rights are reserved. For details about</span>
+<span class="sd">          embedded licenses and other legalese, see `LICENSE.md`.</span>
 <span class="sd">&#39;&#39;&#39;</span>
 
 <span class="c"># apptools model</span>
@@ -73,11 +72,11 @@
 <span class="c"># Abstract parent for all `EventTracker` models.</span>
 <div class="viewcode-block" id="TrackerModel"><a class="viewcode-back" href="../../api.models.html#api.models.TrackerModel">[docs]</a><span class="k">class</span> <span class="nc">TrackerModel</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
 
-	<span class="sd">&#39;&#39;&#39; Abstract parent for all `EventTracker` models. &#39;&#39;&#39;</span>
+    <span class="sd">&#39;&#39;&#39; Abstract parent for all `EventTracker` models. &#39;&#39;&#39;</span>
 
-	<span class="n">__adapter__</span> <span class="o">=</span> <span class="s">&quot;RedisAdapter&quot;</span>
+    <span class="n">__adapter__</span> <span class="o">=</span> <span class="s">&quot;RedisAdapter&quot;</span>
 
-	<span class="k">pass</span></div>
+    <span class="k">pass</span></div>
 </pre></div>
 
           </div>

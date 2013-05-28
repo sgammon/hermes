@@ -48,6 +48,7 @@
           <a href="lib.appfactory.runtime.html" title="runtime Package"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
           <li><a href="lib.html" accesskey="U">lib Package</a> &raquo;</li> 
       </ul>
     </div>  
@@ -65,12 +66,6 @@
 <p>ALL RIGHTS RESERVED
 Copyright 2012, momentum labs (<a class="reference external" href="http://www.momentum.io">http://www.momentum.io</a>)
 -sam (&lt;<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>&gt;)</p>
-<dl class="function">
-<dt id="lib.apptools.clockpoint">
-<tt class="descclassname">lib.apptools.</tt><tt class="descname">clockpoint</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/lib/apptools.html#clockpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.clockpoint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a clockpoint to the wallclock dict above, for easy walltime tracking.</p>
-</dd></dl>
-
 <dl class="function">
 <dt id="lib.apptools.gateway">
 <tt class="descclassname">lib.apptools.</tt><tt class="descname">gateway</tt><big>(</big><em>environ</em>, <em>start_response</em><big>)</big><a class="reference internal" href="_modules/lib/apptools.html#gateway"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.gateway" title="Permalink to this definition">¶</a></dt>
@@ -105,7 +100,7 @@ into a contiguous structure that resembles a framework. Also hosts BaseHandler.<
 <p>Top-level parent class for request handlers in AppTools.</p>
 <dl class="attribute">
 <dt id="lib.apptools.core.BaseHandler.appfactory">
-<tt class="descname">appfactory</tt><em class="property"> = &lt;apptools.util.datastructures.DictProxy object at 0x10bfe6d10&gt;</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.appfactory" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">appfactory</tt><em class="property"> = &lt;apptools.util.datastructures.DictProxy object at 0x111c3ba50&gt;</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.appfactory" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -120,12 +115,12 @@ into a contiguous structure that resembles a framework. Also hosts BaseHandler.<
 
 <dl class="attribute">
 <dt id="lib.apptools.core.BaseHandler.context_injectors">
-<tt class="descname">context_injectors</tt><em class="property"> = [&lt;function inject at 0x10a919b90&gt;, &lt;function inject at 0x10c01c5f0&gt;, &lt;function inject_hermes at 0x10c01c398&gt;, &lt;function inject_tracker at 0x10c01c410&gt;]</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.context_injectors" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">context_injectors</tt><em class="property"> = [&lt;function inject at 0x113066c80&gt;, &lt;function inject at 0x113066a28&gt;, &lt;function inject_hermes at 0x1119636e0&gt;, &lt;function inject_tracker at 0x111963758&gt;]</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.context_injectors" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="lib.apptools.core.BaseHandler.controllerConfig">
-<tt class="descname">controllerConfig</tt><em class="property"> = {'debug': False, 'enabled': True}</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.controllerConfig" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">controllerConfig</tt><em class="property"> = {'debug': False, 'enabled': False}</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.controllerConfig" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -141,7 +136,7 @@ into a contiguous structure that resembles a framework. Also hosts BaseHandler.<
 
 <dl class="attribute">
 <dt id="lib.apptools.core.BaseHandler.ext">
-<tt class="descname">ext</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x10bfe6590&gt;</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.ext" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">ext</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x111c3b790&gt;</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.ext" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -157,17 +152,17 @@ into a contiguous structure that resembles a framework. Also hosts BaseHandler.<
 
 <dl class="attribute">
 <dt id="lib.apptools.core.BaseHandler.hermes">
-<tt class="descname">hermes</tt><em class="property"> = &lt;api.platform.hermes.Hermes object at 0x10bfe66d0&gt;</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.hermes" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">hermes</tt><em class="property"> = &lt;api.platform.hermes.Hermes object at 0x111843790&gt;</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.hermes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="lib.apptools.core.BaseHandler.injected_config">
-<tt class="descname">injected_config</tt><em class="property"> = [('upstreamConfig', {'debug': False, 'spdy': {'push': {'assets': {'force_priority': False, 'default_priority': 7}}}, 'preloading': {'enable_spdy_push': False, 'enable_link_fallback': False, 'gather_assets': False}, 'enabled': True}), ('frontlineConfig', {'debug': False, 'enabled': True}), ('controllerConfig', {'debug': False, 'enabled': True})]</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.injected_config" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">injected_config</tt><em class="property"> = [('upstreamConfig', {'debug': False, 'spdy': {'push': {'assets': {'force_priority': False, 'default_priority': 7}}}, 'preloading': {'enable_spdy_push': False, 'enable_link_fallback': False, 'gather_assets': True}, 'enabled': True}), ('frontlineConfig', {'debug': False, 'enabled': True}), ('controllerConfig', {'debug': False, 'enabled': False})]</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.injected_config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="lib.apptools.core.BaseHandler.injected_shortcuts">
-<tt class="descname">injected_shortcuts</tt><em class="property"> = [('tracker', &lt;api.platform.tracker.Tracker object at 0x10bfe6650&gt;)]</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.injected_shortcuts" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">injected_shortcuts</tt><em class="property"> = [('tracker', &lt;api.platform.tracker.Tracker object at 0x111956cd0&gt;)]</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.injected_shortcuts" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -183,7 +178,7 @@ into a contiguous structure that resembles a framework. Also hosts BaseHandler.<
 
 <dl class="attribute">
 <dt id="lib.apptools.core.BaseHandler.platforms">
-<tt class="descname">platforms</tt><em class="property"> = [&lt;apptools.platform.generic.GenericWSGI object at 0x10bfe6750&gt;, &lt;apptools.platform.appfactory.AppFactory object at 0x10bfe65d0&gt;, &lt;api.platform.hermes.Hermes object at 0x10bfe66d0&gt;, &lt;api.platform.tracker.Tracker object at 0x10bfe6650&gt;]</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.platforms" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">platforms</tt><em class="property"> = [&lt;apptools.platform.generic.GenericWSGI object at 0x111c8ee90&gt;, &lt;apptools.platform.appfactory.AppFactory object at 0x111c3b4d0&gt;, &lt;api.platform.hermes.Hermes object at 0x111c3bd10&gt;, &lt;api.platform.tracker.Tracker object at 0x111c3b8d0&gt;]</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.platforms" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -194,7 +189,7 @@ into a contiguous structure that resembles a framework. Also hosts BaseHandler.<
 
 <dl class="attribute">
 <dt id="lib.apptools.core.BaseHandler.tracker">
-<tt class="descname">tracker</tt><em class="property"> = &lt;api.platform.tracker.Tracker object at 0x10bfe6650&gt;</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.tracker" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">tracker</tt><em class="property"> = &lt;api.platform.tracker.Tracker object at 0x111956cd0&gt;</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.tracker" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -204,12 +199,12 @@ into a contiguous structure that resembles a framework. Also hosts BaseHandler.<
 
 <dl class="attribute">
 <dt id="lib.apptools.core.BaseHandler.upstreamConfig">
-<tt class="descname">upstreamConfig</tt><em class="property"> = {'debug': False, 'spdy': {'push': {'assets': {'force_priority': False, 'default_priority': 7}}}, 'preloading': {'enable_spdy_push': False, 'enable_link_fallback': False, 'gather_assets': False}, 'enabled': True}</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.upstreamConfig" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">upstreamConfig</tt><em class="property"> = {'debug': False, 'spdy': {'push': {'assets': {'force_priority': False, 'default_priority': 7}}}, 'preloading': {'enable_spdy_push': False, 'enable_link_fallback': False, 'gather_assets': True}, 'enabled': True}</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.upstreamConfig" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="lib.apptools.core.BaseHandler.util">
-<tt class="descname">util</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x10bfe6390&gt;</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.util" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">util</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x111c3b590&gt;</em><a class="headerlink" href="#lib.apptools.core.BaseHandler.util" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -393,42 +388,15 @@ app (AppException).</p>
 <li class="toctree-l2"><a class="reference internal" href="lib.apptools.model.html#subpackages">Subpackages</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="lib.apptools.model.adapter.html">adapter Package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#id1"><tt class="docutils literal"><span class="pre">adapter</span></tt> Package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#abstract-module"><tt class="docutils literal"><span class="pre">abstract</span></tt> Module</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-abstract-model-adapters">apptools2: abstract model adapters</a></li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.core"><tt class="docutils literal"><span class="pre">core</span></tt> Module</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-core-model-adapters">apptools2: core model adapters</a></li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.inmemory"><tt class="docutils literal"><span class="pre">inmemory</span></tt> Module</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-thread-memory">apptools2: model adapter for thread memory</a></li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.memcache"><tt class="docutils literal"><span class="pre">memcache</span></tt> Module</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-memcache">apptools2: model adapter for memcache</a></li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.mongo"><tt class="docutils literal"><span class="pre">mongo</span></tt> Module</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-mongo">apptools2: model adapter for mongo</a></li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.pipeline"><tt class="docutils literal"><span class="pre">pipeline</span></tt> Module</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-pipelines">apptools2: model adapter for pipelines</a></li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.protorpc"><tt class="docutils literal"><span class="pre">protorpc</span></tt> Module</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-protorpc">apptools2: model adapter for protorpc</a></li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.redis"><tt class="docutils literal"><span class="pre">redis</span></tt> Module</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-redis">apptools2: model adapter for redis</a></li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.sql"><tt class="docutils literal"><span class="pre">sql</span></tt> Module</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-sql">apptools2: model adapter for SQL</a></li>
-</ul>
-</li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.abstract"><tt class="docutils literal"><span class="pre">abstract</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.core"><tt class="docutils literal"><span class="pre">core</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.inmemory"><tt class="docutils literal"><span class="pre">inmemory</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.memcache"><tt class="docutils literal"><span class="pre">memcache</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.mongo"><tt class="docutils literal"><span class="pre">mongo</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.pipeline"><tt class="docutils literal"><span class="pre">pipeline</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.protorpc"><tt class="docutils literal"><span class="pre">protorpc</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.redis"><tt class="docutils literal"><span class="pre">redis</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.sql"><tt class="docutils literal"><span class="pre">sql</span></tt> Module</a></li>
 </ul>
 </li>
 </ul>
@@ -447,13 +415,10 @@ app (AppException).</p>
 <li class="toctree-l2"><a class="reference internal" href="lib.apptools.platform.html#module-lib.apptools.platform.generic"><tt class="docutils literal"><span class="pre">generic</span></tt> Module</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="lib.apptools.services.html">services Package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="lib.apptools.services.html#id1"><tt class="docutils literal"><span class="pre">services</span></tt> Package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lib.apptools.services.html#module-lib.apptools.services.builtin"><tt class="docutils literal"><span class="pre">builtin</span></tt> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lib.apptools.services.html#module-lib.apptools.services.direct"><tt class="docutils literal"><span class="pre">direct</span></tt> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lib.apptools.services.html#module-lib.apptools.services.gateway"><tt class="docutils literal"><span class="pre">gateway</span></tt> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lib.apptools.services.html#module-lib.apptools.services.mappers"><tt class="docutils literal"><span class="pre">mappers</span></tt> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lib.apptools.services.html#module-lib.apptools.services.middleware"><tt class="docutils literal"><span class="pre">middleware</span></tt> Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lib.apptools.rpc.html">rpc Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.rpc.html#id1"><tt class="docutils literal"><span class="pre">rpc</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.rpc.html#module-lib.apptools.rpc.dispatch"><tt class="docutils literal"><span class="pre">dispatch</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.rpc.html#module-lib.apptools.rpc.mappers"><tt class="docutils literal"><span class="pre">mappers</span></tt> Module</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="lib.apptools.tests.html">tests Package</a><ul>
@@ -472,11 +437,11 @@ app (AppException).</p>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="lib.apptools.tests.test_model.html#module-lib.apptools.tests.test_model.test_meta"><tt class="docutils literal"><span class="pre">test_meta</span></tt> Module</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="lib.apptools.tests.test_model.html#apptools2-meta-model-tests">apptools2: meta model tests</a></li>
+<li class="toctree-l5"><a class="reference internal" href="lib.apptools.tests.test_model.html#apptools2-model-meta-tests">apptools2: model meta tests</a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="lib.apptools.tests.test_model.html#module-lib.apptools.tests.test_model.test_model"><tt class="docutils literal"><span class="pre">test_model</span></tt> Module</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="lib.apptools.tests.test_model.html#id20">apptools2: model tests</a></li>
+<li class="toctree-l5"><a class="reference internal" href="lib.apptools.tests.test_model.html#id2">apptools2: model tests</a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="lib.apptools.tests.test_model.html#subpackages">Subpackages</a><ul>
@@ -521,7 +486,10 @@ app (AppException).</p>
 <li class="toctree-l2"><a class="reference internal" href="lib.apptools.util.html#module-lib.apptools.util.byteconvert"><tt class="docutils literal"><span class="pre">byteconvert</span></tt> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="lib.apptools.util.html#module-lib.apptools.util.datastructures"><tt class="docutils literal"><span class="pre">datastructures</span></tt> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="lib.apptools.util.html#module-lib.apptools.util.debug"><tt class="docutils literal"><span class="pre">debug</span></tt> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lib.apptools.util.html#module-lib.apptools.util.decorators"><tt class="docutils literal"><span class="pre">decorators</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.apptools.util.html#module-lib.apptools.util.decorators"><tt class="docutils literal"><span class="pre">decorators</span></tt> Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lib.apptools.util.html#apptools2-utility-decorators">apptools2: utility decorators</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="lib.apptools.util.html#module-lib.apptools.util.httpagentparser"><tt class="docutils literal"><span class="pre">httpagentparser</span></tt> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="lib.apptools.util.html#module-lib.apptools.util.platform"><tt class="docutils literal"><span class="pre">platform</span></tt> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="lib.apptools.util.html#module-lib.apptools.util.runtools"><tt class="docutils literal"><span class="pre">runtools</span></tt> Module</a></li>
@@ -600,6 +568,7 @@ app (AppException).</p>
           <a href="lib.appfactory.runtime.html" title="runtime Package"
              >previous</a> |</li>
         <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
           <li><a href="lib.html" >lib Package</a> &raquo;</li> 
       </ul>
     </div>

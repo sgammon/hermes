@@ -69,9 +69,24 @@
 
 <span class="c">## Base Imports</span>
 <span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">import</span> <span class="nn">config</span> <span class="kn">as</span> <span class="nn">cfg</span>
-<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">config</span>
 <span class="kn">from</span> <span class="nn">webapp2</span> <span class="kn">import</span> <span class="n">cached_property</span>
+
+<span class="c">## Appconfig</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">config</span> <span class="kn">as</span> <span class="nn">cfg</span>
+    <span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">config</span>
+    <span class="n">_APPCONFIG</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">_APPCONFIG</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="c"># build fake config</span>
+    <span class="k">class</span> <span class="nc">FakeConfig</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+        <span class="n">debug</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;debug&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>
+
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">FakeConfig</span><span class="p">()</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">config</span>
 
 <span class="c">## AppTools Imports</span>
 <span class="kn">from</span> <span class="nn">apptools.api</span> <span class="kn">import</span> <span class="n">CoreAPI</span>
@@ -94,13 +109,16 @@
 <span class="c"># Top level exception for all Asset API-related exceptions.</span>
 <div class="viewcode-block" id="AssetException"><a class="viewcode-back" href="../../../../lib.apptools.api.html#lib.apptools.api.assets.AssetException">[docs]</a><span class="k">class</span> <span class="nc">AssetException</span><span class="p">(</span><span class="n">CoreOutputAPIException</span><span class="p">):</span> <span class="s">&#39;&#39;&#39; Top-level exception for all Asset API-related exceptions. &#39;&#39;&#39;</span>
 
+
 <span class="c">## InvalidAssetType</span>
 <span class="c"># Raised when an asset type is invalid.</span></div>
 <div class="viewcode-block" id="InvalidAssetType"><a class="viewcode-back" href="../../../../lib.apptools.api.html#lib.apptools.api.assets.InvalidAssetType">[docs]</a><span class="k">class</span> <span class="nc">InvalidAssetType</span><span class="p">(</span><span class="n">AssetException</span><span class="p">):</span> <span class="s">&#39;&#39;&#39; Raised when a given asset type is not recognized. &#39;&#39;&#39;</span>
 
+
 <span class="c">## InvalidAssetEntry</span>
 <span class="c"># Raised when an asset entry is invalid.</span></div>
 <div class="viewcode-block" id="InvalidAssetEntry"><a class="viewcode-back" href="../../../../lib.apptools.api.html#lib.apptools.api.assets.InvalidAssetEntry">[docs]</a><span class="k">class</span> <span class="nc">InvalidAssetEntry</span><span class="p">(</span><span class="n">AssetException</span><span class="p">):</span> <span class="s">&#39;&#39;&#39; Raised when a given asset type is valid, but an asset could not be found at the given identifier. &#39;&#39;&#39;</span>
+
 
 <span class="c">## CoreAssetsAPI</span>
 <span class="c"># Brokers access and provides generated URLs to registered and unregistered assets.</span></div>

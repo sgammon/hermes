@@ -17,3 +17,11 @@ handlers Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`tracker` Module
+---------------------
+
+.. automodule:: api.handlers.tracker
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

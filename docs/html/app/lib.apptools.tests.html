@@ -29,7 +29,7 @@
     <link rel="top" title="Hermes v2.0 Docs" href="index.html" />
     <link rel="up" title="apptools Package" href="lib.apptools.html" />
     <link rel="next" title="test_model Package" href="lib.apptools.tests.test_model.html" />
-    <link rel="prev" title="services Package" href="lib.apptools.services.html" /> 
+    <link rel="prev" title="rpc Package" href="lib.apptools.rpc.html" /> 
   </head>
   <body>
     <div class="related">
@@ -45,9 +45,10 @@
           <a href="lib.apptools.tests.test_model.html" title="test_model Package"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="lib.apptools.services.html" title="services Package"
+          <a href="lib.apptools.rpc.html" title="rpc Package"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
           <li><a href="lib.html" >lib Package</a> &raquo;</li>
           <li><a href="lib.apptools.html" accesskey="U">apptools Package</a> &raquo;</li> 
       </ul>
@@ -64,22 +65,28 @@
 <h2><tt class="xref py py-mod docutils literal"><span class="pre">tests</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <span class="target" id="module-lib.apptools.tests"></span><div class="section" id="apptools2-testsuite">
 <h3>apptools2: testsuite<a class="headerlink" href="#apptools2-testsuite" title="Permalink to this headline">¶</a></h3>
-<div class="line-block">
-<div class="line-block">
-<div class="line"><a href="#id2"><span class="problematic" id="id3">|</span></a></div>
-</div>
-<div class="line"><cite>apptools.tests</cite>                            |</div>
-<div class="line-block">
-<div class="line"><a href="#id4"><span class="problematic" id="id5">|</span></a></div>
-</div>
-<div class="line">a suite of unit and integration testing     |</div>
-<div class="line">tools and test cases for apptools and       |</div>
-<div class="line">encapsulating apps.                         |</div>
-<div class="line-block">
-<div class="line"><a href="#id6"><span class="problematic" id="id7">|</span></a></div>
-</div>
-</div>
-<hr class="docutils" />
+<p>this package contains base classes for writing tests
+for apps built with apptools. it also contains apptools&#8217;
+own testsuite, and tools for running/gathering tests.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#37;&#52;&#48;momentum&#46;io">sam<span>&#64;</span>momentum<span>&#46;</span>io</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 momentum labs.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - Ampush has been granted an
+unlimited, exclusive license for embedded use. For details
+about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="class">
 <dt id="lib.apptools.tests.AppTest">
 <em class="property">class </em><tt class="descclassname">lib.apptools.tests.</tt><tt class="descname">AppTest</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/tests.html#AppTest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.tests.AppTest" title="Permalink to this definition">¶</a></dt>
@@ -182,11 +189,11 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="lib.apptools.tests.test_model.html#module-lib.apptools.tests.test_model.test_meta"><tt class="docutils literal"><span class="pre">test_meta</span></tt> Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="lib.apptools.tests.test_model.html#apptools2-meta-model-tests">apptools2: meta model tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib.apptools.tests.test_model.html#apptools2-model-meta-tests">apptools2: model meta tests</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="lib.apptools.tests.test_model.html#module-lib.apptools.tests.test_model.test_model"><tt class="docutils literal"><span class="pre">test_model</span></tt> Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="lib.apptools.tests.test_model.html#id20">apptools2: model tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib.apptools.tests.test_model.html#id2">apptools2: model tests</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="lib.apptools.tests.test_model.html#subpackages">Subpackages</a><ul>
@@ -250,8 +257,8 @@
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="lib.apptools.services.html"
-                        title="previous chapter">services Package</a></p>
+  <p class="topless"><a href="lib.apptools.rpc.html"
+                        title="previous chapter">rpc Package</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="lib.apptools.tests.test_model.html"
                         title="next chapter">test_model Package</a></p>
@@ -290,9 +297,10 @@
           <a href="lib.apptools.tests.test_model.html" title="test_model Package"
              >next</a> |</li>
         <li class="right" >
-          <a href="lib.apptools.services.html" title="services Package"
+          <a href="lib.apptools.rpc.html" title="rpc Package"
              >previous</a> |</li>
         <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
           <li><a href="lib.html" >lib Package</a> &raquo;</li>
           <li><a href="lib.apptools.html" >apptools Package</a> &raquo;</li> 
       </ul>

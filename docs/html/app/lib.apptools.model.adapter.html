@@ -48,6 +48,7 @@
           <a href="lib.apptools.model.html" title="model Package"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
           <li><a href="lib.html" >lib Package</a> &raquo;</li>
           <li><a href="lib.apptools.html" >apptools Package</a> &raquo;</li>
           <li><a href="lib.apptools.model.html" accesskey="U">model Package</a> &raquo;</li> 
@@ -65,10 +66,8 @@
 <h2><tt class="xref py py-mod docutils literal"><span class="pre">adapter</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <span class="target" id="module-lib.apptools.model.adapter"></span><p>Contains modules that adapt apptools models to various storage backends.</p>
 </div>
-<div class="section" id="abstract-module">
-<h2><tt class="xref py py-mod docutils literal"><span class="pre">abstract</span></tt> Module<a class="headerlink" href="#abstract-module" title="Permalink to this headline">¶</a></h2>
-<span class="target" id="module-lib.apptools.model.adapter.abstract"></span><div class="section" id="apptools2-abstract-model-adapters">
-<h3>apptools2: abstract model adapters<a class="headerlink" href="#apptools2-abstract-model-adapters" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="module-lib.apptools.model.adapter.abstract">
+<span id="abstract-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">abstract</span></tt> Module<a class="headerlink" href="#module-lib.apptools.model.adapter.abstract" title="Permalink to this headline">¶</a></h2>
 <p>specifies interface classes that plug-in
 to models to allow agnostic storage.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -90,398 +89,9 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 </tr>
 </tbody>
 </table>
-<dl class="class">
-<dt id="lib.apptools.model.adapter.abstract.IndexedModelAdapter">
-<em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.abstract.</tt><tt class="descname">IndexedModelAdapter</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#IndexedModelAdapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.IndexedModelAdapter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.adapter.abstract.ModelAdapter" title="lib.apptools.model.adapter.abstract.ModelAdapter"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.ModelAdapter</span></tt></a></p>
-<p>Abstract base class for model adapters that support additional indexing APIs.</p>
-<dl class="class">
-<dt id="lib.apptools.model.adapter.abstract.IndexedModelAdapter.Indexer">
-<em class="property">class </em><tt class="descname">Indexer</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#IndexedModelAdapter.Indexer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.IndexedModelAdapter.Indexer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>Holds methods for indexing and handling index data types.</p>
-<dl class="classmethod">
-<dt id="lib.apptools.model.adapter.abstract.IndexedModelAdapter.Indexer.convert_date">
-<em class="property">classmethod </em><tt class="descname">convert_date</tt><big>(</big><em>date</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#IndexedModelAdapter.Indexer.convert_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.IndexedModelAdapter.Indexer.convert_date" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert a Python <tt class="docutils literal"><span class="pre">date</span></tt> to an indexable value.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>date</strong> &#8211; Python <tt class="docutils literal"><span class="pre">date</span></tt> to convert.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Tupled <tt class="docutils literal"><span class="pre">(&lt;magic</span> <span class="pre">date</span> <span class="pre">code&gt;,</span> <span class="pre">&lt;flattened</span> <span class="pre">date&gt;)</span></tt> to add to the index.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="classmethod">
-<dt id="lib.apptools.model.adapter.abstract.IndexedModelAdapter.Indexer.convert_datetime">
-<em class="property">classmethod </em><tt class="descname">convert_datetime</tt><big>(</big><em>_datetime</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#IndexedModelAdapter.Indexer.convert_datetime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.IndexedModelAdapter.Indexer.convert_datetime" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert a Python <tt class="docutils literal"><span class="pre">datetime</span></tt> to an indexable value.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>_datetime</strong> &#8211; Python <tt class="docutils literal"><span class="pre">datetime</span></tt> to convert.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Tupled <tt class="docutils literal"><span class="pre">(&lt;magic</span> <span class="pre">time</span> <span class="pre">code&gt;,</span> <span class="pre">&lt;flattened</span> <span class="pre">datetime&gt;)</span></tt>,
-suitable for addition to the index.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="classmethod">
-<dt id="lib.apptools.model.adapter.abstract.IndexedModelAdapter.Indexer.convert_key">
-<em class="property">classmethod </em><tt class="descname">convert_key</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#IndexedModelAdapter.Indexer.convert_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.IndexedModelAdapter.Indexer.convert_key" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert a <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt> to an indexable value.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> &#8211; Target <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt> to conver.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Tupled <tt class="docutils literal"><span class="pre">(&lt;magic</span> <span class="pre">key</span> <span class="pre">code&gt;,</span> <span class="pre">&lt;flattened</span> <span class="pre">key&gt;)</span></tt>,
-suitable for adding to the index.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="classmethod">
-<dt id="lib.apptools.model.adapter.abstract.IndexedModelAdapter.Indexer.convert_time">
-<em class="property">classmethod </em><tt class="descname">convert_time</tt><big>(</big><em>_time</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#IndexedModelAdapter.Indexer.convert_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.IndexedModelAdapter.Indexer.convert_time" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert a Python <tt class="docutils literal"><span class="pre">time</span></tt> to an indexable value.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>_time</strong> &#8211; Python <tt class="docutils literal"><span class="pre">time</span></tt> to convert.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Tupled <tt class="docutils literal"><span class="pre">(&lt;magic</span> <span class="pre">time</span> <span class="pre">code&gt;,</span> <span class="pre">&lt;flattened</span> <span class="pre">time&gt;)</span></tt>, suitable
-for addition to the index.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="method">
-<dt id="lib.apptools.model.adapter.abstract.IndexedModelAdapter.clean_indexes">
-<tt class="descclassname">IndexedModelAdapter.</tt><tt class="descname">clean_indexes</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#IndexedModelAdapter.clean_indexes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.IndexedModelAdapter.clean_indexes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Clean indexes and index entries matching a
-particular <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt>. This method is
-abstract and <strong>must</strong> be overridden by concrete
-implementors of <a class="reference internal" href="#lib.apptools.model.adapter.abstract.IndexedModelAdapter" title="lib.apptools.model.adapter.abstract.IndexedModelAdapter"><tt class="xref py py-class docutils literal"><span class="pre">IndexedModelAdapter</span></tt></a>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> &#8211; Target <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt> to clean
-indexes for.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises :</th><td class="field-body"><tt class="xref py py-exc docutils literal"><span class="pre">NotImplementedError</span></tt>, as this method is abstract.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="lib.apptools.model.adapter.abstract.IndexedModelAdapter.execute_query">
-<tt class="descclassname">IndexedModelAdapter.</tt><tt class="descname">execute_query</tt><big>(</big><em>spec</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#IndexedModelAdapter.execute_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.IndexedModelAdapter.execute_query" title="Permalink to this definition">¶</a></dt>
-<dd><p>Execute a query, specified by <tt class="docutils literal"><span class="pre">spec</span></tt>, across
-one (or multiple) indexed properties.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>spec</strong> &#8211; Object specification (<tt class="xref py py-class docutils literal"><span class="pre">model.Query</span></tt>)
-specifying the query to satisfy..</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises :</th><td class="field-body"><tt class="xref py py-exc docutils literal"><span class="pre">NotImplementedError</span></tt>, as this method is abstract.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="classmethod">
-<dt id="lib.apptools.model.adapter.abstract.IndexedModelAdapter.generate_indexes">
-<em class="property">classmethod </em><tt class="descclassname">IndexedModelAdapter.</tt><tt class="descname">generate_indexes</tt><big>(</big><em>key</em>, <em>properties=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#IndexedModelAdapter.generate_indexes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.IndexedModelAdapter.generate_indexes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate a set of indexes that should be written to
-with associated values.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>key</strong> &#8211; Target <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt> to index.</li>
-<li><strong>properties</strong> &#8211; Entity <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt> property
-values to index.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Tupled set of <tt class="docutils literal"><span class="pre">(encoded_key,</span> <span class="pre">meta_indexes,</span> <span class="pre">property_indexes)</span></tt>.</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="lib.apptools.model.adapter.abstract.IndexedModelAdapter.write_indexes">
-<tt class="descclassname">IndexedModelAdapter.</tt><tt class="descname">write_indexes</tt><big>(</big><em>writes</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#IndexedModelAdapter.write_indexes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.IndexedModelAdapter.write_indexes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Write a batch of index updates generated earlier
-via <a class="reference internal" href="#lib.apptools.model.adapter.abstract.IndexedModelAdapter.generate_indexes" title="lib.apptools.model.adapter.abstract.IndexedModelAdapter.generate_indexes"><tt class="xref py py-meth docutils literal"><span class="pre">generate_indexes()</span></tt></a>. This method is
-abstract and <strong>must</strong> be overridden by concrete
-implementors of <a class="reference internal" href="#lib.apptools.model.adapter.abstract.IndexedModelAdapter" title="lib.apptools.model.adapter.abstract.IndexedModelAdapter"><tt class="xref py py-class docutils literal"><span class="pre">IndexedModelAdapter</span></tt></a>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>writes</strong> &#8211; Batch of index writes to commit,
-generated via <a class="reference internal" href="#lib.apptools.model.adapter.abstract.IndexedModelAdapter.generate_indexes" title="lib.apptools.model.adapter.abstract.IndexedModelAdapter.generate_indexes"><tt class="xref py py-meth docutils literal"><span class="pre">generate_indexes()</span></tt></a>.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises :</th><td class="field-body"><tt class="xref py py-exc docutils literal"><span class="pre">NotImplementedError</span></tt>, as this method is abstract.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="lib.apptools.model.adapter.abstract.KeyMixin">
-<em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.abstract.</tt><tt class="descname">KeyMixin</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#KeyMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.KeyMixin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.adapter.abstract.Mixin" title="lib.apptools.model.adapter.abstract.Mixin"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.Mixin</span></tt></a></p>
-<p>Allows injection of attributes into <cite>Key</cite>.</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="lib.apptools.model.adapter.abstract.Mixin">
-<em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.abstract.</tt><tt class="descname">Mixin</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#Mixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.Mixin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>Abstract parent for detecting and registering <cite>Mixin</cite> classes.</p>
-<dl class="attribute">
-<dt id="lib.apptools.model.adapter.abstract.Mixin.components">
-<tt class="descname">components</tt><em class="property"> = &lt;generator object components at 0x10afa1cd0&gt;</em><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#Mixin.components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.Mixin.components" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="lib.apptools.model.adapter.abstract.Mixin.internals">
-<tt class="descname">internals</tt><a class="headerlink" href="#lib.apptools.model.adapter.abstract.Mixin.internals" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">__metaclass__</span></tt></p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="lib.apptools.model.adapter.abstract.Mixin.methods">
-<tt class="descname">methods</tt><em class="property"> = &lt;generator object methods at 0x109ec3b90&gt;</em><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#Mixin.methods"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.Mixin.methods" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="lib.apptools.model.adapter.abstract.ModelAdapter">
-<em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.abstract.</tt><tt class="descname">ModelAdapter</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#ModelAdapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.ModelAdapter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>Abstract base class for classes that adapt apptools models to a particular storage backend.</p>
-<dl class="classmethod">
-<dt id="lib.apptools.model.adapter.abstract.ModelAdapter.acquire">
-<em class="property">classmethod </em><tt class="descname">acquire</tt><big>(</big><em>name</em>, <em>bases</em>, <em>properties</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#ModelAdapter.acquire"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.ModelAdapter.acquire" title="Permalink to this definition">¶</a></dt>
-<dd><p>Acquire a new/existing copy of this adapter. Available
-for override by child classes to customize the driver
-acquisition process. Passed an identical signature to
-<tt class="docutils literal"><span class="pre">type</span></tt>, <em>before</em> the <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt> class
-has been fully-built.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>name</strong> &#8211; String name of the new <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt> class-to-be.</li>
-<li><strong>bases</strong> &#8211; Tuple of base classes for the target <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt>.</li>
-<li><strong>properties</strong> &#8211; Property <tt class="docutils literal"><span class="pre">dict</span></tt> from class definition.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The &#8220;acquired&#8221; adapter object.</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="lib.apptools.model.adapter.abstract.ModelAdapter.allocate_ids">
-<tt class="descname">allocate_ids</tt><big>(</big><em>key_class</em>, <em>kind</em>, <em>count=1</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#ModelAdapter.allocate_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.ModelAdapter.allocate_ids" title="Permalink to this definition">¶</a></dt>
-<dd><p>Allocate new <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt> IDs for <tt class="docutils literal"><span class="pre">kind</span></tt> up to
-<tt class="docutils literal"><span class="pre">count</span></tt>. This method is abstract and <strong>must</strong> be overridden
-by concrete implementors of <a class="reference internal" href="#lib.apptools.model.adapter.abstract.ModelAdapter" title="lib.apptools.model.adapter.abstract.ModelAdapter"><tt class="xref py py-class docutils literal"><span class="pre">ModelAdapter</span></tt></a>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>key_class</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt> class for provisioned IDs.</li>
-<li><strong>kind</strong> &#8211; String <tt class="docutils literal"><span class="pre">kind</span></tt> name from <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt> class.</li>
-<li><strong>count</strong> &#8211; Count of IDs to provision, defaults to <tt class="docutils literal"><span class="pre">1</span></tt>.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last"><tt class="xref py py-exc docutils literal"><span class="pre">NotImplementedError</span></tt>, as this method is abstract.</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="lib.apptools.model.adapter.abstract.ModelAdapter.compressor">
-<tt class="descname">compressor</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#ModelAdapter.compressor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.ModelAdapter.compressor" title="Permalink to this definition">¶</a></dt>
-<dd><p>compress(string[, level]) &#8211; Returned compressed string.</p>
-<p>Optional arg level is the compression level, in 1-9.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="lib.apptools.model.adapter.abstract.ModelAdapter.config">
-<tt class="descname">config</tt><em class="property"> = {'debug': False, 'default': 'Memory', 'engines': [{'path': 'apptools.model.adapter.redis.Redis', 'enabled': True, 'name': 'Redis'}, {'path': 'apptools.model.adapter.inmemory.InMemory', 'enabled': True, 'name': 'Memory'}, {'path': 'apptools.model.adapter.memcache.Memcache', 'enabled': True, 'name': 'Memcache'}]}</em><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#ModelAdapter.config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.ModelAdapter.config" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="lib.apptools.model.adapter.abstract.ModelAdapter.delete">
-<tt class="descname">delete</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#ModelAdapter.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.ModelAdapter.delete" title="Permalink to this definition">¶</a></dt>
-<dd><p>Delete an entity by <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt>. Must accept a target
-<tt class="docutils literal"><span class="pre">key</span></tt>, whose associated entity will be deleted.</p>
-<p>This method is abstract and <strong>must</strong> be overridden by concrete
-implementors of <a class="reference internal" href="#lib.apptools.model.adapter.abstract.ModelAdapter" title="lib.apptools.model.adapter.abstract.ModelAdapter"><tt class="xref py py-class docutils literal"><span class="pre">ModelAdapter</span></tt></a>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> &#8211; Target <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt> to delete.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises :</th><td class="field-body"><tt class="xref py py-exc docutils literal"><span class="pre">NotImplementedError</span></tt>, as this method is abstract.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="classmethod">
-<dt id="lib.apptools.model.adapter.abstract.ModelAdapter.encode_key">
-<em class="property">classmethod </em><tt class="descname">encode_key</tt><big>(</big><em>key</em>, <em>joined=None</em>, <em>flattened=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#ModelAdapter.encode_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.ModelAdapter.encode_key" title="Permalink to this definition">¶</a></dt>
-<dd><p>Encode a <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt> for storage. This method is
-abstract and <em>should</em> be overridden by concrete implementors
-of <a class="reference internal" href="#lib.apptools.model.adapter.abstract.ModelAdapter" title="lib.apptools.model.adapter.abstract.ModelAdapter"><tt class="xref py py-class docutils literal"><span class="pre">ModelAdapter</span></tt></a>.</p>
-<p>In the case that a <a class="reference internal" href="#lib.apptools.model.adapter.abstract.ModelAdapter" title="lib.apptools.model.adapter.abstract.ModelAdapter"><tt class="xref py py-class docutils literal"><span class="pre">ModelAdapter</span></tt></a> wishes to defer
-to the default encoder (<a class="reference external" href="http://docs.python.org/2.7/library/base64.html#base64" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">base64</span></tt></a>), it can return <tt class="docutils literal"><span class="pre">False</span></tt>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>key</strong> &#8211; Target <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt> to encode.</li>
-<li><strong>joined</strong> &#8211; Joined/stringified key.</li>
-<li><strong>flattened</strong> &#8211; Flattened <tt class="docutils literal"><span class="pre">tuple</span></tt> (raw) key.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The encoded <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt>, or <tt class="docutils literal"><span class="pre">False</span></tt> to
-yield to the default encoder.</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="lib.apptools.model.adapter.abstract.ModelAdapter.encoder">
-<em class="property">static </em><tt class="descname">encoder</tt><big>(</big><em>s</em>, <em>altchars=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#ModelAdapter.encoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.ModelAdapter.encoder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Encode a string using Base64.</p>
-<p>s is the string to encode.  Optional altchars must be a string of at least
-length 2 (additional characters are ignored) which specifies an
-alternative alphabet for the &#8216;+&#8217; and &#8216;/&#8217; characters.  This allows an
-application to e.g. generate url or filesystem safe Base64 strings.</p>
-<p>The encoded string is returned.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="lib.apptools.model.adapter.abstract.ModelAdapter.get">
-<tt class="descname">get</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#ModelAdapter.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.ModelAdapter.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Retrieve an entity by <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt>. Must accept a
-tuple in the formatv``(&lt;joined Key repr&gt;, &lt;flattened key&gt;)``.
-Abstract method that <strong>must</strong> be overridden by concrete
-implementors of <a class="reference internal" href="#lib.apptools.model.adapter.abstract.ModelAdapter" title="lib.apptools.model.adapter.abstract.ModelAdapter"><tt class="xref py py-class docutils literal"><span class="pre">ModelAdapter</span></tt></a>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> &#8211; Target <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt> to retrieve.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises :</th><td class="field-body"><tt class="xref py py-exc docutils literal"><span class="pre">NotImplementedError</span></tt>, as this method is abstract.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="lib.apptools.model.adapter.abstract.ModelAdapter.logging">
-<tt class="descname">logging</tt><em class="property"> = &lt;apptools.util.debug.AppToolsLogger object at 0x10a9033d0&gt;</em><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#ModelAdapter.logging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.ModelAdapter.logging" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="lib.apptools.model.adapter.abstract.ModelAdapter.put">
-<tt class="descname">put</tt><big>(</big><em>key</em>, <em>entity</em>, <em>model</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#ModelAdapter.put"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.ModelAdapter.put" title="Permalink to this definition">¶</a></dt>
-<dd><p>Persist an entity in storage. Must accept a <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt>,
-which may not have an ID, in which case one is allocated. The entity
-and <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt> class are also passed in.</p>
-<p>This method is abstract and <strong>must</strong> be overridden by concrete
-implementors of <a class="reference internal" href="#lib.apptools.model.adapter.abstract.ModelAdapter" title="lib.apptools.model.adapter.abstract.ModelAdapter"><tt class="xref py py-class docutils literal"><span class="pre">ModelAdapter</span></tt></a>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>key</strong> &#8211; Potentially-empty <tt class="xref py py-class docutils literal"><span class="pre">model.Key</span></tt> for the new entity.</li>
-<li><strong>entity</strong> &#8211; Object <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt> to persist in storage.</li>
-<li><strong>model</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt> class for target <tt class="docutils literal"><span class="pre">entity</span></tt>.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last"><tt class="xref py py-exc docutils literal"><span class="pre">NotImplementedError</span></tt>, as this method is abstract.</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="lib.apptools.model.adapter.abstract.ModelAdapter.registry">
-<tt class="descname">registry</tt><em class="property"> = {}</em><a class="headerlink" href="#lib.apptools.model.adapter.abstract.ModelAdapter.registry" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="lib.apptools.model.adapter.abstract.ModelAdapter.serializer">
-<tt class="descname">serializer</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#ModelAdapter.serializer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.ModelAdapter.serializer" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">JSONWrapper</span></tt></p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="lib.apptools.model.adapter.abstract.ModelMixin">
-<em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.abstract.</tt><tt class="descname">ModelMixin</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/abstract.html#ModelMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.abstract.ModelMixin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.adapter.abstract.Mixin" title="lib.apptools.model.adapter.abstract.Mixin"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.Mixin</span></tt></a></p>
-<p>Allows injection of attributes into <cite>Model</cite>.</p>
-</dd></dl>
-
-</div>
 </div>
 <div class="section" id="module-lib.apptools.model.adapter.core">
 <span id="core-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">core</span></tt> Module<a class="headerlink" href="#module-lib.apptools.model.adapter.core" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="apptools2-core-model-adapters">
-<h3>apptools2: core model adapters<a class="headerlink" href="#apptools2-core-model-adapters" title="Permalink to this headline">¶</a></h3>
 <p>specifies mixins and adapters that are part
 of the core model adapter distribution.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -503,130 +113,9 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 </tr>
 </tbody>
 </table>
-<dl class="class">
-<dt id="lib.apptools.model.adapter.core.AdaptedKey">
-<em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.core.</tt><tt class="descname">AdaptedKey</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/core.html#AdaptedKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.core.AdaptedKey" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.adapter.abstract.KeyMixin" title="lib.apptools.model.adapter.abstract.KeyMixin"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.KeyMixin</span></tt></a></p>
-<p>Provides bridged methods between <cite>model.Key</cite> and the Adapter API.</p>
-<dl class="method">
-<dt id="lib.apptools.model.adapter.core.AdaptedKey.delete">
-<tt class="descname">delete</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/core.html#AdaptedKey.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.core.AdaptedKey.delete" title="Permalink to this definition">¶</a></dt>
-<dd><p>Delete a previously-constructed key from available persistence mechanisms.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="lib.apptools.model.adapter.core.AdaptedKey.flatten">
-<tt class="descname">flatten</tt><big>(</big><em>join=False</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/core.html#AdaptedKey.flatten"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.core.AdaptedKey.flatten" title="Permalink to this definition">¶</a></dt>
-<dd><p>Flatten this Key into a basic structure suitable for transport or storage.</p>
-</dd></dl>
-
-<dl class="classmethod">
-<dt id="lib.apptools.model.adapter.core.AdaptedKey.from_raw">
-<em class="property">classmethod </em><tt class="descname">from_raw</tt><big>(</big><em>encoded</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/core.html#AdaptedKey.from_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.core.AdaptedKey.from_raw" title="Permalink to this definition">¶</a></dt>
-<dd><p>Inflate a Key from a raw, internal representation.</p>
-</dd></dl>
-
-<dl class="classmethod">
-<dt id="lib.apptools.model.adapter.core.AdaptedKey.from_urlsafe">
-<em class="property">classmethod </em><tt class="descname">from_urlsafe</tt><big>(</big><em>encoded</em>, <em>_persisted=False</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/core.html#AdaptedKey.from_urlsafe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.core.AdaptedKey.from_urlsafe" title="Permalink to this definition">¶</a></dt>
-<dd><p>Inflate a Key from a URL-encoded representation.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="lib.apptools.model.adapter.core.AdaptedKey.get">
-<tt class="descname">get</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/core.html#AdaptedKey.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.core.AdaptedKey.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Retrieve a previously-constructed key from available persistence mechanisms.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="lib.apptools.model.adapter.core.AdaptedKey.urlsafe">
-<tt class="descname">urlsafe</tt><big>(</big><em>joined=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/core.html#AdaptedKey.urlsafe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.core.AdaptedKey.urlsafe" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate an encoded version of this Key, suitable for use in URLs.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="lib.apptools.model.adapter.core.AdaptedModel">
-<em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.core.</tt><tt class="descname">AdaptedModel</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/core.html#AdaptedModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.core.AdaptedModel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.adapter.abstract.ModelMixin" title="lib.apptools.model.adapter.abstract.ModelMixin"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.ModelMixin</span></tt></a></p>
-<p>Provides bridged methods between <cite>model.Model</cite> and the Adapter API.</p>
-<dl class="method">
-<dt id="lib.apptools.model.adapter.core.AdaptedModel.delete">
-<tt class="descname">delete</tt><big>(</big><em>adapter=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/core.html#AdaptedModel.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.core.AdaptedModel.delete" title="Permalink to this definition">¶</a></dt>
-<dd><p>Discard any primary or index-based data linked to this Key.</p>
-</dd></dl>
-
-<dl class="classmethod">
-<dt id="lib.apptools.model.adapter.core.AdaptedModel.get">
-<em class="property">classmethod </em><tt class="descname">get</tt><big>(</big><em>key=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/core.html#AdaptedModel.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.core.AdaptedModel.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Retrieve a persisted version of this model via the current datastore adapter.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="lib.apptools.model.adapter.core.AdaptedModel.put">
-<tt class="descname">put</tt><big>(</big><em>adapter=None</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/core.html#AdaptedModel.put"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.core.AdaptedModel.put" title="Permalink to this definition">¶</a></dt>
-<dd><p>Persist this entity via the current datastore adapter.</p>
-</dd></dl>
-
-<dl class="classmethod">
-<dt id="lib.apptools.model.adapter.core.AdaptedModel.query">
-<em class="property">classmethod </em><tt class="descname">query</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/core.html#AdaptedModel.query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.core.AdaptedModel.query" title="Permalink to this definition">¶</a></dt>
-<dd><p>Start building a new <cite>model.Query</cite> object, if the underlying adapter implements <cite>IndexedModelAdapter</cite>.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="lib.apptools.model.adapter.core.DictMixin">
-<em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.core.</tt><tt class="descname">DictMixin</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/core.html#DictMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.core.DictMixin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.adapter.abstract.KeyMixin" title="lib.apptools.model.adapter.abstract.KeyMixin"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.KeyMixin</span></tt></a>, <a class="reference internal" href="#lib.apptools.model.adapter.abstract.ModelMixin" title="lib.apptools.model.adapter.abstract.ModelMixin"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.ModelMixin</span></tt></a></p>
-<p>Provides <cite>to_dict</cite>-type methods for first-class Model API classes.</p>
-<dl class="method">
-<dt id="lib.apptools.model.adapter.core.DictMixin.to_dict">
-<tt class="descname">to_dict</tt><big>(</big><em>exclude=()</em>, <em>include=()</em>, <em>filter=None</em>, <em>map=None</em>, <em>_all=False</em>, <em>filter_fn=&lt;built-in function filter&gt;</em>, <em>map_fn=&lt;built-in function map&gt;</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/core.html#DictMixin.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.core.DictMixin.to_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Export this Entity as a dictionary, excluding/including/filtering/mapping as we go.</p>
-</dd></dl>
-
-<dl class="classmethod">
-<dt id="lib.apptools.model.adapter.core.DictMixin.to_dict_schema">
-<em class="property">classmethod </em><tt class="descname">to_dict_schema</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/core.html#DictMixin.to_dict_schema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.core.DictMixin.to_dict_schema" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert a model or entity&#8217;s schema to a dictionary, where keys=&gt;values map to properties=&gt;descriptors.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="lib.apptools.model.adapter.core.DictMixin.update">
-<tt class="descname">update</tt><big>(</big><em>mapping={}</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/core.html#DictMixin.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.core.DictMixin.update" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update properties on this model via a merged dict of mapping + kwargs.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="lib.apptools.model.adapter.core.JSONMixin">
-<em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.core.</tt><tt class="descname">JSONMixin</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/core.html#JSONMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.core.JSONMixin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.adapter.abstract.KeyMixin" title="lib.apptools.model.adapter.abstract.KeyMixin"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.KeyMixin</span></tt></a>, <a class="reference internal" href="#lib.apptools.model.adapter.abstract.ModelMixin" title="lib.apptools.model.adapter.abstract.ModelMixin"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.ModelMixin</span></tt></a></p>
-<p>Provides JSON serialization/deserialization support to <cite>model.Model</cite> and <cite>model.Key</cite>.</p>
-<dl class="method">
-<dt id="lib.apptools.model.adapter.core.JSONMixin.to_json">
-<tt class="descname">to_json</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/core.html#JSONMixin.to_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.core.JSONMixin.to_json" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert an entity to a JSON structure, where keys=&gt;values map to properties=&gt;values.</p>
-</dd></dl>
-
-<dl class="classmethod">
-<dt id="lib.apptools.model.adapter.core.JSONMixin.to_json_schema">
-<em class="property">classmethod </em><tt class="descname">to_json_schema</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/core.html#JSONMixin.to_json_schema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.core.JSONMixin.to_json_schema" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert a model or entity&#8217;s schema to a dictionary, where keys=&gt;values map to JSON Schema representing properties=&gt;descriptors.</p>
-</dd></dl>
-
-</dd></dl>
-
-</div>
 </div>
 <div class="section" id="module-lib.apptools.model.adapter.inmemory">
 <span id="inmemory-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">inmemory</span></tt> Module<a class="headerlink" href="#module-lib.apptools.model.adapter.inmemory" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="apptools2-model-adapter-for-thread-memory">
-<h3>apptools2: model adapter for thread memory<a class="headerlink" href="#apptools2-model-adapter-for-thread-memory" title="Permalink to this headline">¶</a></h3>
 <p>allows apptools models to be stored in
 main RAM, as a testing tool.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -651,7 +140,7 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dl class="class">
 <dt id="lib.apptools.model.adapter.inmemory.InMemoryAdapter">
 <em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.inmemory.</tt><tt class="descname">InMemoryAdapter</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/inmemory.html#InMemoryAdapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.inmemory.InMemoryAdapter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.adapter.abstract.IndexedModelAdapter" title="lib.apptools.model.adapter.abstract.IndexedModelAdapter"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.IndexedModelAdapter</span></tt></a></p>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.IndexedModelAdapter</span></tt></p>
 <p>Adapt model classes to RAM.</p>
 <dl class="classmethod">
 <dt id="lib.apptools.model.adapter.inmemory.InMemoryAdapter.acquire">
@@ -710,11 +199,8 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 </dd></dl>
 
 </div>
-</div>
 <div class="section" id="module-lib.apptools.model.adapter.memcache">
 <span id="memcache-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">memcache</span></tt> Module<a class="headerlink" href="#module-lib.apptools.model.adapter.memcache" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="apptools2-model-adapter-for-memcache">
-<h3>apptools2: model adapter for memcache<a class="headerlink" href="#apptools2-model-adapter-for-memcache" title="Permalink to this headline">¶</a></h3>
 <p>allows apptools models to be stored and
 retrieved using memcache.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -739,7 +225,7 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dl class="class">
 <dt id="lib.apptools.model.adapter.memcache.MemcacheAdapter">
 <em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.memcache.</tt><tt class="descname">MemcacheAdapter</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/memcache.html#MemcacheAdapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.memcache.MemcacheAdapter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.adapter.abstract.ModelAdapter" title="lib.apptools.model.adapter.abstract.ModelAdapter"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.ModelAdapter</span></tt></a></p>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.ModelAdapter</span></tt></p>
 <p>Adapt model classes to Memcache.</p>
 <dl class="classmethod">
 <dt id="lib.apptools.model.adapter.memcache.MemcacheAdapter.is_supported">
@@ -750,11 +236,8 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 </dd></dl>
 
 </div>
-</div>
 <div class="section" id="module-lib.apptools.model.adapter.mongo">
 <span id="mongo-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">mongo</span></tt> Module<a class="headerlink" href="#module-lib.apptools.model.adapter.mongo" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="apptools2-model-adapter-for-mongo">
-<h3>apptools2: model adapter for mongo<a class="headerlink" href="#apptools2-model-adapter-for-mongo" title="Permalink to this headline">¶</a></h3>
 <p>allows apptools models to be stored and
 retrieved using mongoDB.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -779,7 +262,7 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dl class="class">
 <dt id="lib.apptools.model.adapter.mongo.MongoAdapter">
 <em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.mongo.</tt><tt class="descname">MongoAdapter</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/mongo.html#MongoAdapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.mongo.MongoAdapter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.adapter.abstract.ModelAdapter" title="lib.apptools.model.adapter.abstract.ModelAdapter"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.ModelAdapter</span></tt></a></p>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.ModelAdapter</span></tt></p>
 <p>Adapt model classes to MongoDB.</p>
 <dl class="classmethod">
 <dt id="lib.apptools.model.adapter.mongo.MongoAdapter.is_supported">
@@ -790,11 +273,8 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 </dd></dl>
 
 </div>
-</div>
 <div class="section" id="module-lib.apptools.model.adapter.pipeline">
 <span id="pipeline-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">pipeline</span></tt> Module<a class="headerlink" href="#module-lib.apptools.model.adapter.pipeline" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="apptools2-model-adapter-for-pipelines">
-<h3>apptools2: model adapter for pipelines<a class="headerlink" href="#apptools2-model-adapter-for-pipelines" title="Permalink to this headline">¶</a></h3>
 <p>allows apptools models to be seamlessly
 passed back-and-forth between pipelines.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -817,11 +297,8 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 </tbody>
 </table>
 </div>
-</div>
 <div class="section" id="module-lib.apptools.model.adapter.protorpc">
 <span id="protorpc-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">protorpc</span></tt> Module<a class="headerlink" href="#module-lib.apptools.model.adapter.protorpc" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="apptools2-model-adapter-for-protorpc">
-<h3>apptools2: model adapter for protorpc<a class="headerlink" href="#apptools2-model-adapter-for-protorpc" title="Permalink to this headline">¶</a></h3>
 <p>allows apptools models to be inflated
 from and expressed as protorpc messages.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -844,34 +321,9 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 </tbody>
 </table>
 <dl class="class">
-<dt id="lib.apptools.model.adapter.protorpc.Key">
-<em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.protorpc.</tt><tt class="descname">Key</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/apptools/model/adapter/protorpc.html#Key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.protorpc.Key" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">protorpc.messages.Message</span></tt></p>
-<p>Message that expresses a <cite>model.Key</cite>.</p>
-<dl class="attribute">
-<dt id="lib.apptools.model.adapter.protorpc.Key.encoded">
-<tt class="descname">encoded</tt><a class="headerlink" href="#lib.apptools.model.adapter.protorpc.Key.encoded" title="Permalink to this definition">¶</a></dt>
-<dd><p>Field definition for unicode string values.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="lib.apptools.model.adapter.protorpc.Key.id">
-<tt class="descname">id</tt><a class="headerlink" href="#lib.apptools.model.adapter.protorpc.Key.id" title="Permalink to this definition">¶</a></dt>
-<dd><p>Field definition for unicode string values.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="lib.apptools.model.adapter.protorpc.Key.kind">
-<tt class="descname">kind</tt><a class="headerlink" href="#lib.apptools.model.adapter.protorpc.Key.kind" title="Permalink to this definition">¶</a></dt>
-<dd><p>Field definition for unicode string values.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
 <dt id="lib.apptools.model.adapter.protorpc.ProtoRPCKey">
 <em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.protorpc.</tt><tt class="descname">ProtoRPCKey</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/protorpc.html#ProtoRPCKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.protorpc.ProtoRPCKey" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.adapter.abstract.KeyMixin" title="lib.apptools.model.adapter.abstract.KeyMixin"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.KeyMixin</span></tt></a></p>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.KeyMixin</span></tt></p>
 <p>Adapt <cite>Key</cite> classes to ProtoRPC messages.</p>
 <dl class="method">
 <dt id="lib.apptools.model.adapter.protorpc.ProtoRPCKey.to_message">
@@ -892,7 +344,7 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dl class="class">
 <dt id="lib.apptools.model.adapter.protorpc.ProtoRPCModel">
 <em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.protorpc.</tt><tt class="descname">ProtoRPCModel</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/protorpc.html#ProtoRPCModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.protorpc.ProtoRPCModel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.adapter.abstract.ModelMixin" title="lib.apptools.model.adapter.abstract.ModelMixin"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.ModelMixin</span></tt></a></p>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.ModelMixin</span></tt></p>
 <p>Adapt Model classes to ProtoRPC messages.</p>
 <dl class="method">
 <dt id="lib.apptools.model.adapter.protorpc.ProtoRPCModel.to_message">
@@ -962,11 +414,8 @@ equivalents and factoried into a full <tt class="xref py py-class docutils liter
 </dd></dl>
 
 </div>
-</div>
 <div class="section" id="module-lib.apptools.model.adapter.redis">
 <span id="redis-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">redis</span></tt> Module<a class="headerlink" href="#module-lib.apptools.model.adapter.redis" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="apptools2-model-adapter-for-redis">
-<h3>apptools2: model adapter for redis<a class="headerlink" href="#apptools2-model-adapter-for-redis" title="Permalink to this headline">¶</a></h3>
 <p>allows apptools models to be efficiently
 stored in and retrieved from redis.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -991,7 +440,7 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dl class="class">
 <dt id="lib.apptools.model.adapter.redis.RedisAdapter">
 <em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.redis.</tt><tt class="descname">RedisAdapter</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/redis.html#RedisAdapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.redis.RedisAdapter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.adapter.abstract.ModelAdapter" title="lib.apptools.model.adapter.abstract.ModelAdapter"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.ModelAdapter</span></tt></a></p>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.ModelAdapter</span></tt></p>
 <p>Adapt model classes to Redis.</p>
 <dl class="class">
 <dt id="lib.apptools.model.adapter.redis.RedisAdapter.EngineConfig">
@@ -1772,14 +1221,12 @@ key.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>operation</strong> &#8211; Operation name to execute (from <a class="reference internal" href="#lib.apptools.model.adapter.redis.RedisAdapter.Operations" title="lib.apptools.model.adapter.redis.RedisAdapter.Operations"><tt class="xref py py-attr docutils literal"><span class="pre">RedisAdapter.Operations</span></tt></a>).</li>
 <li><strong>kind</strong> &#8211; String <tt class="xref py py-class docutils literal"><span class="pre">model.Model</span></tt> kind to acquire the channel for.</li>
-<li><strong>*args</strong> &#8211; <p>Positional arguments to pass to the low-level operation selected.</p>
-</li>
-<li><strong>**kwargs</strong> &#8211; <p>Keyword arguments to pass to the low-level operation selected.</p>
-</li>
+<li><strong>args</strong> &#8211; Positional arguments to pass to the low-level operation selected.</li>
+<li><strong>kwargs</strong> &#8211; Keyword arguments to pass to the low-level operation selected.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Result of the selected low-level operation,</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Result of the selected low-level operation.</p>
 </td>
 </tr>
 </tbody>
@@ -1907,11 +1354,8 @@ target <tt class="docutils literal"><span class="pre">entity</span></tt> being p
 </dd></dl>
 
 </div>
-</div>
 <div class="section" id="module-lib.apptools.model.adapter.sql">
 <span id="sql-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">sql</span></tt> Module<a class="headerlink" href="#module-lib.apptools.model.adapter.sql" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="apptools2-model-adapter-for-sql">
-<h3>apptools2: model adapter for SQL<a class="headerlink" href="#apptools2-model-adapter-for-sql" title="Permalink to this headline">¶</a></h3>
 <p>allows apptools models to be used across
 SQL tables, with enhanced mySQL support.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1936,7 +1380,7 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dl class="class">
 <dt id="lib.apptools.model.adapter.sql.SQLAdapter">
 <em class="property">class </em><tt class="descclassname">lib.apptools.model.adapter.sql.</tt><tt class="descname">SQLAdapter</tt><a class="reference internal" href="_modules/lib/apptools/model/adapter/sql.html#SQLAdapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.apptools.model.adapter.sql.SQLAdapter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#lib.apptools.model.adapter.abstract.ModelAdapter" title="lib.apptools.model.adapter.abstract.ModelAdapter"><tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.ModelAdapter</span></tt></a></p>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.model.adapter.abstract.ModelAdapter</span></tt></p>
 <p>Adapt model classes to SQL.</p>
 <dl class="classmethod">
 <dt id="lib.apptools.model.adapter.sql.SQLAdapter.is_supported">
@@ -1946,7 +1390,6 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 
 </dd></dl>
 
-</div>
 </div>
 </div>
 
@@ -1963,42 +1406,15 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
   <ul>
 <li><a class="reference internal" href="#">adapter Package</a><ul>
 <li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">adapter</span></tt> Package</a></li>
-<li><a class="reference internal" href="#abstract-module"><tt class="docutils literal"><span class="pre">abstract</span></tt> Module</a><ul>
-<li><a class="reference internal" href="#apptools2-abstract-model-adapters">apptools2: abstract model adapters</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-lib.apptools.model.adapter.core"><tt class="docutils literal"><span class="pre">core</span></tt> Module</a><ul>
-<li><a class="reference internal" href="#apptools2-core-model-adapters">apptools2: core model adapters</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-lib.apptools.model.adapter.inmemory"><tt class="docutils literal"><span class="pre">inmemory</span></tt> Module</a><ul>
-<li><a class="reference internal" href="#apptools2-model-adapter-for-thread-memory">apptools2: model adapter for thread memory</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-lib.apptools.model.adapter.memcache"><tt class="docutils literal"><span class="pre">memcache</span></tt> Module</a><ul>
-<li><a class="reference internal" href="#apptools2-model-adapter-for-memcache">apptools2: model adapter for memcache</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-lib.apptools.model.adapter.mongo"><tt class="docutils literal"><span class="pre">mongo</span></tt> Module</a><ul>
-<li><a class="reference internal" href="#apptools2-model-adapter-for-mongo">apptools2: model adapter for mongo</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-lib.apptools.model.adapter.pipeline"><tt class="docutils literal"><span class="pre">pipeline</span></tt> Module</a><ul>
-<li><a class="reference internal" href="#apptools2-model-adapter-for-pipelines">apptools2: model adapter for pipelines</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-lib.apptools.model.adapter.protorpc"><tt class="docutils literal"><span class="pre">protorpc</span></tt> Module</a><ul>
-<li><a class="reference internal" href="#apptools2-model-adapter-for-protorpc">apptools2: model adapter for protorpc</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-lib.apptools.model.adapter.redis"><tt class="docutils literal"><span class="pre">redis</span></tt> Module</a><ul>
-<li><a class="reference internal" href="#apptools2-model-adapter-for-redis">apptools2: model adapter for redis</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-lib.apptools.model.adapter.sql"><tt class="docutils literal"><span class="pre">sql</span></tt> Module</a><ul>
-<li><a class="reference internal" href="#apptools2-model-adapter-for-sql">apptools2: model adapter for SQL</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#module-lib.apptools.model.adapter.abstract"><tt class="docutils literal"><span class="pre">abstract</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.model.adapter.core"><tt class="docutils literal"><span class="pre">core</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.model.adapter.inmemory"><tt class="docutils literal"><span class="pre">inmemory</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.model.adapter.memcache"><tt class="docutils literal"><span class="pre">memcache</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.model.adapter.mongo"><tt class="docutils literal"><span class="pre">mongo</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.model.adapter.pipeline"><tt class="docutils literal"><span class="pre">pipeline</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.model.adapter.protorpc"><tt class="docutils literal"><span class="pre">protorpc</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.model.adapter.redis"><tt class="docutils literal"><span class="pre">redis</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.apptools.model.adapter.sql"><tt class="docutils literal"><span class="pre">sql</span></tt> Module</a></li>
 </ul>
 </li>
 </ul>
@@ -2047,6 +1463,7 @@ about embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
           <a href="lib.apptools.model.html" title="model Package"
              >previous</a> |</li>
         <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
           <li><a href="lib.html" >lib Package</a> &raquo;</li>
           <li><a href="lib.apptools.html" >apptools Package</a> &raquo;</li>
           <li><a href="lib.apptools.model.html" >model Package</a> &raquo;</li> 

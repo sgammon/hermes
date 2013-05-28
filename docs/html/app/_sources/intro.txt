@@ -1,5 +1,5 @@
 Getting Started
-~~~~~~
+~~~~~~~~~~~~~~~
 
 Hermes is a Python-based platform designed from the ground up for building and supporting
 latency-sensitive API services in a structured, flexible, and developer-friendly way.
@@ -10,7 +10,7 @@ to make the construction and deployment of enterprise-quality web services a bre
 
 
 Server-Side
--------
+-----------
 
 Remotely-accessible `Services` group relevant methods, which are themselves bound to
 datamodel-like structures called `Messages`. Think of a `Service` as a small WSGI
@@ -59,7 +59,7 @@ you add `disabled=True` to the `services.api` decorator, in which case it is ign
 
 
 Client-Side: JavaScript
---------
+-----------------------
 
 Once you have a service like the one above, the easiest way to call it is from `apptoolsJS` (**shocker**),
 especially if you're in the JS context of a page served by apptools PY. You can achieve the same thing with
@@ -92,7 +92,7 @@ automatically, complete with built-in multiplexing and extensible transport supp
 
 
 Client-Side: Python
--------
+-------------------
 
 Hermes comes with tools to auto-generate structured client libraries from your server-side bindings. In the
 `tools` directory, you'll find a script called `generate`. If you want, you can simply run it (but it will

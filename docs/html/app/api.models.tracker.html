@@ -48,6 +48,7 @@
           <a href="api.models.harness.html" title="harness Package"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
           <li><a href="api.html" >api Package</a> &raquo;</li>
           <li><a href="api.models.html" accesskey="U">models Package</a> &raquo;</li> 
       </ul>
@@ -85,7 +86,7 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.-sam (&lt;<a c
 <div class="section" id="module-api.models.tracker.aggregation">
 <span id="aggregation-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">aggregation</span></tt> Module<a class="headerlink" href="#module-api.models.tracker.aggregation" title="Permalink to this headline">¶</a></h2>
 <p>Holds model classes designed to express aggregation groups and aggregations
-linked to <a href="#id2"><span class="problematic" id="id3">`</span></a>TrackedEvent`(s).</p>
+linked to <tt class="docutils literal"><span class="pre">TrackedEvent</span></tt>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -210,6 +211,51 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dl class="attribute">
 <dt id="api.models.tracker.attribution.AttributionGroup.target">
 <tt class="descname">target</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.attribution.AttributionGroup.target" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-api.models.tracker.endpoint">
+<span id="endpoint-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">endpoint</span></tt> Module<a class="headerlink" href="#module-api.models.tracker.endpoint" title="Permalink to this headline">¶</a></h2>
+<p>Contains models that express <cite>Tracker</cite> schema, which is a discrete
+endpoint for tracking events of a certain profile or type.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
+<li>2013 Ampush.</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - all rights are reserved. For details about
+embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="api.models.tracker.endpoint.Tracker">
+<em class="property">class </em><tt class="descclassname">api.models.tracker.endpoint.</tt><tt class="descname">Tracker</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/api/models/tracker/endpoint.html#Tracker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.models.tracker.endpoint.Tracker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
+<p>A discrete endpoint for <cite>EventTracker</cite>.</p>
+<dl class="attribute">
+<dt id="api.models.tracker.endpoint.Tracker.profiles">
+<tt class="descname">profiles</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.endpoint.Tracker.profiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.endpoint.Tracker.scope">
+<tt class="descname">scope</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.endpoint.Tracker.scope" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.models.tracker.endpoint.Tracker.templates">
+<tt class="descname">templates</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.endpoint.Tracker.templates" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -515,26 +561,6 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
 <p>Bundle of configuration for a <cite>Tracker</cite>.</p>
 <dl class="attribute">
-<dt id="api.models.tracker.profile.Profile.aggregations">
-<tt class="descname">aggregations</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.profile.Profile.aggregations" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="api.models.tracker.profile.Profile.attributions">
-<tt class="descname">attributions</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.profile.Profile.attributions" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="api.models.tracker.profile.Profile.inherit">
-<tt class="descname">inherit</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.profile.Profile.inherit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="api.models.tracker.profile.Profile.integrations">
-<tt class="descname">integrations</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.profile.Profile.integrations" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
 <dt id="api.models.tracker.profile.Profile.label">
 <tt class="descname">label</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.profile.Profile.label" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -545,23 +571,8 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="api.models.tracker.profile.Profile.provider">
-<tt class="descname">provider</tt><em class="property"> = 'CLIENT'</em><a class="headerlink" href="#api.models.tracker.profile.Profile.provider" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="api.models.tracker.profile.Profile.schema">
-<tt class="descname">schema</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.profile.Profile.schema" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
 <dt id="api.models.tracker.profile.Profile.scope">
 <tt class="descname">scope</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.profile.Profile.scope" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="api.models.tracker.profile.Profile.type">
-<tt class="descname">type</tt><em class="property"> = 'CUSTOM'</em><a class="headerlink" href="#api.models.tracker.profile.Profile.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -636,7 +647,7 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 </table>
 <dl class="class">
 <dt id="api.models.tracker.raw.Error">
-<em class="property">class </em><tt class="descclassname">api.models.tracker.raw.</tt><tt class="descname">Error</tt><big>(</big><em>**properties</em><big>)</big><a class="headerlink" href="#api.models.tracker.raw.Error" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">api.models.tracker.raw.</tt><tt class="descname">Error</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/api/models/tracker/raw.html#Error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.models.tracker.raw.Error" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
 <p>Primitive record of an error event.</p>
 <dl class="attribute">
@@ -668,7 +679,7 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 
 <dl class="class">
 <dt id="api.models.tracker.raw.Event">
-<em class="property">class </em><tt class="descclassname">api.models.tracker.raw.</tt><tt class="descname">Event</tt><big>(</big><em>**properties</em><big>)</big><a class="headerlink" href="#api.models.tracker.raw.Event" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">api.models.tracker.raw.</tt><tt class="descname">Event</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/api/models/tracker/raw.html#Event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.models.tracker.raw.Event" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
 <p>Raw record of a <cite>TrackedEvent</cite>.</p>
 <dl class="attribute">
@@ -683,7 +694,7 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 
 <dl class="classmethod">
 <dt id="api.models.tracker.raw.Event.inflate">
-<em class="property">classmethod </em><tt class="descname">inflate</tt><big>(</big><em>request</em><big>)</big><a class="headerlink" href="#api.models.tracker.raw.Event.inflate" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><tt class="descname">inflate</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="_modules/api/models/tracker/raw.html#Event.inflate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.models.tracker.raw.Event.inflate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Build a new <a class="reference internal" href="#api.models.tracker.raw.Event" title="api.models.tracker.raw.Event"><tt class="xref py py-class docutils literal"><span class="pre">Event</span></tt></a> from a <a class="reference external" href="http://webapp-improved.appspot.com/api/webapp2.html#webapp2.Request" title="(in webapp2 v2.5.1)"><tt class="xref py py-class docutils literal"><span class="pre">webapp2.Request</span></tt></a>,
 or a similar-style context object.</p>
 </dd></dl>
@@ -721,51 +732,6 @@ or a similar-style context object.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-api.models.tracker.tracker">
-<span id="tracker-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">tracker</span></tt> Module<a class="headerlink" href="#module-api.models.tracker.tracker" title="Permalink to this headline">¶</a></h2>
-<p>Contains models that express <cite>Tracker</cite> schema, which is a discrete
-endpoint for tracking events of a certain profile or type.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>)</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
-<li>2013 Ampush.</li>
-</ol>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - all rights are reserved. For details about
-embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="class">
-<dt id="api.models.tracker.tracker.Tracker">
-<em class="property">class </em><tt class="descclassname">api.models.tracker.tracker.</tt><tt class="descname">Tracker</tt><big>(</big><em>**properties</em><big>)</big><a class="reference internal" href="_modules/api/models/tracker/tracker.html#Tracker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.models.tracker.tracker.Tracker" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.model.Model</span></tt></p>
-<p>A discrete endpoint for <cite>EventTracker</cite>.</p>
-<dl class="attribute">
-<dt id="api.models.tracker.tracker.Tracker.profiles">
-<tt class="descname">profiles</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.tracker.Tracker.profiles" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="api.models.tracker.tracker.Tracker.scope">
-<tt class="descname">scope</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.tracker.Tracker.scope" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="api.models.tracker.tracker.Tracker.templates">
-<tt class="descname">templates</tt><em class="property"> = None</em><a class="headerlink" href="#api.models.tracker.tracker.Tracker.templates" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-</div>
 </div>
 
 
@@ -783,13 +749,13 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 <li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">tracker</span></tt> Package</a></li>
 <li><a class="reference internal" href="#module-api.models.tracker.aggregation"><tt class="docutils literal"><span class="pre">aggregation</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-api.models.tracker.attribution"><tt class="docutils literal"><span class="pre">attribution</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-api.models.tracker.endpoint"><tt class="docutils literal"><span class="pre">endpoint</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-api.models.tracker.event"><tt class="docutils literal"><span class="pre">event</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-api.models.tracker.integration"><tt class="docutils literal"><span class="pre">integration</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-api.models.tracker.parameter"><tt class="docutils literal"><span class="pre">parameter</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-api.models.tracker.profile"><tt class="docutils literal"><span class="pre">profile</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-api.models.tracker.pubsub"><tt class="docutils literal"><span class="pre">pubsub</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-api.models.tracker.raw"><tt class="docutils literal"><span class="pre">raw</span></tt> Module</a></li>
-<li><a class="reference internal" href="#module-api.models.tracker.tracker"><tt class="docutils literal"><span class="pre">tracker</span></tt> Module</a></li>
 </ul>
 </li>
 </ul>
@@ -838,6 +804,7 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
           <a href="api.models.harness.html" title="harness Package"
              >previous</a> |</li>
         <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
           <li><a href="api.html" >api Package</a> &raquo;</li>
           <li><a href="api.models.html" >models Package</a> &raquo;</li> 
       </ul>

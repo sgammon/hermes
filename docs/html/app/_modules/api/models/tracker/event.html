@@ -54,18 +54,16 @@
 <span class="c"># -*- coding: utf-8 -*-</span>
 
 <span class="sd">&#39;&#39;&#39;</span>
-
-<span class="sd">Tracker Models: Event</span>
-
 <span class="sd">Contains models used in the `EventTracker` subsystem that are specifically related to</span>
 <span class="sd">expressing/persisting individual events.</span>
 
-<span class="sd">-sam (&lt;sam.gammon@ampush.com&gt;)</span>
-
+<span class="sd">:author: Sam Gammon (sam.gammon@ampush.com)</span>
+<span class="sd">:copyright: (c) 2013 Ampush.</span>
+<span class="sd">:license: This is private source code - all rights are reserved. For details about</span>
+<span class="sd">          embedded licenses and other legalese, see `LICENSE.md`.</span>
 <span class="sd">&#39;&#39;&#39;</span>
 
 <span class="c"># stdlib</span>
-<span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">datetime</span>
 
 <span class="c"># apptools models</span>
@@ -73,42 +71,80 @@
 
 <span class="c"># tracker models</span>
 <span class="kn">from</span> <span class="nn">api.models.tracker</span> <span class="kn">import</span> <span class="n">raw</span>
-<span class="kn">from</span> <span class="nn">api.models.tracker</span> <span class="kn">import</span> <span class="n">tracker</span>
+<span class="kn">from</span> <span class="nn">api.models.tracker</span> <span class="kn">import</span> <span class="n">endpoint</span>
 <span class="kn">from</span> <span class="nn">api.models.tracker</span> <span class="kn">import</span> <span class="n">integration</span>
 <span class="kn">from</span> <span class="nn">api.models.tracker</span> <span class="kn">import</span> <span class="n">aggregation</span>
 <span class="kn">from</span> <span class="nn">api.models.tracker</span> <span class="kn">import</span> <span class="n">attribution</span>
 
-<span class="c"># protocol modules</span>
-<span class="kn">from</span> <span class="nn">components.protocol</span> <span class="kn">import</span> <span class="n">event</span>
+<span class="c"># protocol descriptors</span>
+<span class="kn">from</span> <span class="nn">protocol</span> <span class="kn">import</span> <span class="n">event</span>
 
 
 <span class="c">## EventAction</span>
-<span class="c"># Represents an action taken in response to an event.</span>
 <div class="viewcode-block" id="EventAction"><a class="viewcode-back" href="../../../../api.models.tracker.html#api.models.tracker.event.EventAction">[docs]</a><span class="k">class</span> <span class="nc">EventAction</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
 
-    <span class="sd">&#39;&#39;&#39; An action performed by the `EventTracker` in response to an occurrence of a `TrackedEvent`. &#39;&#39;&#39;</span>
+    <span class="sd">&#39;&#39;&#39; An action performed by the `EventTracker` in response to an occurrence of a `TrackedEvent`.</span>
+
+<span class="sd">        :param success: Boolean describing whether the :py:class:`EventAction` in</span>
+<span class="sd">                        question was successful or not. Defaults to ``False``.</span>
+
+<span class="sd">        :param started: Python ``datetime`` object describing when this</span>
+<span class="sd">                        :py:class:`EventAction` began execution.</span>
+
+<span class="sd">        :param routine: Key pointer to the owner :py:class:`integration.Routine` object for this</span>
+<span class="sd">                        :py:class:`EventAction`. &#39;&#39;&#39;</span>
 
     <span class="n">success</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>  <span class="c"># whether this `EventAction` was successful</span>
-    <span class="n">started</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>  <span class="c"># timestamp for when this `EventAction` started work</span>
-    <span class="n">routine</span> <span class="o">=</span> <span class="n">integration</span><span class="o">.</span><span class="n">Routine</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;repeated&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>  <span class="c"># linked routine set to fulfill this `EventAction`</span>
+    <span class="n">started</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>  <span class="c"># timestamp for when this action started work</span>
+    <span class="n">routine</span> <span class="o">=</span> <span class="n">integration</span><span class="o">.</span><span class="n">Routine</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;repeated&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>  <span class="c"># linked routine to fulfill this `EventAction`</span>
 
 
-<span class="c">## TrackedEvent</span>
-<span class="c"># Represents a single `EventTracker` URL hit.</span></div>
+<span class="c">## TrackedEvent</span></div>
 <div class="viewcode-block" id="TrackedEvent"><a class="viewcode-back" href="../../../../api.models.tracker.html#api.models.tracker.event.TrackedEvent">[docs]</a><span class="k">class</span> <span class="nc">TrackedEvent</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
 
-    <span class="sd">&#39;&#39;&#39; A hit to the `EventTracker` server. &#39;&#39;&#39;</span>
+    <span class="sd">&#39;&#39;&#39; A single hit to the ``EventTracker`` server, linked to a :py:class:`tracker.Tracker`</span>
+<span class="sd">        model via a string ID, and containing *n* parameters. Individual :py:class:`TrackedEvent`</span>
+<span class="sd">        models detail an individual tracking hit, with all associated information and metadata</span>
+<span class="sd">        about aggregations and attributions.</span>
+
+<span class="sd">        :param raw: Reference :py:class:`apptools.model.Key` to the :py:class:`raw.RawEvent`</span>
+<span class="sd">                    that generated this particular :py:class:`TrackedEvent`.</span>
+
+<span class="sd">        :param params: Python ``dict`` describing the **interpreted** parameters for this</span>
+<span class="sd">                       ``TrackedEvent``. For *raw* parameters, see :py:class:`raw.RawEvent`.</span>
+
+<span class="sd">        :param type: Describes the type of event being recorded in this :py:class:`TrackedEvent`,</span>
+<span class="sd">                     such as a ``CLICK`` or ``IMPRESSION``. These are enumerated in the bidirectional</span>
+<span class="sd">                     enum :py:class:`event.EventType`.</span>
+
+<span class="sd">        :param tracker: Reference :py:class:`apptools.model.Key` to the :py:class:`tracker.Tracker`</span>
+<span class="sd">                        that recorded this :py:class:`TrackedEvent`.</span>
+
+<span class="sd">        :param provider: Describes the *provider* that relayed this event to Ampush, if any. Available</span>
+<span class="sd">                         providers are enumerated in the bidirectional enum :py:class:`event.EventProvider`.</span>
+
+<span class="sd">        :param aggregations: Lists *aggregation groups* that this :py:class:`TrackedEvent` was found to</span>
+<span class="sd">                             be a part of. Aggregation groups listed in this area have already considered</span>
+<span class="sd">                             this :py:class:`TrackedEvent`.</span>
+
+<span class="sd">        :param attributions: Lists *attribution groups* that this :py:class:`TrackedEvent` was linked to.</span>
+<span class="sd">                             Aggregation groups listed in this area have already linked and considered</span>
+<span class="sd">                             this :py:class:`TrackedEvent`.</span>
+
+<span class="sd">        :param modified: Timestamp ``datetime`` of the last time this :py:class:`TrackedEvent` was modified.</span>
+<span class="sd">        :param created: Timestamp ``datetime`` of when this :py:class:`TrackedEvent` was recorded. &#39;&#39;&#39;</span>
 
     <span class="c">## == Raw Event == ##</span>
-    <span class="n">raw</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">RawEvent</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>  <span class="c"># linked raw event that generated this `TrackedEvent`</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">Event</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>  <span class="c"># linked raw event that generated this `TrackedEvent`</span>
     <span class="n">params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="p">{},</span> <span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">}</span>  <span class="c"># raw paramset that came through with URL</span>
 
-    <span class="c">## == Type/Provider/Tracker == ##</span>
-    <span class="nb">type</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">EventType</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">EventType</span><span class="o">.</span><span class="n">CUSTOM</span><span class="p">}</span>  <span class="c"># event type: impression, click, etc.</span>
-    <span class="n">tracker</span> <span class="o">=</span> <span class="n">tracker</span><span class="o">.</span><span class="n">Tracker</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>  <span class="c"># provisioned tracker that this event came through</span>
-    <span class="n">provider</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">EventProvider</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">EventProvider</span><span class="o">.</span><span class="n">CLIENT</span><span class="p">}</span>  <span class="c"># event provider: who dispatched this event</span>
+    <span class="c">## == Type/Provider/Tracker == ##  # @TODO: Change string types to enums.</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">EventType</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="s">&#39;CUSTOM&#39;</span><span class="p">}</span>  <span class="c"># event type: impression, click, etc.</span>
+    <span class="n">tracker</span> <span class="o">=</span> <span class="n">endpoint</span><span class="o">.</span><span class="n">Tracker</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>  <span class="c"># provisioned tracker that this event came through</span>
+    <span class="n">provider</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">EventProvider</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="s">&#39;CLIENT&#39;</span><span class="p">}</span>  <span class="c"># event provider: who dispatched this event</span>
 
     <span class="c">## == Linked Objects == ##</span>
+    <span class="n">integrations</span> <span class="o">=</span> <span class="n">EventAction</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;repeated&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>  <span class="c"># linked, invoked integrations</span>
     <span class="n">aggregations</span> <span class="o">=</span> <span class="n">aggregation</span><span class="o">.</span><span class="n">Aggregation</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;repeated&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>  <span class="c"># linked, updated aggregations</span>
     <span class="n">attributions</span> <span class="o">=</span> <span class="n">attribution</span><span class="o">.</span><span class="n">Attribution</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;repeated&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>  <span class="c"># linked, attributed events/objects</span>
 

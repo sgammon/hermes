@@ -53,29 +53,20 @@
   <h1>Source code for lib.apptools.model.adapter.redis</h1><div class="highlight"><pre>
 <span class="c"># -*- coding: utf-8 -*-</span>
 
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">allows apptools models to be efficiently</span>
+<span class="sd">stored in and retrieved from redis.</span>
 
-<span class="sd">    apptools2: model adapter for redis</span>
-<span class="sd">    -------------------------------------------------</span>
-<span class="sd">    |                                               |</span>
-<span class="sd">    |   `apptools.model.adapter.redis`              |</span>
-<span class="sd">    |                                               |</span>
-<span class="sd">    |   allows apptools models to be efficiently    |</span>
-<span class="sd">    |   stored in and retrieved from redis.         |</span>
-<span class="sd">    |                                               |</span>
-<span class="sd">    -------------------------------------------------</span>
-<span class="sd">    |   authors:                                    |</span>
-<span class="sd">    |       -- sam gammon (sam@momentum.io)         |</span>
-<span class="sd">    -------------------------------------------------</span>
-<span class="sd">    |   changelog:                                  |</span>
-<span class="sd">    |       -- apr 1, 2013: initial draft           |</span>
-<span class="sd">    -------------------------------------------------</span>
-
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">:author: Sam Gammon (sam@momentum.io)</span>
+<span class="sd">:copyright: (c) 2013 momentum labs.</span>
+<span class="sd">:license: This is private source code - Ampush has been granted an</span>
+<span class="sd">          unlimited, exclusive license for embedded use. For details</span>
+<span class="sd">          about embedded licenses and other legalese, see `LICENSE.md`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="c"># adapter API</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">abstract</span>
-<span class="kn">from</span> <span class="nn">.abstract</span> <span class="kn">import</span> <span class="n">IndexedModelAdapter</span>
+<span class="kn">from</span> <span class="nn">.abstract</span> <span class="kn">import</span> <span class="n">ModelAdapter</span>
 
 <span class="c"># apptools util</span>
 <span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">json</span>
@@ -86,7 +77,7 @@
     <span class="kn">import</span> <span class="nn">msgpack</span>
 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c"># pragma: no cover</span>
     <span class="n">_MSGPACK</span> <span class="o">=</span> <span class="bp">False</span>  <span class="c"># indicate no msgpack support</span>
-<span class="k">else</span><span class="p">:</span>
+<span class="k">else</span><span class="p">:</span>  <span class="c"># pragma: no cover</span>
     <span class="n">_MSGPACK</span> <span class="o">=</span> <span class="bp">True</span>  <span class="c"># indicate msgpack support</span>
 
 <span class="c"># resolve redis</span>
@@ -94,7 +85,7 @@
     <span class="c">## force absolute import to avoid infinite recursion</span>
     <span class="n">redis</span> <span class="o">=</span> <span class="n">_redis_client</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;redis&#39;</span><span class="p">,</span> <span class="nb">locals</span><span class="p">(),</span> <span class="nb">globals</span><span class="p">(),</span> <span class="p">[],</span> <span class="mi">0</span><span class="p">)</span>
 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c"># pragma: no cover</span>
-    <span class="n">_REDIS</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">_REDIS</span><span class="p">,</span> <span class="n">_redis_client</span><span class="p">,</span> <span class="n">redis</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="n">_REDIS</span> <span class="o">=</span> <span class="bp">True</span>
 
@@ -105,7 +96,7 @@
     <span class="n">_GEVENT</span> <span class="o">=</span> <span class="bp">False</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="n">_GEVENT</span> <span class="o">=</span> <span class="bp">True</span>
-    <span class="k">if</span> <span class="n">_REDIS</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">_REDIS</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">redis</span><span class="o">.</span><span class="n">connection</span><span class="p">,</span> <span class="s">&#39;socket&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">gevent</span><span class="p">,</span> <span class="s">&#39;socket&#39;</span><span class="p">):</span>
         <span class="c">## with Redis AND gevent, patch the connection socket / pool</span>
         <span class="n">redis</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">socket</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">socket</span>
 
@@ -131,7 +122,7 @@
 
 <span class="c">## RedisAdapter</span>
 <span class="c"># Adapt apptools models to Redis.</span></div>
-<div class="viewcode-block" id="RedisAdapter"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.redis.RedisAdapter">[docs]</a><span class="k">class</span> <span class="nc">RedisAdapter</span><span class="p">(</span><span class="n">IndexedModelAdapter</span><span class="p">):</span>
+<div class="viewcode-block" id="RedisAdapter"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.redis.RedisAdapter">[docs]</a><span class="k">class</span> <span class="nc">RedisAdapter</span><span class="p">(</span><span class="n">ModelAdapter</span><span class="p">):</span>
 
     <span class="sd">&#39;&#39;&#39; Adapt model classes to Redis. &#39;&#39;&#39;</span>
 
@@ -304,14 +295,17 @@
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="RedisAdapter.is_supported"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.redis.RedisAdapter.is_supported">[docs]</a>    <span class="k">def</span> <span class="nf">is_supported</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Check whether this adapter is supported in the current environment. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Check whether this adapter is supported in the current environment.</span>
+<span class="sd">            :returns: The imported ``Redis`` driver, or ``False`` if it could not be found. &#39;&#39;&#39;</span>
 
         <span class="k">return</span> <span class="n">_REDIS</span>
 </div>
     <span class="nd">@decorators.classproperty</span>
 <div class="viewcode-block" id="RedisAdapter.serializer"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.redis.RedisAdapter.serializer">[docs]</a>    <span class="k">def</span> <span class="nf">serializer</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Load and return the appropriate serialization codec. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Load and return the appropriate serialization codec.</span>
+<span class="sd">            :returns: The currently ``serializer``. Defaults to ``msgpack``</span>
+<span class="sd">                      with a fallback to built-in ``JSON``. &#39;&#39;&#39;</span>
 
         <span class="c">## Use msgpack if available, fall back to JSON</span>
         <span class="k">if</span> <span class="n">_MSGPACK</span><span class="p">:</span>
@@ -321,7 +315,27 @@
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="RedisAdapter.acquire"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.redis.RedisAdapter.acquire">[docs]</a>    <span class="k">def</span> <span class="nf">acquire</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">properties</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Perform first initialization. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Perform first initialization. This method overrides a</span>
+<span class="sd">            hook by the same name in :py:class:`model.adapter.ModelAdapter`,</span>
+<span class="sd">            and is invoked during :py:class:`model.Model` class construction</span>
+<span class="sd">            before the final call to ``type``.</span>
+
+<span class="sd">            Because this method is invoked *before* there is actually</span>
+<span class="sd">            an existing :py:class:`model.Model`, it must accept the same</span>
+<span class="sd">            parameter signature as ``type``.</span>
+
+<span class="sd">            :param name: Name of the :py:class:`model.Model` to resolve</span>
+<span class="sd">                         an adapter for.</span>
+<span class="sd">            :param bases: Tupled base parents for the :py:class:`model.Model`</span>
+<span class="sd">                          class-to-be.</span>
+<span class="sd">            :param properties: Map of defined :py:class:`model.Model` data</span>
+<span class="sd">                               properties.</span>
+
+<span class="sd">            :raises ValueError: In the case that ``config`` requests a ``Redis``</span>
+<span class="sd">                                connection profile which is invalid or missing.</span>
+
+<span class="sd">            :returns: The acquired adapter, or ``None`` in the case of an empty</span>
+<span class="sd">                      set of server profiles. &#39;&#39;&#39;</span>
 
         <span class="k">global</span> <span class="n">_server_profiles</span>
         <span class="k">global</span> <span class="n">_default_profile</span>
@@ -357,7 +371,11 @@
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="RedisAdapter.channel"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.redis.RedisAdapter.channel">[docs]</a>    <span class="k">def</span> <span class="nf">channel</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">kind</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Retrieve a write channel to Redis. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Retrieve a write channel to Redis.</span>
+
+<span class="sd">            :param kind: String :py:class:`model.Model` kind to retrieve a channel for.</span>
+<span class="sd">            :returns: Acquired ``Redis`` client connection, potentially specific to the</span>
+<span class="sd">                      handed-in ``kind``. &#39;&#39;&#39;</span>
 
         <span class="c"># convert to string kind if we got a model class</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
@@ -392,7 +410,13 @@
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="RedisAdapter.execute"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.redis.RedisAdapter.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">operation</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Acquire a channel and execute an operation, optionally buffering the command. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Acquire a channel and execute an operation, optionally buffering the command.</span>
+
+<span class="sd">            :param operation: Operation name to execute (from :py:attr:`RedisAdapter.Operations`).</span>
+<span class="sd">            :param kind: String :py:class:`model.Model` kind to acquire the channel for.</span>
+<span class="sd">            :param args: Positional arguments to pass to the low-level operation selected.</span>
+<span class="sd">            :param kwargs: Keyword arguments to pass to the low-level operation selected.</span>
+<span class="sd">            :returns: Result of the selected low-level operation. &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">operation</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
             <span class="n">operation</span> <span class="o">=</span> <span class="s">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">operation</span><span class="p">])</span>  <span class="c"># reduce (CLIENT, KILL) to &#39;client_kill&#39; (for example)</span>
@@ -401,7 +425,11 @@
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="RedisAdapter.get"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.redis.RedisAdapter.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Retrieve an entity by Key from Redis. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Retrieve an entity by Key from Redis.</span>
+
+<span class="sd">            :param key: Target :py:class:`model.Key` to retrieve from storage.</span>
+<span class="sd">            :returns: The deserialized and decompressed entity associated with</span>
+<span class="sd">                      the target ``key``. &#39;&#39;&#39;</span>
 
         <span class="n">joined</span><span class="p">,</span> <span class="n">flattened</span> <span class="o">=</span> <span class="n">key</span>
         <span class="k">if</span> <span class="n">cls</span><span class="o">.</span><span class="n">EngineConfig</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="n">RedisMode</span><span class="o">.</span><span class="n">toplevel_blob</span><span class="p">:</span>
@@ -435,7 +463,18 @@
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="RedisAdapter.put"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.redis.RedisAdapter.put">[docs]</a>    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">entity</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Persist an entity to storage in Redis. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Persist an entity to storage in Redis.</span>
+
+<span class="sd">            :param key: New (and potentially empty) :py:class:`model.Key` for</span>
+<span class="sd">                        ``entity``. Must be assigned an ``ID`` by the driver</span>
+<span class="sd">                        through :py:meth:`RedisAdapter.allocate_ids` in the case</span>
+<span class="sd">                        of an empty (non-deterministic) :py:class:`model.Key`.</span>
+<span class="sd">            :param entity: Object entity :py:class:`model.Model` to persist in</span>
+<span class="sd">                           ``Redis``.</span>
+<span class="sd">            :param model: Schema :py:class:`model.Model` associated with the</span>
+<span class="sd">                          target ``entity`` being persisted.</span>
+
+<span class="sd">            :returns: Result of the lower-level write operation. &#39;&#39;&#39;</span>
 
         <span class="c"># reduce entity to dictionary</span>
         <span class="n">serialized</span> <span class="o">=</span> <span class="n">entity</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
@@ -468,7 +507,12 @@
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="RedisAdapter.delete"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.redis.RedisAdapter.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Delete an entity by Key from Redis. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Delete an entity by Key from Redis.</span>
+
+<span class="sd">            :param key: Target :py:class:`model.Key`, whose associated</span>
+<span class="sd">                        :py:class:`model.Model` is being deleted.</span>
+
+<span class="sd">            :returns: The result of the low-level delete operation. &#39;&#39;&#39;</span>
 
         <span class="n">joined</span><span class="p">,</span> <span class="n">flattened</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
 
@@ -494,7 +538,24 @@
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="RedisAdapter.allocate_ids"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.redis.RedisAdapter.allocate_ids">[docs]</a>    <span class="k">def</span> <span class="nf">allocate_ids</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">key_class</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Allocate new Key IDs up to `count`. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Allocate new :py:class:`model.Key` IDs up to ``count``. Allocated</span>
+<span class="sd">            IDs are guaranteed not to be provisioned or otherwise used by the</span>
+<span class="sd">            underlying persistence engine, and thus can be used for uniquely</span>
+<span class="sd">            identifying non-deterministic data.</span>
+
+<span class="sd">            :param key_class: Descendent of :py:class:`model.Key`</span>
+<span class="sd">                              to allocate IDs for.</span>
+<span class="sd">            :param kind: String :py:class:`model.Model` kind name.</span>
+<span class="sd">            :param count: The number of IDs to generate, which **must**</span>
+<span class="sd">                          be greater than 1. Defaults to ``1``.</span>
+
+<span class="sd">            :raises ValueError: In the case the ``count`` is less than ``1``.</span>
+<span class="sd">            :returns: If **only one** ID is requested, an **integer ID**</span>
+<span class="sd">                      suitable for use in a :py:class:`model.Key` directly.</span>
+<span class="sd">                      If **more than one** ID is requested, a **generator**</span>
+<span class="sd">                      is returned, which ``yields`` a set of provisioned</span>
+<span class="sd">                      integer IDs, each suitable for use in a</span>
+<span class="sd">                      :py:class:`model.Key` directly. &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="n">count</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Cannot allocate less than 1 ID&#39;s.&quot;</span><span class="p">)</span>
@@ -524,7 +585,10 @@
         <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">def</span> <span class="nf">_generate_range</span><span class="p">():</span>
 
-                <span class="sd">&#39;&#39;&#39; Generate a range of requested ID&#39;s. &#39;&#39;&#39;</span>
+                <span class="sd">&#39;&#39;&#39; Generate a range of requested ID&#39;s.</span>
+
+<span class="sd">                    :yields: Each item in a set of provisioned integer IDs,</span>
+<span class="sd">                             suitable for use in a :py:class:`model.Key`. &#39;&#39;&#39;</span>
 
                 <span class="n">bottom_range</span> <span class="o">=</span> <span class="p">(</span><span class="n">value</span> <span class="o">-</span> <span class="n">count</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">bottom_range</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
@@ -536,7 +600,20 @@
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="RedisAdapter.encode_key"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.redis.RedisAdapter.encode_key">[docs]</a>    <span class="k">def</span> <span class="nf">encode_key</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">joined</span><span class="p">,</span> <span class="n">flattened</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Encode a Key for storage in Redis. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Encode a Key for storage in ``Redis``. Since we don&#39;t need to</span>
+<span class="sd">            do anything fancy, just delegate this to the abstract (default)</span>
+<span class="sd">            encoder, which is ``base64``.</span>
+
+<span class="sd">            If :py:attr:`RedisEngine.EngineConfig.encoding` is disabled, this</span>
+<span class="sd">            simply returns the ``joined`` :py:class:`model.Key` (for reference,</span>
+<span class="sd">            see :py:meth:`model.Key.flatten`).</span>
+
+<span class="sd">            :param joined: String-joined :py:class:`model.Key`.</span>
+<span class="sd">            :param flattened: Tupled (&quot;raw format&quot;) :py:class:`model.Key`.</span>
+<span class="sd">            :returns: In the case that ``encoding`` is *on*, the encoded string</span>
+<span class="sd">                      :py:class:`model.Key`, suitable for storage in ``Redis``.</span>
+<span class="sd">                      Otherwise (``encoding`` is *off*), the cleartext ``joined``</span>
+<span class="sd">                      key. &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="n">cls</span><span class="o">.</span><span class="n">EngineConfig</span><span class="o">.</span><span class="n">encoding</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">abstract</span><span class="o">.</span><span class="n">_encoder</span><span class="p">(</span><span class="n">joined</span><span class="p">)</span>
@@ -544,19 +621,32 @@
 </div>
 <div class="viewcode-block" id="RedisAdapter.write_indexes"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.redis.RedisAdapter.write_indexes">[docs]</a>    <span class="k">def</span> <span class="nf">write_indexes</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">writes</span><span class="p">):</span>  <span class="c"># pragma: no cover</span>
 
-        <span class="sd">&#39;&#39;&#39; Write a batch of index updates generated earlier via the method above. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Write a batch of index updates generated earlier via</span>
+<span class="sd">            :py:meth:`RedisAdapter.generate_indexes`.</span>
+
+<span class="sd">            :param writes: Batch of writes to commit to ``Redis``.</span>
+<span class="sd">            :raises: :py:exc:`NotImplementedError`, as this method is not yet implemented. &#39;&#39;&#39;</span>
 
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="RedisAdapter.clean_indexes"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.redis.RedisAdapter.clean_indexes">[docs]</a>    <span class="k">def</span> <span class="nf">clean_indexes</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>  <span class="c"># pragma: no cover</span>
 
-        <span class="sd">&#39;&#39;&#39; Clean indexes and index entries matching a key. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Clean indexes and index entries matching a particular</span>
+<span class="sd">            :py:class:`model.Key`, and generated via the adapter method</span>
+<span class="sd">            :py:meth:`RedisAdapter.generate_indexes`.</span>
+
+<span class="sd">            :param key: Target :py:class:`model.Key` to clean from ``Redis`` indexes.</span>
+<span class="sd">            :raises: :py:exc:`NotImplementedError`, as this method is not yet implemented. &#39;&#39;&#39;</span>
 
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="RedisAdapter.execute_query"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.redis.RedisAdapter.execute_query">[docs]</a>    <span class="k">def</span> <span class="nf">execute_query</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>  <span class="c"># pragma: no cover</span>
 
-        <span class="sd">&#39;&#39;&#39; Execute a query across one (or multiple) indexed properties. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Execute a :py:class:`model.Query` across one (or multiple)</span>
+<span class="sd">            indexed properties.</span>
+
+<span class="sd">            :param spec: Descendent of :py:class:`model.Query` specifying the query to satisfy.</span>
+<span class="sd">            :raises: :py:exc:`NotImplementedError`, as this method is not yet implemented. &#39;&#39;&#39;</span>
 
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div></div>
 </pre></div>

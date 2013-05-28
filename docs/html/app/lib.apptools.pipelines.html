@@ -48,6 +48,7 @@
           <a href="lib.apptools.model.adapter.html" title="adapter Package"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
           <li><a href="lib.html" >lib Package</a> &raquo;</li>
           <li><a href="lib.apptools.html" accesskey="U">apptools Package</a> &raquo;</li> 
       </ul>
@@ -72,7 +73,7 @@ built around AppEngine Pipelines.</p>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">lib.apptools.pipelines._BaseAbstractPipeline</span></tt></p>
 <dl class="attribute">
 <dt id="lib.apptools.pipelines.BasePipeline.appfactory">
-<tt class="descname">appfactory</tt><em class="property"> = &lt;apptools.util.datastructures.DictProxy object at 0x10c8ef990&gt;</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.appfactory" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">appfactory</tt><em class="property"> = &lt;apptools.util.datastructures.DictProxy object at 0x111f33a90&gt;</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.appfactory" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -82,17 +83,17 @@ built around AppEngine Pipelines.</p>
 
 <dl class="attribute">
 <dt id="lib.apptools.pipelines.BasePipeline.context_injectors">
-<tt class="descname">context_injectors</tt><em class="property"> = [&lt;function inject at 0x10bc9e230&gt;, &lt;function inject at 0x10bc9ed70&gt;, &lt;function inject_hermes at 0x10bb4e1b8&gt;, &lt;function inject_tracker at 0x10cae49b0&gt;]</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.context_injectors" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">context_injectors</tt><em class="property"> = [&lt;function inject at 0x113970f50&gt;, &lt;function inject at 0x11393e2a8&gt;, &lt;function inject_hermes at 0x1119636e0&gt;, &lt;function inject_tracker at 0x111963758&gt;]</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.context_injectors" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="lib.apptools.pipelines.BasePipeline.controllerConfig">
-<tt class="descname">controllerConfig</tt><em class="property"> = {'debug': False, 'enabled': True}</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.controllerConfig" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">controllerConfig</tt><em class="property"> = {'debug': False, 'enabled': False}</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.controllerConfig" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="lib.apptools.pipelines.BasePipeline.ext">
-<tt class="descname">ext</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x10c8ef150&gt;</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.ext" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">ext</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x113a66910&gt;</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.ext" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -102,17 +103,17 @@ built around AppEngine Pipelines.</p>
 
 <dl class="attribute">
 <dt id="lib.apptools.pipelines.BasePipeline.hermes">
-<tt class="descname">hermes</tt><em class="property"> = &lt;api.platform.hermes.Hermes object at 0x10c8efd10&gt;</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.hermes" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">hermes</tt><em class="property"> = &lt;api.platform.hermes.Hermes object at 0x111843790&gt;</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.hermes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="lib.apptools.pipelines.BasePipeline.injected_config">
-<tt class="descname">injected_config</tt><em class="property"> = [('upstreamConfig', {'debug': False, 'spdy': {'push': {'assets': {'force_priority': False, 'default_priority': 7}}}, 'preloading': {'enable_spdy_push': False, 'enable_link_fallback': False, 'gather_assets': False}, 'enabled': True}), ('frontlineConfig', {'debug': False, 'enabled': True}), ('controllerConfig', {'debug': False, 'enabled': True})]</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.injected_config" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">injected_config</tt><em class="property"> = [('upstreamConfig', {'debug': False, 'spdy': {'push': {'assets': {'force_priority': False, 'default_priority': 7}}}, 'preloading': {'enable_spdy_push': False, 'enable_link_fallback': False, 'gather_assets': True}, 'enabled': True}), ('frontlineConfig', {'debug': False, 'enabled': True}), ('controllerConfig', {'debug': False, 'enabled': False})]</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.injected_config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="lib.apptools.pipelines.BasePipeline.injected_shortcuts">
-<tt class="descname">injected_shortcuts</tt><em class="property"> = [('tracker', &lt;api.platform.tracker.Tracker object at 0x10c8ef590&gt;)]</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.injected_shortcuts" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">injected_shortcuts</tt><em class="property"> = [('tracker', &lt;api.platform.tracker.Tracker object at 0x111956cd0&gt;)]</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.injected_shortcuts" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -128,7 +129,7 @@ built around AppEngine Pipelines.</p>
 
 <dl class="attribute">
 <dt id="lib.apptools.pipelines.BasePipeline.platforms">
-<tt class="descname">platforms</tt><em class="property"> = [&lt;apptools.platform.generic.GenericWSGI object at 0x10c8ef090&gt;, &lt;apptools.platform.appfactory.AppFactory object at 0x10c8ef550&gt;, &lt;api.platform.hermes.Hermes object at 0x10c8efd10&gt;, &lt;api.platform.tracker.Tracker object at 0x10c8ef590&gt;]</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.platforms" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">platforms</tt><em class="property"> = [&lt;apptools.platform.generic.GenericWSGI object at 0x111f33310&gt;, &lt;apptools.platform.appfactory.AppFactory object at 0x111f33e10&gt;, &lt;api.platform.hermes.Hermes object at 0x11334cb90&gt;, &lt;api.platform.tracker.Tracker object at 0x11334c890&gt;]</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.platforms" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -138,17 +139,17 @@ built around AppEngine Pipelines.</p>
 
 <dl class="attribute">
 <dt id="lib.apptools.pipelines.BasePipeline.tracker">
-<tt class="descname">tracker</tt><em class="property"> = &lt;api.platform.tracker.Tracker object at 0x10c8ef590&gt;</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.tracker" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">tracker</tt><em class="property"> = &lt;api.platform.tracker.Tracker object at 0x111956cd0&gt;</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.tracker" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="lib.apptools.pipelines.BasePipeline.upstreamConfig">
-<tt class="descname">upstreamConfig</tt><em class="property"> = {'debug': False, 'spdy': {'push': {'assets': {'force_priority': False, 'default_priority': 7}}}, 'preloading': {'enable_spdy_push': False, 'enable_link_fallback': False, 'gather_assets': False}, 'enabled': True}</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.upstreamConfig" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">upstreamConfig</tt><em class="property"> = {'debug': False, 'spdy': {'push': {'assets': {'force_priority': False, 'default_priority': 7}}}, 'preloading': {'enable_spdy_push': False, 'enable_link_fallback': False, 'gather_assets': True}, 'enabled': True}</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.upstreamConfig" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="lib.apptools.pipelines.BasePipeline.util">
-<tt class="descname">util</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x10c8ef6d0&gt;</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.util" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">util</tt><em class="property"> = &lt;apptools.util.datastructures.CallbackProxy object at 0x1111d8b50&gt;</em><a class="headerlink" href="#lib.apptools.pipelines.BasePipeline.util" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -245,6 +246,7 @@ built around AppEngine Pipelines.</p>
           <a href="lib.apptools.model.adapter.html" title="adapter Package"
              >previous</a> |</li>
         <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
           <li><a href="lib.html" >lib Package</a> &raquo;</li>
           <li><a href="lib.apptools.html" >apptools Package</a> &raquo;</li> 
       </ul>

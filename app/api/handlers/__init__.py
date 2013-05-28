@@ -58,7 +58,7 @@ class WebHandler(core.BaseHandler, rpc.ConfiguredClass):
     ## ++ Internal Shortcuts ++ ##
     @decorators.memoize
     @decorators.classproperty
-    def _outputConfig(cls):
+    def _outputConfig(cls):  # pragma: no cover
 
         ''' Cached access to base output config.
 
@@ -68,9 +68,7 @@ class WebHandler(core.BaseHandler, rpc.ConfiguredClass):
 
         return config.config.get(cls._p_output_config_path, {'debug': True})  # pragma: no cover
 
-    @decorators.memoize
-    @decorators.classproperty
-    def _jinjaConfig(cls):
+    def _jinjaConfig(cls):  # pragma: no cover
 
         ''' Cached access to base output config.
 
@@ -298,3 +296,4 @@ class WebHandler(core.BaseHandler, rpc.ConfiguredClass):
                 self.response.headers[k] = v
         return self.response.write(','.join([i for i in frozenset(['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
                                              if hasattr(self, i.lower())]))
+

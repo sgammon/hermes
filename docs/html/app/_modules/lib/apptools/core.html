@@ -66,8 +66,13 @@
 
 <span class="c"># Base Imports</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">config</span>
 <span class="kn">import</span> <span class="nn">webapp2</span>
+
+<span class="c"># Appconfig</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">config</span><span class="p">;</span> <span class="n">_APPCONFIG</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="n">config</span><span class="p">,</span> <span class="n">_APPCONFIG</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">False</span>
 
 <span class="c"># AppFactory Integration</span>
 <span class="k">try</span><span class="p">:</span>
@@ -179,21 +184,6 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">direct</span> <span class="o">=</span> <span class="bp">False</span>
 
-        <span class="c"># Check platforms for pre-dispatch hooks</span>
-        <span class="k">if</span> <span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;platforms&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">platforms</span><span class="p">,</span> <span class="nb">list</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">platforms</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">callchain</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s">&#39;initialize&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">platforms</span><span class="p">[:])</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">callchain</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="c"># There&#39;s some platforms that need initializing</span>
-                <span class="k">for</span> <span class="n">platform</span> <span class="ow">in</span> <span class="n">callchain</span><span class="p">:</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">platform</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;Encountered unhandled exception &quot;</span><span class="si">%s</span><span class="s">&quot; in platform initialize hook for installed platform &quot;</span><span class="si">%s</span><span class="s">&quot;.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">platform</span><span class="p">))</span>
-                        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-                            <span class="k">raise</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="k">continue</span>
-
             <span class="c"># Pre-dispatch hook</span>
             <span class="n">callchain</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s">&#39;pre_dispatch&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">platforms</span><span class="p">[:])</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">callchain</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -210,7 +200,7 @@
 
                     <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;Encountered unhandled exception &quot;</span><span class="si">%s</span><span class="s">&quot; in platform pre_dispatch hook for installed platform &quot;</span><span class="si">%s</span><span class="s">&quot;.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">platform</span><span class="p">))</span>
-                        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">_APPCONFIG</span><span class="p">)</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
                             <span class="k">raise</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="k">continue</span>
@@ -227,19 +217,20 @@
         <span class="c"># Dispatch method (GET/POST/etc.)</span>
         <span class="n">result</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">BaseHandler</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">dispatch</span><span class="p">()</span>
 
-        <span class="c"># Check platforms for post-dispatch hooks</span>
-        <span class="k">if</span> <span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;platforms&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">platforms</span><span class="p">,</span> <span class="nb">list</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">platforms</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">callchain</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s">&#39;post_dispatch&#39;</span><span class="p">),</span> <span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">platforms</span><span class="p">[:]))</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">callchain</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">platform</span> <span class="ow">in</span> <span class="n">callchain</span><span class="p">:</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">result</span> <span class="o">=</span> <span class="n">platform</span><span class="o">.</span><span class="n">post_dispatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
-                    <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;Encountered unhandled exception &quot;</span><span class="si">%s</span><span class="s">&quot; in platform post_dispatch hook for installed platform &quot;</span><span class="si">%s</span><span class="s">&quot;.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">platform</span><span class="p">))</span>
-                        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-                            <span class="k">raise</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="k">continue</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">direct</span><span class="p">:</span>
+            <span class="c"># Check platforms for post-dispatch hooks</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;platforms&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">platforms</span><span class="p">,</span> <span class="nb">list</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">platforms</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">callchain</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s">&#39;post_dispatch&#39;</span><span class="p">),</span> <span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">platforms</span><span class="p">[:]))</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">callchain</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">platform</span> <span class="ow">in</span> <span class="n">callchain</span><span class="p">:</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">result</span> <span class="o">=</span> <span class="n">platform</span><span class="o">.</span><span class="n">post_dispatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+                        <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;Encountered unhandled exception &quot;</span><span class="si">%s</span><span class="s">&quot; in platform post_dispatch hook for installed platform &quot;</span><span class="si">%s</span><span class="s">&quot;.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">platform</span><span class="p">))</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">_APPCONFIG</span><span class="p">)</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+                                <span class="k">raise</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="k">continue</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">direct</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>
@@ -267,7 +258,7 @@
             <span class="s">&#39;ie&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>  <span class="c"># are we serving to IE?</span>
             <span class="s">&#39;mobile&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>  <span class="c"># are we serving to mobile?</span>
             <span class="s">&#39;tablet&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>  <span class="c"># are we serving to a tablet?</span>
-            <span class="s">&#39;analytics&#39;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apptools.project.output&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;analytics&#39;</span><span class="p">,</span> <span class="p">{}),</span>  <span class="c"># analytics settings</span>
+            <span class="s">&#39;analytics&#39;</span><span class="p">:</span> <span class="p">{}</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">_APPCONFIG</span> <span class="k">else</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apptools.project.output&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;analytics&#39;</span><span class="p">,</span> <span class="p">{}),</span>  <span class="c"># analytics settings</span>
             <span class="s">&#39;channel&#39;</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s">&#39;enabled&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">push</span><span class="o">.</span><span class="n">session</span><span class="p">,</span>  <span class="c"># enable/disable appengine channel API</span>
                 <span class="s">&#39;token&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">push</span><span class="o">.</span><span class="n">token</span>  <span class="c"># token for connecting channel</span>

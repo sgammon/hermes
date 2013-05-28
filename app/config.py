@@ -594,3 +594,4 @@ _config['apptools.classes.WebHandler'] = {
 }
 
 config = _config
+

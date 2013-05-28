@@ -27,6 +27,7 @@
           title="Search within Hermes v2.0 Docs"
           href="_static/opensearch.xml"/>
     <link rel="top" title="Hermes v2.0 Docs" href="index.html" />
+    <link rel="up" title="Hermes" href="modules.html" />
     <link rel="next" title="appfactory Package" href="lib.appfactory.html" />
     <link rel="prev" title="hermes Package" href="config.hermes.html" /> 
   </head>
@@ -46,7 +47,8 @@
         <li class="right" >
           <a href="config.hermes.html" title="hermes Package"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Hermes</a> &raquo;</li> 
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" accesskey="U">Hermes</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -710,7 +712,7 @@ a list of values, separated by a special token).</p>
 <p>This module requires at least python 2.2.1 to run.</p>
 <dl class="function">
 <dt id="lib.gflags.ADOPT_module_key_flags">
-<tt class="descclassname">lib.gflags.</tt><tt class="descname">ADOPT_module_key_flags</tt><big>(</big><em>module</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x109c3a560&gt;</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#ADOPT_module_key_flags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.ADOPT_module_key_flags" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">lib.gflags.</tt><tt class="descname">ADOPT_module_key_flags</tt><big>(</big><em>module</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x1120f60e0&gt;</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#ADOPT_module_key_flags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.ADOPT_module_key_flags" title="Permalink to this definition">¶</a></dt>
 <dd><p>Declares that all flags key to a module are key to the current module.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -863,7 +865,7 @@ common whitespace.</p>
 
 <dl class="function">
 <dt id="lib.gflags.DECLARE_key_flag">
-<tt class="descclassname">lib.gflags.</tt><tt class="descname">DECLARE_key_flag</tt><big>(</big><em>flag_name</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x109c3a560&gt;</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DECLARE_key_flag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DECLARE_key_flag" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">lib.gflags.</tt><tt class="descname">DECLARE_key_flag</tt><big>(</big><em>flag_name</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x1120f60e0&gt;</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DECLARE_key_flag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DECLARE_key_flag" title="Permalink to this definition">¶</a></dt>
 <dd><p>Declares one flag as key to the current module.</p>
 <p>Key flags are flags that are deemed really important for a module.
 They are important when listing help messages; e.g., if the
@@ -888,7 +890,7 @@ because they were declared in this module, is a no-op.)</dd>
 
 <dl class="function">
 <dt id="lib.gflags.DEFINE">
-<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE</tt><big>(</big><em>parser</em>, <em>name</em>, <em>default</em>, <em>help</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x109c3a560&gt;</em>, <em>serializer=None</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DEFINE"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DEFINE" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE</tt><big>(</big><em>parser</em>, <em>name</em>, <em>default</em>, <em>help</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x1120f60e0&gt;</em>, <em>serializer=None</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DEFINE"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DEFINE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Registers a generic Flag object.</p>
 <p>NOTE: in the docstrings of all DEFINE* functions, &#8220;registers&#8221; is short
 for &#8220;creates a new flag and registers it&#8221;.</p>
@@ -911,7 +913,7 @@ args: Dictionary with extra keyword args that are passes to the</p>
 
 <dl class="function">
 <dt id="lib.gflags.DEFINE_bool">
-<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE_bool</tt><big>(</big><em>name</em>, <em>default</em>, <em>help</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x109c3a560&gt;</em>, <em>**args</em><big>)</big><a class="headerlink" href="#lib.gflags.DEFINE_bool" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE_bool</tt><big>(</big><em>name</em>, <em>default</em>, <em>help</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x1120f60e0&gt;</em>, <em>**args</em><big>)</big><a class="headerlink" href="#lib.gflags.DEFINE_bool" title="Permalink to this definition">¶</a></dt>
 <dd><p>Registers a boolean flag.</p>
 <p>Such a boolean flag does not take an argument.  If a user wants to
 specify a false value explicitly, the long option beginning with &#8216;no&#8217;
@@ -923,7 +925,7 @@ line.</p>
 
 <dl class="function">
 <dt id="lib.gflags.DEFINE_boolean">
-<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE_boolean</tt><big>(</big><em>name</em>, <em>default</em>, <em>help</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x109c3a560&gt;</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DEFINE_boolean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DEFINE_boolean" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE_boolean</tt><big>(</big><em>name</em>, <em>default</em>, <em>help</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x1120f60e0&gt;</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DEFINE_boolean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DEFINE_boolean" title="Permalink to this definition">¶</a></dt>
 <dd><p>Registers a boolean flag.</p>
 <p>Such a boolean flag does not take an argument.  If a user wants to
 specify a false value explicitly, the long option beginning with &#8216;no&#8217;
@@ -935,13 +937,13 @@ line.</p>
 
 <dl class="function">
 <dt id="lib.gflags.DEFINE_enum">
-<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE_enum</tt><big>(</big><em>name</em>, <em>default</em>, <em>enum_values</em>, <em>help</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x109c3a560&gt;</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DEFINE_enum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DEFINE_enum" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE_enum</tt><big>(</big><em>name</em>, <em>default</em>, <em>enum_values</em>, <em>help</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x1120f60e0&gt;</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DEFINE_enum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DEFINE_enum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Registers a flag whose value can be any string from enum_values.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="lib.gflags.DEFINE_flag">
-<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE_flag</tt><big>(</big><em>flag</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x109c3a560&gt;</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DEFINE_flag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DEFINE_flag" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE_flag</tt><big>(</big><em>flag</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x1120f60e0&gt;</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DEFINE_flag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DEFINE_flag" title="Permalink to this definition">¶</a></dt>
 <dd><p>Registers a &#8216;Flag&#8217; object with a &#8216;FlagValues&#8217; object.</p>
 <p>By default, the global FLAGS &#8216;FlagValue&#8217; object is used.</p>
 <p>Typical users will use one of the more specialized DEFINE_xxx
@@ -952,7 +954,7 @@ to register their flags.</p>
 
 <dl class="function">
 <dt id="lib.gflags.DEFINE_float">
-<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE_float</tt><big>(</big><em>name</em>, <em>default</em>, <em>help</em>, <em>lower_bound=None</em>, <em>upper_bound=None</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x109c3a560&gt;</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DEFINE_float"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DEFINE_float" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE_float</tt><big>(</big><em>name</em>, <em>default</em>, <em>help</em>, <em>lower_bound=None</em>, <em>upper_bound=None</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x1120f60e0&gt;</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DEFINE_float"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DEFINE_float" title="Permalink to this definition">¶</a></dt>
 <dd><p>Registers a flag whose value must be a float.</p>
 <p>If lower_bound or upper_bound are set, then this flag must be
 within the given range.</p>
@@ -960,7 +962,7 @@ within the given range.</p>
 
 <dl class="function">
 <dt id="lib.gflags.DEFINE_integer">
-<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE_integer</tt><big>(</big><em>name</em>, <em>default</em>, <em>help</em>, <em>lower_bound=None</em>, <em>upper_bound=None</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x109c3a560&gt;</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DEFINE_integer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DEFINE_integer" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE_integer</tt><big>(</big><em>name</em>, <em>default</em>, <em>help</em>, <em>lower_bound=None</em>, <em>upper_bound=None</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x1120f60e0&gt;</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DEFINE_integer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DEFINE_integer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Registers a flag whose value must be an integer.</p>
 <p>If lower_bound, or upper_bound are set, then this flag must be
 within the given range.</p>
@@ -968,13 +970,13 @@ within the given range.</p>
 
 <dl class="function">
 <dt id="lib.gflags.DEFINE_list">
-<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE_list</tt><big>(</big><em>name</em>, <em>default</em>, <em>help</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x109c3a560&gt;</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DEFINE_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DEFINE_list" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE_list</tt><big>(</big><em>name</em>, <em>default</em>, <em>help</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x1120f60e0&gt;</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DEFINE_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DEFINE_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Registers a flag whose value is a comma-separated list of strings.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="lib.gflags.DEFINE_multi">
-<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE_multi</tt><big>(</big><em>parser</em>, <em>serializer</em>, <em>name</em>, <em>default</em>, <em>help</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x109c3a560&gt;</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DEFINE_multi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DEFINE_multi" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE_multi</tt><big>(</big><em>parser</em>, <em>serializer</em>, <em>name</em>, <em>default</em>, <em>help</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x1120f60e0&gt;</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DEFINE_multi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DEFINE_multi" title="Permalink to this definition">¶</a></dt>
 <dd><p>Registers a generic MultiFlag that parses its args with a given parser.</p>
 <p>Auxiliary function.  Normal users should NOT use it directly.</p>
 <p>Developers who need to create their own &#8216;Parser&#8217; classes for options
@@ -984,7 +986,7 @@ register their flags.</p>
 
 <dl class="function">
 <dt id="lib.gflags.DEFINE_multi_float">
-<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE_multi_float</tt><big>(</big><em>name</em>, <em>default</em>, <em>help</em>, <em>lower_bound=None</em>, <em>upper_bound=None</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x109c3a560&gt;</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DEFINE_multi_float"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DEFINE_multi_float" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE_multi_float</tt><big>(</big><em>name</em>, <em>default</em>, <em>help</em>, <em>lower_bound=None</em>, <em>upper_bound=None</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x1120f60e0&gt;</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DEFINE_multi_float"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DEFINE_multi_float" title="Permalink to this definition">¶</a></dt>
 <dd><p>Registers a flag whose value can be a list of arbitrary floats.</p>
 <p>Use the flag on the command line multiple times to place multiple
 float values into the list.  The &#8216;default&#8217; may be a single float
@@ -994,7 +996,7 @@ floats.</p>
 
 <dl class="function">
 <dt id="lib.gflags.DEFINE_multi_int">
-<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE_multi_int</tt><big>(</big><em>name</em>, <em>default</em>, <em>help</em>, <em>lower_bound=None</em>, <em>upper_bound=None</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x109c3a560&gt;</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DEFINE_multi_int"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DEFINE_multi_int" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE_multi_int</tt><big>(</big><em>name</em>, <em>default</em>, <em>help</em>, <em>lower_bound=None</em>, <em>upper_bound=None</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x1120f60e0&gt;</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DEFINE_multi_int"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DEFINE_multi_int" title="Permalink to this definition">¶</a></dt>
 <dd><p>Registers a flag whose value can be a list of arbitrary integers.</p>
 <p>Use the flag on the command line multiple times to place multiple
 integer values into the list.  The &#8216;default&#8217; may be a single integer
@@ -1004,7 +1006,7 @@ integers.</p>
 
 <dl class="function">
 <dt id="lib.gflags.DEFINE_multistring">
-<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE_multistring</tt><big>(</big><em>name</em>, <em>default</em>, <em>help</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x109c3a560&gt;</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DEFINE_multistring"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DEFINE_multistring" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE_multistring</tt><big>(</big><em>name</em>, <em>default</em>, <em>help</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x1120f60e0&gt;</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DEFINE_multistring"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DEFINE_multistring" title="Permalink to this definition">¶</a></dt>
 <dd><p>Registers a flag whose value can be a list of any strings.</p>
 <p>Use the flag on the command line multiple times to place multiple
 string values into the list.  The &#8216;default&#8217; may be a single string
@@ -1014,14 +1016,14 @@ strings.</p>
 
 <dl class="function">
 <dt id="lib.gflags.DEFINE_spaceseplist">
-<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE_spaceseplist</tt><big>(</big><em>name</em>, <em>default</em>, <em>help</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x109c3a560&gt;</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DEFINE_spaceseplist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DEFINE_spaceseplist" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE_spaceseplist</tt><big>(</big><em>name</em>, <em>default</em>, <em>help</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x1120f60e0&gt;</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DEFINE_spaceseplist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DEFINE_spaceseplist" title="Permalink to this definition">¶</a></dt>
 <dd><p>Registers a flag whose value is a whitespace-separated list of strings.</p>
 <p>Any whitespace can be used as a separator.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="lib.gflags.DEFINE_string">
-<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE_string</tt><big>(</big><em>name</em>, <em>default</em>, <em>help</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x109c3a560&gt;</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DEFINE_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DEFINE_string" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">lib.gflags.</tt><tt class="descname">DEFINE_string</tt><big>(</big><em>name</em>, <em>default</em>, <em>help</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x1120f60e0&gt;</em>, <em>**args</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#DEFINE_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.DEFINE_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Registers a flag whose value can be any string.</p>
 </dd></dl>
 
@@ -1630,7 +1632,7 @@ called with allow_override=1, so other apps can define their own
 
 <dl class="function">
 <dt id="lib.gflags.MarkFlagAsRequired">
-<tt class="descclassname">lib.gflags.</tt><tt class="descname">MarkFlagAsRequired</tt><big>(</big><em>flag_name</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x109c3a560&gt;</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#MarkFlagAsRequired"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.MarkFlagAsRequired" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">lib.gflags.</tt><tt class="descname">MarkFlagAsRequired</tt><big>(</big><em>flag_name</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x1120f60e0&gt;</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#MarkFlagAsRequired"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.MarkFlagAsRequired" title="Permalink to this definition">¶</a></dt>
 <dd><p>Ensure that flag is not None during program execution.</p>
 <p>Registers a flag validator, which will follow usual validator
 rules.
@@ -1720,7 +1722,7 @@ internally into a list containing one item.</dd>
 
 <dl class="function">
 <dt id="lib.gflags.RegisterValidator">
-<tt class="descclassname">lib.gflags.</tt><tt class="descname">RegisterValidator</tt><big>(</big><em>flag_name</em>, <em>checker</em>, <em>message='Flag validation failed'</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x109c3a560&gt;</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#RegisterValidator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.RegisterValidator" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">lib.gflags.</tt><tt class="descname">RegisterValidator</tt><big>(</big><em>flag_name</em>, <em>checker</em>, <em>message='Flag validation failed'</em>, <em>flag_values=&lt;lib.gflags.FlagValues instance at 0x1120f60e0&gt;</em><big>)</big><a class="reference internal" href="_modules/lib/gflags.html#RegisterValidator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.gflags.RegisterValidator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a constraint, which will be enforced during program execution.</p>
 <p>The constraint is validated when flags are initially parsed, and after each
 change of the corresponding flag&#8217;s value.
@@ -4167,42 +4169,15 @@ and 304 because it&#8217;s the answer for a request with defined
 <li class="toctree-l4"><a class="reference internal" href="lib.apptools.model.html#subpackages">Subpackages</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="lib.apptools.model.adapter.html">adapter Package</a><ul>
 <li class="toctree-l6"><a class="reference internal" href="lib.apptools.model.adapter.html#id1"><tt class="docutils literal"><span class="pre">adapter</span></tt> Package</a></li>
-<li class="toctree-l6"><a class="reference internal" href="lib.apptools.model.adapter.html#abstract-module"><tt class="docutils literal"><span class="pre">abstract</span></tt> Module</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-abstract-model-adapters">apptools2: abstract model adapters</a></li>
-</ul>
-</li>
-<li class="toctree-l6"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.core"><tt class="docutils literal"><span class="pre">core</span></tt> Module</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-core-model-adapters">apptools2: core model adapters</a></li>
-</ul>
-</li>
-<li class="toctree-l6"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.inmemory"><tt class="docutils literal"><span class="pre">inmemory</span></tt> Module</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-thread-memory">apptools2: model adapter for thread memory</a></li>
-</ul>
-</li>
-<li class="toctree-l6"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.memcache"><tt class="docutils literal"><span class="pre">memcache</span></tt> Module</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-memcache">apptools2: model adapter for memcache</a></li>
-</ul>
-</li>
-<li class="toctree-l6"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.mongo"><tt class="docutils literal"><span class="pre">mongo</span></tt> Module</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-mongo">apptools2: model adapter for mongo</a></li>
-</ul>
-</li>
-<li class="toctree-l6"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.pipeline"><tt class="docutils literal"><span class="pre">pipeline</span></tt> Module</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-pipelines">apptools2: model adapter for pipelines</a></li>
-</ul>
-</li>
-<li class="toctree-l6"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.protorpc"><tt class="docutils literal"><span class="pre">protorpc</span></tt> Module</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-protorpc">apptools2: model adapter for protorpc</a></li>
-</ul>
-</li>
-<li class="toctree-l6"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.redis"><tt class="docutils literal"><span class="pre">redis</span></tt> Module</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-redis">apptools2: model adapter for redis</a></li>
-</ul>
-</li>
-<li class="toctree-l6"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.sql"><tt class="docutils literal"><span class="pre">sql</span></tt> Module</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="lib.apptools.model.adapter.html#apptools2-model-adapter-for-sql">apptools2: model adapter for SQL</a></li>
-</ul>
-</li>
+<li class="toctree-l6"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.abstract"><tt class="docutils literal"><span class="pre">abstract</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.core"><tt class="docutils literal"><span class="pre">core</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.inmemory"><tt class="docutils literal"><span class="pre">inmemory</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.memcache"><tt class="docutils literal"><span class="pre">memcache</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.mongo"><tt class="docutils literal"><span class="pre">mongo</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.pipeline"><tt class="docutils literal"><span class="pre">pipeline</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.protorpc"><tt class="docutils literal"><span class="pre">protorpc</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.redis"><tt class="docutils literal"><span class="pre">redis</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="lib.apptools.model.adapter.html#module-lib.apptools.model.adapter.sql"><tt class="docutils literal"><span class="pre">sql</span></tt> Module</a></li>
 </ul>
 </li>
 </ul>
@@ -4221,13 +4196,10 @@ and 304 because it&#8217;s the answer for a request with defined
 <li class="toctree-l4"><a class="reference internal" href="lib.apptools.platform.html#module-lib.apptools.platform.generic"><tt class="docutils literal"><span class="pre">generic</span></tt> Module</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="lib.apptools.services.html">services Package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="lib.apptools.services.html#id1"><tt class="docutils literal"><span class="pre">services</span></tt> Package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="lib.apptools.services.html#module-lib.apptools.services.builtin"><tt class="docutils literal"><span class="pre">builtin</span></tt> Module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="lib.apptools.services.html#module-lib.apptools.services.direct"><tt class="docutils literal"><span class="pre">direct</span></tt> Module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="lib.apptools.services.html#module-lib.apptools.services.gateway"><tt class="docutils literal"><span class="pre">gateway</span></tt> Module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="lib.apptools.services.html#module-lib.apptools.services.mappers"><tt class="docutils literal"><span class="pre">mappers</span></tt> Module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="lib.apptools.services.html#module-lib.apptools.services.middleware"><tt class="docutils literal"><span class="pre">middleware</span></tt> Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lib.apptools.rpc.html">rpc Package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.rpc.html#id1"><tt class="docutils literal"><span class="pre">rpc</span></tt> Package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.rpc.html#module-lib.apptools.rpc.dispatch"><tt class="docutils literal"><span class="pre">dispatch</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.rpc.html#module-lib.apptools.rpc.mappers"><tt class="docutils literal"><span class="pre">mappers</span></tt> Module</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="lib.apptools.tests.html">tests Package</a><ul>
@@ -4246,11 +4218,11 @@ and 304 because it&#8217;s the answer for a request with defined
 </ul>
 </li>
 <li class="toctree-l6"><a class="reference internal" href="lib.apptools.tests.test_model.html#module-lib.apptools.tests.test_model.test_meta"><tt class="docutils literal"><span class="pre">test_meta</span></tt> Module</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="lib.apptools.tests.test_model.html#apptools2-meta-model-tests">apptools2: meta model tests</a></li>
+<li class="toctree-l7"><a class="reference internal" href="lib.apptools.tests.test_model.html#apptools2-model-meta-tests">apptools2: model meta tests</a></li>
 </ul>
 </li>
 <li class="toctree-l6"><a class="reference internal" href="lib.apptools.tests.test_model.html#module-lib.apptools.tests.test_model.test_model"><tt class="docutils literal"><span class="pre">test_model</span></tt> Module</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="lib.apptools.tests.test_model.html#id20">apptools2: model tests</a></li>
+<li class="toctree-l7"><a class="reference internal" href="lib.apptools.tests.test_model.html#id2">apptools2: model tests</a></li>
 </ul>
 </li>
 <li class="toctree-l6"><a class="reference internal" href="lib.apptools.tests.test_model.html#subpackages">Subpackages</a><ul>
@@ -4295,7 +4267,10 @@ and 304 because it&#8217;s the answer for a request with defined
 <li class="toctree-l4"><a class="reference internal" href="lib.apptools.util.html#module-lib.apptools.util.byteconvert"><tt class="docutils literal"><span class="pre">byteconvert</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="lib.apptools.util.html#module-lib.apptools.util.datastructures"><tt class="docutils literal"><span class="pre">datastructures</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="lib.apptools.util.html#module-lib.apptools.util.debug"><tt class="docutils literal"><span class="pre">debug</span></tt> Module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="lib.apptools.util.html#module-lib.apptools.util.decorators"><tt class="docutils literal"><span class="pre">decorators</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lib.apptools.util.html#module-lib.apptools.util.decorators"><tt class="docutils literal"><span class="pre">decorators</span></tt> Module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="lib.apptools.util.html#apptools2-utility-decorators">apptools2: utility decorators</a></li>
+</ul>
+</li>
 <li class="toctree-l4"><a class="reference internal" href="lib.apptools.util.html#module-lib.apptools.util.httpagentparser"><tt class="docutils literal"><span class="pre">httpagentparser</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="lib.apptools.util.html#module-lib.apptools.util.platform"><tt class="docutils literal"><span class="pre">platform</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="lib.apptools.util.html#module-lib.apptools.util.runtools"><tt class="docutils literal"><span class="pre">runtools</span></tt> Module</a></li>
@@ -4563,7 +4538,8 @@ and 304 because it&#8217;s the answer for a request with defined
         <li class="right" >
           <a href="config.hermes.html" title="hermes Package"
              >previous</a> |</li>
-        <li><a href="index.html">Hermes</a> &raquo;</li> 
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

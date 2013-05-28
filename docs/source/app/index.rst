@@ -1,31 +1,21 @@
 
-Hermes: Documentation
-~~~~~~
+AmpushHermes: Internal Documentation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Hermes is a Python-based platform designed from the ground up for building and supporting
-latency-sensitive API services in a structured, flexible, and developer-friendly way.
-
-
-Contents:
--------
+Welcome to the Hermes documentation!
 
 .. toctree::
-   :maxdepth: 3
+    :maxdepth: 2
 
-   intro
-   api
-   bootstrap
-   components
-   config
-   lib
-   main
-   tools
-   util
+    intro
+    api
+    lib
+    config
+    protocol
+    tools
+    util
+    bootstrap
+    main
+    modules
 
-
-Indices and tables
--------
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. title: AmpushHermes Docs

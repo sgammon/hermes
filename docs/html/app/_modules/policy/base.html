@@ -1,0 +1,511 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>policy.base &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for policy.base</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">Base Policy</span>
+
+<span class="sd">Description coming soon.</span>
+
+<span class="sd">-sam (&lt;sam.gammon@ampush.com&gt;)</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c">## protocol bindings</span>
+<span class="kn">from</span> <span class="nn">protocol</span> <span class="kn">import</span> <span class="n">meta</span>
+<span class="kn">from</span> <span class="nn">protocol</span> <span class="kn">import</span> <span class="n">http</span>
+<span class="kn">from</span> <span class="nn">protocol</span> <span class="kn">import</span> <span class="n">intake</span>
+<span class="kn">from</span> <span class="nn">protocol</span> <span class="kn">import</span> <span class="n">builtin</span>
+<span class="kn">from</span> <span class="nn">protocol</span> <span class="kn">import</span> <span class="n">timedelta</span>
+<span class="kn">from</span> <span class="nn">protocol</span> <span class="kn">import</span> <span class="n">environment</span>
+
+<span class="c">## protocol extensions</span>
+<span class="kn">from</span> <span class="nn">protocol</span> <span class="kn">import</span> <span class="n">parameter</span>
+<span class="kn">from</span> <span class="nn">protocol</span> <span class="kn">import</span> <span class="n">decorators</span>
+<span class="kn">from</span> <span class="nn">protocol</span> <span class="kn">import</span> <span class="n">integration</span>
+<span class="kn">from</span> <span class="nn">protocol</span> <span class="kn">import</span> <span class="n">attribution</span>
+<span class="kn">from</span> <span class="nn">protocol</span> <span class="kn">import</span> <span class="n">aggregation</span>
+
+
+<span class="c">## Constants</span>
+<span class="n">_DEFAULT_COOKIE_NAME</span> <span class="o">=</span> <span class="s">&quot;_amp&quot;</span>
+
+<span class="c"># Default attribution / aggregation lookback window</span>
+<span class="n">_DEFAULT_LOOKBACK</span> <span class="o">=</span> <span class="p">(</span><span class="n">timedelta</span><span class="o">.</span><span class="n">TimeWindow</span><span class="o">.</span><span class="n">ONE_DAY</span><span class="p">,</span>
+                     <span class="n">timedelta</span><span class="o">.</span><span class="n">TimeWindow</span><span class="o">.</span><span class="n">ONE_WEEK</span><span class="p">,</span>
+                     <span class="n">timedelta</span><span class="o">.</span><span class="n">TimeWindow</span><span class="o">.</span><span class="n">TWO_WEEKS</span><span class="p">,</span>
+                     <span class="n">timedelta</span><span class="o">.</span><span class="n">TimeWindow</span><span class="o">.</span><span class="n">THREE_WEEKS</span><span class="p">,</span>
+                     <span class="n">timedelta</span><span class="o">.</span><span class="n">TimeWindow</span><span class="o">.</span><span class="n">FOREVER</span><span class="p">)</span>
+
+
+<span class="c">## Profile</span>
+<span class="c"># Metaclass that provides structure for overridable profiles.</span>
+<div class="viewcode-block" id="Profile"><a class="viewcode-back" href="../../policy.html#policy.base.Profile">[docs]</a><span class="k">class</span> <span class="nc">Profile</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Abstract :py:class:`EventProfile` metaclass that provides</span>
+<span class="sd">        structure for overridable profiles and enforces strict</span>
+<span class="sd">        schema rules.</span>
+
+<span class="sd">        An encapsulated class at :py:attr:`Profile.Interpreter`</span>
+<span class="sd">        is used to read, merge, and export profile structures</span>
+<span class="sd">        defined via :py:class:`EventProfile`-subclasses. &#39;&#39;&#39;</span>
+
+    <span class="c">## Interpreter</span>
+    <span class="c"># Manages interpretation and merging of `Profile` descendents.</span>
+<div class="viewcode-block" id="Profile.Interpreter"><a class="viewcode-back" href="../../policy.html#policy.base.Profile.Interpreter">[docs]</a>    <span class="k">class</span> <span class="nc">Interpreter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Manages interpretation and merging of `Profile`</span>
+<span class="sd">            descendents, and contains utility functions to</span>
+<span class="sd">            break each discrete component down into an</span>
+<span class="sd">            element in a virtual ``AST``-like structure. &#39;&#39;&#39;</span>
+
+        <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;__tree__&#39;</span><span class="p">,</span> <span class="s">&#39;__interpreted__&#39;</span><span class="p">,</span> <span class="s">&#39;__compound__&#39;</span><span class="p">,</span>
+                     <span class="s">&#39;__profile__&#39;</span><span class="p">,</span> <span class="s">&#39;__aggregations__&#39;</span><span class="p">,</span> <span class="s">&#39;__attributions__&#39;</span><span class="p">,</span>
+                     <span class="s">&#39;__parameters__&#39;</span><span class="p">,</span> <span class="s">&#39;__integrations__&#39;</span><span class="p">)</span>
+
+        <span class="c">## == Internals == ##</span>
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">specs</span><span class="p">):</span>
+
+            <span class="sd">&#39;&#39;&#39; Instantiate a new ``Interpreter``, and attach</span>
+<span class="sd">                the given ``profile`` for future work.</span>
+
+<span class="sd">                :param profile: :py:class:`EventProfile` subclass</span>
+<span class="sd">                                to interpret or merge.</span>
+
+<span class="sd">                :returns: Nothing, this is a constructor. &#39;&#39;&#39;</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">__profile__</span> <span class="o">=</span> <span class="n">specs</span>
+            <span class="k">print</span> <span class="s">&quot;!!! Interpreter fired up. Profile dump to follow. !!!&quot;</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">specs</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="k">print</span> <span class="s">&quot;---</span><span class="si">%s</span><span class="s">:&quot;</span> <span class="o">%</span> <span class="n">k</span>
+                <span class="k">for</span> <span class="n">bundle</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
+                    <span class="n">spec</span><span class="p">,</span> <span class="n">flag</span> <span class="o">=</span> <span class="n">bundle</span>
+                    <span class="k">print</span> <span class="s">&quot;   ---</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">spec</span>
+                <span class="k">print</span> <span class="s">&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">_build_paramgroup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">inline</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+
+            <span class="sd">&#39;&#39;&#39; Build a ``ParameterGroup`` object from a direct</span>
+<span class="sd">                subclass, embedded in a :py:class:`EventProfile`</span>
+<span class="sd">                definition.</span>
+
+<span class="sd">                :param group: The :py:class:`ParameterGroup`</span>
+<span class="sd">                              subclass to compile.</span>
+
+<span class="sd">                :return: An instantiated and properly filled-out</span>
+<span class="sd">                        :py:class:`ParameterGroup` object. &#39;&#39;&#39;</span>
+
+            <span class="k">print</span> <span class="s">&quot;Built(ParamGroup): </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">group</span>
+            <span class="k">return</span> <span class="n">group</span>
+
+        <span class="k">def</span> <span class="nf">_build_integration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">inline</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+
+            <span class="sd">&#39;&#39;&#39; Build an ``Integration`` object from a</span>
+<span class="sd">                specification encountered in a subclass of</span>
+<span class="sd">                :py:class:`EventProfile`.</span>
+
+<span class="sd">                :param spec: Class structure and specification, as</span>
+<span class="sd">                             found in the encapsulating</span>
+<span class="sd">                             :py:class:`EventProfile`.</span>
+
+<span class="sd">                :keyword inline: Indicates that this is a subclass</span>
+<span class="sd">                                   defined inline in an encapsulating</span>
+<span class="sd">                                   :py:class:`EventProfile`. Defaults</span>
+<span class="sd">                                   to ``True``.</span>
+
+<span class="sd">                :returns: An instantiated and properly filled-out</span>
+<span class="sd">                          :py:class:`IntegrationGroup` object. &#39;&#39;&#39;</span>
+
+            <span class="k">print</span> <span class="s">&quot;Built(Integration): </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">spec</span>
+            <span class="k">return</span> <span class="n">spec</span>
+
+        <span class="k">def</span> <span class="nf">_build_attribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">compound</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+
+            <span class="sd">&#39;&#39;&#39; Build an ``Attribution`` or ``CompoundAttribution``</span>
+<span class="sd">                from a specification encountered in a subclass of</span>
+<span class="sd">                :py:class:`EventProfile`.</span>
+
+<span class="sd">                :param spec: Class structure and specification, as</span>
+<span class="sd">                             found in the encapsulating</span>
+<span class="sd">                             :py:class:`EventProfile`.</span>
+
+<span class="sd">                :keyword compound: Indicates that this is a subclass</span>
+<span class="sd">                                   of :py:class:`CompoundAttribution`,</span>
+<span class="sd">                                   and may span more than one hashed</span>
+<span class="sd">                                   property or include special code.</span>
+<span class="sd">                                   Defaults to ``False``.</span>
+
+<span class="sd">                :returns: An instantiated and properly filled-out</span>
+<span class="sd">                          :py:class:`AttributionGroup` object. &#39;&#39;&#39;</span>
+
+            <span class="k">print</span> <span class="s">&quot;Built(AttributionGroup): </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">spec</span>
+            <span class="k">return</span> <span class="n">spec</span>
+
+        <span class="k">def</span> <span class="nf">_build_aggregation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">compound</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+
+            <span class="sd">&#39;&#39;&#39; Build an ``Aggregation`` or ``CompoundAggregation``</span>
+<span class="sd">                from a specification encountered in a subclass of</span>
+<span class="sd">                :py:class:`EventProfile`.</span>
+
+<span class="sd">                :param spec: Class structure and specification, as</span>
+<span class="sd">                             found in the encapsulating</span>
+<span class="sd">                             :py:class:`EventProfile`.</span>
+
+<span class="sd">                :keyword compound: Indicates that this is a subclass</span>
+<span class="sd">                                   of :py:class:`CompoundAggregation`,</span>
+<span class="sd">                                   and may span more than one hashed</span>
+<span class="sd">                                   property or include special code.</span>
+<span class="sd">                                   Defaults to ``False``.</span>
+
+<span class="sd">                :returns: An instantiated and properly filled-out</span>
+<span class="sd">                          :py:class:`AggregationGroup` object. &#39;&#39;&#39;</span>
+
+            <span class="k">print</span> <span class="s">&quot;Built(AggregationGroup): </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">spec</span>
+            <span class="k">return</span> <span class="n">spec</span>
+
+        <span class="n">_builders</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">integration</span><span class="o">.</span><span class="n">Integration</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;integrations&#39;</span><span class="p">,</span> <span class="n">_build_integration</span><span class="p">),</span>
+            <span class="n">attribution</span><span class="o">.</span><span class="n">Attribution</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;attributions&#39;</span><span class="p">,</span> <span class="n">_build_attribution</span><span class="p">),</span>
+            <span class="n">aggregation</span><span class="o">.</span><span class="n">Aggregation</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;aggregations&#39;</span><span class="p">,</span> <span class="n">_build_aggregation</span><span class="p">),</span>
+            <span class="n">parameter</span><span class="o">.</span><span class="n">ParameterGroup</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;parameters&#39;</span><span class="p">,</span> <span class="n">_build_paramgroup</span><span class="p">)</span>
+        <span class="p">}</span>
+
+        <span class="c">## == Public Methods == ##</span>
+<div class="viewcode-block" id="Profile.Interpreter.build"><a class="viewcode-back" href="../../policy.html#policy.base.Profile.Interpreter.build">[docs]</a>        <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+            <span class="sd">&#39;&#39;&#39; Build a :py:class:`EventProfile` descendent</span>
+<span class="sd">                into a fully-structured object.</span>
+
+<span class="sd">                :returns: ``self``, for method chainability. &#39;&#39;&#39;</span>
+
+            <span class="n">compound</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">subspecs</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__profile__</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">spec</span><span class="p">,</span> <span class="n">flag</span> <span class="ow">in</span> <span class="n">subspecs</span><span class="p">:</span>
+                    <span class="n">attr</span><span class="p">,</span> <span class="n">builder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_builders</span><span class="p">[</span><span class="n">parent</span><span class="p">]</span>
+                    <span class="n">compound</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">builder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">flag</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">__compound__</span> <span class="o">=</span> <span class="n">compound</span>
+
+            <span class="k">print</span> <span class="s">&quot;!!! Interpreter built compound object. Compound dump to follow. !!!&quot;</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__compound__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">print</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="bp">self</span>
+</div>
+<div class="viewcode-block" id="Profile.Interpreter.overlay"><a class="viewcode-back" href="../../policy.html#policy.base.Profile.Interpreter.overlay">[docs]</a>        <span class="k">def</span> <span class="nf">overlay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+
+            <span class="sd">&#39;&#39;&#39; Build or update this :py:class:`Interpreter`&#39;s</span>
+<span class="sd">                understanding of the current ``compound`` profile.</span>
+
+<span class="sd">                :param target: Foreign :py:class:`EventProfile`</span>
+<span class="sd">                               descendent to merge.</span>
+
+<span class="sd">                :returns: ``self``, for method chainability. &#39;&#39;&#39;</span>
+
+            <span class="k">return</span> <span class="bp">self</span>
+</div>
+        <span class="n">__call__</span> <span class="o">=</span> <span class="n">overlay</span>
+</div>
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">properties</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Construct a new :py:class:`Profile` descendent.</span>
+
+<span class="sd">            :param name:</span>
+<span class="sd">            :param bases:</span>
+<span class="sd">            :param properties:</span>
+<span class="sd">            :raises RuntimeError:</span>
+<span class="sd">            :returns: &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">frozenset</span><span class="p">((</span><span class="s">&#39;Profile&#39;</span><span class="p">,</span> <span class="s">&#39;AbstractProfile&#39;</span><span class="p">)):</span>  <span class="c"># must filter by string, `AbstractProfile` comes through here</span>
+
+            <span class="c">## grab specs</span>
+            <span class="n">spec</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">spec_name</span><span class="p">,</span> <span class="n">spec_klass</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="ow">not</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;_&#39;</span><span class="p">),</span> <span class="n">properties</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()):</span>
+
+                <span class="c"># look for protocol binding subclasses</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spec_klass</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">spec_klass</span><span class="p">,</span> <span class="n">meta</span><span class="o">.</span><span class="n">ProtocolBinding</span><span class="p">):</span>
+
+                    <span class="c"># pluck parent and specification structure</span>
+                    <span class="n">parent</span><span class="p">,</span> <span class="n">subspec</span> <span class="o">=</span> <span class="n">spec_klass</span><span class="o">.</span><span class="n">__bases__</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">spec_klass</span>
+
+                    <span class="c"># add to specs, initializing the parent as we go</span>
+                    <span class="k">if</span> <span class="n">parent</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">spec</span><span class="p">:</span>
+                        <span class="n">spec</span><span class="p">[</span><span class="n">parent</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+                    <span class="c"># grab builder and build</span>
+                    <span class="k">if</span> <span class="n">parent</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">Interpreter</span><span class="o">.</span><span class="n">_builders</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&#39;Encountered invalid specification parent&#39;</span>
+                                           <span class="s">&#39; &quot;</span><span class="si">%s</span><span class="s">&quot; in strict subclass &quot;</span><span class="si">%s</span><span class="s">&quot;.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">spec_klass</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+
+                    <span class="n">spec</span><span class="p">[</span><span class="n">parent</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">subspec</span><span class="p">,</span> <span class="bp">True</span><span class="p">))</span>
+
+            <span class="c">## set up class internals and build</span>
+            <span class="n">_klass</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&#39;__interpreter__&#39;</span><span class="p">:</span> <span class="n">cls</span><span class="o">.</span><span class="n">Interpreter</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+            <span class="p">}</span>
+
+            <span class="c">## substitute our class definition</span>
+            <span class="n">properties</span> <span class="o">=</span> <span class="n">_klass</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">cls</span><span class="p">)</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">properties</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_mro</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Calculate method resolution order for a</span>
+<span class="sd">            :py:class:`Profile` descendent. &#39;&#39;&#39;</span>
+
+        <span class="k">pass</span>
+
+
+<span class="c">## AbstractProfile</span>
+<span class="c"># Enforces application of metaclasses and intercepts construction calls.</span></div>
+<div class="viewcode-block" id="AbstractProfile"><a class="viewcode-back" href="../../policy.html#policy.base.AbstractProfile">[docs]</a><span class="k">class</span> <span class="nc">AbstractProfile</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Abstract :py:class:`EventProfile` parent that enforces</span>
+<span class="sd">        proper use of the :py:class:`Profile` metaclass, and</span>
+<span class="sd">        prevents incorrect construction / instantiation. &#39;&#39;&#39;</span>
+
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">Profile</span>
+
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Disallow instantiation of :py:class:`AbstractProfile`</span>
+<span class="sd">            descendents, as they are meant to be structural schema</span>
+<span class="sd">            and not ephemeral objects.</span>
+
+<span class="sd">            :param *args: Positional argument rollup.</span>
+<span class="sd">            :param **kwargs: Keyword argument rollup.</span>
+<span class="sd">            :raises: :py:exc:`NotImplementedError`, always. &#39;&#39;&#39;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&#39;Cannot instantiate abstract&#39;</span>
+                                  <span class="s">&#39;class `</span><span class="si">%s</span><span class="s">`.&#39;</span> <span class="o">%</span> <span class="n">cls</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+
+
+<span class="c">## EventProfile</span>
+<span class="c"># Default Event Profile.</span></div>
+<div class="viewcode-block" id="EventProfile"><a class="viewcode-back" href="../../policy.html#policy.base.EventProfile">[docs]</a><span class="k">class</span> <span class="nc">EventProfile</span><span class="p">(</span><span class="n">AbstractProfile</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Root concrete :py:class:`EventProfile` class. This is</span>
+<span class="sd">        the eventual inheritance target for all ``EventProfile``</span>
+<span class="sd">        classes. &#39;&#39;&#39;</span>
+
+    <span class="k">class</span> <span class="nc">Base</span><span class="p">(</span><span class="n">parameter</span><span class="o">.</span><span class="n">ParameterGroup</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Parameter group for base tracker parameters. &#39;&#39;&#39;</span>
+
+        <span class="c"># Sentinel: flag indicating that the hit URL was generated by our systems.</span>
+        <span class="n">sentinel</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s">&#39;policy&#39;</span><span class="p">:</span> <span class="n">parameter</span><span class="o">.</span><span class="n">ParameterPolicy</span><span class="o">.</span><span class="n">ENFORCED</span><span class="p">,</span>
+            <span class="s">&#39;source&#39;</span><span class="p">:</span> <span class="n">http</span><span class="o">.</span><span class="n">DataSlot</span><span class="o">.</span><span class="n">PARAM</span><span class="p">,</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">builtin</span><span class="o">.</span><span class="n">TrackerProtocol</span><span class="o">.</span><span class="n">SENTINEL</span><span class="p">,</span>
+            <span class="s">&#39;category&#39;</span><span class="p">:</span> <span class="n">parameter</span><span class="o">.</span><span class="n">ParameterType</span><span class="o">.</span><span class="n">INTERNAL</span>
+        <span class="p">}</span>
+
+        <span class="c"># Type: represents the type of hit, such as &quot;impression&quot; or &quot;click&quot;.</span>
+        <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s">&#39;policy&#39;</span><span class="p">:</span> <span class="n">parameter</span><span class="o">.</span><span class="n">ParameterPolicy</span><span class="o">.</span><span class="n">REQUIRED</span><span class="p">,</span>
+            <span class="s">&#39;source&#39;</span><span class="p">:</span> <span class="n">http</span><span class="o">.</span><span class="n">DataSlot</span><span class="o">.</span><span class="n">PARAM</span><span class="p">,</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">builtin</span><span class="o">.</span><span class="n">TrackerProtocol</span><span class="o">.</span><span class="n">TYPE</span><span class="p">,</span>
+            <span class="s">&#39;category&#39;</span><span class="p">:</span> <span class="n">parameter</span><span class="o">.</span><span class="n">ParameterType</span><span class="o">.</span><span class="n">INTERNAL</span><span class="p">,</span>
+            <span class="s">&#39;aggregations&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="n">aggregation</span><span class="o">.</span><span class="n">Aggregation</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;events-by-type&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="n">_DEFAULT_LOOKBACK</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="c"># Tracker: represents the ID of the parent tracker for the current hit.</span>
+        <span class="n">tracker</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s">&#39;policy&#39;</span><span class="p">:</span> <span class="n">parameter</span><span class="o">.</span><span class="n">ParameterPolicy</span><span class="o">.</span><span class="n">REQUIRED</span><span class="p">,</span>
+            <span class="s">&#39;source&#39;</span><span class="p">:</span> <span class="n">http</span><span class="o">.</span><span class="n">DataSlot</span><span class="o">.</span><span class="n">PARAM</span><span class="p">,</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">builtin</span><span class="o">.</span><span class="n">TrackerProtocol</span><span class="o">.</span><span class="n">TRACKER</span><span class="p">,</span>
+            <span class="s">&#39;category&#39;</span><span class="p">:</span> <span class="n">parameter</span><span class="o">.</span><span class="n">ParameterType</span><span class="o">.</span><span class="n">AMPUSH</span><span class="p">,</span>
+            <span class="s">&#39;aggregations&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="n">aggregation</span><span class="o">.</span><span class="n">Aggregation</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;events-by-tracker&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="n">_DEFAULT_LOOKBACK</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="c"># Provider: represents the ID string of the provider of this hit.</span>
+        <span class="n">provider</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s">&#39;policy&#39;</span><span class="p">:</span> <span class="n">parameter</span><span class="o">.</span><span class="n">ParameterPolicy</span><span class="o">.</span><span class="n">OPTIONAL</span><span class="p">,</span>
+            <span class="s">&#39;source&#39;</span><span class="p">:</span> <span class="n">http</span><span class="o">.</span><span class="n">DataSlot</span><span class="o">.</span><span class="n">PARAM</span><span class="p">,</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">builtin</span><span class="o">.</span><span class="n">TrackerProtocol</span><span class="o">.</span><span class="n">PROVIDER</span><span class="p">,</span>
+            <span class="s">&#39;category&#39;</span><span class="p">:</span> <span class="n">parameter</span><span class="o">.</span><span class="n">ParameterType</span><span class="o">.</span><span class="n">INTERNAL</span><span class="p">,</span>
+            <span class="s">&#39;aggregations&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="n">aggregation</span><span class="o">.</span><span class="n">Aggregation</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;events-by-provider&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="n">_DEFAULT_LOOKBACK</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="c"># Contract: represents the contract scope which this hit should be recorded for.</span>
+        <span class="n">contract</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s">&#39;policy&#39;</span><span class="p">:</span> <span class="n">parameter</span><span class="o">.</span><span class="n">ParameterPolicy</span><span class="o">.</span><span class="n">OPTIONAL</span><span class="p">,</span>
+            <span class="s">&#39;source&#39;</span><span class="p">:</span> <span class="n">http</span><span class="o">.</span><span class="n">DataSlot</span><span class="o">.</span><span class="n">PARAM</span><span class="p">,</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">builtin</span><span class="o">.</span><span class="n">TrackerProtocol</span><span class="o">.</span><span class="n">CONTRACT</span><span class="p">,</span>
+            <span class="s">&#39;category&#39;</span><span class="p">:</span> <span class="n">parameter</span><span class="o">.</span><span class="n">ParameterType</span><span class="o">.</span><span class="n">AMPUSH</span><span class="p">,</span>
+            <span class="s">&#39;aggregations&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="n">aggregation</span><span class="o">.</span><span class="n">Aggregation</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;events-by-contract&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="n">_DEFAULT_LOOKBACK</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+    <span class="k">class</span> <span class="nc">Environment</span><span class="p">(</span><span class="n">parameter</span><span class="o">.</span><span class="n">ParameterGroup</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Parameter group for client browser environment. &#39;&#39;&#39;</span>
+
+        <span class="c"># OS: The operating system the browser is running in.</span>
+        <span class="n">os</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s">&#39;policy&#39;</span><span class="p">:</span> <span class="n">parameter</span><span class="o">.</span><span class="n">ParameterPolicy</span><span class="o">.</span><span class="n">PREFERRED</span><span class="p">,</span>
+            <span class="s">&#39;source&#39;</span><span class="p">:</span> <span class="n">http</span><span class="o">.</span><span class="n">DataSlot</span><span class="o">.</span><span class="n">PARAM</span><span class="p">,</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">environment</span><span class="o">.</span><span class="n">BrowserEnvironment</span><span class="o">.</span><span class="n">OS</span><span class="p">,</span>
+            <span class="s">&#39;category&#39;</span><span class="p">:</span> <span class="n">parameter</span><span class="o">.</span><span class="n">ParameterType</span><span class="o">.</span><span class="n">DATA</span><span class="p">,</span>
+            <span class="s">&#39;aggregations&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="n">aggregation</span><span class="o">.</span><span class="n">Aggregation</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;hits-by-os&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="n">_DEFAULT_LOOKBACK</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="c"># Arch: The underlying architecture of the host operating system (i.e. &quot;x86-64&quot;).</span>
+        <span class="n">arch</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s">&#39;policy&#39;</span><span class="p">:</span> <span class="n">parameter</span><span class="o">.</span><span class="n">ParameterPolicy</span><span class="o">.</span><span class="n">OPTIONAL</span><span class="p">,</span>
+            <span class="s">&#39;source&#39;</span><span class="p">:</span> <span class="n">http</span><span class="o">.</span><span class="n">DataSlot</span><span class="o">.</span><span class="n">PARAM</span><span class="p">,</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">environment</span><span class="o">.</span><span class="n">BrowserEnvironment</span><span class="o">.</span><span class="n">ARCH</span><span class="p">,</span>
+            <span class="s">&#39;category&#39;</span><span class="p">:</span> <span class="n">parameter</span><span class="o">.</span><span class="n">ParameterType</span><span class="o">.</span><span class="n">DATA</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="c"># Vendor: The author of the browser being used (i.e. &quot;Google&quot; for Chrome).</span>
+        <span class="n">vendor</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s">&#39;policy&#39;</span><span class="p">:</span> <span class="n">parameter</span><span class="o">.</span><span class="n">ParameterPolicy</span><span class="o">.</span><span class="n">PREFERRED</span><span class="p">,</span>
+            <span class="s">&#39;source&#39;</span><span class="p">:</span> <span class="n">http</span><span class="o">.</span><span class="n">DataSlot</span><span class="o">.</span><span class="n">PARAM</span><span class="p">,</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">environment</span><span class="o">.</span><span class="n">BrowserEnvironment</span><span class="o">.</span><span class="n">VENDOR</span><span class="p">,</span>
+            <span class="s">&#39;category&#39;</span><span class="p">:</span> <span class="n">parameter</span><span class="o">.</span><span class="n">ParameterType</span><span class="o">.</span><span class="n">DATA</span>
+        <span class="p">}</span>
+
+        <span class="c"># Browser: The software-name of the browser being used (i.e. &quot;Safari&quot; for Safari).</span>
+        <span class="n">browser</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s">&#39;policy&#39;</span><span class="p">:</span> <span class="n">parameter</span><span class="o">.</span><span class="n">ParameterPolicy</span><span class="o">.</span><span class="n">PREFERRED</span><span class="p">,</span>
+            <span class="s">&#39;source&#39;</span><span class="p">:</span> <span class="n">http</span><span class="o">.</span><span class="n">DataSlot</span><span class="o">.</span><span class="n">PARAM</span><span class="p">,</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">environment</span><span class="o">.</span><span class="n">BrowserEnvironment</span><span class="o">.</span><span class="n">BROWSER</span><span class="p">,</span>
+            <span class="s">&#39;category&#39;</span><span class="p">:</span> <span class="n">parameter</span><span class="o">.</span><span class="n">ParameterType</span><span class="o">.</span><span class="n">DATA</span><span class="p">,</span>
+            <span class="s">&#39;aggregations&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="n">aggregation</span><span class="o">.</span><span class="n">Aggregation</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;hits-by-browser&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="n">_DEFAULT_LOOKBACK</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+    <span class="k">class</span> <span class="nc">Consumer</span><span class="p">(</span><span class="n">parameter</span><span class="o">.</span><span class="n">ParameterGroup</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Parameter group for identifying unique consumers. &#39;&#39;&#39;</span>
+
+        <span class="c"># Fingerprint: The consumer profile fingerprint, either encountered or created.</span>
+        <span class="n">fingerprint</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s">&#39;policy&#39;</span><span class="p">:</span> <span class="n">parameter</span><span class="o">.</span><span class="n">ParameterPolicy</span><span class="o">.</span><span class="n">SPECIAL</span><span class="p">,</span>
+            <span class="s">&#39;source&#39;</span><span class="p">:</span> <span class="n">http</span><span class="o">.</span><span class="n">DataSlot</span><span class="o">.</span><span class="n">COOKIE</span><span class="p">,</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">_DEFAULT_COOKIE_NAME</span><span class="p">,</span>
+            <span class="s">&#39;category&#39;</span><span class="p">:</span> <span class="n">parameter</span><span class="o">.</span><span class="n">ParameterType</span><span class="o">.</span><span class="n">INTERNAL</span><span class="p">,</span>
+            <span class="s">&#39;attributions&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="n">attribution</span><span class="o">.</span><span class="n">Attribution</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;hits-to-cookies&#39;</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+    <span class="k">class</span> <span class="nc">System</span><span class="p">(</span><span class="n">parameter</span><span class="o">.</span><span class="n">ParameterGroup</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Parameter group for system state/configuration. &#39;&#39;&#39;</span>
+
+        <span class="n">channel</span> <span class="o">=</span> <span class="nb">int</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s">&#39;policy&#39;</span><span class="p">:</span> <span class="n">parameter</span><span class="o">.</span><span class="n">ParameterPolicy</span><span class="o">.</span><span class="n">SPECIAL</span><span class="p">,</span>
+            <span class="s">&#39;source&#39;</span><span class="p">:</span> <span class="n">http</span><span class="o">.</span><span class="n">DataSlot</span><span class="o">.</span><span class="n">HEADER</span><span class="p">,</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;XAF-Channel&#39;</span><span class="p">,</span>
+            <span class="s">&#39;category&#39;</span><span class="p">:</span> <span class="n">parameter</span><span class="o">.</span><span class="n">ParameterType</span><span class="o">.</span><span class="n">INTERNAL</span><span class="p">,</span>
+            <span class="s">&#39;binding&#39;</span><span class="p">:</span> <span class="n">intake</span><span class="o">.</span><span class="n">InputChannel</span>
+        <span class="p">}</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

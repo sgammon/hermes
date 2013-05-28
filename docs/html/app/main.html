@@ -27,7 +27,8 @@
           title="Search within Hermes v2.0 Docs"
           href="_static/opensearch.xml"/>
     <link rel="top" title="Hermes v2.0 Docs" href="index.html" />
-    <link rel="next" title="tools Package" href="tools.html" />
+    <link rel="up" title="Hermes" href="modules.html" />
+    <link rel="next" title="protocol Package" href="protocol.html" />
     <link rel="prev" title="webapp2_extras Package" href="lib.webapp2_extras.html" /> 
   </head>
   <body>
@@ -41,12 +42,13 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="tools.html" title="tools Package"
+          <a href="protocol.html" title="protocol Package"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="lib.webapp2_extras.html" title="webapp2_extras Package"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Hermes</a> &raquo;</li> 
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" accesskey="U">Hermes</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -55,137 +57,8 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="module-main">
-<span id="main-module"></span><h1>main Module<a class="headerlink" href="#module-main" title="Permalink to this headline">¶</a></h1>
-<p>This is where it all begins... ah, the wonderful <em>main.py</em>.
-From here, we stitch together <tt class="xref py py-mod docutils literal"><span class="pre">apptools</span></tt> and <tt class="xref py py-mod docutils literal"><span class="pre">gevent</span></tt>
-to provide an entrypoint for <tt class="xref py py-mod docutils literal"><span class="pre">apptools.dispatch</span></tt>.</p>
-<p>In addition to being the WSGI entrypoint for AppFactory (and any other WSGI-compliant
-platform), this is also where you run the devserver...</p>
-<div class="section" id="running-the-devserver">
-<h2>Running the devserver<a class="headerlink" href="#running-the-devserver" title="Permalink to this headline">¶</a></h2>
-<p>Only one WSGI application can be run at a time, and running <tt class="docutils literal"><span class="pre">Hermes</span></tt>
-can easily be done from the command line.</p>
-<p>From the root of your project (the folder outside <em>app/</em>):</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> tools/devserver
-
-<span class="go">==== Hermes Devserver ====</span>
-<span class="go">Preloaded module bundle: &quot;apptools&quot;.</span>
-<span class="go">Preloaded module bundle: &quot;tracker&quot;.</span>
-<span class="go">Failed to preload compiled templates.</span>
-<span class="go">Preloaded module bundle: &quot;hermes&quot;.</span>
-<span class="go">[TRACKER]: Datastore: Initialized datastore engine.</span>
-<span class="go">[TRACKER]: Debug mode is ON, serving on port 8080.</span>
-
-<span class="go">!! Started listener for app &lt;components.tracker.EventTracker&gt; on host/port :8080. !!</span>
-</pre></div>
-</div>
-<p>If you&#8217;d like to start up on port 80 instead:</p>
-<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> sudo tools/devserver --port<span class="o">=</span>80
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">For ports under 1024, Unix/Linux requires the use of <strong class="command">sudo</strong>.</p>
-</div>
-</div>
-<div class="section" id="dispatching-in-production">
-<h2>Dispatching in production<a class="headerlink" href="#dispatching-in-production" title="Permalink to this headline">¶</a></h2>
-<p>Many platforms, including <em>AppFactory</em> and <em>Google App Engine</em>, dispatch Python applications
-over WSGI. <strong>This app&#8217;s main module can be used with WSGI</strong> - applications are exported at
-<tt class="xref py py-class docutils literal"><span class="pre">main.EventTracker</span></tt> and <tt class="xref py py-class docutils literal"><span class="pre">main.APIServer</span></tt> for <em>EventTracker</em> and <em>Hermes</em>,
-respectively.</p>
-<p>Here&#8217;s a sample <em>app.yaml</em> file for <em>AppFactory</em>:</p>
-<div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">appfactory</span><span class="p-Indicator">:</span>
-  <span class="l-Scalar-Plain">dispatch</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">main:APIServer</span>
-  <span class="l-Scalar-Plain">processes</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">2</span>
-  <span class="l-Scalar-Plain">threads</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">20</span>
-</pre></div>
-</div>
-<p>As you might imagine, the above will start 2 app processes with 20 dedicated app threads each.
-Apps hosted on <tt class="xref py py-mod docutils literal"><span class="pre">gevent</span></tt> are just as easy:</p>
-<div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">appfactory</span><span class="p-Indicator">:</span>
-    <span class="l-Scalar-Plain">dispatch</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">main:EventTracker</span>
-    <span class="l-Scalar-Plain">runtime</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">gevent</span>
-    <span class="l-Scalar-Plain">greenlets</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">1000</span>
-    <span class="l-Scalar-Plain">processes</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">1</span>
-</pre></div>
-</div>
-<p>Note that <em>AppFactory</em> will monkey-patch the CPython standard library for you when you use
-the <tt class="docutils literal"><span class="pre">gevent</span></tt> runtime. To prevent this behavior, simply append <tt class="docutils literal"><span class="pre">monkey:</span> <span class="pre">off</span></tt>.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Multiple processes with <tt class="xref py py-mod docutils literal"><span class="pre">gevent</span></tt> enabled is <strong>not recommended</strong>. In many
-cases, you can actually achieve <em>better</em> concurrency using Greenlets in a single
-process only, as the native OS management overhead tends to outweigh performance
-benefits significantly.</p>
-</div>
-<p>Just for good measure, here is an <em>AppEngine</em>-compatible <em>app.yaml</em> file (you can also
-specify an <em>appfactory.yaml</em> file to avoid compatibility issues and run on <em>both</em> platforms!):</p>
-<div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">application</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">my-cool-app</span>
-<span class="l-Scalar-Plain">version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">docs-sample</span>
-
-<span class="l-Scalar-Plain">runtime</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">python27</span>
-<span class="l-Scalar-Plain">api_version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">1</span>
-<span class="l-Scalar-Plain">threadsafe</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">yes</span>
-
-<span class="l-Scalar-Plain">handlers</span><span class="p-Indicator">:</span>
-
-<span class="p-Indicator">-</span> <span class="l-Scalar-Plain">url</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">/v1</span>
-  <span class="l-Scalar-Plain">script</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">main.APIServer</span>
-
-<span class="p-Indicator">-</span> <span class="l-Scalar-Plain">url</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">/.*</span>
-  <span class="l-Scalar-Plain">script</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">main.EventTracker</span>
-</pre></div>
-</div>
-<p>To be clear, those module endpoints are completely <em>WSGI-compliant</em>, meaning you could
-also simply import them and run them however you want, even from a regular Python shell.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">Sam Gammon (<a class="reference external" href="mailto:sam&#46;gammon&#37;&#52;&#48;ampush&#46;com">sam<span>&#46;</span>gammon<span>&#64;</span>ampush<span>&#46;</span>com</a>)</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><ol class="first loweralpha simple" start="3">
-<li>2013 Ampush.</li>
-</ol>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first last">This is private source code - all rights are reserved. For details about
-embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="function">
-<dt id="main.devserver">
-<tt class="descclassname">main.</tt><tt class="descname">devserver</tt><big>(</big><em>app=&lt;function gateway at 0x110215b90&gt;</em>, <em>port=8080</em>, <em>host=''</em><big>)</big><a class="reference internal" href="_modules/main.html#devserver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#main.devserver" title="Permalink to this definition">¶</a></dt>
-<dd><p>Start a local listener for development, using <tt class="xref py py-mod docutils literal"><span class="pre">gevent.pywsgi</span></tt>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>app</strong> &#8211; WSGI application to run. Defaults to <tt class="xref py py-mod docutils literal"><span class="pre">apptools.dispatch.gateway</span></tt>.</li>
-<li><strong>port</strong> &#8211; Port to run the application on. Defaults to the value of <tt class="xref py py-attr docutils literal"><span class="pre">config._DEVSERVER_PORT</span></tt>,
-which is usually set to <tt class="docutils literal"><span class="pre">8080</span></tt>.</li>
-<li><strong>host</strong> &#8211; IP to bind the devserver to. Defaults to the value of <tt class="xref py py-attr docutils literal"><span class="pre">config._DEVSERVER_HOST</span></tt>,
-which is usually set to <tt class="docutils literal"><span class="pre">127.0.0.1</span></tt>. Setting this value to an empty string binds to
-all available IPs - <em>make sure it is not set to this in production</em>.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Dispatching this function from Python (or the command line) will block forever
-via <tt class="xref py py-meth docutils literal"><span class="pre">pyuwsgi.WSGIServer.serve_forever()</span></tt>.</p>
-</div>
-</dd></dl>
-
-</div>
+  <div class="section" id="main-module">
+<h1>main Module<a class="headerlink" href="#main-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
@@ -197,21 +70,12 @@ via <tt class="xref py py-meth docutils literal"><span class="pre">pyuwsgi.WSGIS
             <p class="logo"><a href="index.html">
               <img class="logo" src="_static/ampush-logo.png" alt="Logo"/>
             </a></p>
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">main Module</a><ul>
-<li><a class="reference internal" href="#running-the-devserver">Running the devserver</a></li>
-<li><a class="reference internal" href="#dispatching-in-production">Dispatching in production</a></li>
-</ul>
-</li>
-</ul>
-
   <h4>Previous topic</h4>
   <p class="topless"><a href="lib.webapp2_extras.html"
                         title="previous chapter">webapp2_extras Package</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="tools.html"
-                        title="next chapter">tools Package</a></p>
+  <p class="topless"><a href="protocol.html"
+                        title="next chapter">protocol Package</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/main.txt"
@@ -244,12 +108,13 @@ via <tt class="xref py py-meth docutils literal"><span class="pre">pyuwsgi.WSGIS
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="tools.html" title="tools Package"
+          <a href="protocol.html" title="protocol Package"
              >next</a> |</li>
         <li class="right" >
           <a href="lib.webapp2_extras.html" title="webapp2_extras Package"
              >previous</a> |</li>
-        <li><a href="index.html">Hermes</a> &raquo;</li> 
+        <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

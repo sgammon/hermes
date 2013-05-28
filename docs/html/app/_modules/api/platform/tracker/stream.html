@@ -1,0 +1,291 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>api.platform.tracker.stream &mdash; Hermes v2.0 Docs</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.5-alpha-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within Hermes v2.0 Docs"
+          href="../../../../_static/opensearch.xml"/>
+    <link rel="top" title="Hermes v2.0 Docs" href="../../../../index.html" />
+    <link rel="up" title="api.platform.tracker" href="../tracker.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../platform.html" >api.platform</a> &raquo;</li>
+          <li><a href="../tracker.html" accesskey="U">api.platform.tracker</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for api.platform.tracker.stream</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">The :py:class:`EventStream` class handles calls to publish</span>
+<span class="sd">and subscribe to global or contextual streams of events</span>
+<span class="sd">from ``EventTracker``.</span>
+
+<span class="sd">:author: Sam Gammon (sam.gammon@ampush.com)</span>
+<span class="sd">:copyright: (c) 2013 Ampush.</span>
+<span class="sd">:license: This is private source code - all rights are reserved. For details about</span>
+<span class="sd">          embedded licenses and other legalese, see `LICENSE.md`.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c"># stdlib</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+
+<span class="c"># Models</span>
+<span class="kn">from</span> <span class="nn">api.models.tracker</span> <span class="kn">import</span> <span class="n">raw</span>
+<span class="kn">from</span> <span class="nn">api.models.tracker</span> <span class="kn">import</span> <span class="n">event</span>
+
+<span class="c"># Platform Parent</span>
+<span class="kn">from</span> <span class="nn">api.platform</span> <span class="kn">import</span> <span class="n">PlatformBridge</span>
+
+
+<span class="c">## EventStream - handles propagation and dispatch of eventstream data.</span>
+<div class="viewcode-block" id="EventStream"><a class="viewcode-back" href="../../../../api.platform.tracker.html#api.platform.tracker.stream.EventStream">[docs]</a><span class="k">class</span> <span class="nc">EventStream</span><span class="p">(</span><span class="n">PlatformBridge</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; Manages state for global (and contextual) event</span>
+<span class="sd">        streams in ``EventTracker``. &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">_build_envelope</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Build and serialize an envelope and wrapped event,</span>
+<span class="sd">            such that it is suitable for publishing via pub/sub.</span>
+
+<span class="sd">            :param message: ``protorpc.Message``, due to be</span>
+<span class="sd">                            published via pub/sub.</span>
+
+<span class="sd">            :keyword error: Flag indicating this message is</span>
+<span class="sd">                            an error. Defaults to ``False``.</span>
+
+<span class="sd">            :returns: A ``dict`` representing the wrapped,</span>
+<span class="sd">                      serialized ``protorpc.Message``. &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="s">&#39;id&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">message</span><span class="o">.</span><span class="n">id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">id</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="s">&#39;key&#39;</span><span class="p">):</span>
+                <span class="nb">id</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">id</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s">&#39;id&#39;</span><span class="p">:</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha512</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">(),</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;error&#39;</span> <span class="k">if</span> <span class="n">error</span> <span class="k">else</span> <span class="n">message</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
+            <span class="s">&#39;payload&#39;</span><span class="p">:</span> <span class="n">message</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">_generate_channels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blob</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(),</span> <span class="n">error</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">propagate</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Generate a set of channels to publish to, given</span>
+<span class="sd">            a blobbed blob to publish.</span>
+
+<span class="sd">            :param blob: ``dict``, due to be published</span>
+<span class="sd">                         via pub/sub.</span>
+
+<span class="sd">            :param context: Iterable containing key=&gt;value pairs</span>
+<span class="sd">                            for other channel permutations to</span>
+<span class="sd">                            publish on.</span>
+
+<span class="sd">            :keyword error: Flag ``bool`` that indicates whether</span>
+<span class="sd">                            we are generating error channels.</span>
+<span class="sd">                            Defaults to ``False``.</span>
+
+<span class="sd">            :keyword propagate: Flag ``bool`` that indicates</span>
+<span class="sd">                                whether we should propagate</span>
+<span class="sd">                                this event to higher-order</span>
+<span class="sd">                                eventstreams. Defaults to</span>
+<span class="sd">                                ``True``.</span>
+
+<span class="sd">            :returns: A list of channels to publish the given</span>
+<span class="sd">                      ``blob`` to. &#39;&#39;&#39;</span>
+
+        <span class="n">channels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">channel_template</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;__channel__&#39;</span><span class="p">]</span>
+        <span class="n">blobtype</span> <span class="o">=</span> <span class="n">blob</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;type&#39;</span><span class="p">,</span> <span class="s">&#39;msg&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">error</span><span class="p">:</span>
+            <span class="n">stream_type</span> <span class="o">=</span> <span class="s">&#39;error&#39;</span>  <span class="c"># publish to error stream for errors</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">stream_type</span> <span class="o">=</span> <span class="s">&#39;stream&#39;</span>  <span class="c"># publish to regular stream for non-errors</span>
+
+        <span class="c"># first, zoom in</span>
+        <span class="k">if</span> <span class="n">context</span><span class="p">:</span>
+            <span class="n">bundles</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">bundle</span> <span class="ow">in</span> <span class="n">context</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>  <span class="c"># it&#39;s a key=&gt;value pair</span>
+                    <span class="n">bundle</span> <span class="o">=</span> <span class="s">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bundle</span><span class="p">)</span>
+                <span class="n">bundles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;::&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">bundle</span><span class="p">,</span> <span class="n">stream_type</span><span class="p">]))</span>
+
+            <span class="k">for</span> <span class="n">bundle</span> <span class="ow">in</span> <span class="n">bundles</span><span class="p">:</span>
+                <span class="n">channels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;::&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">channel_template</span> <span class="o">+</span> <span class="p">[</span><span class="n">blobtype</span><span class="p">,</span> <span class="n">bundle</span><span class="p">]))</span>
+
+        <span class="c"># now zoom out</span>
+        <span class="k">if</span> <span class="n">propagate</span><span class="p">:</span>
+
+            <span class="c"># type-scoped channel</span>
+            <span class="n">channels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;::&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">channel_template</span> <span class="o">+</span> <span class="p">[</span><span class="n">blobtype</span><span class="p">,</span> <span class="n">stream_type</span><span class="p">]))</span>
+
+            <span class="c"># global stream-scoped channel</span>
+            <span class="n">channels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;::&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">channel_template</span> <span class="o">+</span> <span class="p">[</span><span class="s">&#39;__global__&#39;</span><span class="p">,</span> <span class="n">stream_type</span><span class="p">]))</span>
+
+        <span class="k">return</span> <span class="n">channels</span>
+
+<div class="viewcode-block" id="EventStream.stats"><a class="viewcode-back" href="../../../../api.platform.tracker.html#api.platform.tracker.stream.EventStream.stats">[docs]</a>    <span class="k">def</span> <span class="nf">stats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Retrieve statistics about the desired *Event Stream*.</span>
+<span class="sd">            Will return basic stuff like current rate-per-minute,</span>
+<span class="sd">            message counter, last message timestamp and client list.</span>
+
+<span class="sd">            :param channel: String channel name to retrieve stats for.</span>
+<span class="sd">                            Passing ``None`` indicates a desire for</span>
+<span class="sd">                            global *Event Stream* statistics.</span>
+
+<span class="sd">            :raises ValueError: In the case of an invalid or unknown</span>
+<span class="sd">                                channel.</span>
+
+<span class="sd">            :returns: Record ``dict`` describing the requested statistics,</span>
+<span class="sd">                      like: ``{&#39;rate&#39;: 50, &#39;count&#39;: 100, &#39;clients&#39;: {&#39;count&#39;: 2, &#39;list&#39;: [&#39;one&#39;, &#39;two&#39;]}}`` &#39;&#39;&#39;</span>
+
+        <span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="EventStream.publish"><a class="viewcode-back" href="../../../../api.platform.tracker.html#api.platform.tracker.stream.EventStream.publish">[docs]</a>    <span class="k">def</span> <span class="nf">publish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ev</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">propagate</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Publish an event to one or more streams. Descendents of</span>
+<span class="sd">            both :py:class:`models.tracker.event.RawEvent` and</span>
+<span class="sd">            :py:class:`models.tracker.event.TrackedEvent` are supported</span>
+<span class="sd">            for publishing.</span>
+
+<span class="sd">            :param event: :py:class:`models.tracker.event.RawEvent` or</span>
+<span class="sd">                          :py:class:`models.tracker.event.TrackedEvent` to</span>
+<span class="sd">                          publish.</span>
+
+<span class="sd">            :param error: Indicates that we&#39;re publishing an event describing</span>
+<span class="sd">                          the attached hit as an ``error``. Defaults to ``False``</span>
+<span class="sd">                          in a humerous attempt at optimism.</span>
+
+<span class="sd">            :param propagate: Boolean (defaulting to ``True``) indicating</span>
+<span class="sd">                              whether this publish should propagate globally.</span>
+
+<span class="sd">            :returns: The ``event`` that was handed in and published. &#39;&#39;&#39;</span>
+
+        <span class="c"># convert event to a message</span>
+        <span class="n">blobbed_event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_envelope</span><span class="p">(</span><span class="n">ev</span><span class="o">.</span><span class="n">to_message</span><span class="p">(),</span> <span class="n">error</span><span class="p">)</span>
+
+        <span class="c"># build context</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ev</span><span class="p">,</span> <span class="n">raw</span><span class="o">.</span><span class="n">Event</span><span class="p">):</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;raw&#39;</span><span class="p">]</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ev</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">TrackedEvent</span><span class="p">):</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;stream&#39;</span><span class="p">,</span> <span class="s">&#39;full&#39;</span><span class="p">)]</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">()</span>
+
+        <span class="c"># distribute to appropriate channels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_generate_channels</span><span class="p">(</span><span class="n">blobbed_event</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">error</span><span class="p">,</span> <span class="n">propagate</span><span class="p">),</span> <span class="n">blobbed_event</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ev</span>
+</div>
+<div class="viewcode-block" id="EventStream.subscribe"><a class="viewcode-back" href="../../../../api.platform.tracker.html#api.platform.tracker.stream.EventStream.subscribe">[docs]</a>    <span class="k">def</span> <span class="nf">subscribe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">_start</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Subscribe to one-or-more event streams in ``EventTracker``.</span>
+<span class="sd">            Channels are persistently subscribed-to via ``Redis`` pubsub.</span>
+
+<span class="sd">            Iterables, strings, regexes (for ``PSUBSCRIBE``) and ``None``</span>
+<span class="sd">            are acceptable as streams - ``None`` indicates a subscription</span>
+<span class="sd">            to the global *Event Stream*.</span>
+
+<span class="sd">            :param stream: String channel name (``&quot;coolchannel&quot;``), regex channel name</span>
+<span class="sd">                           (``r&quot;coolch*&quot;``) or iterable of those. Defaults to ``None``,</span>
+<span class="sd">                           indicating a global ``EventTracker`` subscription is desired.</span>
+
+<span class="sd">            :keyword _start: Immediately schedule the subscription ``Greenlet`` for</span>
+<span class="sd">                             execution, before returning. Defaults to ``True``.</span>
+
+<span class="sd">            :returns: Result of the low-level subscribe operation, and the new ``Greenlet``</span>
+<span class="sd">                      which will do the listening. &#39;&#39;&#39;</span>
+
+        <span class="k">pass</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../index.html">
+              <img class="logo" src="../../../../_static/ampush-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">Hermes</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../platform.html" >api.platform</a> &raquo;</li>
+          <li><a href="../tracker.html" >api.platform.tracker</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Ampush.
+    </div>
+  </body>
+</html>

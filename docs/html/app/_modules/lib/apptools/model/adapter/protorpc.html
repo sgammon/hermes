@@ -53,26 +53,16 @@
   <h1>Source code for lib.apptools.model.adapter.protorpc</h1><div class="highlight"><pre>
 <span class="c"># -*- coding: utf-8 -*-</span>
 
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">allows apptools models to be inflated</span>
+<span class="sd">from and expressed as protorpc messages.</span>
 
-<span class="sd">    apptools2: model adapter for protorpc</span>
-<span class="sd">    -------------------------------------------------</span>
-<span class="sd">    |                                               |</span>
-<span class="sd">    |   `apptools.model.adapter.protorpc`           |</span>
-<span class="sd">    |                                               |</span>
-<span class="sd">    |   allows apptools models to be inflated       |</span>
-<span class="sd">    |   from and expressed as protorpc messages.    |</span>
-<span class="sd">    |                                               |</span>
-<span class="sd">    -------------------------------------------------</span>
-<span class="sd">    |   authors:                                    |</span>
-<span class="sd">    |       -- sam gammon (sam@momentum.io)         |</span>
-<span class="sd">    -------------------------------------------------</span>
-<span class="sd">    |   changelog:                                  |</span>
-<span class="sd">    |       -- apr 1, 2013: initial draft           |</span>
-<span class="sd">    |       -- may 9, 2013: support for `datetime`  |</span>
-<span class="sd">    -------------------------------------------------</span>
-
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">:author: Sam Gammon (sam@momentum.io)</span>
+<span class="sd">:copyright: (c) 2013 momentum labs.</span>
+<span class="sd">:license: This is private source code - Ampush has been granted an</span>
+<span class="sd">          unlimited, exclusive license for embedded use. For details</span>
+<span class="sd">          about embedded licenses and other legalese, see `LICENSE.md`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="c"># stdlib</span>
 <span class="kn">import</span> <span class="nn">datetime</span>
@@ -82,21 +72,17 @@
 <span class="kn">from</span> <span class="nn">.abstract</span> <span class="kn">import</span> <span class="n">ModelMixin</span>
 
 <span class="c"># apptools util</span>
-<span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">debug</span>
 <span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">datastructures</span>
-
-<span class="c"># apptools datastructures</span>
-<span class="kn">from</span> <span class="nn">apptools.util.datastructures</span> <span class="kn">import</span> <span class="n">BidirectionalEnum</span>
 
 
 <span class="c">## == protorpc support == ##</span>
 <span class="k">try</span><span class="p">:</span>
     <span class="c"># force absolute import to prevent infinite recursion</span>
-	<span class="n">protorpc</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;protorpc&#39;</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(),</span> <span class="nb">tuple</span><span class="p">(),</span> <span class="p">[],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">protorpc</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;protorpc&#39;</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(),</span> <span class="nb">tuple</span><span class="p">(),</span> <span class="p">[],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c"># pragma: no cover</span>
-	<span class="c"># flag as unavailable</span>
-	<span class="n">_PROTORPC</span><span class="p">,</span> <span class="n">_root_message_class</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="nb">object</span>
+    <span class="c"># flag as unavailable</span>
+    <span class="n">_PROTORPC</span><span class="p">,</span> <span class="n">_root_message_class</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="nb">object</span>
 
 <span class="k">else</span><span class="p">:</span>
     <span class="c"># extended imports (must be absolute)</span>
@@ -113,11 +99,12 @@
         <span class="nb">int</span><span class="p">:</span> <span class="n">pmessages</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">,</span>
         <span class="nb">bool</span><span class="p">:</span> <span class="n">pmessages</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">,</span>
         <span class="nb">float</span><span class="p">:</span> <span class="n">pmessages</span><span class="o">.</span><span class="n">FloatField</span><span class="p">,</span>
+        <span class="nb">str</span><span class="p">:</span> <span class="n">pmessages</span><span class="o">.</span><span class="n">StringField</span><span class="p">,</span>
+        <span class="nb">unicode</span><span class="p">:</span> <span class="n">pmessages</span><span class="o">.</span><span class="n">StringField</span><span class="p">,</span>
         <span class="nb">basestring</span><span class="p">:</span> <span class="n">pmessages</span><span class="o">.</span><span class="n">StringField</span><span class="p">,</span>
         <span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="p">:</span> <span class="n">pmessages</span><span class="o">.</span><span class="n">StringField</span><span class="p">,</span>
         <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">:</span> <span class="n">pmessages</span><span class="o">.</span><span class="n">StringField</span><span class="p">,</span>
-        <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">:</span> <span class="n">pmessages</span><span class="o">.</span><span class="n">StringField</span><span class="p">,</span>
-        <span class="n">BidirectionalEnum</span><span class="p">:</span> <span class="n">pmessages</span><span class="o">.</span><span class="n">EnumField</span>
+        <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">:</span> <span class="n">pmessages</span><span class="o">.</span><span class="n">StringField</span>
     <span class="p">}</span>
 
     <span class="c"># build quick basetype lookup</span>
@@ -136,15 +123,21 @@
     <span class="c"># build quick builtin lookup</span>
     <span class="n">_builtin_fields</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">_field_explicit_map</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 
-
     <span class="c"># recursive message builder</span>
 <div class="viewcode-block" id="build_message"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.protorpc.build_message">[docs]</a>    <span class="k">def</span> <span class="nf">build_message</span><span class="p">(</span><span class="n">_model</span><span class="p">):</span>
 
-        <span class="sd">&#39;&#39;&#39; Recursive function to build a `Message` class dynamically from a lookup of properties and a property mapping. &#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39; Recursively builds a new `Message` class dynamically from an apptools</span>
+<span class="sd">            :py:class:`model.Model`. Properties are converted to their :py:mod:`protorpc`</span>
+<span class="sd">            equivalents and factoried into a full :py:class:`messages.Message` class.</span>
+
+<span class="sd">            :param _model: Model class to convert to a :py:class:`protorpc.messages.Message`.</span>
+<span class="sd">            :raises TypeError: In the case of an unidentified or unknown property basetype.</span>
+<span class="sd">            :raises ValueError: In the case of a missing implementation field or serialization error.</span>
+<span class="sd">            :returns: Constructed (but not instantiated) :py:class:`protorpc.messages.Message` class. &#39;&#39;&#39;</span>
 
         <span class="c"># must nest import to avoid circular dependencies</span>
+        <span class="kn">from</span> <span class="nn">apptools</span> <span class="kn">import</span> <span class="n">rpc</span>
         <span class="kn">from</span> <span class="nn">apptools</span> <span class="kn">import</span> <span class="n">model</span>
-        <span class="kn">from</span> <span class="nn">apptools</span> <span class="kn">import</span> <span class="n">services</span>
 
         <span class="c"># provision field increment and message map</span>
         <span class="n">_field_i</span><span class="p">,</span> <span class="n">_model_message</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;__module__&#39;</span><span class="p">:</span> <span class="n">_model</span><span class="o">.</span><span class="n">__module__</span><span class="p">}</span>
@@ -153,7 +146,7 @@
         <span class="n">lookup</span><span class="p">,</span> <span class="n">property_map</span> <span class="o">=</span> <span class="n">_model</span><span class="o">.</span><span class="n">__lookup__</span><span class="p">,</span> <span class="p">{}</span>
 
         <span class="c"># add key submessage</span>
-        <span class="n">_model_message</span><span class="p">[</span><span class="s">&#39;key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pmessages</span><span class="o">.</span><span class="n">MessageField</span><span class="p">(</span><span class="n">Key</span><span class="p">,</span> <span class="n">_field_i</span><span class="p">)</span>
+        <span class="n">_model_message</span><span class="p">[</span><span class="s">&#39;key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pmessages</span><span class="o">.</span><span class="n">MessageField</span><span class="p">(</span><span class="n">rpc</span><span class="o">.</span><span class="n">Key</span><span class="p">,</span> <span class="n">_field_i</span><span class="p">)</span>
 
         <span class="c"># build fields from model properties</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">lookup</span><span class="p">:</span>
@@ -183,9 +176,12 @@
 
                 <span class="c"># if it&#39;s a tuple, it&#39;s a name/args/kwargs pattern</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">explicit</span><span class="p">,</span> <span class="p">(</span><span class="nb">basestring</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
-                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;Invalid type found for explicit message field implementation binding - property </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s"> of model </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s"> cannot bind to field of type </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">. A basestring field name or tuple of (name, *args, &lt;**kwargs&gt;) was expected.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">_model</span><span class="o">.</span><span class="n">kind</span><span class="p">(),</span> <span class="nb">type</span><span class="p">(</span><span class="n">explicit</span><span class="p">)))</span>
+                    <span class="n">context</span> <span class="o">=</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">_model</span><span class="o">.</span><span class="n">kind</span><span class="p">(),</span> <span class="nb">type</span><span class="p">(</span><span class="n">explicit</span><span class="p">))</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;Invalid type found for explicit message field implementation binding - property&#39;</span>
+                                    <span class="s">&#39;</span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s"> of model </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s"> cannot bind to field of type </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">. A basestring field&#39;</span>
+                                    <span class="s">&#39;name or tuple of (name, *args, &lt;**kwargs&gt;) was expected.&#39;</span> <span class="o">%</span> <span class="n">context</span><span class="p">)</span>
 
-                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">explcit</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">explicit</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
 
                     <span class="c"># two indicates name + args</span>
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">explicit</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c"># name, *args</span>
@@ -210,7 +206,7 @@
                     <span class="k">else</span><span class="p">:</span>
                         <span class="c"># shortcut: replace it if there&#39;s no args</span>
                         <span class="n">_field_i</span> <span class="o">=</span> <span class="n">_field_i</span> <span class="o">+</span> <span class="mi">1</span>
-                        <span class="n">_pargs</span> <span class="o">=</span> <span class="p">(</span><span class="n">field_i</span><span class="p">,)</span>
+                        <span class="n">_pargs</span> <span class="o">=</span> <span class="p">(</span><span class="n">_field_i</span><span class="p">,)</span>
 
                     <span class="c"># factory field</span>
                     <span class="n">_model_message</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_field_explicit_map</span><span class="p">[</span><span class="n">explicit</span><span class="p">](</span><span class="o">*</span><span class="n">_pargs</span><span class="p">,</span> <span class="o">**</span><span class="n">_pkwargs</span><span class="p">)</span>
@@ -218,23 +214,23 @@
 
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c"># raise a `ValueError` in the case of an invalid explicit field name</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;No such message implementation field: </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">.&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;No such message implementation field: </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
 
             <span class="c"># check variant by dict</span>
             <span class="k">if</span> <span class="n">prop</span><span class="o">.</span><span class="n">_basetype</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
                 <span class="n">_field_i</span> <span class="o">=</span> <span class="n">_field_i</span> <span class="o">+</span> <span class="mi">1</span>
-                <span class="n">_model_message</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">services</span><span class="o">.</span><span class="n">VariantField</span><span class="p">(</span><span class="n">_field_i</span><span class="p">)</span>
+                <span class="n">_model_message</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">VariantField</span><span class="p">(</span><span class="n">_field_i</span><span class="p">)</span>
                 <span class="k">continue</span>
 
             <span class="c"># check recursive submodels</span>
-            <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">prop</span><span class="o">.</span><span class="n">_basetype</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">AbstractModel</span><span class="p">):</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prop</span><span class="o">.</span><span class="n">_basetype</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="nb">type</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">prop</span><span class="o">.</span><span class="n">_basetype</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">AbstractModel</span><span class="p">):</span>
 
                 <span class="c"># shorcut: `model.Model` for `VariantField`s</span>
                 <span class="k">if</span> <span class="n">prop</span><span class="o">.</span><span class="n">_basetype</span> <span class="ow">is</span> <span class="n">model</span><span class="o">.</span><span class="n">Model</span><span class="p">:</span>
 
                     <span class="c">## general, top-level `Model` means a variant field</span>
                     <span class="n">_field_i</span> <span class="o">=</span> <span class="n">_field_i</span> <span class="o">+</span> <span class="mi">1</span>
-                    <span class="n">_model_message</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">services</span><span class="o">.</span><span class="n">VariantField</span><span class="p">(</span><span class="n">_field_i</span><span class="p">)</span>
+                    <span class="n">_model_message</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">VariantField</span><span class="p">(</span><span class="n">_field_i</span><span class="p">)</span>
                     <span class="k">continue</span>
 
                 <span class="c"># recurse - it&#39;s a model class</span>
@@ -247,17 +243,47 @@
                 <span class="k">continue</span>
 
             <span class="c"># check for keys (implemented with `basestring` for now)</span>
-            <span class="k">if</span> <span class="n">prop</span><span class="o">.</span><span class="n">_basetype</span> <span class="o">==</span> <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">prop</span><span class="o">.</span><span class="n">_basetype</span> <span class="o">==</span> <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">:</span>
 
                 <span class="c"># build field and advance</span>
                 <span class="n">_field_i</span> <span class="o">=</span> <span class="n">_field_i</span> <span class="o">+</span> <span class="mi">1</span>
-                <span class="n">_pargs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Key</span><span class="p">)</span>
+                <span class="n">_pargs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rpc</span><span class="o">.</span><span class="n">Key</span><span class="p">)</span>
                 <span class="n">_pargs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_field_i</span><span class="p">)</span>
                 <span class="n">_model_message</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pmessages</span><span class="o">.</span><span class="n">MessageField</span><span class="p">(</span><span class="o">*</span><span class="n">_pargs</span><span class="p">)</span>
                 <span class="k">continue</span>
 
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prop</span><span class="o">.</span><span class="n">_basetype</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">prop</span><span class="o">.</span><span class="n">_basetype</span><span class="p">,</span> <span class="n">datastructures</span><span class="o">.</span><span class="n">BidirectionalEnum</span><span class="p">):</span>
+
+                <span class="c"># pop first data item off and check type</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">prop</span><span class="o">.</span><span class="n">_basetype</span><span class="p">,</span> <span class="n">prop</span><span class="o">.</span><span class="n">_basetype</span><span class="o">.</span><span class="n">__forward__</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">basestring</span><span class="p">):</span>
+
+                    <span class="c"># for string values, simply use a string property...</span>
+                    <span class="n">_field_i</span> <span class="o">=</span> <span class="n">_field_i</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="n">_pargs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_field_i</span><span class="p">)</span>
+                    <span class="n">_model_message</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pmessages</span><span class="o">.</span><span class="n">StringField</span><span class="p">(</span><span class="o">*</span><span class="n">_pargs</span><span class="p">,</span> <span class="o">**</span><span class="n">_pkwargs</span><span class="p">)</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c"># it&#39;s an enum-compatible class, dynamically build one</span>
+                    <span class="c"># ... build class internals</span>
+                    <span class="n">enum_klass</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s">&#39;__module__&#39;</span><span class="p">:</span> <span class="n">prop</span><span class="o">.</span><span class="n">_basetype</span><span class="o">.</span><span class="n">__module__</span>
+                    <span class="p">}</span>
+
+                    <span class="c"># otherwise, just add data properties</span>
+                    <span class="n">enum_klass</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">prop</span><span class="o">.</span><span class="n">_basetype</span><span class="o">.</span><span class="n">__serialize__</span><span class="p">())</span>
+
+                    <span class="c"># construct enum class</span>
+                    <span class="n">enum</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">prop</span><span class="o">.</span><span class="n">_basetype</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="p">(</span><span class="n">pmessages</span><span class="o">.</span><span class="n">Enum</span><span class="p">,),</span> <span class="n">enum_klass</span><span class="p">)</span>
+
+                    <span class="c"># build field and advance</span>
+                    <span class="n">_field_i</span> <span class="o">=</span> <span class="n">_field_i</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="n">_pargs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">enum</span><span class="p">)</span>
+                    <span class="n">_pargs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_field_i</span><span class="p">)</span>
+                    <span class="n">_model_message</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pmessages</span><span class="o">.</span><span class="n">EnumField</span><span class="p">(</span><span class="o">*</span><span class="n">_pargs</span><span class="p">,</span> <span class="o">**</span><span class="n">_pkwargs</span><span class="p">)</span>
+                    <span class="k">continue</span>
+
             <span class="c"># check builtin basetypes</span>
-            <span class="k">if</span> <span class="n">prop</span><span class="o">.</span><span class="n">_basetype</span> <span class="ow">in</span> <span class="n">_builtin_basetypes</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">prop</span><span class="o">.</span><span class="n">_basetype</span> <span class="ow">in</span> <span class="n">_builtin_basetypes</span><span class="p">:</span>
 
                 <span class="c"># build field and advance</span>
                 <span class="n">_field_i</span> <span class="o">=</span> <span class="n">_field_i</span> <span class="o">+</span> <span class="mi">1</span>
@@ -275,22 +301,12 @@
                 <span class="k">continue</span>
 
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Could not resolve proper serialization for property </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s"> of model </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s"> (found basetype </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">).&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">_model</span><span class="o">.</span><span class="n">kind</span><span class="p">(),</span> <span class="n">prop</span><span class="o">.</span><span class="n">_basetype</span><span class="p">))</span>
+                <span class="n">context</span> <span class="o">=</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">_model</span><span class="o">.</span><span class="n">kind</span><span class="p">(),</span> <span class="n">prop</span><span class="o">.</span><span class="n">_basetype</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Could not resolve proper serialization for property </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">&quot;</span>
+                                 <span class="s">&quot;of model </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s"> (found basetype </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">).&quot;</span> <span class="o">%</span> <span class="n">context</span><span class="p">)</span>
 
         <span class="c"># construct message class on-the-fly</span>
         <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="n">_model</span><span class="o">.</span><span class="n">kind</span><span class="p">(),</span> <span class="p">(</span><span class="n">pmessages</span><span class="o">.</span><span class="n">Message</span><span class="p">,),</span> <span class="n">_model_message</span><span class="p">)</span>
-
-
-    <span class="c">## Key</span>
-    <span class="c"># Expresses a `model.Key` as a message.</span></div>
-<div class="viewcode-block" id="Key"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.protorpc.Key">[docs]</a>    <span class="k">class</span> <span class="nc">Key</span><span class="p">(</span><span class="n">pmessages</span><span class="o">.</span><span class="n">Message</span><span class="p">):</span>
-
-        <span class="sd">&#39;&#39;&#39; Message that expresses a `model.Key`. &#39;&#39;&#39;</span>
-
-        <span class="nb">id</span> <span class="o">=</span> <span class="n">pmessages</span><span class="o">.</span><span class="n">StringField</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">kind</span> <span class="o">=</span> <span class="n">pmessages</span><span class="o">.</span><span class="n">StringField</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-        <span class="n">encoded</span> <span class="o">=</span> <span class="n">pmessages</span><span class="o">.</span><span class="n">StringField</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-
 
     <span class="c">## ProtoRPCKey</span>
     <span class="c"># Mixin to core `Key` class that enables ProtoRPC message conversion.</span></div>
@@ -300,10 +316,12 @@
 
 <div class="viewcode-block" id="ProtoRPCKey.to_message"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.protorpc.ProtoRPCKey.to_message">[docs]</a>        <span class="k">def</span> <span class="nf">to_message</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-            <span class="sd">&#39;&#39;&#39; Convert a `Key` instance to a ProtoRPC `Message` instance. &#39;&#39;&#39;</span>
+            <span class="sd">&#39;&#39;&#39; Convert a `Key` instance to a ProtoRPC `Message` instance.</span>
 
-            <span class="k">return</span> <span class="n">Key</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="n">kind</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">encoded</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">urlsafe</span><span class="p">())</span>
+<span class="sd">                :returns: Constructed :py:class:`protorpc.Key` message object. &#39;&#39;&#39;</span>
 
+            <span class="kn">from</span> <span class="nn">apptools</span> <span class="kn">import</span> <span class="n">rpc</span>
+            <span class="k">return</span> <span class="n">rpc</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="n">kind</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">encoded</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">urlsafe</span><span class="p">())</span>
 
     <span class="c">## ProtoRPCModel</span>
     <span class="c"># Mixin to core `Model` class that enables ProtoRPC message conversion.</span></div></div>
@@ -313,32 +331,45 @@
 
 <div class="viewcode-block" id="ProtoRPCModel.to_message"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.protorpc.ProtoRPCModel.to_message">[docs]</a>        <span class="k">def</span> <span class="nf">to_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-            <span class="sd">&#39;&#39;&#39; Convert a `Model` instance to a ProtoRPC `Message` class. &#39;&#39;&#39;</span>
+            <span class="sd">&#39;&#39;&#39; Convert a `Model` instance to a ProtoRPC `Message` class.</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">:</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">to_message_model</span><span class="p">()(</span><span class="n">key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">to_message</span><span class="p">(),</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+<span class="sd">                :param args: Positional arguments to pass to :py:meth:`Model.to_dict`.</span>
+<span class="sd">                :param kwargs: Keyword arguments to pass to :py:meth:`Model.to_dict`.</span>
+<span class="sd">                :returns: Constructed and initialized :py:class:`protorpc.Message` object. &#39;&#39;&#39;</span>
+
+            <span class="c"># must import inline to avoid circular dependency</span>
+            <span class="kn">from</span> <span class="nn">apptools</span> <span class="kn">import</span> <span class="n">rpc</span>
+            <span class="kn">from</span> <span class="nn">apptools</span> <span class="kn">import</span> <span class="n">model</span>
 
             <span class="n">values</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">for</span> <span class="n">bundle</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-                <span class="n">prop</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">bundle</span>
-
-                <span class="c"># covert datetime types =&gt; isoformat</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">)):</span>
-                    <span class="n">values</span><span class="p">[</span><span class="n">prop</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
-                    <span class="k">continue</span>
+            <span class="k">for</span> <span class="n">prop</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
 
                 <span class="c"># convert keys =&gt; urlsafe</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">):</span>
-                    <span class="n">values</span><span class="p">[</span><span class="n">prop</span><span class="p">]</span> <span class="o">=</span> <span class="n">Key</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">encoded</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">urlsafe</span><span class="p">())</span>
+                    <span class="n">values</span><span class="p">[</span><span class="n">prop</span><span class="p">]</span> <span class="o">=</span> <span class="n">rpc</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">encoded</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">urlsafe</span><span class="p">())</span>
+                    <span class="k">continue</span>
+
+                <span class="c"># convert date/time/datetime =&gt; string</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">)):</span>
+                    <span class="n">values</span><span class="p">[</span><span class="n">prop</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
                     <span class="k">continue</span>
 
                 <span class="n">values</span><span class="p">[</span><span class="n">prop</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>  <span class="c"># otherwise, just set it</span>
 
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">to_message_model</span><span class="p">()(</span><span class="n">key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">to_message</span><span class="p">(),</span> <span class="o">**</span><span class="n">values</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">to_message_model</span><span class="p">()(</span><span class="o">**</span><span class="n">values</span><span class="p">)</span>
 </div>
         <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="ProtoRPCModel.to_message_model"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.protorpc.ProtoRPCModel.to_message_model">[docs]</a>        <span class="k">def</span> <span class="nf">to_message_model</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
 
-            <span class="sd">&#39;&#39;&#39; Convert a `Model` class to a ProtoRPC `Message` class. &#39;&#39;&#39;</span>
+            <span class="sd">&#39;&#39;&#39; Convert a `Model` class to a ProtoRPC `Message` class. Delegates</span>
+<span class="sd">                to :py:func:`build_message`, see docs there for exceptions raised</span>
+<span class="sd">                (:py:exc:`TypeError` and :py:exc:`ValueError`).</span>
+
+<span class="sd">                :returns: Constructed (but not initialized) dynamically-build</span>
+<span class="sd">                          :py:class:`message.Message` class corresponding to</span>
+<span class="sd">                          the current model (``cls``). &#39;&#39;&#39;</span>
 
             <span class="k">global</span> <span class="n">_model_impl</span>
 

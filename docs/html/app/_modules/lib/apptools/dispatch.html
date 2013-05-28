@@ -77,27 +77,26 @@
 <span class="n">rule_builders</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">installed_apps</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;webapp2&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apps_installed&#39;</span><span class="p">,</span> <span class="p">[])</span>
 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">installed_apps</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-	<span class="n">installed_apps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+    <span class="n">installed_apps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">app</span> <span class="ow">in</span> <span class="n">installed_apps</span><span class="p">:</span>
-	<span class="k">try</span><span class="p">:</span>
-		<span class="k">if</span> <span class="n">app</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-		    <span class="n">rule_builders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">webapp2</span><span class="o">.</span><span class="n">import_string</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">app</span><span class="p">,</span> <span class="s">&#39;routing&#39;</span><span class="p">,</span> <span class="s">&#39;get_rules&#39;</span><span class="p">])))</span>
-		<span class="k">else</span><span class="p">:</span>
-			<span class="n">rule_builders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">webapp2</span><span class="o">.</span><span class="n">import_string</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&#39;routing&#39;</span><span class="p">,</span> <span class="s">&#39;get_rules&#39;</span><span class="p">])))</span>
-	<span class="k">except</span> <span class="ne">ImportError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-		<span class="k">continue</span>
-
-<span class="c">## @TODO: Export this class to exceptions</span>
-<div class="viewcode-block" id="NoURLRules"><a class="viewcode-back" href="../../../lib.apptools.html#lib.apptools.dispatch.NoURLRules">[docs]</a><span class="k">class</span> <span class="nc">NoURLRules</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span> <span class="k">pass</span></div>
-<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rule_builders</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-	<span class="k">raise</span> <span class="n">NoURLRules</span><span class="p">(</span><span class="s">&quot;Could not resolve a URL rule builder.&quot;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">app</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">rule_builders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">webapp2</span><span class="o">.</span><span class="n">import_string</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">app</span><span class="p">,</span> <span class="s">&#39;routing&#39;</span><span class="p">,</span> <span class="s">&#39;get_rules&#39;</span><span class="p">])))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rule_builders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">webapp2</span><span class="o">.</span><span class="n">import_string</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&#39;routing&#39;</span><span class="p">,</span> <span class="s">&#39;get_rules&#39;</span><span class="p">])))</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="n">webapp2</span><span class="o">.</span><span class="n">ImportStringError</span><span class="p">):</span>
+        <span class="k">continue</span>
 
 <span class="kn">from</span> <span class="nn">apptools</span> <span class="kn">import</span> <span class="n">core</span>
 <span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">runtools</span>
 
-<span class="kn">from</span> <span class="nn">apptools.services</span> <span class="kn">import</span> <span class="n">gateway</span> <span class="k">as</span> <span class="n">servicelayer_dispatch</span>
+<span class="c"># new RPC version 2.0</span>
+<span class="kn">from</span> <span class="nn">apptools.rpc</span> <span class="kn">import</span> <span class="n">dispatch</span>
 
-<span class="n">app_rules</span> <span class="o">=</span> <span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="n">ruleset</span><span class="p">()</span> <span class="k">for</span> <span class="n">ruleset</span> <span class="ow">in</span> <span class="n">rule_builders</span><span class="p">])</span>
+<span class="k">if</span> <span class="n">rule_builders</span><span class="p">:</span>
+    <span class="n">app_rules</span> <span class="o">=</span> <span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="n">ruleset</span><span class="p">()</span> <span class="k">for</span> <span class="n">ruleset</span> <span class="ow">in</span> <span class="n">rule_builders</span><span class="p">])</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">app_rules</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">sys_config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apptools.system&#39;</span><span class="p">,</span> <span class="p">{})</span>
 
 
@@ -167,21 +166,35 @@
 <span class="n">_admin_app</span> <span class="o">=</span> <span class="p">[</span><span class="n">webapp2</span><span class="o">.</span><span class="n">Route</span><span class="p">(</span><span class="s">&#39;/_app/manage.*&#39;</span><span class="p">,</span> <span class="n">AppAdminHandler</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;admin-handler-root&#39;</span><span class="p">)]</span>
 <span class="n">_sitemap_app</span> <span class="o">=</span> <span class="p">[</span><span class="n">webapp2</span><span class="o">.</span><span class="n">Route</span><span class="p">(</span><span class="s">&#39;/_app/sitemap.*&#39;</span><span class="p">,</span> <span class="n">SitemapHandler</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;sitemap-handler&#39;</span><span class="p">)]</span>
 <span class="n">_appcache_app</span> <span class="o">=</span> <span class="p">[</span><span class="n">webapp2</span><span class="o">.</span><span class="n">Route</span><span class="p">(</span><span class="s">&#39;/_app/manifest.*&#39;</span><span class="p">,</span> <span class="n">CacheManifestHandler</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;cache-manifest-handler&#39;</span><span class="p">)]</span>
-<span class="n">_services_app</span> <span class="o">=</span> <span class="n">servicelayer_dispatch</span><span class="o">.</span><span class="n">generateServiceMappings</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apptools.project.services&#39;</span><span class="p">))</span>
+<span class="n">_services_app</span> <span class="o">=</span> <span class="n">dispatch</span><span class="o">.</span><span class="n">mappings</span>
 <span class="k">if</span> <span class="n">endpoints</span><span class="p">:</span>
-    <span class="n">endpoint</span> <span class="o">=</span> <span class="n">endpoints</span><span class="o">.</span><span class="n">api_server</span><span class="p">([</span><span class="n">service</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">servicelayer_dispatch</span><span class="o">.</span><span class="n">resolveServices</span><span class="p">(</span><span class="n">load</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="s">&#39;api_info&#39;</span><span class="p">)],</span> <span class="n">restricted</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">endpoint</span> <span class="o">=</span> <span class="n">endpoints</span><span class="o">.</span><span class="n">api_server</span><span class="p">([</span><span class="n">service</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">dispatch</span><span class="o">.</span><span class="n">_resolve_services</span><span class="p">(</span><span class="n">load</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                                     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="s">&#39;api_info&#39;</span><span class="p">)],</span> <span class="n">restricted</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 
 <span class="c">## Get builtin apps</span>
+<span class="n">_builtin_route_cache</span> <span class="o">=</span> <span class="bp">None</span>
+
+
 <div class="viewcode-block" id="get_builtin_apps"><a class="viewcode-back" href="../../../lib.apptools.html#lib.apptools.dispatch.get_builtin_apps">[docs]</a><span class="k">def</span> <span class="nf">get_builtin_apps</span><span class="p">():</span>
 
     <span class="sd">&#39;&#39;&#39; Return a list of builtin WSGI applications. This should NOT include _noop_app, which is only present for utility/fallback. &#39;&#39;&#39;</span>
 
-    <span class="k">return</span> <span class="p">[</span><span class="n">route</span> <span class="k">for</span> <span class="n">route</span> <span class="ow">in</span> <span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="n">_admin_app</span><span class="p">,</span> <span class="n">_sitemap_app</span><span class="p">,</span> <span class="n">_appcache_app</span><span class="p">,</span> <span class="n">_services_app</span><span class="p">])]</span>
+    <span class="k">global</span> <span class="n">_builtin_route_cache</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_builtin_route_cache</span><span class="p">:</span>
+        <span class="n">_builtin_route_cache</span> <span class="o">=</span> <span class="p">[</span><span class="n">route</span> <span class="k">for</span> <span class="n">route</span> <span class="ow">in</span> <span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="n">_admin_app</span><span class="p">,</span> <span class="n">_sitemap_app</span><span class="p">,</span> <span class="n">_appcache_app</span><span class="p">,</span> <span class="n">_services_app</span><span class="p">])]</span>
+    <span class="k">return</span> <span class="n">_builtin_route_cache</span>
+
+
+<span class="c">## @TODO: Export this class to exceptions</span></div>
+<div class="viewcode-block" id="NoURLRules"><a class="viewcode-back" href="../../../lib.apptools.html#lib.apptools.dispatch.NoURLRules">[docs]</a><span class="k">class</span> <span class="nc">NoURLRules</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span> <span class="k">pass</span></div>
+<span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rule_builders</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">get_builtin_apps</span><span class="p">()))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">NoURLRules</span><span class="p">(</span><span class="s">&quot;Could not resolve a URL rule builder.&quot;</span><span class="p">)</span>
 
 
 <span class="c">##### ===== Runtime Tools/Entrypoints ===== #####</span>
 
-<span class="c">## WSGI/CGI Bridge</span></div>
+<span class="c">## WSGI/CGI Bridge</span>
 <span class="k">def</span> <span class="nf">_run</span><span class="p">(</span><span class="n">cbk</span><span class="p">,</span> <span class="n">environ</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">start_response</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
 
     <span class="sd">&#39;&#39;&#39; Run an app, via CGI or WSGI if possible. &#39;&#39;&#39;</span>
@@ -285,11 +298,11 @@
     <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
         <span class="n">runtools</span><span class="o">.</span><span class="n">enable_jinja2_debugging</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">sys_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;hooks&#39;</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">sys_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;appstats&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sys_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;appstats&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
                 <span class="n">app</span> <span class="o">=</span> <span class="n">runtools</span><span class="o">.</span><span class="n">enable_appstats</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">sys_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apptrace&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sys_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apptrace&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
                 <span class="n">app</span> <span class="o">=</span> <span class="n">runtools</span><span class="o">.</span><span class="n">enable_apptrace</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">sys_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;profiler&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sys_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;profiler&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
 
                 <span class="c"># profile_run shim action</span>
                 <span class="k">def</span> <span class="nf">profile_run</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">environ</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">start_response</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>

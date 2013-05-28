@@ -54,25 +54,20 @@
   <h1>Source code for lib.apptools.tests.test_model</h1><div class="highlight"><pre>
 <span class="c"># -*- coding: utf-8 -*-</span>
 
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">----------------------</span>
+<span class="sd">apptools2: model tests</span>
+<span class="sd">----------------------</span>
 
-<span class="sd">    apptools2: model tests</span>
-<span class="sd">    -------------------------------------------------</span>
-<span class="sd">    |                                               |</span>
-<span class="sd">    |   `apptools.tests.model`                      |</span>
-<span class="sd">    |                                               |</span>
-<span class="sd">    |   this package contains test cases and utils  |</span>
-<span class="sd">    |   for testing the apptools model API.         |</span>
-<span class="sd">    |                                               |</span>
-<span class="sd">    -------------------------------------------------</span>
-<span class="sd">    |   authors:                                    |</span>
-<span class="sd">    |       -- sam gammon (sam@momentum.io)         |</span>
-<span class="sd">    -------------------------------------------------</span>
-<span class="sd">    |   changelog:                                  |</span>
-<span class="sd">    |       -- apr 1, 2013: initial draft           |</span>
-<span class="sd">    -------------------------------------------------</span>
+<span class="sd">testsuite for exercising the functions in</span>
+<span class="sd">the apptools model API.</span>
 
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">:author: Sam Gammon (sam@momentum.io)</span>
+<span class="sd">:copyright: (c) 2013 momentum labs.</span>
+<span class="sd">:license: This is private source code - Ampush has been granted an</span>
+<span class="sd">          unlimited, exclusive license for embedded use. For details</span>
+<span class="sd">          about embedded licenses and other legalese, see `LICENSE.md`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="c"># stdlib</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -99,7 +94,7 @@
             <span class="kn">from</span> <span class="nn">apptools.model</span> <span class="kn">import</span> <span class="n">AbstractKey</span>
             <span class="kn">from</span> <span class="nn">apptools.model</span> <span class="kn">import</span> <span class="n">AbstractModel</span>
 
-        <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c"># pragma: no cover</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>  <span class="c"># pragma: no cover</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="s">&quot;Failed to import concrete classes exported by Model.&quot;</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>

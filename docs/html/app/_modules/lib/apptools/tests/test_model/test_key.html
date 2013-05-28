@@ -55,28 +55,21 @@
   <h1>Source code for lib.apptools.tests.test_model.test_key</h1><div class="highlight"><pre>
 <span class="c"># -*- coding: utf-8 -*-</span>
 
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">--------------------------</span>
+<span class="sd">apptools2: model key tests</span>
+<span class="sd">--------------------------</span>
 
-<span class="sd">    apptools2: model key tests</span>
-<span class="sd">    -------------------------------------------------</span>
-<span class="sd">    |                                               |</span>
-<span class="sd">    |   `apptools.tests.model.key`                  |</span>
-<span class="sd">    |                                               |</span>
-<span class="sd">    |   test cases for model classes that           |</span>
-<span class="sd">    |   represent unique persistence keys.          |</span>
-<span class="sd">    |                                               |</span>
-<span class="sd">    -------------------------------------------------</span>
-<span class="sd">    |   authors:                                    |</span>
-<span class="sd">    |       -- sam gammon (sam@momentum.io)         |</span>
-<span class="sd">    -------------------------------------------------</span>
-<span class="sd">    |   changelog:                                  |</span>
-<span class="sd">    |       -- apr 1, 2013: initial draft           |</span>
-<span class="sd">    -------------------------------------------------</span>
+<span class="sd">tests the classes :py:class:`model.AbstractKey`</span>
+<span class="sd">and :py:class:`model.Key`, and makes sure they</span>
+<span class="sd">operate as intended.</span>
 
-<span class="sd">&#39;&#39;&#39;</span>
-
-<span class="c"># stdlib</span>
-<span class="kn">import</span> <span class="nn">unittest</span>
+<span class="sd">:author: Sam Gammon (sam@momentum.io)</span>
+<span class="sd">:copyright: (c) 2013 momentum labs.</span>
+<span class="sd">:license: This is private source code - Ampush has been granted an</span>
+<span class="sd">          unlimited, exclusive license for embedded use. For details</span>
+<span class="sd">          about embedded licenses and other legalese, see `LICENSE.md`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="c"># apptools keys</span>
 <span class="kn">from</span> <span class="nn">apptools</span> <span class="kn">import</span> <span class="n">model</span>
@@ -181,7 +174,7 @@
 
         <span class="c"># should not be able to instantiate `AbstractKey`</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">exceptions</span><span class="o">.</span><span class="n">AbstractConstructionFailure</span><span class="p">):</span>
-            <span class="n">k</span> <span class="o">=</span> <span class="n">AbstractKey</span><span class="p">()</span>
+            <span class="n">AbstractKey</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">Key</span><span class="p">(),</span> <span class="n">AbstractKey</span><span class="p">)</span>
 </div>
@@ -280,6 +273,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">k1</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="s">&quot;KindedModel&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">k1</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s">&quot;test_id&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">k2</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">k1</span><span class="o">.</span><span class="n">kind</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ko</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">k1</span><span class="o">.</span><span class="n">kind</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">k2</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">k2</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="KeyTests.test_key_ancestry"><a class="viewcode-back" href="../../../../../lib.apptools.tests.test_model.html#lib.apptools.tests.test_model.test_key.KeyTests.test_key_ancestry">[docs]</a>    <span class="k">def</span> <span class="nf">test_key_ancestry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -326,7 +320,7 @@
 
         <span class="c"># try and make a key with a ton of arguments</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">TypeError</span><span class="p">):</span>
-            <span class="n">k</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="s">&quot;SampleKind&quot;</span><span class="p">,</span> <span class="s">&quot;id&quot;</span><span class="p">,</span> <span class="s">&quot;coolstring&quot;</span><span class="p">,</span> <span class="s">&quot;whatdowedo&quot;</span><span class="p">,</span> <span class="s">&quot;whenwehave&quot;</span><span class="p">,</span> <span class="s">&quot;thismanyarguments&quot;</span><span class="p">)</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="s">&quot;SampleKind&quot;</span><span class="p">,</span> <span class="s">&quot;id&quot;</span><span class="p">,</span> <span class="s">&quot;coolstring&quot;</span><span class="p">,</span> <span class="s">&quot;whatdowedo&quot;</span><span class="p">,</span> <span class="s">&quot;whenwehave&quot;</span><span class="p">,</span> <span class="s">&quot;thismanyarguments&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="KeyTests.test_key_construct_multiple_formats"><a class="viewcode-back" href="../../../../../lib.apptools.tests.test_model.html#lib.apptools.tests.test_model.test_key.KeyTests.test_key_construct_multiple_formats">[docs]</a>    <span class="k">def</span> <span class="nf">test_key_construct_multiple_formats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
@@ -339,33 +333,158 @@
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">TypeError</span><span class="p">):</span>
             <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="n">raw</span><span class="o">=</span><span class="n">ok</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="bp">False</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span> <span class="n">urlsafe</span><span class="o">=</span><span class="n">ok</span><span class="o">.</span><span class="n">urlsafe</span><span class="p">())</span>
 </div>
-    <span class="nd">@unittest.skip</span><span class="p">(</span><span class="s">&quot;Test is not yet implemented.&quot;</span><span class="p">)</span>
 <div class="viewcode-block" id="KeyTests.test_key_auto_id"><a class="viewcode-back" href="../../../../../lib.apptools.tests.test_model.html#lib.apptools.tests.test_model.test_key.KeyTests.test_key_auto_id">[docs]</a>    <span class="k">def</span> <span class="nf">test_key_auto_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="sd">&#39;&#39;&#39; Test an integer-based ID field. &#39;&#39;&#39;</span>
 
-        <span class="k">pass</span>  <span class="c"># @TODO: test auto ID&#39;s</span>
+        <span class="k">class</span> <span class="nc">AutoincrementTest</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+
+            <span class="sd">&#39;&#39;&#39; Test that keys autoincrement properly when not assigned</span>
+<span class="sd">                deterministic name values. &#39;&#39;&#39;</span>
+
+            <span class="n">message</span> <span class="o">=</span> <span class="nb">basestring</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="s">&#39;Hello, world!&#39;</span><span class="p">}</span>
+
+        <span class="c"># put deterministic key</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">AutoincrementTest</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="n">AutoincrementTest</span><span class="o">.</span><span class="n">kind</span><span class="p">(),</span> <span class="s">&#39;testing-string-key&#39;</span><span class="p">))</span>
+        <span class="n">dk</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">put</span><span class="p">()</span>
+
+        <span class="c"># put nondeterministic key #1</span>
+        <span class="n">nk</span> <span class="o">=</span> <span class="n">AutoincrementTest</span><span class="p">()</span><span class="o">.</span><span class="n">put</span><span class="p">()</span>
+
+        <span class="c"># put nondeterministic key #2</span>
+        <span class="n">nk2</span> <span class="o">=</span> <span class="n">AutoincrementTest</span><span class="p">()</span><span class="o">.</span><span class="n">put</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">nk</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>  <span class="c"># nondeterministic should be an int</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">dk</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">)</span>  <span class="c"># deterministic should be a string</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">((</span><span class="n">nk2</span><span class="o">.</span><span class="n">id</span> <span class="o">&gt;</span> <span class="n">nk</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>  <span class="c"># should be greater</span>
 </div>
-    <span class="nd">@unittest.skip</span><span class="p">(</span><span class="s">&quot;Test is not yet implemented.&quot;</span><span class="p">)</span>
-<div class="viewcode-block" id="KeyTests.test_key_format"><a class="viewcode-back" href="../../../../../lib.apptools.tests.test_model.html#lib.apptools.tests.test_model.test_key.KeyTests.test_key_format">[docs]</a>    <span class="k">def</span> <span class="nf">test_key_format</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
-        <span class="sd">&#39;&#39;&#39; Make sure there&#39;s a proper format spec on `model.Key`. &#39;&#39;&#39;</span>
-
-        <span class="k">pass</span>  <span class="c"># @TODO: test __schema__</span>
-</div>
-    <span class="nd">@unittest.skip</span><span class="p">(</span><span class="s">&quot;Test is not yet implemented.&quot;</span><span class="p">)</span>
-<div class="viewcode-block" id="KeyTests.test_key_set_attribute"><a class="viewcode-back" href="../../../../../lib.apptools.tests.test_model.html#lib.apptools.tests.test_model.test_key.KeyTests.test_key_set_attribute">[docs]</a>    <span class="k">def</span> <span class="nf">test_key_set_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
-        <span class="sd">&#39;&#39;&#39; Try setting an unknown and known attribute. &#39;&#39;&#39;</span>
-
-        <span class="k">pass</span>  <span class="c"># @TODO: test __setattr__</span>
-</div>
-    <span class="nd">@unittest.skip</span><span class="p">(</span><span class="s">&quot;Test is not yet implemented.&quot;</span><span class="p">)</span>
 <div class="viewcode-block" id="KeyTests.test_key_adapter"><a class="viewcode-back" href="../../../../../lib.apptools.tests.test_model.html#lib.apptools.tests.test_model.test_key.KeyTests.test_key_adapter">[docs]</a>    <span class="k">def</span> <span class="nf">test_key_adapter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="sd">&#39;&#39;&#39; Make sure the adapter is attached correctly to `model.Key`. &#39;&#39;&#39;</span>
 
-        <span class="k">pass</span>  <span class="c"># @TODO: test __adapter__</span></div></div>
+        <span class="c"># build test obj</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="s">&quot;TestKind&quot;</span><span class="p">,</span> <span class="s">&quot;test&quot;</span><span class="p">)</span>
+
+        <span class="c"># make sure an adapter is attached at the class level</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">,</span> <span class="s">&#39;__adapter__&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="o">.</span><span class="n">__adapter__</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">ModelAdapter</span><span class="p">)</span>
+
+        <span class="c"># make sure the same is true at the object level</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="s">&#39;__adapter__&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="o">.</span><span class="n">__adapter__</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">ModelAdapter</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="KeyTests.test_key_equality"><a class="viewcode-back" href="../../../../../lib.apptools.tests.test_model.html#lib.apptools.tests.test_model.test_key.KeyTests.test_key_equality">[docs]</a>    <span class="k">def</span> <span class="nf">test_key_equality</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Make sure keys equal each other when they should. &#39;&#39;&#39;</span>
+
+        <span class="n">conditions</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c"># test with determininstic ID</span>
+        <span class="n">k1</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="s">&quot;TestKind&quot;</span><span class="p">,</span> <span class="s">&quot;blabs&quot;</span><span class="p">)</span>
+        <span class="n">k2</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="s">&quot;TestKind&quot;</span><span class="p">,</span> <span class="s">&quot;blabs&quot;</span><span class="p">)</span>
+        <span class="n">conditions</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">k1</span> <span class="o">==</span> <span class="n">k2</span><span class="p">))</span>
+
+        <span class="c"># test kinded keys</span>
+        <span class="n">k3</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="s">&quot;TestKind&quot;</span><span class="p">)</span>
+        <span class="n">k4</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="s">&quot;TestKind&quot;</span><span class="p">)</span>
+        <span class="n">conditions</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">k3</span> <span class="o">==</span> <span class="n">k4</span><span class="p">))</span>
+
+        <span class="c"># test ancestored keys</span>
+        <span class="n">k5</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="s">&quot;TestSubkind&quot;</span><span class="p">,</span> <span class="s">&quot;blobs&quot;</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">k1</span><span class="p">)</span>
+        <span class="n">k6</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="s">&quot;TestSubkind&quot;</span><span class="p">,</span> <span class="s">&quot;blobs&quot;</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">k2</span><span class="p">)</span>
+        <span class="n">conditions</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">k5</span> <span class="o">==</span> <span class="n">k6</span><span class="p">))</span>
+
+        <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">condition</span><span class="p">)</span> <span class="k">for</span> <span class="n">condition</span> <span class="ow">in</span> <span class="n">conditions</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="KeyTests.test_key_inequality"><a class="viewcode-back" href="../../../../../lib.apptools.tests.test_model.html#lib.apptools.tests.test_model.test_key.KeyTests.test_key_inequality">[docs]</a>    <span class="k">def</span> <span class="nf">test_key_inequality</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Make sure keys don&#39;t equal each other when they shouldn&#39;t. &#39;&#39;&#39;</span>
+
+        <span class="n">conditions</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c"># test with determininstic ID</span>
+        <span class="n">k1</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="s">&quot;TestKind&quot;</span><span class="p">,</span> <span class="s">&quot;blabs&quot;</span><span class="p">)</span>
+        <span class="n">k2</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="s">&quot;TestKind&quot;</span><span class="p">,</span> <span class="s">&quot;blobs&quot;</span><span class="p">)</span>
+        <span class="n">conditions</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">k1</span> <span class="o">!=</span> <span class="n">k2</span><span class="p">))</span>
+
+        <span class="c"># test kinded keys</span>
+        <span class="n">k3</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="s">&quot;TestKind&quot;</span><span class="p">)</span>
+        <span class="n">k4</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="s">&quot;TestOtherKind&quot;</span><span class="p">)</span>
+        <span class="n">conditions</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">k3</span> <span class="o">!=</span> <span class="n">k4</span><span class="p">))</span>
+
+        <span class="c"># test ancestored keys with different IDs</span>
+        <span class="n">k5</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="s">&quot;TestSubkind&quot;</span><span class="p">,</span> <span class="s">&quot;blabs&quot;</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">k1</span><span class="p">)</span>
+        <span class="n">k6</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="s">&quot;TestSubkind&quot;</span><span class="p">,</span> <span class="s">&quot;blobs&quot;</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">k1</span><span class="p">)</span>
+        <span class="n">conditions</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">k5</span> <span class="o">!=</span> <span class="n">k6</span><span class="p">))</span>
+
+        <span class="c"># test ancestored keys with different kinds</span>
+        <span class="n">k7</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="s">&quot;TestSubkindOne&quot;</span><span class="p">,</span> <span class="s">&quot;blabs&quot;</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">k1</span><span class="p">)</span>
+        <span class="n">k8</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="s">&quot;TestSubkindTwo&quot;</span><span class="p">,</span> <span class="s">&quot;blabs&quot;</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">k1</span><span class="p">)</span>
+        <span class="n">conditions</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">k7</span> <span class="o">!=</span> <span class="n">k8</span><span class="p">))</span>
+
+        <span class="c"># test ancestored keys with different parents</span>
+        <span class="n">k9</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="s">&quot;TestSubkind&quot;</span><span class="p">,</span> <span class="s">&quot;blabs&quot;</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">k1</span><span class="p">)</span>
+        <span class="n">k10</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="s">&quot;TestSubkind&quot;</span><span class="p">,</span> <span class="s">&quot;blabs&quot;</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">k2</span><span class="p">)</span>
+        <span class="n">conditions</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">k9</span> <span class="o">!=</span> <span class="n">k10</span><span class="p">))</span>
+
+        <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">condition</span><span class="p">)</span> <span class="k">for</span> <span class="n">condition</span> <span class="ow">in</span> <span class="n">conditions</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="KeyTests.test_key_format"><a class="viewcode-back" href="../../../../../lib.apptools.tests.test_model.html#lib.apptools.tests.test_model.test_key.KeyTests.test_key_format">[docs]</a>    <span class="k">def</span> <span class="nf">test_key_format</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Make sure there&#39;s a proper format spec on `model.Key`. &#39;&#39;&#39;</span>
+
+        <span class="c"># build object</span>
+        <span class="n">k1</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="s">&quot;Test&quot;</span><span class="p">,</span> <span class="s">&quot;testkey&quot;</span><span class="p">)</span>
+
+        <span class="c"># test class</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">,</span> <span class="s">&#39;__schema__&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="o">.</span><span class="n">__schema__</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="o">.</span><span class="n">__schema__</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="c"># test object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">k1</span><span class="p">,</span> <span class="s">&#39;__schema__&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="o">.</span><span class="n">__schema__</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="o">.</span><span class="n">__schema__</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="KeyTests.test_key_set_unknown_attribute"><a class="viewcode-back" href="../../../../../lib.apptools.tests.test_model.html#lib.apptools.tests.test_model.test_key.KeyTests.test_key_set_unknown_attribute">[docs]</a>    <span class="k">def</span> <span class="nf">test_key_set_unknown_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Try setting an unknown and known attribute. &#39;&#39;&#39;</span>
+
+        <span class="n">k</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="s">&quot;CoolKind&quot;</span><span class="p">,</span> <span class="s">&quot;coolid&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">AttributeError</span><span class="p">):</span>
+            <span class="n">k</span><span class="o">.</span><span class="n">blabble</span> <span class="o">=</span> <span class="bp">True</span>  <span class="c"># try writing unknown attribute</span>
+</div>
+<div class="viewcode-block" id="KeyTests.test_key_overwrite_known_attribute"><a class="viewcode-back" href="../../../../../lib.apptools.tests.test_model.html#lib.apptools.tests.test_model.test_key.KeyTests.test_key_overwrite_known_attribute">[docs]</a>    <span class="k">def</span> <span class="nf">test_key_overwrite_known_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Try overwriting a known (schema-d) attribute. &#39;&#39;&#39;</span>
+
+        <span class="n">k</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="s">&quot;CoolKind&quot;</span><span class="p">,</span> <span class="s">&quot;coolid&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">AttributeError</span><span class="p">):</span>
+            <span class="n">k</span><span class="o">.</span><span class="n">kind</span> <span class="o">=</span> <span class="s">&quot;MyKind&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">AttributeError</span><span class="p">):</span>
+            <span class="n">k</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="mi">10</span>
+</div>
+<div class="viewcode-block" id="KeyTests.test_key_set_attribute_persisted"><a class="viewcode-back" href="../../../../../lib.apptools.tests.test_model.html#lib.apptools.tests.test_model.test_key.KeyTests.test_key_set_attribute_persisted">[docs]</a>    <span class="k">def</span> <span class="nf">test_key_set_attribute_persisted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&#39;&#39;&#39; Try setting a valid attribute _after_ a Key has been persisted. &#39;&#39;&#39;</span>
+
+        <span class="k">class</span> <span class="nc">PersistedKeyTest</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+
+            <span class="sd">&#39;&#39;&#39; Test model for making sure writing to a persisted key fails. &#39;&#39;&#39;</span>
+
+            <span class="n">message</span> <span class="o">=</span> <span class="nb">basestring</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="s">&#39;Hello, world!&#39;</span><span class="p">}</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">AttributeError</span><span class="p">):</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">PersistedKeyTest</span><span class="p">()</span><span class="o">.</span><span class="n">put</span><span class="p">()</span>
+            <span class="n">k</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="mi">5</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">AttributeError</span><span class="p">):</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">PersistedKeyTest</span><span class="p">()</span><span class="o">.</span><span class="n">put</span><span class="p">()</span>
+            <span class="n">k</span><span class="o">.</span><span class="n">_set_internal</span><span class="p">(</span><span class="s">&#39;kind&#39;</span><span class="p">,</span> <span class="s">&quot;Blabs&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">AttributeError</span><span class="p">):</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">PersistedKeyTest</span><span class="p">()</span><span class="o">.</span><span class="n">put</span><span class="p">()</span>
+            <span class="n">k</span><span class="o">.</span><span class="n">_set_internal</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">,</span> <span class="mi">25</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>

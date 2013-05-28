@@ -43,7 +43,7 @@ Subpackages
     lib.apptools.model
     lib.apptools.pipelines
     lib.apptools.platform
-    lib.apptools.services
+    lib.apptools.rpc
     lib.apptools.tests
     lib.apptools.util
 

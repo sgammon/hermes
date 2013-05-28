@@ -48,6 +48,7 @@
           <a href="api.services.event.html" title="event Package"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
           <li><a href="api.html" >api Package</a> &raquo;</li>
           <li><a href="api.services.html" accesskey="U">services Package</a> &raquo;</li> 
       </ul>
@@ -133,13 +134,252 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 </tbody>
 </table>
 <dl class="class">
+<dt id="api.services.pubsub.messages.BatchPublish">
+<em class="property">class </em><tt class="descclassname">api.services.pubsub.messages.</tt><tt class="descname">BatchPublish</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/api/services/pubsub/messages.html#BatchPublish"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.pubsub.messages.BatchPublish" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">protorpc.messages.Message</span></tt></p>
+<p>Expresses a batch of <a class="reference internal" href="#api.services.pubsub.messages.Publish" title="api.services.pubsub.messages.Publish"><tt class="xref py py-class docutils literal"><span class="pre">Publish</span></tt></a> requests.</p>
+<dl class="attribute">
+<dt id="api.services.pubsub.messages.BatchPublish.count">
+<tt class="descname">count</tt><a class="headerlink" href="#api.services.pubsub.messages.BatchPublish.count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Field definition for integer values.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.services.pubsub.messages.BatchPublish.payload">
+<tt class="descname">payload</tt><a class="headerlink" href="#api.services.pubsub.messages.BatchPublish.payload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Field definition for sub-message values.</p>
+<p>Message fields contain instance of other messages.  Instances stored
+on messages stored on message fields  are considered to be owned by
+the containing message instance and should not be shared between
+owning instances.</p>
+<p>Message fields must be defined to reference a single type of message.
+Normally message field are defined by passing the referenced message
+class in to the constructor.</p>
+<p>It is possible to define a message field for a type that does not yet
+exist by passing the name of the message in to the constructor instead
+of a message class.  Resolution of the actual type of the message is
+deferred until it is needed, for example, during message verification.
+Names provided to the constructor must refer to a class within the same
+python module as the class that is using it.  Names refer to messages
+relative to the containing messages scope.  For example, the two fields
+of OuterMessage refer to the same message type:</p>
+<blockquote>
+<div><p>class Outer(Message):</p>
+<blockquote>
+<div><p>inner_relative = MessageField(&#8216;Inner&#8217;, 1)
+inner_absolute = MessageField(&#8216;Outer.Inner&#8217;, 2)</p>
+<dl class="docutils">
+<dt>class Inner(Message):</dt>
+<dd>...</dd>
+</dl>
+</div></blockquote>
+</div></blockquote>
+<p>When resolving an actual type, MessageField will traverse the entire
+scope of nested messages to match a message name.  This makes it easy
+for siblings to reference siblings:</p>
+<blockquote>
+<div><p>class Outer(Message):</p>
+<blockquote>
+<div><p>class Inner(Message):</p>
+<blockquote>
+<div>sibling = MessageField(&#8216;Sibling&#8217;, 1)</div></blockquote>
+<dl class="docutils">
+<dt>class Sibling(Message):</dt>
+<dd>...</dd>
+</dl>
+</div></blockquote>
+</div></blockquote>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.services.pubsub.messages.BatchSubscribe">
+<em class="property">class </em><tt class="descclassname">api.services.pubsub.messages.</tt><tt class="descname">BatchSubscribe</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/api/services/pubsub/messages.html#BatchSubscribe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.pubsub.messages.BatchSubscribe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">protorpc.messages.Message</span></tt></p>
+<p>Expresses a batch of <tt class="xref py py-class docutils literal"><span class="pre">Subscription</span></tt> requests.</p>
+<dl class="attribute">
+<dt id="api.services.pubsub.messages.BatchSubscribe.count">
+<tt class="descname">count</tt><a class="headerlink" href="#api.services.pubsub.messages.BatchSubscribe.count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Field definition for integer values.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.services.pubsub.messages.BatchSubscribe.subscriptions">
+<tt class="descname">subscriptions</tt><a class="headerlink" href="#api.services.pubsub.messages.BatchSubscribe.subscriptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Field definition for sub-message values.</p>
+<p>Message fields contain instance of other messages.  Instances stored
+on messages stored on message fields  are considered to be owned by
+the containing message instance and should not be shared between
+owning instances.</p>
+<p>Message fields must be defined to reference a single type of message.
+Normally message field are defined by passing the referenced message
+class in to the constructor.</p>
+<p>It is possible to define a message field for a type that does not yet
+exist by passing the name of the message in to the constructor instead
+of a message class.  Resolution of the actual type of the message is
+deferred until it is needed, for example, during message verification.
+Names provided to the constructor must refer to a class within the same
+python module as the class that is using it.  Names refer to messages
+relative to the containing messages scope.  For example, the two fields
+of OuterMessage refer to the same message type:</p>
+<blockquote>
+<div><p>class Outer(Message):</p>
+<blockquote>
+<div><p>inner_relative = MessageField(&#8216;Inner&#8217;, 1)
+inner_absolute = MessageField(&#8216;Outer.Inner&#8217;, 2)</p>
+<dl class="docutils">
+<dt>class Inner(Message):</dt>
+<dd>...</dd>
+</dl>
+</div></blockquote>
+</div></blockquote>
+<p>When resolving an actual type, MessageField will traverse the entire
+scope of nested messages to match a message name.  This makes it easy
+for siblings to reference siblings:</p>
+<blockquote>
+<div><p>class Outer(Message):</p>
+<blockquote>
+<div><p>class Inner(Message):</p>
+<blockquote>
+<div>sibling = MessageField(&#8216;Sibling&#8217;, 1)</div></blockquote>
+<dl class="docutils">
+<dt>class Sibling(Message):</dt>
+<dd>...</dd>
+</dl>
+</div></blockquote>
+</div></blockquote>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.services.pubsub.messages.LogMessage">
+<em class="property">class </em><tt class="descclassname">api.services.pubsub.messages.</tt><tt class="descname">LogMessage</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/api/services/pubsub/messages.html#LogMessage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.pubsub.messages.LogMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">protorpc.messages.Message</span></tt></p>
+<p>Expresses a generic log message to be published.</p>
+<dl class="attribute">
+<dt id="api.services.pubsub.messages.LogMessage.content">
+<tt class="descname">content</tt><a class="headerlink" href="#api.services.pubsub.messages.LogMessage.content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Field definition for unicode string values.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.services.pubsub.messages.LogMessage.prefix">
+<tt class="descname">prefix</tt><a class="headerlink" href="#api.services.pubsub.messages.LogMessage.prefix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Field definition for unicode string values.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="api.services.pubsub.messages.Publish">
 <em class="property">class </em><tt class="descclassname">api.services.pubsub.messages.</tt><tt class="descname">Publish</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/api/services/pubsub/messages.html#Publish"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.pubsub.messages.Publish" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">protorpc.messages.Message</span></tt></p>
 <p>Expresses a request to manually publish a <cite>TrackedEvent</cite> to the global eventstream.</p>
+<dl class="class">
+<dt id="api.services.pubsub.messages.Publish.ChannelSpec">
+<em class="property">class </em><tt class="descname">ChannelSpec</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/api/services/pubsub/messages.html#Publish.ChannelSpec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.pubsub.messages.Publish.ChannelSpec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">protorpc.messages.Message</span></tt></p>
+<p>Specifies a set of channels to publish this message to.</p>
+<dl class="class">
+<dt id="api.services.pubsub.messages.Publish.ChannelSpec.ChannelFlags">
+<em class="property">class </em><tt class="descname">ChannelFlags</tt><big>(</big><em>name</em>, <em>number=None</em><big>)</big><a class="reference internal" href="_modules/api/services/pubsub/messages.html#Publish.ChannelSpec.ChannelFlags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.pubsub.messages.Publish.ChannelSpec.ChannelFlags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">protorpc.messages.Enum</span></tt></p>
+<p>Enumerates flags describing channel publish behavior.</p>
 <dl class="attribute">
-<dt id="api.services.pubsub.messages.Publish.event">
-<tt class="descname">event</tt><a class="headerlink" href="#api.services.pubsub.messages.Publish.event" title="Permalink to this definition">¶</a></dt>
+<dt id="api.services.pubsub.messages.Publish.ChannelSpec.ChannelFlags.CUSTOM">
+<tt class="descname">CUSTOM</tt><em class="property"> = ChannelFlags(CUSTOM, 4)</em><a class="headerlink" href="#api.services.pubsub.messages.Publish.ChannelSpec.ChannelFlags.CUSTOM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.services.pubsub.messages.Publish.ChannelSpec.ChannelFlags.ERROR">
+<tt class="descname">ERROR</tt><em class="property"> = ChannelFlags(ERROR, 2)</em><a class="headerlink" href="#api.services.pubsub.messages.Publish.ChannelSpec.ChannelFlags.ERROR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.services.pubsub.messages.Publish.ChannelSpec.ChannelFlags.GLOBAL">
+<tt class="descname">GLOBAL</tt><em class="property"> = ChannelFlags(GLOBAL, 1)</em><a class="headerlink" href="#api.services.pubsub.messages.Publish.ChannelSpec.ChannelFlags.GLOBAL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.services.pubsub.messages.Publish.ChannelSpec.ChannelFlags.PROPAGATE">
+<tt class="descname">PROPAGATE</tt><em class="property"> = ChannelFlags(PROPAGATE, 3)</em><a class="headerlink" href="#api.services.pubsub.messages.Publish.ChannelSpec.ChannelFlags.PROPAGATE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.services.pubsub.messages.Publish.ChannelSpec.data">
+<tt class="descclassname">Publish.ChannelSpec.</tt><tt class="descname">data</tt><a class="headerlink" href="#api.services.pubsub.messages.Publish.ChannelSpec.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Field definition for boolean values.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.services.pubsub.messages.Publish.ChannelSpec.flags">
+<tt class="descclassname">Publish.ChannelSpec.</tt><tt class="descname">flags</tt><a class="headerlink" href="#api.services.pubsub.messages.Publish.ChannelSpec.flags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Field definition for enum values.</p>
+<p>Enum fields may have default values that are delayed until the associated enum
+type is resolved.  This is necessary to support certain circular references.</p>
+<p>For example:</p>
+<blockquote>
+<div><p>class Message1(Message):</p>
+<blockquote>
+<div><p>class Color(Enum):</p>
+<blockquote>
+<div>RED = 1
+GREEN = 2
+BLUE = 3</div></blockquote>
+<p># This field default value  will be validated when default is accessed.
+animal = EnumField(&#8216;Message2.Animal&#8217;, 1, default=&#8217;HORSE&#8217;)</p>
+</div></blockquote>
+<p>class Message2(Message):</p>
+<blockquote>
+<div><p>class Animal(Enum):</p>
+<blockquote>
+<div>DOG = 1
+CAT = 2
+HORSE = 3</div></blockquote>
+<p># This fields default value will be validated right away since Color is
+# already fully resolved.
+color = EnumField(Message1.Color, 1, default=&#8217;RED&#8217;)</p>
+</div></blockquote>
+</div></blockquote>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.services.pubsub.messages.Publish.ChannelSpec.name">
+<tt class="descclassname">Publish.ChannelSpec.</tt><tt class="descname">name</tt><a class="headerlink" href="#api.services.pubsub.messages.Publish.ChannelSpec.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Field definition for unicode string values.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.services.pubsub.messages.Publish.PayloadType">
+<em class="property">class </em><tt class="descclassname">Publish.</tt><tt class="descname">PayloadType</tt><big>(</big><em>name</em>, <em>number=None</em><big>)</big><a class="reference internal" href="_modules/api/services/pubsub/messages.html#Publish.PayloadType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.pubsub.messages.Publish.PayloadType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">protorpc.messages.Enum</span></tt></p>
+<p>Enumerates possible <a class="reference internal" href="#api.services.pubsub.messages.Publish" title="api.services.pubsub.messages.Publish"><tt class="xref py py-class docutils literal"><span class="pre">Publish</span></tt></a> types.</p>
+<dl class="attribute">
+<dt id="api.services.pubsub.messages.Publish.PayloadType.INTERPRETED">
+<tt class="descname">INTERPRETED</tt><em class="property"> = PayloadType(INTERPRETED, 2)</em><a class="headerlink" href="#api.services.pubsub.messages.Publish.PayloadType.INTERPRETED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.services.pubsub.messages.Publish.PayloadType.LOG">
+<tt class="descname">LOG</tt><em class="property"> = PayloadType(LOG, 3)</em><a class="headerlink" href="#api.services.pubsub.messages.Publish.PayloadType.LOG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.services.pubsub.messages.Publish.PayloadType.RAW">
+<tt class="descname">RAW</tt><em class="property"> = PayloadType(RAW, 1)</em><a class="headerlink" href="#api.services.pubsub.messages.Publish.PayloadType.RAW" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.services.pubsub.messages.Publish.channels">
+<tt class="descclassname">Publish.</tt><tt class="descname">channels</tt><a class="headerlink" href="#api.services.pubsub.messages.Publish.channels" title="Permalink to this definition">¶</a></dt>
 <dd><p>Field definition for sub-message values.</p>
 <p>Message fields contain instance of other messages.  Instances stored
 on messages stored on message fields  are considered to be owned by
@@ -185,8 +425,181 @@ for siblings to reference siblings:</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="api.services.pubsub.messages.Publish.url">
-<tt class="descname">url</tt><a class="headerlink" href="#api.services.pubsub.messages.Publish.url" title="Permalink to this definition">¶</a></dt>
+<dt id="api.services.pubsub.messages.Publish.event">
+<tt class="descclassname">Publish.</tt><tt class="descname">event</tt><a class="headerlink" href="#api.services.pubsub.messages.Publish.event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Field definition for sub-message values.</p>
+<p>Message fields contain instance of other messages.  Instances stored
+on messages stored on message fields  are considered to be owned by
+the containing message instance and should not be shared between
+owning instances.</p>
+<p>Message fields must be defined to reference a single type of message.
+Normally message field are defined by passing the referenced message
+class in to the constructor.</p>
+<p>It is possible to define a message field for a type that does not yet
+exist by passing the name of the message in to the constructor instead
+of a message class.  Resolution of the actual type of the message is
+deferred until it is needed, for example, during message verification.
+Names provided to the constructor must refer to a class within the same
+python module as the class that is using it.  Names refer to messages
+relative to the containing messages scope.  For example, the two fields
+of OuterMessage refer to the same message type:</p>
+<blockquote>
+<div><p>class Outer(Message):</p>
+<blockquote>
+<div><p>inner_relative = MessageField(&#8216;Inner&#8217;, 1)
+inner_absolute = MessageField(&#8216;Outer.Inner&#8217;, 2)</p>
+<dl class="docutils">
+<dt>class Inner(Message):</dt>
+<dd>...</dd>
+</dl>
+</div></blockquote>
+</div></blockquote>
+<p>When resolving an actual type, MessageField will traverse the entire
+scope of nested messages to match a message name.  This makes it easy
+for siblings to reference siblings:</p>
+<blockquote>
+<div><p>class Outer(Message):</p>
+<blockquote>
+<div><p>class Inner(Message):</p>
+<blockquote>
+<div>sibling = MessageField(&#8216;Sibling&#8217;, 1)</div></blockquote>
+<dl class="docutils">
+<dt>class Sibling(Message):</dt>
+<dd>...</dd>
+</dl>
+</div></blockquote>
+</div></blockquote>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.services.pubsub.messages.Publish.kind">
+<tt class="descclassname">Publish.</tt><tt class="descname">kind</tt><a class="headerlink" href="#api.services.pubsub.messages.Publish.kind" title="Permalink to this definition">¶</a></dt>
+<dd><p>Field definition for enum values.</p>
+<p>Enum fields may have default values that are delayed until the associated enum
+type is resolved.  This is necessary to support certain circular references.</p>
+<p>For example:</p>
+<blockquote>
+<div><p>class Message1(Message):</p>
+<blockquote>
+<div><p>class Color(Enum):</p>
+<blockquote>
+<div>RED = 1
+GREEN = 2
+BLUE = 3</div></blockquote>
+<p># This field default value  will be validated when default is accessed.
+animal = EnumField(&#8216;Message2.Animal&#8217;, 1, default=&#8217;HORSE&#8217;)</p>
+</div></blockquote>
+<p>class Message2(Message):</p>
+<blockquote>
+<div><p>class Animal(Enum):</p>
+<blockquote>
+<div>DOG = 1
+CAT = 2
+HORSE = 3</div></blockquote>
+<p># This fields default value will be validated right away since Color is
+# already fully resolved.
+color = EnumField(Message1.Color, 1, default=&#8217;RED&#8217;)</p>
+</div></blockquote>
+</div></blockquote>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.services.pubsub.messages.Publish.message">
+<tt class="descclassname">Publish.</tt><tt class="descname">message</tt><a class="headerlink" href="#api.services.pubsub.messages.Publish.message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Field definition for sub-message values.</p>
+<p>Message fields contain instance of other messages.  Instances stored
+on messages stored on message fields  are considered to be owned by
+the containing message instance and should not be shared between
+owning instances.</p>
+<p>Message fields must be defined to reference a single type of message.
+Normally message field are defined by passing the referenced message
+class in to the constructor.</p>
+<p>It is possible to define a message field for a type that does not yet
+exist by passing the name of the message in to the constructor instead
+of a message class.  Resolution of the actual type of the message is
+deferred until it is needed, for example, during message verification.
+Names provided to the constructor must refer to a class within the same
+python module as the class that is using it.  Names refer to messages
+relative to the containing messages scope.  For example, the two fields
+of OuterMessage refer to the same message type:</p>
+<blockquote>
+<div><p>class Outer(Message):</p>
+<blockquote>
+<div><p>inner_relative = MessageField(&#8216;Inner&#8217;, 1)
+inner_absolute = MessageField(&#8216;Outer.Inner&#8217;, 2)</p>
+<dl class="docutils">
+<dt>class Inner(Message):</dt>
+<dd>...</dd>
+</dl>
+</div></blockquote>
+</div></blockquote>
+<p>When resolving an actual type, MessageField will traverse the entire
+scope of nested messages to match a message name.  This makes it easy
+for siblings to reference siblings:</p>
+<blockquote>
+<div><p>class Outer(Message):</p>
+<blockquote>
+<div><p>class Inner(Message):</p>
+<blockquote>
+<div>sibling = MessageField(&#8216;Sibling&#8217;, 1)</div></blockquote>
+<dl class="docutils">
+<dt>class Sibling(Message):</dt>
+<dd>...</dd>
+</dl>
+</div></blockquote>
+</div></blockquote>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.services.pubsub.messages.Publish.raw">
+<tt class="descclassname">Publish.</tt><tt class="descname">raw</tt><a class="headerlink" href="#api.services.pubsub.messages.Publish.raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Field definition for sub-message values.</p>
+<p>Message fields contain instance of other messages.  Instances stored
+on messages stored on message fields  are considered to be owned by
+the containing message instance and should not be shared between
+owning instances.</p>
+<p>Message fields must be defined to reference a single type of message.
+Normally message field are defined by passing the referenced message
+class in to the constructor.</p>
+<p>It is possible to define a message field for a type that does not yet
+exist by passing the name of the message in to the constructor instead
+of a message class.  Resolution of the actual type of the message is
+deferred until it is needed, for example, during message verification.
+Names provided to the constructor must refer to a class within the same
+python module as the class that is using it.  Names refer to messages
+relative to the containing messages scope.  For example, the two fields
+of OuterMessage refer to the same message type:</p>
+<blockquote>
+<div><p>class Outer(Message):</p>
+<blockquote>
+<div><p>inner_relative = MessageField(&#8216;Inner&#8217;, 1)
+inner_absolute = MessageField(&#8216;Outer.Inner&#8217;, 2)</p>
+<dl class="docutils">
+<dt>class Inner(Message):</dt>
+<dd>...</dd>
+</dl>
+</div></blockquote>
+</div></blockquote>
+<p>When resolving an actual type, MessageField will traverse the entire
+scope of nested messages to match a message name.  This makes it easy
+for siblings to reference siblings:</p>
+<blockquote>
+<div><p>class Outer(Message):</p>
+<blockquote>
+<div><p>class Inner(Message):</p>
+<blockquote>
+<div>sibling = MessageField(&#8216;Sibling&#8217;, 1)</div></blockquote>
+<dl class="docutils">
+<dt>class Sibling(Message):</dt>
+<dd>...</dd>
+</dl>
+</div></blockquote>
+</div></blockquote>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="api.services.pubsub.messages.Publish.timestamp">
+<tt class="descclassname">Publish.</tt><tt class="descname">timestamp</tt><a class="headerlink" href="#api.services.pubsub.messages.Publish.timestamp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Field definition for unicode string values.</p>
 </dd></dl>
 
@@ -216,8 +629,8 @@ embedded licenses and other legalese, see <cite>LICENSE.md</cite>.</p>
 </table>
 <dl class="class">
 <dt id="api.services.pubsub.service.PubSubService">
-<em class="property">class </em><tt class="descclassname">api.services.pubsub.service.</tt><tt class="descname">PubSubService</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/api/services/pubsub/service.html#PubSubService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.pubsub.service.PubSubService" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="api.services.html#api.services.APIService" title="api.services.APIService"><tt class="xref py py-class docutils literal"><span class="pre">api.services.APIService</span></tt></a></p>
+<em class="property">class </em><tt class="descclassname">api.services.pubsub.service.</tt><tt class="descname">PubSubService</tt><a class="reference internal" href="_modules/api/services/pubsub/service.html#PubSubService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.pubsub.service.PubSubService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">apptools.rpc.Service</span></tt></p>
 <p>Exposes methods for publishing and subscribing to the <cite>TrackedEvent</cite> stream.</p>
 <dl class="class">
 <dt id="api.services.pubsub.service.PubSubService.AsyncStub">
@@ -319,21 +732,9 @@ args: Tuple (request,):</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="api.services.pubsub.service.PubSubService.config">
-<tt class="descclassname">PubSubService.</tt><tt class="descname">config</tt><a class="reference internal" href="_modules/api/services/pubsub/service.html#PubSubService.config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.pubsub.service.PubSubService.config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Cached access to <cite>PubSubService</cite> config.</p>
-</dd></dl>
-
-<dl class="attribute">
 <dt id="api.services.pubsub.service.PubSubService.exceptions">
-<tt class="descclassname">PubSubService.</tt><tt class="descname">exceptions</tt><em class="property"> = &lt;apptools.util.datastructures.DictProxy object at 0x10af1d290&gt;</em><a class="headerlink" href="#api.services.pubsub.service.PubSubService.exceptions" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">PubSubService.</tt><tt class="descname">exceptions</tt><em class="property"> = &lt;apptools.util.datastructures.DictProxy object at 0x111dc05d0&gt;</em><a class="headerlink" href="#api.services.pubsub.service.PubSubService.exceptions" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="attribute">
-<dt id="api.services.pubsub.service.PubSubService.logging">
-<tt class="descclassname">PubSubService.</tt><tt class="descname">logging</tt><a class="reference internal" href="_modules/api/services/pubsub/service.html#PubSubService.logging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.services.pubsub.service.PubSubService.logging" title="Permalink to this definition">¶</a></dt>
-<dd><p>Cached access to dedicated log pipe.</p>
-</dd></dl>
 
 <dl class="method">
 <dt id="api.services.pubsub.service.PubSubService.publish">
@@ -476,6 +877,7 @@ ServerError: Response object is not of the correct type.</dd>
           <a href="api.services.event.html" title="event Package"
              >previous</a> |</li>
         <li><a href="index.html">Hermes</a> &raquo;</li>
+          <li><a href="modules.html" >Hermes</a> &raquo;</li>
           <li><a href="api.html" >api Package</a> &raquo;</li>
           <li><a href="api.services.html" >services Package</a> &raquo;</li> 
       </ul>

@@ -14,5 +14,6 @@ Subpackages
 
 .. toctree::
 
-    api.platform.ampush
+    api.platform.hermes
+    api.platform.tracker
 

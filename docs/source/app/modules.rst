@@ -6,9 +6,9 @@ Hermes
 
    api
    bootstrap
-   components
    config
    lib
    main
+   protocol
    tools
    util

@@ -53,25 +53,16 @@
   <h1>Source code for lib.apptools.model.adapter.inmemory</h1><div class="highlight"><pre>
 <span class="c"># -*- coding: utf-8 -*-</span>
 
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">allows apptools models to be stored in</span>
+<span class="sd">main RAM, as a testing tool.</span>
 
-<span class="sd">    apptools2: model adapter for thread memory</span>
-<span class="sd">    -------------------------------------------------</span>
-<span class="sd">    |                                               |   </span>
-<span class="sd">    |   `apptools.model.adapter.inmemory`           |</span>
-<span class="sd">    |                                               |</span>
-<span class="sd">    |   allows apptools models to be stored in      |</span>
-<span class="sd">    |   main RAM, as a testing tool.                |</span>
-<span class="sd">    |                                               |   </span>
-<span class="sd">    -------------------------------------------------</span>
-<span class="sd">    |   authors:                                    |</span>
-<span class="sd">    |       -- sam gammon (sam@momentum.io)         |</span>
-<span class="sd">    -------------------------------------------------   </span>
-<span class="sd">    |   changelog:                                  |</span>
-<span class="sd">    |       -- apr 1, 2013: initial draft           |</span>
-<span class="sd">    -------------------------------------------------</span>
-
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">:author: Sam Gammon (sam@momentum.io)</span>
+<span class="sd">:copyright: (c) 2013 momentum labs.</span>
+<span class="sd">:license: This is private source code - Ampush has been granted an</span>
+<span class="sd">          unlimited, exclusive license for embedded use. For details</span>
+<span class="sd">          about embedded licenses and other legalese, see `LICENSE.md`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="c"># stdlib</span>
 <span class="kn">import</span> <span class="nn">json</span>
@@ -162,7 +153,7 @@
 <div class="viewcode-block" id="InMemoryAdapter.put"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.inmemory.InMemoryAdapter.put">[docs]</a>    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">entity</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
 
         <span class="sd">&#39;&#39;&#39; Persist an entity to storage in Python RAM. &#39;&#39;&#39;</span>
-        
+
         <span class="k">global</span> <span class="n">_metadata</span>
         <span class="k">global</span> <span class="n">_datastore</span>
 
@@ -181,7 +172,8 @@
             <span class="c"># update count</span>
             <span class="n">_metadata</span><span class="p">[</span><span class="s">&#39;ops&#39;</span><span class="p">][</span><span class="s">&#39;put&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_metadata</span><span class="p">[</span><span class="s">&#39;ops&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;put&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
             <span class="n">_metadata</span><span class="p">[</span><span class="s">&#39;global&#39;</span><span class="p">][</span><span class="s">&#39;entity_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_metadata</span><span class="p">[</span><span class="s">&#39;global&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;entity_count&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
-            <span class="n">_metadata</span><span class="p">[</span><span class="s">&#39;kinds&#39;</span><span class="p">][</span><span class="n">entity</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">kind</span><span class="p">][</span><span class="s">&#39;entity_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_metadata</span><span class="p">[</span><span class="s">&#39;kinds&#39;</span><span class="p">][</span><span class="n">entity</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">kind</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;entity_count&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">kinded_entity_count</span> <span class="o">=</span> <span class="n">_metadata</span><span class="p">[</span><span class="s">&#39;kinds&#39;</span><span class="p">][</span><span class="n">entity</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">kind</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;entity_count&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">_metadata</span><span class="p">[</span><span class="s">&#39;kinds&#39;</span><span class="p">][</span><span class="n">entity</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">kind</span><span class="p">][</span><span class="s">&#39;entity_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kinded_entity_count</span> <span class="o">+</span> <span class="mi">1</span>
 
             <span class="c"># save to datastore</span>
             <span class="n">_datastore</span><span class="p">[</span><span class="n">encoded</span><span class="p">]</span> <span class="o">=</span> <span class="n">entity</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
@@ -210,7 +202,7 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">del</span> <span class="n">_datastore</span><span class="p">[</span><span class="n">encoded</span><span class="p">]</span>  <span class="c"># delete from datastore</span>
 
-            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>  <span class="c"># pragma: no cover</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>  <span class="c"># pragma: no cover</span>
                 <span class="n">_metadata</span><span class="p">[</span><span class="n">cls</span><span class="o">.</span><span class="n">_key_prefix</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">encoded</span><span class="p">)</span>
                 <span class="k">return</span> <span class="bp">False</span>  <span class="c"># untrimmed key</span>
 
@@ -256,7 +248,6 @@
         <span class="k">global</span> <span class="n">_metadata</span>
 
         <span class="c"># extract indexes</span>
-        <span class="n">_reverse_index_entries</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">encoded</span><span class="p">,</span> <span class="n">meta</span><span class="p">,</span> <span class="n">properties</span> <span class="o">=</span> <span class="n">writes</span>
 
         <span class="c"># write indexes one-by-one, generating reverse entries as we go</span>
@@ -288,7 +279,10 @@
 
                 <span class="k">continue</span>
 
-            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">write</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>  <span class="c"># simple map index</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">write</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>  <span class="c"># pragma: no cover</span>
+                <span class="c"># @TODO(sgammon): Do we need this?</span>
+
+                <span class="c"># simple map index</span>
 
                 <span class="c"># extract write, inflate</span>
                 <span class="n">index</span><span class="p">,</span> <span class="n">dimension</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">write</span>
@@ -311,7 +305,7 @@
                 <span class="k">continue</span>
 
             <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">write</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c"># simple set index</span>
-                
+
                 <span class="c"># extract write, inflate</span>
                 <span class="n">index</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">write</span>
 
@@ -359,7 +353,8 @@
                 <span class="k">continue</span>
 
             <span class="k">else</span><span class="p">:</span>  <span class="c"># pragma: no cover</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Index mapping tuples must have at least 2 entries, for a simple set index, or more for a hashed index.&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Index mapping tuples must have at least 2 entries,&quot;</span>
+                                 <span class="s">&quot;for a simple set index, or more for a hashed index.&quot;</span><span class="p">)</span>
 </div>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="InMemoryAdapter.clean_indexes"><a class="viewcode-back" href="../../../../../lib.apptools.model.adapter.html#lib.apptools.model.adapter.inmemory.InMemoryAdapter.clean_indexes">[docs]</a>    <span class="k">def</span> <span class="nf">clean_indexes</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">writes</span><span class="p">):</span>

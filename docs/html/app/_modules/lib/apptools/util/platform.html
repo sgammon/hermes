@@ -66,12 +66,16 @@
 
 <span class="kn">import</span> <span class="nn">os</span>
 
-<span class="kn">import</span> <span class="nn">config</span> <span class="kn">as</span> <span class="nn">sysconfig</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">config</span> <span class="kn">as</span> <span class="nn">sysconfig</span><span class="p">;</span> <span class="n">_APPCONFIG</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">sysconfig</span><span class="p">,</span> <span class="n">_APPCONFIG</span> <span class="o">=</span> <span class="p">{},</span> <span class="bp">False</span>
 
 <span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">debug</span>
 <span class="kn">from</span> <span class="nn">apptools.util</span> <span class="kn">import</span> <span class="n">_loadModule</span>
 
 <span class="n">logging</span> <span class="o">=</span> <span class="n">debug</span><span class="o">.</span><span class="n">AppToolsLogger</span><span class="p">(</span><span class="s">&#39;core.util.platform&#39;</span><span class="p">)</span>
+<span class="n">_BUILTIN_PLATFORMS</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">()</span>
 
 
 <span class="c">## PlatformInjector</span>
@@ -100,12 +104,16 @@
             <span class="n">adapters</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="n">platforms</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">environ</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span>
-            <span class="n">config</span> <span class="o">=</span> <span class="n">sysconfig</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apptools.system.platform&#39;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="k">if</span> <span class="n">_APPCONFIG</span><span class="p">:</span>
+                <span class="n">config</span> <span class="o">=</span> <span class="n">sysconfig</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;apptools.system.platform&#39;</span><span class="p">,</span> <span class="p">{})</span>
+                <span class="n">_found</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;installed_platforms&#39;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;debug&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>
+                <span class="n">_found</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">_BUILTIN_PLATFORMS</span><span class="p">[:])</span>
 
             <span class="c"># Consider installed platforms</span>
-            <span class="k">for</span> <span class="n">platform</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;installed_platforms&#39;</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="k">for</span> <span class="n">platform</span> <span class="ow">in</span> <span class="n">_found</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
-
                     <span class="c"># Import adapter if we don&#39;t have it yet</span>
                     <span class="k">if</span> <span class="n">platform</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;path&#39;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">adapters</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                         <span class="n">platform_adapter</span> <span class="o">=</span> <span class="n">_loadModule</span><span class="p">((</span><span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">platform</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;path&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">platform</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;path&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
@@ -115,17 +123,17 @@
 
                     <span class="c"># Check if the platform is compatible</span>
                     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">platform_adapter</span><span class="p">,</span> <span class="s">&#39;check_environment&#39;</span><span class="p">):</span>
-                        <span class="k">assert</span> <span class="n">platform_adapter</span><span class="o">.</span><span class="n">check_environment</span><span class="p">(</span><span class="n">environ</span><span class="p">,</span> <span class="n">sysconfig</span><span class="p">)</span> <span class="o">==</span> <span class="bp">True</span>
+                        <span class="k">assert</span> <span class="n">platform_adapter</span><span class="o">.</span><span class="n">check_environment</span><span class="p">(</span><span class="n">environ</span><span class="p">,</span> <span class="n">sysconfig</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">True</span>
 
                 <span class="c"># Couldn&#39;t find the platform...</span>
                 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">sysconfig</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">_APPCONFIG</span><span class="p">)</span> <span class="ow">or</span> <span class="n">sysconfig</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
                         <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;Platform &quot;</span><span class="si">%s</span><span class="s">&quot; is mentioned in config but could not be found at the configured path (&quot;</span><span class="si">%s</span><span class="s">&quot;).&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">platform</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;UnkownPlatform&#39;</span><span class="p">),</span> <span class="n">platform</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;path&#39;</span><span class="p">)))</span>
                     <span class="k">continue</span>
 
                 <span class="c"># Platform wasn&#39;t compatible...</span>
                 <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">sysconfig</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">_APPCONFIG</span><span class="p">)</span> <span class="ow">or</span> <span class="n">sysconfig</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
                         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Platform &quot;</span><span class="si">%s</span><span class="s">&quot; was tested and is not compatible with this environment. Continuing.&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">platform</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;UnknownPlatform&#39;</span><span class="p">)))</span>
                     <span class="k">continue</span>
 
@@ -181,7 +189,7 @@
                             <span class="nb">setattr</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">shortcut</span><span class="p">)</span>
                         <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
                             <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&#39;Platform config shortcut injection sequence for shortcut &quot;&#39;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s">&#39;&quot; on platform &quot;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;&quot; encountered an unhandled exception: &quot;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;&quot;.&#39;</span><span class="p">)</span>
-                            <span class="k">if</span> <span class="n">sysconfig</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">_APPCONFIG</span><span class="p">)</span> <span class="ow">or</span> <span class="n">sysconfig</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
                                 <span class="k">raise</span>
                             <span class="k">else</span><span class="p">:</span>
                                 <span class="k">continue</span>
@@ -206,7 +214,7 @@
                             <span class="nb">setattr</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">shortcut</span><span class="p">)</span>
                         <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
                             <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&#39;Platform config shortcut injection sequence for shortcut &quot;&#39;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s">&#39;&quot; on platform &quot;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;&quot; encountered an unhandled exception: &quot;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;&quot;.&#39;</span><span class="p">)</span>
-                            <span class="k">if</span> <span class="n">sysconfig</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">_APPCONFIG</span><span class="p">)</span> <span class="ow">or</span> <span class="n">sysconfig</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
                                 <span class="k">raise</span>
                             <span class="k">else</span><span class="p">:</span>
                                 <span class="k">continue</span>

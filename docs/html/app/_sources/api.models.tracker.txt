@@ -25,6 +25,14 @@ tracker Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`endpoint` Module
+----------------------
+
+.. automodule:: api.models.tracker.endpoint
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`event` Module
 -------------------
 
@@ -69,14 +77,6 @@ tracker Package
 -----------------
 
 .. automodule:: api.models.tracker.raw
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`tracker` Module
----------------------
-
-.. automodule:: api.models.tracker.tracker
     :members:
     :undoc-members:
     :show-inheritance:

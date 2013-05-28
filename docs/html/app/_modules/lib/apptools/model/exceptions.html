@@ -53,6 +53,18 @@
   <h1>Source code for lib.apptools.model.exceptions</h1><div class="highlight"><pre>
 <span class="c"># -*- coding: utf-8 -*-</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Model API: Exceptions</span>
+
+<span class="sd">Holds core exceptions for the :py:mod:`apptools.model` API.</span>
+
+<span class="sd">:author: Sam Gammon (sam@momentum.io)</span>
+<span class="sd">:copyright: (c) 2013 momentum labs.</span>
+<span class="sd">:license: This is private source code - Ampush has been granted an</span>
+<span class="sd">          unlimited, exclusive license for embedded use. For details</span>
+<span class="sd">          about embedded licenses and other legalese, see `LICENSE.md`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 
 <div class="viewcode-block" id="AbstractConstructionFailure"><a class="viewcode-back" href="../../../../lib.apptools.model.html#lib.apptools.model.exceptions.AbstractConstructionFailure">[docs]</a><span class="k">class</span> <span class="nc">AbstractConstructionFailure</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
     <span class="n">message</span> <span class="o">=</span> <span class="s">&quot;Cannot directly instantiate abstract class `</span><span class="si">%s</span><span class="s">`.&quot;</span>
@@ -92,6 +104,10 @@
 </div>
 <div class="viewcode-block" id="InvalidAttributeWrite"><a class="viewcode-back" href="../../../../lib.apptools.model.html#lib.apptools.model.exceptions.InvalidAttributeWrite">[docs]</a><span class="k">class</span> <span class="nc">InvalidAttributeWrite</span><span class="p">(</span><span class="ne">AttributeError</span><span class="p">):</span>
     <span class="n">message</span> <span class="o">=</span> <span class="s">&quot;Cannot </span><span class="si">%s</span><span class="s"> property </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s"> of model </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s"> before instantiation.&quot;</span>
+
+</div>
+<div class="viewcode-block" id="InvalidKeyAttributeWrite"><a class="viewcode-back" href="../../../../lib.apptools.model.html#lib.apptools.model.exceptions.InvalidKeyAttributeWrite">[docs]</a><span class="k">class</span> <span class="nc">InvalidKeyAttributeWrite</span><span class="p">(</span><span class="ne">AttributeError</span><span class="p">):</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="s">&quot;Cannot </span><span class="si">%s</span><span class="s"> property </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s"> of key </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s"> before instantiation.&quot;</span>
 
 </div>
 <div class="viewcode-block" id="InvalidAttribute"><a class="viewcode-back" href="../../../../lib.apptools.model.html#lib.apptools.model.exceptions.InvalidAttribute">[docs]</a><span class="k">class</span> <span class="nc">InvalidAttribute</span><span class="p">(</span><span class="ne">AttributeError</span><span class="p">):</span>

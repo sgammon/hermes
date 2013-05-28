@@ -54,14 +54,13 @@
 <span class="c"># -*- coding: utf-8 -*-</span>
 
 <span class="sd">&#39;&#39;&#39;</span>
-
-<span class="sd">Tracker Models: PubSub</span>
-
 <span class="sd">Contains models used in the `EventTracker` subsystem that are specifically related to</span>
 <span class="sd">fulfilling publish/subscribe infrastructure behind the global eventstream.</span>
 
-<span class="sd">-sam (&lt;sam.gammon@ampush.com&gt;)</span>
-
+<span class="sd">:author: Sam Gammon (sam.gammon@ampush.com)</span>
+<span class="sd">:copyright: (c) 2013 Ampush.</span>
+<span class="sd">:license: This is private source code - all rights are reserved. For details about</span>
+<span class="sd">          embedded licenses and other legalese, see `LICENSE.md`.</span>
 <span class="sd">&#39;&#39;&#39;</span>
 
 <span class="c"># apptools models</span>
@@ -74,9 +73,9 @@
 
     <span class="sd">&#39;&#39;&#39; A hit to the `EventTracker` server. &#39;&#39;&#39;</span>
 
-    <span class="n">channel</span> <span class="o">=</span> <span class="nb">basestring</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>  <span class="c"># named channel / named channel pattern expressed in Redis</span>
+    <span class="n">channel</span> <span class="o">=</span> <span class="nb">basestring</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>  <span class="c"># channel / named channel pattern expressed in Redis</span>
     <span class="n">pattern</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&#39;indexed&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>  <span class="c"># whether we want to do a Psubscribe on the given channel</span>
-    <span class="n">expiration</span> <span class="o">=</span> <span class="nb">int</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">86400</span><span class="p">}</span>  <span class="c"># negative value indicates expiration relative to creation time by X seconds - positive values are interpreted absolutely</span></div>
+    <span class="n">expiration</span> <span class="o">=</span> <span class="nb">int</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">86400</span><span class="p">}</span>  <span class="c"># value &lt; 0 indicates relative expiration in seconds, &gt; 0 is absolute</span></div>
 </pre></div>
 
           </div>

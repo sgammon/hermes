@@ -13,16 +13,12 @@ adapter Package
 ----------------------
 
 .. automodule:: lib.apptools.model.adapter.abstract
-    :members:
-    :undoc-members:
     :show-inheritance:
 
 :mod:`core` Module
 ------------------
 
 .. automodule:: lib.apptools.model.adapter.core
-    :members:
-    :undoc-members:
     :show-inheritance:
 
 :mod:`inmemory` Module
