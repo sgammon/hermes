@@ -10,6 +10,8 @@ latency-sensitive API services in a structured, flexible, and developer-friendly
 
    intro
    api
+   protocol
+   policy
    bootstrap
    components
    config
