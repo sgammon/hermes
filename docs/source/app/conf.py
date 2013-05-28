@@ -317,6 +317,9 @@ epub_copyright = u'Ampush, Inc (ampush.com)'
 # If false, no index is generated.
 #epub_use_index = True
 
-intersphinx_mapping = {'python': ('http://docs.python.org/2.7', None),
+intersphinx_mapping = {'python': ('http://docs.python.org/2.7/', None),
                        'webapp2': ('http://webapp-improved.appspot.com/', None),
-                       'jinja2': ('http://jinja.pocoo.org/docs/', None)}
+                       'jinja2': ('http://jinja.pocoo.org/docs/', None),
+                       'werkzeug': ('http://werkzeug.pocoo.org/docs/', None),
+                       'logbook': ('http://pythonhosted.org/Logbook/', None),
+                       'tornado': ('http://www.tornadoweb.org/en/stable/', None)}
