@@ -49,3 +49,4 @@ class PubSubService(rpc.Service):
         ''' Close and destroy an existing subscription. '''
 
         pass
+
