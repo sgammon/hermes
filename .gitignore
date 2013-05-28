@@ -12,5 +12,5 @@ coverage.xml
 .doctrees/*
 docs/app/.doctrees/*
 docs/api/.doctrees/*
-docs
-docs/*
+#docs
+#docs/*
