@@ -17,6 +17,12 @@ import collections
 # WebHandler
 from api.handlers import WebHandler
 
+# Policy Base
+from policy import base
+from policy import click
+from policy import impression
+from policy import conversion
+
 
 ## TrackerEndpoint - handles tracker hits.
 class TrackerEndpoint(WebHandler):
@@ -29,24 +35,16 @@ class TrackerEndpoint(WebHandler):
             :returns: Response to a tracker hit. '''
 
         # publish raw event first, propagating globally
-        raw = self.tracker.event.raw(self.request)
-        raw.put()  # save raw event
-
-        import pdb; pdb.set_trace()
-
         # collapse policy for this event, enforce, and fail-out from critical errors
-        with self.tracker.policy.interpret(self.tracker.resolve(raw)) as event:
+        raw, tracker, event = self.tracker.policy.interpret(*self.tracker.resolve(self.request, base.EventProfile))
 
-            # get ready to grab our execution flow
-            attributions, aggregations, integrations = [collections.deque() for x in (1, 2, 3)]
+        # get ready to grab our execution flow
+        attributions, aggregations, integrations = [collections.deque() for x in (1, 2, 3)]
 
-            import pdb; pdb.set_trace()
-            # first, store the tracked event (which should start a new pipeline for this request)
-            self.tracker.engine.persist(event, pipeline=True)
+        # first, store the tracked event (which should start a new pipeline for this request)
+        self.tracker.engine.persist(event, pipeline=True)
 
-            # publish tracked event
-            self.tracker.stream.publish(event, propagate=True)
+        # publish tracked event
+        self.tracker.stream.publish(event, propagate=True)
 
-            for attribution in event.attributions:
-                # @TODO: generate attribution spec
-                import pdb; pdb.set_trace()
+        return ''

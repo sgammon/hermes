@@ -25,9 +25,16 @@ class TrackerMode(meta.ProtocolDefinition):
     PRODUCTION = 'production'  # production: puts the tracker in ``production`` mode, which squelches non-data logs unless a problem occurs.
 
 
+## TrackerHeaders - keeps track of request header mappings.
+class TrackerHeaders(meta.ProtocolDefinition):
+
+    ''' Maps tracker control headers to names. '''
+
+    RESPONSE_MODE = 'XET-Mode'
+
+
 ## TrackerProtocol - keeps track of param mappings
 class TrackerProtocol(meta.ProtocolDefinition):
-
     ''' Maps params to named keys. '''
 
     # == Internal Params == #
@@ -38,6 +45,13 @@ class TrackerProtocol(meta.ProtocolDefinition):
     # Basic Event Params
     TYPE = 't'  # event type code or string
     TRACKER = 'id'  # tracker id
-    CONTRACT = 'c'  # contract / scope reference
-    SPEND = 's'  # total spend amount
     PROVIDER = 'p'  # event provider
+
+    # Ad-based Params
+    ADGROUP = 'g'  # ad group reference
+    CAMPAIGN = 'cc'  # ad campaign reference
+    CONTRACT = 'ct'  # contract / scope reference
+    SPEND = 's'  # total spend amount
+
+    # Builtin click params
+    DESTINATION = 'u'  # destination for click redirect

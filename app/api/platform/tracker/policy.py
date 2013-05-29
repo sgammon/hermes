@@ -12,6 +12,13 @@ attribution happens here.
           embedded licenses and other legalese, see `LICENSE.md`.
 '''
 
+
+# apptools model API
+from apptools import model
+
+# Protocol Suite
+from protocol import http
+
 # Platform Parent
 from api.platform import PlatformBridge
 
@@ -58,15 +65,54 @@ class PolicyEngine(PlatformBridge):
 
         pass
 
-    def interpret(tracker, raw_event):
+    def interpret(self, request, tracker, base_policy=None):
 
         ''' Gather, build, enforce and map policy for the
             given :py:class:`model.tracker.Tracker` and
             :py:class:`model.raw.Event`.
 
+            :param request:
             :param tracker:
-            :param raw_event:
             :returns: A newly-inflated and provably-valid
                       :py:class:`model.event.TrackedEvent` '''
 
-        pass
+        raw = self.bus.event.raw(request)
+
+        # resolve tracker for this request
+        tracker = self.bus.resolve(raw, request)
+
+        paramset = []
+        for parameter in base_policy.parameters:
+            prefix = parameter.config.get('category', '')  # grab category prefix
+            name = parameter.config.get('name', False)
+
+            if not name:
+                raise Exception("Invalid property name for parameter '%s'. Skipping." % parameter)
+
+            # compute identifier
+            identifier = ''.join([prefix, name])
+
+            if parameter.config.get('source', http.DataSlot.PARAM) == http.DataSlot.PARAM:
+                print "looking for param '%s' at compound name '%s'" % (parameter.name, identifier)
+                paramset.append((parameter, request.params.get(identifier)))
+
+            elif parameter.config.get('source') == http.DataSlot.HEADER:
+                print "looking for header '%s' at name '%s'" % (parameter.name, name)
+                paramset.append((parameter, request.headers.get(identifier)))
+
+            elif parameter.config.get('source') == http.DataSlot.COOKIE:
+                print "looking for cookie '%s' at name '%s'" % (parameter.name, name)
+                paramset.append((parameter, request.cookies.get(name)))
+
+        # factory a new model class to hold the data, assign to ``Redis``
+        _klass_params = {k.name: k.basetype for k, value in paramset}
+        _klass_params.update({'__adapter__': 'RedisAdapter'})
+
+        evmodel = model.Model.__metaclass__.__new__(model.Model, "TrackedEvent", (model.Model,), _klass_params)
+
+        # initialize new model
+        ev = evmodel(**{k.name: value for k, value in paramset})
+
+        # return tupled <raw>, <tracker>, <ev>
+        return raw, tracker, ev
+

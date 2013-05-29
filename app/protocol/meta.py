@@ -49,7 +49,7 @@ class Definition(object):
             _special_properties = {k: v for k, v in properties.iteritems() if k.startswith('_')}
 
             # examine bindings, group options in descriptors
-            if properties.get('__frozen__', False):
+            if properties.get('__frozen__', False) is False:
                 for k, v in _nonspecial_properties.iteritems():
                     if isinstance(v, tuple):
                         _binding_config[k] = v[1]  # map config into `_binding_config`
@@ -166,7 +166,28 @@ class ProtocolBinding(Definition):
 
     ''' ProtocolBinding. '''
 
+    # == Object Members == #
+    __config__ = None
     __frozen__ = False
+    __subtype__ = None
+
+    # == Internals == #
+    def __init__(self, subtype=None, **kwargs):
+
+        ''' Initialize this :py:class:`ProtocolBinding`,
+            optionally with a specified ``subtype``.
+
+            :param subtype: Name of a subtype to factory
+                            for this :py:class:`ProtocolBinding`.
+
+            :param kwargs: Configuration ``dict`` for this
+                           :py:class:`ProtocolBinding`, in the
+                           form of keyword arguments.
+
+            :returns: Nothing, as this is a constructor. '''
+
+        print "%s(%s, %s)" % (self.__class__.__name__, subtype, kwargs)
+        self.__subtype__, self.__config__ = subtype, kwargs
 
 
 class ProtocolDefinition(Definition):

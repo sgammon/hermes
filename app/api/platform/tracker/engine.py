@@ -91,6 +91,15 @@ class EventEngine(PlatformBridge):
 
         return self.adapter(engine, kind).pipeline()
 
+    def persist(self, entity, pipeline=False):
+
+        ''' Persist an event. '''
+
+        ## first, put it
+        event_k = entity.put()
+
+        return event_k
+
     def publish(self, channels, value):
 
         ''' Low-level method to publish a message to

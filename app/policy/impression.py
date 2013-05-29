@@ -15,6 +15,7 @@ from policy.base import EventProfile
 
 # protocol suite
 from protocol import event
+from protocol import intake
 from protocol.decorators import param
 from protocol.parameter.group import ParameterGroup
 
@@ -32,3 +33,11 @@ class Impression(EventProfile):
         ''' Parameter group for base tracker parameters. '''
 
         type = event.EventType.IMPRESSION
+
+    @param.values
+    class System(ParameterGroup):
+
+        ''' Indicate the input channel for 'IMPRESSION'. '''
+
+        # Channel: impressions usually come in through HTTP.
+        channel = intake.InputChannel.HTTP

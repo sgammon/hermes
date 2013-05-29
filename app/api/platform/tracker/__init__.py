@@ -97,16 +97,20 @@ class Tracker(Platform):
         return inject_tracker
 
     ## == Tracker Internals == ##
-    def resolve(self, raw_event):
+    def resolve(self, request, base_policy=None):
 
         ''' Resolves a ``model.Tracker`` for a given
-            ``model.RawEvent``.
+            ``webapp2.Request``.
 
-            :param raw_event: Object :py:class:`model.RawEvent` to
-                              resolve a :py:class:`model.Tracker` for.
-            :returns: An inflated ``model.Tracker`` object. '''
+            :param request: Object :py:class:`webapp2.Request` to
+                            resolve a :py:class:`model.Tracker` for.
+            :keyword base_policy: Base policy suite to consider.
+            :returns: Tuple with inflated ``model.Tracker`` object
+                      and passed-in base policy, to be used down the
+                      policy processing flow at ``tracker.policy.interpret``. '''
 
-        pass
+        tracker = None
+        return request, tracker, base_policy
 
     def provision(self, *args, **kwargs):
 
