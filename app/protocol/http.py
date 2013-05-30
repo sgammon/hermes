@@ -24,6 +24,7 @@ class DataSlot(meta.ProtocolDefinition):
     PARAM = 0x2  # POST or GET parameters (webapp2 abstracts this for us)
     HEADER = 0x3  # request or response headers (mapped to `flags` and `opts` in services)
     COOKIE = 0x4  # HTTP cookie, where key is the name of the cookie
+    PATH = 0x5  # HTTP path component (inside the URL)
 
 
 ## RequestMethod - indicates the HTTP method of a tracker request.

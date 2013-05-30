@@ -2,7 +2,7 @@
 
 '''
 
-Base Policy
+Policy Base
 
 Description coming soon.
 
@@ -10,8 +10,10 @@ Description coming soon.
 
 '''
 
+# policy core
+from policy import core
+
 # protocol bindings
-from protocol import meta
 from protocol import http
 from protocol import event
 from protocol import intake
@@ -27,9 +29,6 @@ from protocol import integration
 from protocol import attribution
 from protocol import aggregation
 
-# apptools util
-from apptools.util import decorators as util
-
 
 ## Constants
 _DEFAULT_COOKIE_NAME = "_amp"
@@ -42,395 +41,9 @@ _DEFAULT_LOOKBACK = (timedelta.TimeWindow.ONE_DAY,
                      timedelta.TimeWindow.FOREVER)
 
 
-## Profile
-# Metaclass that provides structure for overridable profiles.
-class Profile(type):
-
-    ''' Abstract :py:class:`EventProfile` metaclass that provides
-        structure for overridable profiles and enforces strict
-        schema rules.
-
-        An encapsulated class at :py:attr:`Profile.Interpreter`
-        is used to read, merge, and export profile structures
-        defined via :py:class:`EventProfile`-subclasses. '''
-
-    ## Interpreter
-    # Manages interpretation and merging of `Profile` descendents.
-    class Interpreter(object):
-
-        ''' Manages interpretation and merging of `Profile`
-            descendents, and contains utility functions to
-            break each discrete component down into an
-            element in a virtual ``AST``-like structure. '''
-
-        ## == Public Members == ##
-        primitives = None
-        parameters = None
-        aggregations = None
-        attributions = None
-        integrations = None
-
-        ## == Internal Members == ##
-        __tree__ = None
-        __subtype__ = None
-        __profile__ = None
-        __compound__ = None
-        __interpreted__ = None
-
-        ## == Internals == ##
-        def __init__(self, name, specs):
-
-            ''' Instantiate a new ``Interpreter``, and attach
-                the given ``profile`` for future work.
-
-                :param profile: :py:class:`EventProfile` subclass
-                                to interpret or merge.
-
-                :returns: Nothing, this is a constructor. '''
-
-            self.__subtype__, self.__profile__ = name, specs
-
-        def _build_paramgroup(self, policy, group, inline=True):
-
-            ''' Build a ``ParameterGroup`` object from a direct
-                subclass, embedded in a :py:class:`EventProfile`
-                definition.
-
-                :param policy: Parent policy class (derivative of
-                               :py:class:`EventProfile`) that we
-                               are processing for, so we can
-                               inform sub-objects.
-
-                :param group: The :py:class:`ParameterGroup`
-                              subclass to compile.
-
-                :return: An instantiated and properly filled-out
-                        :py:class:`ParameterGroup` object. '''
-
-            #import pdb; pdb.set_trace()
-
-            # overlay parameter path, init params list
-            parameters, mainconfig = [], {
-                'definition': {
-                    'path': '.'.join(group.__module__.split('.') + [self.__subtype__]),
-                    'name': group.__name__
-                }
-            }
-
-            # build and initialize parameters
-            for param, config in dict(((i, group.__dict__[i]) for i in group.__forward__)).iteritems():
-
-                if isinstance(config, tuple):  # we're configuring schema
-                    basetype, config = config
-
-                    # update with mainconfig, build and append
-                    config.update(mainconfig)
-                    parameters.append(parameter.Parameter(param, basetype, **config))
-
-                else:  # we're probably configuring values
-
-                    value = basetype  # for clarity's sake
-
-                    # use main config, add sentinel for value
-                    config = {'mode': parameter.group.ParameterDeclarationMode.VALUES}
-                    parameters.append(parameter.Parameter(param, basetype=None, value=value, **config))
-
-            return parameter.ParameterGroup(group.__name__, parameters, inline=inline)
-
-        def _build_integration(self, policy, spec, inline=True):
-
-            ''' Build an ``Integration`` object from a
-                specification encountered in a subclass of
-                :py:class:`EventProfile`.
-
-
-                :param policy: Parent policy class (derivative of
-                               :py:class:`EventProfile`) that we
-                               are processing for, so we can
-                               inform sub-objects.
-
-                :param spec: Class structure and specification, as
-                             found in the encapsulating
-                             :py:class:`EventProfile`.
-
-                :keyword inline: Indicates that this is a subclass
-                                   defined inline in an encapsulating
-                                   :py:class:`EventProfile`. Defaults
-                                   to ``True``.
-
-                :returns: An instantiated and properly filled-out
-                          :py:class:`IntegrationGroup` object. '''
-
-            #return integration.Integration()
-            return spec
-
-        def _build_attribution(self, policy, spec, compound=False):
-
-            ''' Build an ``Attribution`` or ``CompoundAttribution``
-                from a specification encountered in a subclass of
-                :py:class:`EventProfile`.
-
-
-                :param policy: Parent policy class (derivative of
-                               :py:class:`EventProfile`) that we
-                               are processing for, so we can
-                               inform sub-objects.
-
-                :param spec: Class structure and specification, as
-                             found in the encapsulating
-                             :py:class:`EventProfile`.
-
-                :keyword compound: Indicates that this is a subclass
-                                   of :py:class:`CompoundAttribution`,
-                                   and may span more than one hashed
-                                   property or include special code.
-                                   Defaults to ``False``.
-
-                :returns: An instantiated and properly filled-out
-                          :py:class:`AttributionGroup` object. '''
-
-            #return attribution.Attribution
-            return spec
-
-        def _build_aggregation(self, policy, spec, compound=False):
-
-            ''' Build an ``Aggregation`` or ``CompoundAggregation``
-                from a specification encountered in a subclass of
-                :py:class:`EventProfile`.
-
-                :param policy: Parent policy class (derivative of
-                               :py:class:`EventProfile`) that we
-                               are processing for, so we can
-                               inform sub-objects.
-
-                :param spec: Class structure and specification, as
-                             found in the encapsulating
-                             :py:class:`EventProfile`.
-
-                :keyword compound: Indicates that this is a subclass
-                                   of :py:class:`CompoundAggregation`,
-                                   and may span more than one hashed
-                                   property or include special code.
-                                   Defaults to ``False``.
-
-                :returns: An instantiated and properly filled-out
-                          :py:class:`AggregationGroup` object. '''
-
-            #return aggregation.Aggregation
-            return spec
-
-        _builders = {
-            integration.Integration: ('integrations', _build_integration),
-            attribution.Attribution: ('attributions', _build_attribution),
-            aggregation.Aggregation: ('aggregations', _build_aggregation),
-            parameter.ParameterGroup: ('parameters', _build_paramgroup)
-        }
-
-        ## == Public Methods == ##
-        def build(self):
-
-            ''' Build a :py:class:`EventProfile` descendent
-                into a fully-structured object.
-
-                :returns: ``self``, for method chainability. '''
-
-            # initialize compound structure
-            compound = {
-                'primitives': [],
-                'parameters': [],
-                'aggregations': [],
-                'attributions': [],
-                'integrations': []
-            }
-
-            for (parent, subspecs) in self.__profile__.iteritems():
-                for spec, spec_klass, flag in subspecs:
-                    attr, builder = self._builders[parent]
-                    compound[attr].append(builder(self, spec_klass, spec, flag))
-                    compound['primitives'].append(spec_klass)
-
-            # assign locally
-            for k, v in compound.items():
-                setattr(self, k, frozenset(v))  # attach at desired mountpoint
-
-            return self
-
-        def overlay(self, target, override=False):
-
-            ''' Build or update this :py:class:`Interpreter`'s
-                understanding of the current ``compound`` profile.
-
-                :param target: Foreign :py:class:`EventProfile`
-                               descendent to merge.
-
-                :keyword override: Bool indicating whether the
-                                   overlayed profile should take
-                                   override priority. Defaults to
-                                   ``False``.
-
-                :returns: ``self``, for method chainability. '''
-
-            return self
-
-        __call__ = overlay
-
-    def __new__(cls, name, bases, properties):
-
-        ''' Construct a new :py:class:`Profile` descendent.
-
-            :param name: Profile name to dynamically construct.
-            :param bases: Base classes for target profile class.
-            :param properties: Class-level property mappings.
-            :raises RuntimeError: In the case of an invalid spec parent.
-            :returns: Constructed :py:class:`Profile` descendent. '''
-
-        if name not in frozenset(('Profile', 'AbstractProfile')):  # must filter by string, `AbstractProfile` comes through here
-
-            ## grab specs
-            spec = {}
-            for spec_name, spec_klass in filter(lambda x: not x[0].startswith('_'), properties.iteritems()):
-
-                # look for protocol binding subclasses
-                if isinstance(spec_klass, type) and issubclass(spec_klass, meta.ProtocolBinding):
-
-                    # pluck parent and specification structure
-                    parent, subspec = spec_klass.__bases__[0], spec_klass
-
-                    # add to specs, initializing the parent as we go
-                    if parent not in spec:
-                        spec[parent] = []
-
-                    # grab builder and build
-                    if parent not in cls.Interpreter._builders:
-                        raise RuntimeError('Encountered invalid specification parent'
-                                           ' "%s" in strict subclass "%s".' % (spec_klass, name))
-
-                    spec[parent].append((subspec, spec_klass, True))
-
-            ## set up class internals and build
-            _klass = {
-                '__interpreter__': cls.Interpreter(name, spec).build()
-            }
-
-            ## substitute our class definition
-            properties = _klass
-
-        return super(cls, cls).__new__(cls, name, bases, properties)
-
-    def _mro(cls):
-
-        ''' Calculate method resolution order for a
-            :py:class:`Profile` descendent.
-
-            :returns: Calculated MRO path for a non-meta
-                      :py:class:`Profile` descendent. '''
-
-        return (cls,)
-
-
-## AbstractProfile
-# Enforces application of metaclasses and intercepts construction calls.
-class AbstractProfile(object):
-
-    ''' Abstract :py:class:`EventProfile` parent that enforces
-        proper use of the :py:class:`Profile` metaclass, and
-        prevents incorrect construction / instantiation. '''
-
-    __metaclass__ = Profile
-
-    def __new__(cls, *args, **kwargs):
-
-        ''' Disallow instantiation of :py:class:`AbstractProfile`
-            descendents, as they are meant to be structural schema
-            and not ephemeral objects.
-
-            :param *args: Positional argument rollup.
-            :param **kwargs: Keyword argument rollup.
-            :raises: :py:exc:`NotImplementedError`, always. '''
-
-        raise NotImplementedError('Cannot instantiate abstract'
-                                  'class `%s`.' % cls.__name__)
-
-    @util.memoize
-    @util.classproperty
-    def primitives(cls):
-
-        ''' For each configured primitive extension
-            binding, delegate to the embedded local
-            :py:class:`Interpreter`, and yield each,
-            one-at-a-time.
-
-            :returns: Yields each configured primitive
-            binding, one-at-a-time. '''
-
-        for i in cls.__interpreter__.primitives:
-            yield i
-
-    @util.memoize
-    @util.classproperty
-    def parameters(cls):
-
-        ''' For each configured parameter attached to this
-            profile, delegate to the embedded local
-            :py:class:`Interpreter`, and yield each, one
-            at a time.
-
-            :returns: Yields each configured :py:class:`Parameter`,
-            one-at-a-time. '''
-
-        for group in cls.__interpreter__.parameters:
-            for parameter in group:
-                yield parameter
-
-    @util.memoize
-    @util.classproperty
-    def attributions(cls):
-
-        ''' For each configured attribution attached to this
-            profile, delegate to the embedded local
-            :py:class:`Interpreter`, and yield each, one
-            at a time.
-
-            :returns: Yields each configured :py:class:`Attribution`,
-            one-at-a-time. '''
-
-        for attribution in cls.__interpreter__.attributions:
-            yield attribution
-
-    @util.memoize
-    @util.classproperty
-    def aggregations(cls):
-
-        ''' For each configured aggregation attached to this
-            profile, delegate to the embedded local
-            :py:class:`Interpreter`, and yield each, one
-            at a time.
-
-            :returns: Yields each configured :py:class:`Aggregation`,
-            one-at-a-time. '''
-
-        for aggregation in cls.__interpreter__.aggregations:
-            yield aggregation
-
-    @util.memoize
-    @util.classproperty
-    def integrations(cls):
-
-        ''' For each configured integration attached to this
-            profile, delegate to the embedded local
-            :py:class:`Interpreter`, and yield each, one
-            at a time.
-
-            :returns: Yields each configured :py:class:`Integration`,
-            one-at-a-time. '''
-
-        for integration in cls.__interpreter__.integrations:
-            yield integration
-
-
 ## EventProfile
 # Default Event Profile.
-class EventProfile(AbstractProfile):
+class EventProfile(core.AbstractProfile):
 
     ''' Root concrete :py:class:`EventProfile` class. This is
         the eventual inheritance target for all ``EventProfile``
@@ -456,7 +69,7 @@ class EventProfile(AbstractProfile):
             'binding': event.EventType,
             'category': parameter.ParameterType.INTERNAL,
             'aggregations': [
-                aggregation.Aggregation(name='events-by-type', interval=_DEFAULT_LOOKBACK)
+                aggregation.Aggregation('events-by-type', interval=_DEFAULT_LOOKBACK)
             ]
         }
 
@@ -469,17 +82,6 @@ class EventProfile(AbstractProfile):
             'category': parameter.ParameterType.INTERNAL
         }
 
-        # Tracker: represents the ID of the parent tracker for the current hit.
-        tracker = basestring, {
-            'policy': parameter.ParameterPolicy.REQUIRED,
-            'source': http.DataSlot.PARAM,
-            'name': builtin.TrackerProtocol.TRACKER,
-            'category': parameter.ParameterType.AMPUSH,
-            'aggregations': [
-                aggregation.Aggregation(name='events-by-tracker', interval=_DEFAULT_LOOKBACK)
-            ]
-        }
-
         # Provider: represents the ID string of the provider of this hit.
         provider = basestring, {
             'policy': parameter.ParameterPolicy.OPTIONAL,
@@ -488,7 +90,21 @@ class EventProfile(AbstractProfile):
             'binding': event.EventProvider,
             'category': parameter.ParameterType.INTERNAL,
             'aggregations': [
-                aggregation.Aggregation(name='events-by-provider', interval=_DEFAULT_LOOKBACK)
+                aggregation.Aggregation('events-by-provider', interval=_DEFAULT_LOOKBACK)
+            ]
+        }
+
+        # Tracker: represents the ID of the parent tracker for the current hit.
+        tracker = basestring, {
+            'policy': parameter.ParameterPolicy.REQUIRED,
+            'source': http.DataSlot.PARAM,
+            'name': builtin.TrackerProtocol.TRACKER,
+            'category': parameter.ParameterType.AMPUSH,
+            'aggregations': [
+                aggregation.Aggregation('events-by-tracker', interval=_DEFAULT_LOOKBACK, permutations=[
+                    ('by-type', 'Base.TYPE'),
+                    ('by-provider', 'Base.PROVIDER')
+                ])
             ]
         }
 
@@ -499,7 +115,12 @@ class EventProfile(AbstractProfile):
             'name': builtin.TrackerProtocol.CONTRACT,
             'category': parameter.ParameterType.AMPUSH,
             'aggregations': [
-                aggregation.Aggregation(name='events-by-contract', interval=_DEFAULT_LOOKBACK)
+                aggregation.Aggregation('events-by-contract', interval=_DEFAULT_LOOKBACK, permutations=[
+                    ('by-type', 'Base.TYPE'),
+                    ('by-tracker', 'Base.TRACKER'),
+                    ('by-provider', 'Base.PROVIDER'),
+                    ('by-type-by-provider', ('Base.TYPE', 'Base.PROVIDER'))
+                ])
             ]
         }
 
@@ -514,7 +135,7 @@ class EventProfile(AbstractProfile):
             'name': environment.BrowserEnvironment.OS,
             'category': parameter.ParameterType.DATA,
             'aggregations': [
-                aggregation.Aggregation(name='hits-by-os', interval=_DEFAULT_LOOKBACK)
+                aggregation.Aggregation('hits-by-os', interval=_DEFAULT_LOOKBACK)
             ]
         }
 
@@ -541,22 +162,12 @@ class EventProfile(AbstractProfile):
             'name': environment.BrowserEnvironment.BROWSER,
             'category': parameter.ParameterType.DATA,
             'aggregations': [
-                aggregation.Aggregation(name='hits-by-browser', interval=_DEFAULT_LOOKBACK)
-            ]
-        }
-
-    class Consumer(parameter.ParameterGroup):
-
-        ''' Parameter group for identifying unique consumers. '''
-
-        # Fingerprint: The consumer profile fingerprint, either encountered or created.
-        fingerprint = basestring, {
-            'policy': parameter.ParameterPolicy.SPECIAL,
-            'source': http.DataSlot.COOKIE,
-            'name': _DEFAULT_COOKIE_NAME,
-            'category': parameter.ParameterType.INTERNAL,
-            'attributions': [
-                attribution.Attribution(name='hits-to-cookies')
+                aggregation.Aggregation('hits-by-browser', interval=_DEFAULT_LOOKBACK, permutations=[
+                    ('by-os', 'Environment.OS'),
+                    ('by-type', 'Base.TYPE'),
+                    ('by-provider', 'Base.PROVIDER'),
+                    ('by-provider-by-type', ('Base.PROVIDER', 'Base.TYPE'))
+                ])
             ]
         }
 
@@ -574,11 +185,40 @@ class EventProfile(AbstractProfile):
 
     class Funnel(parameter.ParameterGroup):
 
-        ''' Describes parameters relating to the advertising funnel. '''
+        ''' Models the ad/marketing funnel. '''
 
+        # Adgroup: The Ampush adgroup ID that generated this ``Event``, if any.
         adgroup = basestring, {
             'policy': parameter.ParameterPolicy.REQUIRED,
             'source': http.DataSlot.PARAM,
             'name': builtin.TrackerProtocol.ADGROUP,
-            'category': parameter.ParameterType.AMPUSH
+            'category': parameter.ParameterType.AMPUSH,
+            'attributions': [
+                attribution.Attribution(name='hits-by-browser', interval=_DEFAULT_LOOKBACK, permutations=[
+                    ('by-consumer', 'Consumer.FINGERPRINT')
+                ])
+            ],
+            'aggregations': [
+                attribution.Attribution(name='hits-by-browser', interval=_DEFAULT_LOOKBACK, permutations=[
+                    ('by-consumer', 'Consumer.FINGERPRINT')
+                ])
+            ]
         }
+
+    class Consumer(parameter.ParameterGroup):
+
+        ''' Models the end-consumer. '''
+
+        # Fingerprint: The consumer profile fingerprint, either encountered or created.
+        fingerprint = basestring, {
+            'policy': parameter.ParameterPolicy.SPECIAL,
+            'source': http.DataSlot.COOKIE,
+            'name': _DEFAULT_COOKIE_NAME,
+            'category': parameter.ParameterType.INTERNAL
+        }
+
+    class CompoundTest(attribution.CompoundAttribution):
+
+        ''' Test compound spec. '''
+
+        hash = (lambda: EventProfile.Base.TYPE, lambda: EventProfile.Consumer.FINGERPRINT)

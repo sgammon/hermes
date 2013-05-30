@@ -108,9 +108,8 @@ class PolicyEngine(PlatformBridge):
         _klass_params = {k.name: k.basetype for k, value in paramset}
         _klass_params.update({'__adapter__': 'RedisAdapter'})
 
+        # factory and initialize dynamic trackedevent model
         evmodel = model.Model.__metaclass__.__new__(model.Model, "TrackedEvent", (model.Model,), _klass_params)
-
-        # initialize new model
         ev = evmodel(**{k.name: value for k, value in paramset})
 
         # return tupled <raw>, <tracker>, <ev>
