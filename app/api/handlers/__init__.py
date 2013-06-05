@@ -45,7 +45,7 @@ class WebHandler(core.BaseHandler, rpc.ConfiguredClass):
 
         'secure': config.production,  # whether to communicate over HTTPS (switches on production deployment)
         'consumer': 'hermes' if (config.production is True) else 'hermes-sandbox',  # API consumer name
-        'endpoint': 'api.amp.sh' if (config.production is True) else '127.0.0.1:8080',  # API endpoint
+        'endpoint': 'amp.sh' if (config.production is True) else '127.0.0.1:8080',  # API endpoint
 
         'realtime': {  # realtime / websocket settings
             'enabled': False,  # enable/disable realtime
