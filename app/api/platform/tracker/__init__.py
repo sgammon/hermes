@@ -97,7 +97,7 @@ class Tracker(Platform):
         return inject_tracker
 
     ## == Tracker Internals == ##
-    def resolve(self, request, base_policy=None):
+    def resolve(self, request, base_policy=None, legacy=False):
 
         ''' Resolves a ``model.Tracker`` for a given
             ``webapp2.Request``.

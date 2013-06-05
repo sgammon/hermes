@@ -9,55 +9,58 @@ Harness API
           embedded licenses and other legalese, see `LICENSE.md`.
 '''
 
+# 3rd party
+import webapp2
+
+# policy libraries
+from policy import *
+
+# protorpc
+from protorpc import messages
+
 # apptools
 from apptools import rpc
 from apptools import model
 from apptools.util import datastructures
 
-# policy libraries
-from policy import core
-from policy import base
-from policy import click
-from policy import conversion
-from policy import impression
+# tracker endpoints
+from api.handlers.tracker import TrackerEndpoint
+from api.handlers.tracker.legacy import LegacyEndpoint
 
 
-#### +=+=+ Request/Response Messages +=+=+ ####
+#### +=+=+ Messages +=+=+ ####
+class URLTestRequest(model.Model):
+
+    ''' A request to test a bunch of URLs. '''
+
+    spec = basestring, {'repeated': True}
 
 
-## SpecRequest - expresses a request for a profile spec.
-class SpecRequest(model.Model):
+class URLTestResult(model.Model):
 
-    ''' Request a specific profile specification. '''
+    ''' A test result for a single URL. '''
 
-    profile = basestring, {'required': True}
+    # basic identifying information
+    key = basestring
+    url = basestring, {'required': True}
 
+    # error information
+    code = basestring
+    message = basestring
 
-## SpecResponse - expresses a response to a request for a profile spec.
-class SpecResponse(model.Model):
-
-    ''' Response to a :py:class:`SpecRequest`. '''
-
+    # profile and request status
+    status = basestring, {'required': True}
     profile = basestring
-    spec = dict
-    html = basestring
 
 
-## BuildRequest - expresses a request to build a URL.
-class BuildRequest(model.Model):
+class URLTestResults(messages.Message):
 
-    ''' Request to build a URL from a profile and filled-out spec. '''
+    ''' A response to a request to test a bunch of URLs. '''
 
-    profile = basestring
-    params = dict
-
-
-## BuildResponse - expresses a built URL.
-class BuildResponse(model.Model):
-
-    ''' Response to a :py:class:`BuildRequest`. '''
-
-    url = basestring
+    results = messages.MessageField(URLTestResult.to_message_model(), 1, repeated=True)
+    count = messages.IntegerField(2, default=0)
+    successes = messages.IntegerField(3, default=0)
+    failures = messages.IntegerField(4, default=0)
 
 
 #### +=+=+ Exceptions +=+=+ ####
@@ -68,9 +71,16 @@ class HarnessException(rpc.remote.ApplicationError):
     pass
 
 
-class InvalidProfile(HarnessException):
+class NoTestURLs(HarnessException):
 
-    ''' Indicates that a provided profile path was invalid. '''
+    ''' Raised when there are no URLs to test. '''
+
+    pass
+
+
+class InvalidURL(HarnessException):
+
+    ''' Raised when an invalid URL is encountered for testing. '''
 
     pass
 
@@ -88,49 +98,96 @@ class HarnessService(rpc.Service):
 
     exceptions = datastructures.DictProxy(**{
         'generic': HarnessException,
-        'invalid_profile': InvalidProfile
+        'no_urls': NoTestURLs,
+        'invalid_url': InvalidURL
     })
 
-    @rpc.method(SpecRequest, SpecResponse)
-    def profile_spec(self, request):
+    @rpc.method(URLTestRequest, URLTestResults)
+    def test_urls(self, request):
 
-        ''' Retrieve a profile spec, rendered in HTML. '''
+        ''' Pass a set of URLs through a test routine.
 
-        import pdb; pdb.set_trace()
+            :param request: :py:class:`URLTestRequest` message for
+            the current request.
 
-        try:
-            # attempt to import target profile
-            profile = None
-            for path, name in core.Profile.registry:
-                if request.profile == '.'.join([path, name]):
-                    profile = core.Profile.registry[(path, name)]
-                    break
+            :returns: :py:class:`URLTestResults` message for the
+            current request. '''
 
-            # fail if we can' find it
-            if not profile:
-                raise self.exceptions.invalid_profile('Failed to resolve profile at path "%s".' % request.profile)
+        if not len(request.spec):
+            raise self.exceptions.no_urls('No test URLs provided.')
 
-            # generate schema
-            schema = profile.to_schema_struct()
+        test_results = []
+        for spec in request.spec:
 
-            # generate HTML from profile, return that and struct
-            return SpecResponse(**{
-                'profile': request.profile,
-                'spec': schema,
-                'html': self.render('fragments/profile_spec.html', path=request.profile, spec=schema)
-            })
+            try:
 
-        except HarnessException as e:
-            raise  # re-raise harness exceptions
+                # filter out `http://`
+                usplit = spec.split('//')
+                rightwindow = usplit[1] if (len(usplit) == 2) else usplit[0]
 
-        except Exception as e:
-            error = "Unhandled app-level exception of type '%s': %s"
-            raise self.exceptions.generic(error % (e.__class__.__name__, str(e)))
+                # split by url components, drop domain
+                usplit = rightwindow.split('/')
+                rightwindow = '/'.join(usplit[1:]) if (len(usplit) > 1) else None
 
+                # fail if it's _just_ a domain
+                if not rightwindow:
+                    raise self.exceptions.invalid_url('Invalid URL encountered: "%s". Could not detect PATH.' % spec)
 
-    @rpc.method(BuildRequest, BuildResponse)
-    def build_url(self, request):
+                # split out params to work with prefix
+                endpoint, querystring = tuple(rightwindow.split('?'))
 
-        ''' Build a URL from a filled-out spec. '''
+                if endpoint == 'image.php':
+                    legacy = True  # it's a legacy pixel
+                    endpoint = '__legacy'
 
-        pass
+                else:
+                    legacy = False  # it's a modern pixel
+                    endpoint = '__tracker'
+
+                # fail with no ref
+                upath = '/'.join(['', '?'.join([endpoint, querystring])])
+                if 'ref' not in upath and 'ix' not in upath:
+                    error = 'Invalid URL encountered: "%s". Could not find REF code or sentinel.'
+                    raise self.exceptions.invalid_url(error % upath)
+
+                # factory request, delegate execution
+                urequest, uresponse = webapp2.Request.blank(upath), webapp2.Response()
+
+                # init handler
+                handler = LegacyEndpoint(urequest, uresponse) if legacy else TrackerEndpoint(urequest, uresponse)
+                handler.initialize(urequest, uresponse)
+
+                try:
+                    profile, result, event = handler.get(explicit=True)
+
+                except Exception as e:
+                    test_results.append(URLTestResult.to_message_model()(**{
+                        'url': spec,
+                        'code': e.__class__.__name__,
+                        'message': str(e),
+                        'status': 'error'
+                    }))
+
+                else:
+                    urlsafe = event.key.urlsafe()
+                    test_results.append(URLTestResult.to_message_model()(**{
+                        'url': spec,
+                        'status': 'success',
+                        'profile': profile.__definition__,
+                        'key': ' '.join([''.join(list(urlsafe)[(len(urlsafe) - 16):]), '...']),
+                    }))
+
+            except HarnessException as e:
+                test_results.append(URLTestResult.to_message_model()(**{
+                    'url': spec,
+                    'code': e.__class__.__name__,
+                    'message': str(e),
+                    'status': 'error'
+                }))
+
+        return URLTestResults(**{
+            'count': len(test_results),
+            'results': test_results,
+            'failures': len(filter(lambda x: x.status == 'error', test_results)),
+            'successes': len(filter(lambda x: x.status != 'error', test_results))
+        })

@@ -28,8 +28,8 @@ def get_rules():
 
         routes.HandlerPrefixRoute('api.handlers.', [
             Route('/__tracker', name='tracker-root', handler='tracker.TrackerEndpoint'),
+            Route('/__legacy', name='tracker-legacy', handler='tracker.legacy.LegacyEndpoint'),
             Route('/%s/sandbox' % _VERSION_PREFIX, name='harness-sandbox', handler='harness.Sandbox'),
-            Route('/%s/tracker' % _VERSION_PREFIX, name='harness-tracker', handler='harness.Tracker'),
             Route('/%s/sandbox/harness' % _VERSION_PREFIX, name='harness-landing', handler='harness.Landing')
         ])
 

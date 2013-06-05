@@ -29,14 +29,14 @@ class TrackerEndpoint(WebHandler):
 
     ''' Handles `EventTracker` hits. '''
 
-    def get(self):
+    def get(self, explicit=False, legacy=False, policy=base.EventProfile):
 
         ''' HTTP GET
             :returns: Response to a tracker hit. '''
 
         # publish raw event first, propagating globally
         # collapse policy for this event, enforce, and fail-out from critical errors
-        raw, tracker, event = self.tracker.policy.interpret(*self.tracker.resolve(self.request, base.EventProfile))
+        raw, tracker, event = self.tracker.policy.interpret(*self.tracker.resolve(self.request, policy, legacy))
 
         # get ready to grab our execution flow
         attributions, aggregations, integrations = [collections.deque() for x in (1, 2, 3)]
@@ -47,4 +47,6 @@ class TrackerEndpoint(WebHandler):
         # publish tracked event
         self.tracker.stream.publish(event, propagate=True)
 
+        if explicit:
+            return policy, raw, event
         return ''

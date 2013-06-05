@@ -39,25 +39,6 @@ class Sandbox(WebHandler):
         return self.render('harness/sandbox.html')
 
 
-## Tracker - testing harness for trackers and profiles
-class Tracker(WebHandler):
-
-    ''' Tracker and profile testing harness. '''
-
-    def get(self):
-
-        ''' HTTP GET
-            :returns: Rendered template ``harness/tracker.html``. '''
-
-        context = {
-            'profiles': filter(lambda x: x[0] != 'policy.base',
-                               map(lambda x: (x[0][0], x[0][1], x[1]), core.Profile.registry.iteritems()))
-        }
-
-        context.update(self.request.params)  # never do this in production childrenz
-        return self.render('harness/tracker.html', **context)
-
-
 ## Landing - testing harness landing page
 class Landing(WebHandler):
 

@@ -65,18 +65,19 @@ class PolicyEngine(PlatformBridge):
 
         pass
 
-    def interpret(self, request, tracker, base_policy=None):
+    def interpret(self, request, tracker, base_policy=None, legacy=False):
 
         ''' Gather, build, enforce and map policy for the
             given :py:class:`model.tracker.Tracker` and
             :py:class:`model.raw.Event`.
 
-            :param request:
-            :param tracker:
+            :param request: Current :py:class:`webapp2.Request` object.
+            :param tracker: Tracker object attached to this event.
+            :param legacy: Mark this as a legacy hit.
             :returns: A newly-inflated and provably-valid
                       :py:class:`model.event.TrackedEvent` '''
 
-        raw = self.bus.event.raw(request)
+        raw = self.bus.event.raw(request, policy=base_policy, legacy=legacy)
 
         # resolve tracker for this request
         tracker = self.bus.resolve(raw, request)
@@ -110,7 +111,7 @@ class PolicyEngine(PlatformBridge):
 
         # factory and initialize dynamic trackedevent model
         evmodel = model.Model.__metaclass__.__new__(model.Model, "TrackedEvent", (model.Model,), _klass_params)
-        ev = evmodel(**{k.name: value for k, value in paramset})
+        ev = evmodel(key=model.Key('TrackedEvent', raw.key.id), **{k.name: value for k, value in paramset})
 
         # return tupled <raw>, <tracker>, <ev>
         return raw, tracker, ev

@@ -298,8 +298,12 @@ class Profile(type):
                 '__interpreter__': cls.Interpreter(name, spec).build(),
                 '__bases__': bases,
                 '__name__': name,
-                '__path__': properties.get('__module__', 'policy.base')
+                '__path__': properties.get('__module__', 'policy.base'),
+                '__definition__': '.'.join(properties.get('__module__', 'policy.base').split('.') + [name])
             }
+
+            if 'refcode' in properties:
+                _klass['refcode'] = properties['refcode']
 
             ## substitute our class definition
             properties = _klass
@@ -358,24 +362,6 @@ class AbstractProfile(object):
         raise NotImplementedError('Cannot instantiate abstract'
                                   'class `%s`.' % cls.__name__)
 
-    def to_schema_spec(self):
-
-        ''' Reduce a ``Profile`` descendent to a schema
-            specification ``dict``, that describes each
-            major datapoint for the ``Profile``.
-
-            :returns: Schema ``dict`` with items ``parameters``
-            ``attributions`` and ``aggregations``. '''
-
-        import pdb; pdb.set_trace()
-
-        return {
-            'parameters': map(lambda x: x.serialize(), self.parameters),
-            'aggregations': map(lambda x: x.serialize(), self.aggregations),
-            'attributions': map(lambda x: x.serialize(), self.attributions)
-        }
-
-    @util.memoize
     @util.classproperty
     def primitives(cls):
 
@@ -387,10 +373,9 @@ class AbstractProfile(object):
             :returns: Yields each configured primitive
             binding, one-at-a-time. '''
 
-        for i in cls.__interpreter__.primitives:
+        for i in list(cls.__interpreter__.primitives)[:]:
             yield i
 
-    @util.memoize
     @util.classproperty
     def parameters(cls):
 
@@ -402,11 +387,10 @@ class AbstractProfile(object):
             :returns: Yields each configured :py:class:`Parameter`,
             one-at-a-time. '''
 
-        for group in cls.__interpreter__.parameters:
+        for group in list(cls.__interpreter__.parameters)[:]:
             for parameter in group:
                 yield parameter
 
-    @util.memoize
     @util.classproperty
     def attributions(cls):
 
@@ -418,10 +402,9 @@ class AbstractProfile(object):
             :returns: Yields each configured :py:class:`Attribution`,
             one-at-a-time. '''
 
-        for attribution in cls.__interpreter__.attributions:
+        for attribution in list(cls.__interpreter__.attributions)[:]:
             yield attribution
 
-    @util.memoize
     @util.classproperty
     def aggregations(cls):
 
@@ -433,10 +416,9 @@ class AbstractProfile(object):
             :returns: Yields each configured :py:class:`Aggregation`,
             one-at-a-time. '''
 
-        for aggregation in cls.__interpreter__.aggregations:
+        for aggregation in list(cls.__interpreter__.aggregations)[:]:
             yield aggregation
 
-    @util.memoize
     @util.classproperty
     def integrations(cls):
 
@@ -448,5 +430,5 @@ class AbstractProfile(object):
             :returns: Yields each configured :py:class:`Integration`,
             one-at-a-time. '''
 
-        for integration in cls.__interpreter__.integrations:
+        for integration in list(cls.__interpreter__.integrations)[:]:
             yield integration

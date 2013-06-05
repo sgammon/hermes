@@ -26,7 +26,7 @@ class EventBuilder(PlatformBridge):
     ''' Manages the inflation, construction, and
         interpretation of ``TrackedEvent`` entities. '''
 
-    def raw(self, request, propagate=True):
+    def raw(self, request, propagate=True, policy=None, legacy=False):
 
         ''' Entrypoint for recording raw events and producing
             :py:class:`model.raw.Event`.
@@ -37,19 +37,24 @@ class EventBuilder(PlatformBridge):
             protocol enum at :py:class:`protocol.flow.ResponseVector`.
 
             :param request: The current :py:class:`webapp2.Request`, or a
-                            valid :py:class:`model.raw.Event` to inject
-                            directly into the raw eventstream.
+            valid :py:class:`model.raw.Event` to inject directly into the
+            raw eventstream.
 
             :keyword propagate: Flag indicating that this event should be
-                                propagated to the global eventstream.
-                                Defaults to ``True``.
+            propagated to the global eventstream. Defaults to ``True``.
+
+            :keyword policy: The currently-matched policy suite that is
+            expected to fulfill service for this hit.
+
+            :keyword legacy: Flag indicating this hit is a legacy event,
+            and will not have an attached tracker.
 
             :returns: Published (and possibly new) :py:class:`model.raw.Event`,
                       and, if requested via ``live``, a guess about how to
                       handle the request, like: ``tuple(<event>, <guess>)``. '''
 
         # inflate raw event & publish to pubsub
-        return self.bus.stream.publish(Event.inflate(request), propagate=propagate)
+        return self.bus.stream.publish(Event.inflate(request, policy, legacy), propagate=propagate)
 
     def error(self, event, reason="Unknown reason.", propagate=True):
 

@@ -101,10 +101,13 @@ class EventProfile(core.AbstractProfile):
             'name': builtin.TrackerProtocol.TRACKER,
             'category': parameter.ParameterType.AMPUSH,
             'aggregations': [
-                aggregation.Aggregation('events-by-tracker', interval=_DEFAULT_LOOKBACK, permutations=[
-                    ('by-type', 'Base.TYPE'),
-                    ('by-provider', 'Base.PROVIDER')
-                ])
+                aggregation.Aggregation('events-by-tracker',
+                    interval=(timedelta.TimeWindow.TWO_WEEKS, timedelta.TimeWindow.FOUR_WEEKS),
+                    permutations=[
+                        ('by-type', 'Base.TYPE'),
+                        ('by-provider', 'Base.PROVIDER')
+                    ]
+                )
             ]
         }
 
@@ -199,7 +202,7 @@ class EventProfile(core.AbstractProfile):
                 ])
             ],
             'aggregations': [
-                attribution.Attribution(name='hits-by-browser', interval=_DEFAULT_LOOKBACK, permutations=[
+                aggregation.Aggregation(name='hits-by-browser', interval=_DEFAULT_LOOKBACK, permutations=[
                     ('by-consumer', 'Consumer.FINGERPRINT')
                 ])
             ]
@@ -216,9 +219,3 @@ class EventProfile(core.AbstractProfile):
             'name': _DEFAULT_COOKIE_NAME,
             'category': parameter.ParameterType.INTERNAL
         }
-
-    class CompoundTest(attribution.CompoundAttribution):
-
-        ''' Test compound spec. '''
-
-        hash = (lambda: EventProfile.Base.TYPE, lambda: EventProfile.Consumer.FINGERPRINT)

@@ -40,6 +40,8 @@ class StateFarm(base.EventProfile):
 
     ''' Models StateFarm stuff. '''
 
+    refcode = 'statefarm'
+
     @param.values
     class Base(parameter.ParameterGroup):
 

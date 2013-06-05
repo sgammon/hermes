@@ -1,5 +1,215 @@
 {% extends "core/__web.html" %}
 
 {% block stage %}
-			<b>Test harness!</b>
+
+            <style>
+
+                * {
+                    font-family: Lato;
+                    font-weight: 400;
+                }
+
+                b, strong {
+                	font-family: Lato;
+                	font-weight: 700;
+                	padding-left: 5px;
+                	padding-right: 5px;
+                }
+
+                .placeholder {
+                    font-style: italic;
+                    font-weight: 300;
+                    color: #DDD;
+                }
+
+                #url_input {
+                	width: 90%;
+                	height: 150px;
+                }
+
+                #success_count:after {
+                	content: 'successes';
+                	padding-left: 5px;
+                }
+
+                #failure_count:after {
+                	content: 'failures';
+                	padding-left: 5px;
+                }
+
+                .result {
+                	line-height: 30px;
+                	padding: 5px;
+                	margin: 10px;
+                	height: 30px;
+                	text-overflow: ellipsis;
+                }
+
+                .result span {
+                	text-overflow: ellipsis;
+                }
+
+                .success.result {
+                	background: #BADA55;
+                	color: #222;
+                }
+
+                .error.result {
+                	background: red;
+                	color: white;
+                }
+
+                .success {
+                	color: #BADA55;
+                	font-weight: 700;
+                }
+
+                .error, .failure {
+                	color: red;
+                	font-weight: 700;
+                }
+
+            </style>
+
+            <h1>Profile Tester</h1>
+
+            <div id='controls'>
+                <form id='profile_config'>
+                	<textarea id='url_input' placeholder='Enter URLs here, separated by newlines'></textarea>
+                	<br />
+                	<button id='submit'>Run URLs</button>
+                </form><!-- end #profile_config -->
+
+                <br />
+
+            </div><!-- end #controls -->
+
+            <hr />
+
+
+            <div id='deferred'></div><!-- end #deferred -->
+
+
+            <script id='trackertest' type='text/javascript'>
+
+                (function boot_tester(context) {
+
+                    var url_input = document.getElementById('url_input'),
+                    	submit = document.getElementById('submit'),
+                    	config = document.getElementById('profile_config'),
+                    	deferred = document.getElementById('deferred'),
+                    	runcount = 0,
+                    	existing_urls = window.localStorage.getItem('tracker:urls');
+
+                    	// check for existing content for URL input
+                    	if (existing_urls !== undefined && existing_urls !== null) {
+                    		url_input.value = JSON.parse(existing_urls).join("\n");
+                    	}
+
+                    	function submit_urls(event) {
+                    		var urlspec = url_input.value.split("\n"),
+                    			result_wrap = document.createDocumentFragment();
+
+                    			// store current URL spec
+                    			window.localStorage.setItem('tracker:urls', JSON.stringify(urlspec));
+
+                    			event.preventDefault();
+                    			event.stopPropagation();
+
+                    			$.apptools.api.harness.test_urls({spec: urlspec}).fulfill({
+
+                    				success: function (response) {
+
+                    					var i = 1, x, line_el,
+	                    					header = result_wrap.appendChild(document.createElement('header')),
+	                    					h2wrap = header.appendChild(document.createElement('h2')),
+	                    					byline = header.appendChild(document.createElement('span')),
+	                    					successes = byline.appendChild(document.createElement('b')),
+	                    					failures = byline.appendChild(document.createElement('b')),
+	                    					bprefix_wrap, bcontent_wrap, bstatus_wrap, bcontent;
+
+	                    					// increment runcount
+	                    					runcount++;
+
+	                    					// prepare success summary
+	                    					successes.id = 'success_count';
+	                    					successes.classList.add('success');
+	                    					successes.textContent = response.successes.toString();
+
+	                    					// prepare failure summary
+	                    					failures.id = 'failure_count';
+	                    					failures.classList.add('failure');
+	                    					failures.textContent = response.failures.toString();
+
+	                    					// prepare label header
+	                    					h2wrap.textContent = 'Test run #' + runcount.toString();
+	                    					h2wrap.setAttribute('data-run-number', runcount.toString());
+
+	                    					for (x in response.results) {
+	                    						result = response.results[x];
+
+	                    						// create line EL
+	                    						line_el = document.createElement('div');
+	                    						line_el.classList.add(result.status);
+	                    						line_el.classList.add('result');
+
+	                    						// add-in bolded prefix
+	                    						bprefix_wrap = line_el.appendChild(document.createElement('b'));
+	                    						bprefix_wrap.textContent = '#' + i.toString() + ':'
+
+	                    						// add-in content wrap
+	                    						bcontent_wrap = line_el.appendChild(document.createElement('span'));
+                    							bstatus_wrap = bcontent_wrap.appendChild(document.createElement('b'));
+                    							bcontent = bcontent_wrap.appendChild(document.createElement('span'));
+
+                    							// set metadata attributes
+                    							line_el.setAttribute('data-url', result.url);
+
+	                    						if (result.status == 'success') {
+
+	                    							// fill success content
+	                    							line_el.id = result.key;
+	                    							line_el.setAttribute('data-key', result.key);
+	                    							line_el.setAttribute('data-profile', result.profile);
+
+	                    							// fill-in status
+	                    							bstatus_wrap.textContent = 'Successfully';
+	                    							bcontent.textContent = 'matched profile "' + result.profile + '" at key "' + result.key + '".';
+
+	                    						} else {
+
+	                    							// fill error content
+	                    							line_el.setAttribute('data-error-code', result.code);
+	                    							line_el.setAttribute('data-error-message', result.message);
+
+	                    							// fill error content
+	                    							bstatus_wrap.textContent = 'Failed';
+	                    							bcontent.textContent = 'with exception "' + result.code + '". Message: "' + result.message + '".';
+	                    							console.error('#' + i.toString(), result.code, result.message);
+	                    						}
+	                    						result_wrap.appendChild(line_el);
+	                    						i++;
+	                    					}
+
+	                    					if (deferred.children.length == 0) {
+	                    						deferred.appendChild(result_wrap);
+	                    					} else {
+		                    					deferred.insertBefore(result_wrap, deferred.children[0]);
+		                    				}
+                    				},
+
+                    				failure: function (error) {
+                    					console.error('Got error:', error);
+                    				}
+
+                    			});
+                    	}
+
+                    	config.addEventListener('submit', submit_urls);
+                    	submit.addEventListener('click', submit_urls);
+
+                })(this);
+
+            </script><!-- end #trackertest -->
+
 {% endblock %}

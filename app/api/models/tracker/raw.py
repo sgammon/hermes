@@ -29,14 +29,16 @@ class Event(model.Model):
     url = basestring, {'required': True, 'indexed': False}  # full text of URL hit (including params + hash, if any)
     method = basestring, {'required': True, 'indexed': True}  # request method used to hit the URL that was invoked
     session = bool, {'default': False, 'indexed': True}  # hit came in with a session (True) or one was created (False)
+    policy = basestring, {'indexed': True}  # hit came in and was processed by the specified policy
     processed = bool, {'default': False, 'indexed': True}  # whether this `RawEvent` has been processed yet
     cookie = basestring, {'indexed': True, 'indexed': True}  # plaintext value of the cookie in this event
+    legacy = bool, {'default': False, 'indexed': True}  # flag indicating this is a legacy tracker hit
     error = bool, {'default': False, 'indexed': True}  # flag indicating this might be an error
     modified = datetime.datetime, {'required': True, 'auto_now': True}  # timestamp for when this was last modified
     timestamp = datetime.datetime, {'required': True, 'auto_now_add': True}  # timestamp for when this was created
 
     @classmethod
-    def inflate(cls, request):
+    def inflate(cls, request, policy=None, legacy=False):
 
         ''' Build a new :py:class:`Event` from a :py:class:`webapp2.Request`,
             or a similar-style context object. '''
@@ -55,6 +57,8 @@ class Event(model.Model):
             'key': model.Key(cls.kind(), eid),
             'method': request.method,
             'url': request.url,
+            'policy': policy.__definition__,
+            'legacy': legacy,
             'modified': now,
             'timestamp': now
         })
