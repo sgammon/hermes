@@ -35,6 +35,8 @@ class Profile(type):
         is used to read, merge, and export profile structures
         defined via :py:class:`EventProfile`-subclasses. '''
 
+    registry = {}  # central profile registry
+
     ## Interpreter
     # Manages interpretation and merging of `Profile` descendents.
     class Interpreter(object):
@@ -265,7 +267,7 @@ class Profile(type):
             :raises RuntimeError: In the case of an invalid spec parent.
             :returns: Constructed :py:class:`Profile` descendent. '''
 
-        if name not in frozenset(('Profile', 'AbstractProfile')):  # must filter by string, `AbstractProfile` comes through here
+        if name not in frozenset(('Profile', 'AbstractProfile')):  # must filter by string, `AbstractProfile` will fail
 
             ## grab specs
             spec = {}
@@ -277,26 +279,33 @@ class Profile(type):
                     # pluck parent and specification structure
                     parent, subspec = spec_klass.__bases__[0], spec_klass
 
+                    # grab builder and build
+                    if parent not in cls.Interpreter._builders:
+                        if parent.__bases__[0] not in cls.Interpreter._builders:
+                            raise RuntimeError('Encountered invalid specification parent'
+                                               ' "%s" in strict subclass "%s".' % (spec_klass, name))
+                        else:
+                            parent = parent.__bases__[0]
+
                     # add to specs, initializing the parent as we go
                     if parent not in spec:
                         spec[parent] = []
-
-                    # grab builder and build
-                    if parent not in cls.Interpreter._builders:
-                        raise RuntimeError('Encountered invalid specification parent'
-                                           ' "%s" in strict subclass "%s".' % (spec_klass, name))
 
                     spec[parent].append((subspec, spec_klass, True))
 
             ## set up class internals and build
             _klass = {
-                '__interpreter__': cls.Interpreter(name, spec).build()
+                '__interpreter__': cls.Interpreter(name, spec).build(),
+                '__bases__': bases,
+                '__name__': name,
+                '__path__': properties.get('__module__', 'policy.base')
             }
 
             ## substitute our class definition
             properties = _klass
 
-        return super(cls, cls).__new__(cls, name, bases, properties)
+        dynklass = super(cls, cls).__new__(cls, name, bases, properties)
+        return cls.register(dynklass)
 
     def _mro(cls):
 
@@ -306,7 +315,24 @@ class Profile(type):
             :returns: Calculated MRO path for a non-meta
                       :py:class:`Profile` descendent. '''
 
-        return (cls,)
+        return tuple([cls] + [i for i in cls.__bases__])
+
+    @classmethod
+    def register(cls, dynamic_klass):
+
+        ''' Register a newly-factoried `Profile` meta-descendent.
+
+            :param dynamic_klass: Dynamically-factoried class, produced
+            by :py:meth:`Profile.__new__`.
+
+            :returns: The dynamic class that was passed-in and added
+            to the local registry (at :py:attr:`Profile.registry`),
+            such that method chaning takes place on the :py:class:`Profile`
+            factoried rather than the meta-descendent. '''
+
+        if dynamic_klass.__name__ != 'AbstractProfile':
+            cls.registry[(dynamic_klass.__path__, dynamic_klass.__name__)] = dynamic_klass
+        return dynamic_klass
 
 
 ## AbstractProfile
@@ -331,6 +357,23 @@ class AbstractProfile(object):
 
         raise NotImplementedError('Cannot instantiate abstract'
                                   'class `%s`.' % cls.__name__)
+
+    def to_schema_spec(self):
+
+        ''' Reduce a ``Profile`` descendent to a schema
+            specification ``dict``, that describes each
+            major datapoint for the ``Profile``.
+
+            :returns: Schema ``dict`` with items ``parameters``
+            ``attributions`` and ``aggregations``. '''
+
+        import pdb; pdb.set_trace()
+
+        return {
+            'parameters': map(lambda x: x.serialize(), self.parameters),
+            'aggregations': map(lambda x: x.serialize(), self.aggregations),
+            'attributions': map(lambda x: x.serialize(), self.attributions)
+        }
 
     @util.memoize
     @util.classproperty

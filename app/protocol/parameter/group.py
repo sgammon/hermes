@@ -23,6 +23,7 @@ class ParamDeclarationMode(meta.ProtocolDefinition):
     DECLARATION = 0x1  # ``declaration`` state (default) - indicates a ``ParameterGroup`` is declaring parameters.
     VALUES = 0x2  # ``values`` state - indicates a ``ParameterGroup`` is filling in default or static values.
     OVERRIDE = 0x3  # ``override`` state - indicates a full (non-delta) property override state.
+    DIFFERENTIAL = 0x4  # ``differential`` state - indicates a delta property override state (``override`` for schema)
 
 
 ## Parameter - specifies an individual parameter. Always part of a ``ParameterGroup``.

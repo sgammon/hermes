@@ -171,6 +171,7 @@ class AppBootstrapper(object):
 
         # === API Services === #
         from api import services
+        from api.services import *
 
         try:
             # Raw Data Service
@@ -206,6 +207,15 @@ class AppBootstrapper(object):
             # Tracker Service
             from api.services import tracker
             from api.services.tracker import service, messages, exceptions
+        except:
+            if _DEBUG:
+                raise
+            else:
+                pass
+
+        try:
+            # Harness Service
+            from api.services import harness
         except:
             if _DEBUG:
                 raise

@@ -142,8 +142,15 @@ except ImportError as e:
 import config
 import bootstrap
 
+# Globals
+_DEBUG = True  # DANGER: core debug flag, use with caution
+_patched = False  # init flag for monkey patching via gevent
+_locals = local.local()  # gevent greenlet local storage
+_runcount = 0  # only used in debug: current count of profiler runs
+sysconfig = config.config.get('apptools.system')
+
 # prepare sys.path
-bootstrapper = bootstrap.AppBootstrapper.prepareImports()
+bootstrapper = bootstrap.AppBootstrapper.prepareImports().preload(_DEBUG)
 
 # apptools, by momentum :)
 import apptools
@@ -153,17 +160,6 @@ from apptools import dispatch
 
 # pragma: no cover
 # (coverage disabled - this is mostly a runfile)
-
-
-# Globals
-_DEBUG = True  # DANGER: core debug flag, use with caution
-_patched = False  # init flag for monkey patching via gevent
-_locals = local.local()  # gevent greenlet local storage
-_runcount = 0  # only used in debug: current count of profiler runs
-sysconfig = config.config.get('apptools.system')
-
-# Preload
-bootstrapper.preload(_DEBUG)
 
 ## Server singletons
 _APIServer = APIServer = dispatch.gateway

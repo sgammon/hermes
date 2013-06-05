@@ -1,4 +1,8 @@
+# -*- coding: utf -8 -*-
 
+'''
+Policy: State Farm
+'''
 
 # policy imports
 from policy import base

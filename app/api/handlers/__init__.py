@@ -180,7 +180,7 @@ class WebHandler(core.BaseHandler, rpc.ConfiguredClass):
             service,
             cfg['methods'],
             opts
-        ] for service, action, cfg, opts, in services['services_manifest']]
+        ] for service, action, cfg, opts in services['services_manifest']]
 
     def _bindRuntimeTemplateContext(self, context):
 

@@ -17,6 +17,7 @@ def declaration(group):
 
     ## mark group as a binding block
     group.__mode__ = ParamDeclarationMode.DECLARATION
+    return group
 
 
 def override(group):
@@ -31,6 +32,19 @@ def override(group):
 
     ## mark group as an override block
     group.__mode__ = ParamDeclarationMode.OVERRIDE
+    return group
+
+
+def differential(group):
+
+    ''' Coming soon.
+
+        :param group:
+        :returns: '''
+
+    ## mark group as a binding block
+    group.__mode__ = ParamDeclarationMode.DIFFERENTIAL
+    return group
 
 
 def values(group):
