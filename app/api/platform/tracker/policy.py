@@ -111,7 +111,7 @@ class PolicyEngine(PlatformBridge):
 
         # factory and initialize dynamic trackedevent model
         evmodel = model.Model.__metaclass__.__new__(model.Model, "TrackedEvent", (model.Model,), _klass_params)
-        ev = evmodel(key=model.Key('TrackedEvent', raw.key.id), **{k.name: value for k, value in paramset})
+        ev = evmodel(key=model.Key('TrackedEvent', raw.key.id), **{k.name: (k.basetype(value) if k.basetype != basestring else str(value)) for k, value in filter(lambda x: x[1] is not None, paramset)})
 
         # return tupled <raw>, <tracker>, <ev>
         return raw, tracker, ev

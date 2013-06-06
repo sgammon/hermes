@@ -40,22 +40,40 @@ class StateFarm(base.EventProfile):
 
     ''' Models StateFarm stuff. '''
 
-    refcode = 'statefarm'
+    refcode = 'statefarmrec'
 
-    @param.values
-    class Base(parameter.ParameterGroup):
+    class ConversionLevel(parameter.ParameterGroup):
 
-        ''' Override contract to always be ``statefarm``. '''
+        ''' Sample property we're adding to the profile. '''
 
-        contract = 'statefarm'
+        level1 = bool, {
+            'policy': parameter.ParameterPolicy.OPTIONAL,
+            'source': http.DataSlot.PARAM,
+            'name': 'conv1'
+        }
 
-    @param.differential
-    class Base(parameter.ParameterGroup):
+        level2 = bool, {
+            'policy': parameter.ParameterPolicy.OPTIONAL,
+            'source': http.DataSlot.PARAM,
+            'name': 'conv2'
+        }
 
-        ''' Override ``contract`` to look at ``REF``. '''
+        level3 = bool, {
+            'policy': parameter.ParameterPolicy.OPTIONAL,
+            'source': http.DataSlot.PARAM,
+            'name': 'conv3'
+        }
 
-        contract = basestring, {
-            'name': 'ref'
+        level4 = bool, {
+            'policy': parameter.ParameterPolicy.OPTIONAL,
+            'source': http.DataSlot.PARAM,
+            'name': 'conv4'
+        }
+
+        revenue = float, {
+            'policy': parameter.ParameterPolicy.OPTIONAL,
+            'source': http.DataSlot.PARAM,
+            'name': 'revenue'
         }
 
     @param.override

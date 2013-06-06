@@ -61,7 +61,7 @@ class LegacyEndpoint(TrackerEndpoint):
             if hasattr(profile, 'refcode'):
 
                 # if the refcode matches, it's what we wanted
-                if ref == profile.refcode:
+                if ref.lower().strip() == profile.refcode.lower().strip():
                     return profile
 
         raise exceptions.UnknownRefcode('Failed to resolve tracker by refcode: "%s".' % ref)
@@ -80,6 +80,4 @@ class LegacyEndpoint(TrackerEndpoint):
             return self.delegate(explicit=explicit, legacy=False)
 
         # publish raw event first, propagating globally
-        profile = self.resolve(self.request.params.get('ref'))
-
-        return self.delegate(explicit=explicit, legacy=True, policy=profile)
+        return self.delegate(explicit=explicit, legacy=True, policy=self.resolve(self.request.params.get('ref')))

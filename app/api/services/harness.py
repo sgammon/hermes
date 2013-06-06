@@ -136,7 +136,7 @@ class HarnessService(rpc.Service):
                 # split out params to work with prefix
                 endpoint, querystring = tuple(rightwindow.split('?'))
 
-                if endpoint == 'image.php':
+                if endpoint in ('image.php', 'serverpixel.php'):
                     legacy = True  # it's a legacy pixel
                     endpoint = '__legacy'
 
