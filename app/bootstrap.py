@@ -171,7 +171,7 @@ class AppBootstrapper(object):
 
         # === API Services === #
         from api import services
-        from api.services import *
+        __import__('api.services', globals(), locals(), ['*'], 0)
 
         try:
             # Raw Data Service
