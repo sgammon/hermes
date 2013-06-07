@@ -10,6 +10,9 @@ underlying storage mechanisms.
           embedded licenses and other legalese, see `LICENSE.md`.
 '''
 
+# apptools util
+import logging
+
 # Platform Parent
 from api.platform import PlatformBridge
 
@@ -17,6 +20,13 @@ from api.platform import PlatformBridge
 from apptools.model.adapter import redis
 from apptools.model.adapter import memcache
 from apptools.model.adapter import inmemory
+
+try:
+    import redis; _REDIS = True
+except ImportError:
+    _REDIS = False
+    logging.warning('Redis not found. Tracker engine falling back to `InMemory` storage - pubsub will be unavailable.')
+
 
 # Globals
 _connection = None
@@ -106,14 +116,14 @@ class EventEngine(PlatformBridge):
             ``Redis`` pub/sub.
 
             :param channels: Either a ``str`` name for a channel
-                            to publish this value on, or an
-                            iterable of ``str`` channel names.
+            to publish this value on, or an iterable of ``str``
+            channel names.
 
             :param value: ``protorpc.Message`` class, ``dict``,
-                          or raw string to publish.
+            or raw string to publish.
 
             :returns: The result of the low-level publish
-                      operation. '''
+            operation. '''
 
         from protorpc import messages
         from apptools.rpc import mappers
@@ -127,20 +137,24 @@ class EventEngine(PlatformBridge):
         else:
             encoded = value  # must be a string
 
-        if isinstance(channels, (tuple, list)):
+        if _REDIS:
+            if isinstance(channels, (tuple, list)):
 
-            # for multiple channels, start a pipeline
-            with self.pipeline(self.Datastore.redis) as pipeline:
-                for channel in channels:
-                    pipeline.publish(channel, encoded)
+                # for multiple channels, start a pipeline
+                with self.pipeline(self.Datastore.redis) as pipeline:
+                    for channel in channels:
+                        pipeline.publish(channel, encoded)
 
-                # execute pipeline
-                result = pipeline.execute()
-            return result
+                    # execute pipeline
+                    result = pipeline.execute()
+                return result
 
+            else:
+                channel = channels
+                return self.adapter(self.Datastore.redis, 'Realtime').publish(channel, encoded)
         else:
-            channel = channels
-            return self.adapter(self.Datastore.redis, 'Realtime').publish(channel, encoded)
+            self.logging.info('PubSub disabled, but would publish to channels "%s" with content "%s".' % (channels, value))
+            return
 
     def subscribe(self, channel, pattern=False):
 
@@ -148,11 +162,10 @@ class EventEngine(PlatformBridge):
             multiple ``Redis`` pub/sub streams.
 
             :keyword _start: Schedule the ``Greenlet`` for
-                             immediate execution before
-                             returning.
+            immediate execution before returning.
 
             :returns: An optionally-started ``Greenlet``,
-                      which block-listens for new subscribed
-                      messages. '''
+            which block-listens for new subscribed
+            messages. '''
 
         pass

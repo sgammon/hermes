@@ -27,6 +27,11 @@ from api.models.tracker import event
 from api.platform import PlatformBridge
 from api.platform.tracker import exceptions
 
+try:
+    import redis; _REDIS = True
+except ImportError:
+    _REDIS = False
+
 
 ## PolicyEngine - handles application and enforcement of schema policy.
 class PolicyEngine(PlatformBridge):
@@ -175,13 +180,13 @@ class PolicyEngine(PlatformBridge):
 
         # factory a new model class to hold the data, assign to ``Redis``
         _klass_params = {k.name: k.basetype for k, _name, value in paramset}
-        _klass_params.update({'__adapter__': 'RedisAdapter', '__expando__': True})
+        _klass_params.update({'__adapter__': 'RedisAdapter' if _REDIS else 'InMemoryAdapter', '__expando__': True})
 
         # factory and initialize dynamic trackedevent model
-        evmodel = model.Model.__metaclass__.__new__(model.Model, "TrackedEvent", (event.TrackedEvent,), _klass_params)
+        evmodel = model.Model.__metaclass__.__new__(model.Model, "TrackedEvent", (event.TrackedEvent,), {})
 
         accounted_params = []
-        ev = evmodel(key=model.Key('TrackedEvent', raw.key.id))
+        ev = evmodel(key=model.Key('TrackedEvent', raw.key.id), raw=raw.key, params={})
         ev.errors, ev.warnings = [], []
 
         for k, _name, value in paramset:
@@ -205,7 +210,7 @@ class PolicyEngine(PlatformBridge):
 
             try:
                 ## assign value to property
-                ev[k.name] = converter(value)
+                ev.params[k.name] = converter(value)
                 accounted_params.append(_name)
 
             except ValueError as e:
