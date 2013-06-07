@@ -142,8 +142,6 @@ class HarnessService(rpc.Service):
 
             :returns: Resulting :py:class:`Event`. '''
 
-        import pdb; pdb.set_trace()
-
         # build key
         if request.encoded:
             src, val = 'encoded', request.encoded
