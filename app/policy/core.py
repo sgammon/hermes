@@ -90,8 +90,6 @@ class Profile(type):
                 :return: An instantiated and properly filled-out
                         :py:class:`ParameterGroup` object. '''
 
-            #import pdb; pdb.set_trace()
-
             # overlay parameter path, init params list
             parameters, mainconfig = [], {
                 'definition': {

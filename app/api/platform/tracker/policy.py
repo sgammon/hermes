@@ -144,8 +144,6 @@ class PolicyEngine(PlatformBridge):
                       associated with it, in the form of:
                       ``tuple(<raw>, <tracker>, <event>)``. '''
 
-        import pdb; pdb.set_trace()
-
         raw = self.bus.event.raw(request, policy=base_policy, legacy=legacy)
 
         # resolve tracker for this request
