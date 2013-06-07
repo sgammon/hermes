@@ -15,11 +15,12 @@ from apptools import model
 
 # hermes models
 from api.models import client
+from api.models import TrackerModel
 
 
 ## Profile
 # Represents a profile that may be applied to `Tracker`(s) of events.
-class Profile(model.Model):
+class Profile(TrackerModel):
 
     ''' Bundle of configuration for a `Tracker`. '''
 

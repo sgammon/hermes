@@ -17,13 +17,14 @@ import datetime
 
 # apptools models
 from apptools import model
+from api.models import TrackerModel
 
 # hermes models
 from api.models.tracker import profile
 
 
 ## Tracker
-class Tracker(model.Model):
+class Tracker(TrackerModel):
 
     ''' A discrete endpoint for `EventTracker`. '''
 

@@ -179,14 +179,11 @@ class PolicyEngine(PlatformBridge):
                 paramset.append((prm, name, request.cookies.get(name)))
 
         # factory a new model class to hold the data, assign to ``Redis``
-        _klass_params = {k.name: k.basetype for k, _name, value in paramset}
-        _klass_params.update({'__adapter__': 'RedisAdapter' if _REDIS else 'InMemoryAdapter', '__expando__': True})
-
         # factory and initialize dynamic trackedevent model
-        evmodel = model.Model.__metaclass__.__new__(model.Model, "TrackedEvent", (event.TrackedEvent,), {})
+        #evmodel = model.Model.__metaclass__.__new__(model.Model, "TrackedEvent", (event.TrackedEvent,), {})
 
         accounted_params = []
-        ev = evmodel(key=model.Key('TrackedEvent', raw.key.id), raw=raw.key, params={})
+        ev = event.TrackedEvent(key=model.Key('TrackedEvent', raw.key.id), raw=raw.key, params={})
         ev.errors, ev.warnings = [], []
 
         for k, _name, value in paramset:
@@ -210,7 +207,10 @@ class PolicyEngine(PlatformBridge):
 
             try:
                 ## assign value to property
-                ev.params[k.name] = converter(value)
+                if value is None:
+                    ev.params[k.name] = None
+                else:
+                    ev.params[k.name] = converter(value)
                 accounted_params.append(_name)
 
             except ValueError as e:

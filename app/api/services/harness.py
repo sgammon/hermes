@@ -23,6 +23,10 @@ from apptools import rpc
 from apptools import model
 from apptools.util import datastructures
 
+# tracker models
+from api.models.tracker import raw
+from api.models.tracker import event
+
 # tracker endpoints
 from api.handlers.tracker import TrackerEndpoint
 from api.handlers.tracker.legacy import LegacyEndpoint
@@ -42,6 +46,7 @@ class URLTestResult(model.Model):
 
     # basic identifying information
     key = basestring
+    label = basestring
     url = basestring, {'required': True}
 
     # error information
@@ -51,6 +56,10 @@ class URLTestResult(model.Model):
     # profile and request status
     status = basestring, {'required': True}
     profile = basestring
+
+    # raw and tracked events
+    raw = raw.Event
+    event = model.Model
 
 
 class URLTestResults(messages.Message):
@@ -85,6 +94,22 @@ class InvalidURL(HarnessException):
     pass
 
 
+class AmbiguousKey(HarnessException):
+
+    ''' Raised when a key is given both an `ID` and `URLSafe`, or neither,
+        when only one should be present. '''
+
+    pass
+
+
+class KeyNotFound(HarnessException):
+
+    ''' Raised when retrieval of a :py:class:`Key` fails, due to a record
+        not existing at that ``Key``. '''
+
+    pass
+
+
 #### +=+=+ Service +=+=+ ####
 
 ## HarnessService - exposes routines for testing and probing `EventTracker` functionality.
@@ -99,8 +124,70 @@ class HarnessService(rpc.Service):
     exceptions = datastructures.DictProxy(**{
         'generic': HarnessException,
         'no_urls': NoTestURLs,
-        'invalid_url': InvalidURL
+        'invalid_url': InvalidURL,
+        'ambiguous_key': AmbiguousKey,
+        'key_not_found': KeyNotFound
     })
+
+    @rpc.method(model.Key, raw.Event)
+    def get_raw(self, request):
+
+        ''' Raw-retrieve a raw event, which is to say
+            it is an unstructured response without
+            the schema guarantees afforded by the full
+            Raw Data API.
+
+            :param request: Input message request of
+            the class :py:class:`models.tracker.raw.Event`.
+
+            :returns: Resulting :py:class:`Event`. '''
+
+        import pdb; pdb.set_trace()
+
+        # build key
+        if request.encoded:
+            src, val = 'encoded', request.encoded
+            k = model.Key.from_urlsafe(request.encoded)
+        elif request.id:
+            src, val = 'ID', request.id
+            k = model.Key(raw.Event, request.id)
+        else:
+            raise self.exceptions.ambiguous_key('Must provide at least a key `id` or `encoded`.')
+
+        # retrieve
+        record = raw.Event.get(k)
+
+        if record is None:
+            raise self.exceptions.key_not_found('Failed to retrieve key at %s `%s`.' % (src, val))
+        return record
+
+    @rpc.method(model.Key, event.TrackedEvent)
+    def get_event(self, request):
+
+        ''' Raw-retrieve a full event, which is to say
+            it is an unstructured response without the
+            schema guarantees afforded by the full
+            Event Data API.
+
+            :param request: Input message request of
+            the class :py:class:`models.tracker.event.TrackedEvent`. '''
+
+        # build key
+        if request.encoded:
+            src, val = 'encoded', request.encoded
+            k = model.Key.from_urlsafe(request.encoded)
+        elif request.id:
+            src, val = 'ID', request.id
+            k = model.Key(event.TrackedEvent, request.id)
+        else:
+            raise self.exceptions.ambiguous_key('Must provide at least a key `id` or `encoded`.')
+
+        # retrieve
+        record = event.TrackedEvent.get(k)
+
+        if record is None:
+            raise self.exceptions.key_not_found('Failed to retrieve key at %s `%s`.' % (src, val))
+        return record
 
     @rpc.method(URLTestRequest, URLTestResults)
     def test_urls(self, request):
@@ -174,7 +261,10 @@ class HarnessService(rpc.Service):
                         'url': spec,
                         'status': 'success',
                         'profile': profile.__definition__,
-                        'key': ' '.join([''.join(list(urlsafe)[(len(urlsafe) - 16):]), '...']),
+                        'raw': result.to_message(),
+                        'event': event.to_message(),
+                        'key': urlsafe,
+                        'label': ' '.join([''.join(list(urlsafe)[(len(urlsafe) - 16):]), '...'])
                     }))
 
             except HarnessException as e:

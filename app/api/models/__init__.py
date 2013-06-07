@@ -16,12 +16,18 @@ converted to ProtoRPC messages, JSON structures, dictionaries, and more.
 from apptools import model
 
 
+try:
+    import redis; _REDIS = True
+except ImportError:
+    _REDIS = False
+
+
 ## TrackerModel
 # Abstract parent for all `EventTracker` models.
 class TrackerModel(model.Model):
 
     ''' Abstract parent for all `EventTracker` models. '''
 
-    __adapter__ = "RedisAdapter"
+    __adapter__ = "RedisAdapter" if _REDIS else "InMemoryAdapter"
 
     pass

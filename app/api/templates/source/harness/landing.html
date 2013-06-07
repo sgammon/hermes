@@ -167,6 +167,8 @@
 
 	                    						if (result.status == 'success') {
 
+                                                    console.log('Test result #' + i + ':', result);
+
 	                    							// fill success content
 	                    							line_el.id = result.key;
 	                    							line_el.setAttribute('data-key', result.key);
@@ -174,7 +176,7 @@
 
 	                    							// fill-in status
 	                    							bstatus_wrap.textContent = 'Successfully';
-	                    							bcontent.textContent = 'matched profile "' + result.profile + '" at key "' + result.key + '".';
+	                    							bcontent.textContent = 'matched profile "' + result.profile + '" at key "' + result.label + '".';
 
 	                    						} else {
 

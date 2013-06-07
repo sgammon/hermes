@@ -12,11 +12,12 @@ fulfilling publish/subscribe infrastructure behind the global eventstream.
 
 # apptools models
 from apptools import model
+from api.models import TrackerModel
 
 
 ## Subscription
 # Represents a subscription to all/some `TrackedEvent` items.
-class Subscription(model.Model):
+class Subscription(TrackerModel):
 
     ''' A hit to the `EventTracker` server. '''
 

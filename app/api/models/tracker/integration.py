@@ -12,11 +12,12 @@ expressing configuration and audit for integrated systems.
 
 # apptools models
 from apptools import model
+from api.models import TrackerModel
 
 
 ## Integration
 # Represents an external system integrated with `EventTracker`.
-class Integration(model.Model):
+class Integration(TrackerModel):
 
     ''' An external system integrated with `EventTracker`. '''
 
@@ -27,7 +28,7 @@ class Integration(model.Model):
 
 ## Routine
 # Represents a code-based routine for fulfilling an integration.
-class Routine(model.Model):
+class Routine(TrackerModel):
 
     ''' A defined action linked to an `Integration` which provides code bindings. '''
 

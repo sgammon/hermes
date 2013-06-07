@@ -16,15 +16,14 @@ import datetime
 
 # apptools models
 from apptools import model
+from api.models import TrackerModel
 
 
 ## Event
 # Represents a raw hit to a tracker URL.
-class Event(model.Model):
+class Event(TrackerModel):
 
     ''' Raw record of a `TrackedEvent`. '''
-
-    __adapter__ = "RedisAdapter"
 
     url = basestring, {'required': True, 'indexed': False}  # full text of URL hit (including params + hash, if any)
     method = basestring, {'required': True, 'indexed': True}  # request method used to hit the URL that was invoked
@@ -72,7 +71,7 @@ class Event(model.Model):
 
 ## Error
 # Represents an error event that occurred.
-class Error(model.Model):
+class Error(TrackerModel):
 
     ''' Primitive record of an error event. '''
 

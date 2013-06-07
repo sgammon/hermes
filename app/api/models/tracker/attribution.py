@@ -11,10 +11,11 @@ Holds model classes designed to express calculated ad attributions.
 
 # apptools models
 from apptools import model
+from api.models import TrackerModel
 
 
 ## AttributionGroup
-class AttributionGroup(model.Model):
+class AttributionGroup(TrackerModel):
 
     ''' Represents a group of bucketed, attributed events. '''
 
@@ -27,7 +28,7 @@ class AttributionGroup(model.Model):
 
 
 ## Attribution
-class Attribution(model.Model):
+class Attribution(TrackerModel):
 
     ''' Represents a single attribution from event=>event or event=>datapoint. '''
 

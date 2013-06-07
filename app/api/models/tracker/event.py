@@ -17,6 +17,7 @@ import datetime
 from apptools import model
 
 # tracker models
+from api.models import TrackerModel
 from api.models.tracker import raw
 from api.models.tracker import endpoint
 from api.models.tracker import integration
@@ -28,7 +29,7 @@ from protocol import event
 
 
 ## EventAction
-class EventAction(model.Model):
+class EventAction(TrackerModel):
 
     ''' An action performed by the `EventTracker` in response to an occurrence of a `TrackedEvent`.
 
@@ -47,7 +48,7 @@ class EventAction(model.Model):
 
 
 ## TrackedEvent
-class TrackedEvent(model.Model):
+class TrackedEvent(TrackerModel):
 
     ''' A single hit to the ``EventTracker`` server, linked to a :py:class:`tracker.Tracker`
         model via a string ID, and containing *n* parameters. Individual :py:class:`TrackedEvent`
