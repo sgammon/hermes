@@ -5,6 +5,48 @@ from protocol.parameter.group import ParamDeclarationMode
 # Parameter decorators
 
 
+def declaration(group):
+
+    ''' Mark a parameter group declaration as a
+        "binding block", indicating a set of
+        schema-mapped structure items instead
+        of values.
+
+        :param group:
+        :returns: '''
+
+    ## mark group as a binding block
+    group.__mode__ = ParamDeclarationMode.DECLARATION
+    return group
+
+
+def override(group):
+
+    ''' Mark a parameter group declaration as a
+        "override block", indicating that it
+        should replace blocks of the same name
+        _completely_.
+
+        :param group:
+        :returns: '''
+
+    ## mark group as an override block
+    group.__mode__ = ParamDeclarationMode.OVERRIDE
+    return group
+
+
+def differential(group):
+
+    ''' Coming soon.
+
+        :param group:
+        :returns: '''
+
+    ## mark group as a binding block
+    group.__mode__ = ParamDeclarationMode.DIFFERENTIAL
+    return group
+
+
 def values(group):
 
     ''' Mark a parameter group declaration as a

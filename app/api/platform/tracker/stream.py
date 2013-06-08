@@ -43,15 +43,15 @@ class EventStream(PlatformBridge):
                       serialized ``protorpc.Message``. '''
 
         if hasattr(message, 'id') and message.id is not None:
-            id = message.id
+            eid = message.id
         else:
-            if hasattr(message, 'key'):
-                id = message.key.id
+            if hasattr(message, 'key') and message.key is not None:
+                eid = message.key.id
             else:
-                id = str(id(message))
+                eid = str(id(message))
 
         return {
-            'id': hashlib.sha512(id).hexdigest(),
+            'id': hashlib.sha512(eid).hexdigest(),
             'type': 'error' if error else message.__class__.__name__,
             'payload': message
         }

@@ -27,10 +27,10 @@ class Attribution(meta.ProtocolBinding):
 
 ## CompoundAttribution
 #
-class CompoundAttribution(meta.ProtocolBinding):
+class CompoundAttribution(Attribution):
 
     def __init__(self, *args, **kwargs):
 
         ''' Initialize this ``CompoundAttribution``. '''
 
-        print "CompoundAttribution(%s, %s)" % (args, kwargs)
+        super(Attribution, self).__init__(*args, **kwargs)

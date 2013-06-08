@@ -15,3 +15,11 @@ package-level catchall, defined as `Error`.
 
 ## Error - generic top-level exception for all Hermes errors.
 class Error(Exception): ''' Root, abstract Hermes error class. '''
+
+
+## TrackerError - top-level exception for all `EventTracker`-related errors.
+class TrackerError(Error): ''' Root, abstract `EventTracker` error class. '''
+
+
+## CorePlatformException - top-level exception parent for all `platform`-related errors.
+class CorePlatformException(TrackerError): ''' Root, abstract `EventTracker` inner-exception class. '''

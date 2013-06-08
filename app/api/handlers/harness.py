@@ -14,9 +14,20 @@ and service methods.
 # WebHandler
 from api.handlers import WebHandler
 
+# Core/Base Policy
+from policy import core
+from policy import base
+from policy import click
+from policy import conversion
+from policy import impression
 
-## SandboxHandler - apptools JS sandbox
-class SandboxHandler(WebHandler):
+# Client/Custom Policy
+from policy import clients
+from policy.clients import *
+
+
+## Sandbox - apptools JS sandbox
+class Sandbox(WebHandler):
 
     ''' Playground for apptools JS. '''
 

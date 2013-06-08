@@ -14,6 +14,8 @@ Description coming soon.
 from protocol import meta
 
 # Parameter
+from protocol.parameter import group
+from protocol.parameter.group import Parameter
 from protocol.parameter.group import ParameterGroup
 
 

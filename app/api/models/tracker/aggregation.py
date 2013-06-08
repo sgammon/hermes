@@ -12,10 +12,11 @@ linked to ``TrackedEvent``.
 
 # apptools models
 from apptools import model
+from api.models import TrackerModel
 
 
 ## AggregationGroup
-class AggregationGroup(model.Model):
+class AggregationGroup(TrackerModel):
 
     ''' Represents a group of `Aggregation` objects linked to a `Tracker` or `Profile`. '''
 
@@ -24,7 +25,7 @@ class AggregationGroup(model.Model):
 
 
 ## Aggregation
-class Aggregation(model.Model):
+class Aggregation(TrackerModel):
 
     ''' Represents a single aggregation match from an event=>property or event=>object. '''
 

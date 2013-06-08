@@ -54,7 +54,7 @@ class EventTypePriority(meta.ProtocolDefinition):
 
     ''' Keeps track of mapped priorities for event types. '''
 
-    CONVERSION = 0  # first priority: conversions
-    CUSTOM = 1  # second priority: potentially important client events
-    CLICK = 2  # third priority: clicks
-    IMPRESSION = 3  # fourth priority: impressions
+    CONVERSION = 0x0  # first priority: conversions
+    CUSTOM = 0x1  # second priority: potentially important client events
+    CLICK = 0x2  # third priority: clicks
+    IMPRESSION = 0x3  # fourth priority: impressions

@@ -249,9 +249,9 @@ _config['apptools.output.meta'] = {
 # Project Services
 _config['apptools.project.services'] = {
 
-    'debug': False,    # Return extra debug info in responses
+    'debug': True,    # Return extra debug info in responses
     'enabled': True,   # Disable API services system wide
-    'logging': False,  # Logging for service request handling
+    'logging': True,  # Logging for service request handling
 
     # Module-level (default) config
     'config': {

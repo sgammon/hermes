@@ -12,11 +12,12 @@ to `TrackedEvent` or `Profile`/`Tracker` objects.
 
 # apptools models
 from apptools import model
+from api.models import TrackerModel
 
 
 ## Parameter
 # Represents a parameter that may be present as part of a `TrackedEvent`.
-class Parameter(model.Model):
+class Parameter(TrackerModel):
 
     ''' Profile for a parameter (linked to a `Profile`) that may be present in a `TrackedEvent`. '''
 
