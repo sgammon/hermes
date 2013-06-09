@@ -241,8 +241,11 @@ class PolicyEngine(PlatformBridge):
             associated with it, in the form of: ``tuple(<raw>, <tracker>, <event>)``. '''
 
         # resolve tracker, build raw event
-        raw = self.bus.event.raw(data, policy=base_policy, legacy=legacy)
+        raw, pipe = self.bus.event.raw(data, policy=base_policy, legacy=legacy)
         tracker = self.bus.resolve(raw, base_policy, legacy)
+
+        # persist raw entity
+        rkey, pipe = self.bus.engine.persist(raw, pipeline=pipe)
 
         # by this point, raw event has already been ``put`` and ``published``. start building tracked event.
         ev = event.TrackedEvent(**{
@@ -287,6 +290,9 @@ class PolicyEngine(PlatformBridge):
 
         except exceptions.PolicyEngineException as e:
 
+            self.logging.info('Dropping pipelined commands for error codepath.')
+            pipe = None  # clear pipelined commands, something went terribly wrong
+
             # things that get out to this level should always be re-raised
             message = 'Encountered unhandled exception "%s": %s' % (e.__class__.__name__, str(e))
             self.logging.error(message)
@@ -312,7 +318,7 @@ class PolicyEngine(PlatformBridge):
 
                 # publish RAW event
                 try:
-                    self.bus.stream.publish(raw, error=True, propagate=True)
+                    self.bus.stream.publish(raw, error=True, execute=True, pipeline=False, propagate=True)
                 except:
                     self.logging.critical('Failed to publush RAW error event.')
                 else:
@@ -337,12 +343,16 @@ class PolicyEngine(PlatformBridge):
             ev.params = data_parameters
 
             # calculate aggregation specs
-            for spec in base_policy.aggregations:
-                print "Would aggregate: %s" % spec
+            for spec in base_policy.attributions:
+                print "Would attribute: %s" % spec
+                # buffer publish / persist
+                # attach descriptors for attributions matched to event
 
             # calculate aggregation specs
-            for spec in base_policy.attributions:
+            for spec in base_policy.aggregations:
                 print "Would aggregate: %s" % spec
+                # buffer publish / persist
+                # attach descriptors for aggregations matched to event
 
         # return tupled <raw>, <tracker>, <ev>
         return raw, tracker, ev

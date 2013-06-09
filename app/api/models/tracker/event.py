@@ -94,8 +94,8 @@ class TrackedEvent(TrackerModel):
 
     ## == Linked Objects == ##
     integrations = EventAction, {'repeated': True, 'indexed': True}  # linked, invoked integrations
-    aggregations = aggregation.Aggregation, {'repeated': True, 'indexed': True}  # linked, updated aggregations
-    attributions = attribution.Attribution, {'repeated': True, 'indexed': True}  # linked, attributed events/objects
+    aggregations = basestring, {'repeated': True, 'indexed': True}  # linked, updated aggregations
+    attributions = basestring, {'repeated': True, 'indexed': True}  # linked, attributed events/objects
 
     ## == Messages == ##
     warnings = basestring, {'repeated': True}

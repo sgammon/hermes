@@ -170,8 +170,9 @@ class EventStream(PlatformBridge):
             context = tuple()
 
         # distribute to appropriate channels
-        self.bus.engine.publish(self._generate_channels(blobbed_event, context, error, propagate), blobbed_event, execute, pipeline)
-
+        result = self.bus.engine.publish(self._generate_channels(blobbed_event, context, error, propagate), blobbed_event, execute, pipeline)
+        if result:
+            return result  # sometimes a pipeline comes back
         return ev
 
     def subscribe(self, stream=None, _start=True):

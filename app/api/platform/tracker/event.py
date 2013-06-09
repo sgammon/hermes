@@ -19,6 +19,12 @@ from api.models.tracker.raw import Event
 # Platform Parent
 from api.platform import PlatformBridge
 
+# detect redis support
+try:
+    from redis import client; _REDIS = True
+except:
+    _REDIS = False
+
 
 ## EventBuilder - handles the construction of ``TrackedEvent`` records.
 class EventBuilder(PlatformBridge):
@@ -54,7 +60,17 @@ class EventBuilder(PlatformBridge):
                       handle the request, like: ``tuple(<event>, <guess>)``. '''
 
         # inflate raw event & publish to pubsub
-        return self.bus.stream.publish(Event.inflate(request, policy, legacy), propagate=propagate)
+        ev = Event.inflate(request, policy, legacy)
+        result = self.bus.stream.publish(ev, **{
+            'execute': False,
+            'pipeline': None,
+            'propagate': propagate
+        })
+
+        # return buffered pipeline, if available
+        if isinstance(result, client.StrictPipeline):
+            return ev, result
+        return ev, None
 
     def error(self, event, reason="Unknown reason.", propagate=True):
 

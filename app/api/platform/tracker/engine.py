@@ -21,8 +21,9 @@ from apptools.model.adapter import redis
 from apptools.model.adapter import memcache
 from apptools.model.adapter import inmemory
 
+# detect redis support
 try:
-    import redis as _driver; _REDIS = True
+    from redis import client; _REDIS = True
 except ImportError:
     _REDIS = False
     logging.warning('Redis not found. Tracker engine falling back to `InMemory` storage - pubsub will be unavailable.')
@@ -108,12 +109,14 @@ class EventEngine(PlatformBridge):
         # if pipelining is enabled and supported, start a new one...
         if pipeline and _REDIS and (entity.key.id is not None):
 
-            # and put the entity, using the pipeline... then return it
-            batch = self.pipeline()
+            batch = pipeline
+            if not isinstance(pipeline, (client.StrictPipeline, client.Pipeline)):
+                # and put the entity, using the pipeline... then return it
+                batch = self.pipeline()
             return entity.key, entity.put(pipeline=batch)
 
         # otherwise, put the entity normally and return the written key
-        return entity.put()
+        return entity.put(), None
 
     def publish(self, channels, value, execute=True, pipeline=None):
 
@@ -154,15 +157,14 @@ class EventEngine(PlatformBridge):
             if isinstance(channels, (tuple, list)):
 
                 # for multiple channels, start a pipeline
-                with (pipeline if pipeline is not None else self.pipeline(self.Datastore.redis)) as pipe:
-                    for channel in channels:
-                        pipe.publish(channel, encoded)
+                pipe = pipeline if pipeline is not None else self.pipeline(self.Datastore.redis)
+                for channel in channels:
+                    pipe.publish(channel, encoded)
 
-                    if execute:
-                        # execute pipeline
-                        return pipe.execute()
-
-                return pipeline
+                if execute:
+                    # execute pipeline
+                    return pipe.execute()
+                return pipe
 
             else:
                 channel = channels
