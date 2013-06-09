@@ -43,7 +43,7 @@ class TrackerEndpoint(WebHandler):
         try:
             # publish raw event first, propagating globally
             # collapse policy for this event, enforce, and fail-out from critical errors
-            raw, tracker, event = self.tracker.policy.enforce(self.request, policy, legacy=legacy)
+            raw, tracker, event, pipe = self.tracker.policy.enforce(self.request, policy, legacy=legacy)
 
         except Exception as e:
 
@@ -58,16 +58,12 @@ class TrackerEndpoint(WebHandler):
         else:
 
             # store tracked event, then publish
-            result = self.tracker.engine.persist(event, pipeline=True)
-
-            if isinstance(result, tuple):
-                key, pipeline = result
-
-            else:
-                key, pipeline = result, None
+            evkey, pipe = self.tracker.engine.persist(event, pipeline=pipe)
 
             # underlying storage doesn't support pipelining, publish key
-            self.tracker.stream.publish(key, pipeline=pipeline, propagate=True)
+            pipe = self.tracker.stream.publish(evkey, execute=False, pipeline=pipe, propagate=True)
+
+            import pdb; pdb.set_trace()
 
             # return everything or nothing according to settings
             if explicit:

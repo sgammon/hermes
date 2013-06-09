@@ -354,5 +354,5 @@ class PolicyEngine(PlatformBridge):
                 # buffer publish / persist
                 # attach descriptors for aggregations matched to event
 
-        # return tupled <raw>, <tracker>, <ev>
-        return raw, tracker, ev
+            # return tupled <raw>, <tracker>, <ev>
+            return raw, tracker, ev, pipe
