@@ -68,7 +68,7 @@ class EventBuilder(PlatformBridge):
         })
 
         # return buffered pipeline, if available
-        if isinstance(result, client.StrictPipeline):
+        if _REDIS and isinstance(result, client.StrictPipeline):
             return ev, result
         return ev, None
 

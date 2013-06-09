@@ -84,10 +84,9 @@ class EventEngine(PlatformBridge):
                       :py:class:`MemcacheAdapter`, or :py:class:`InMemoryAdapter`,
                       depending on the value passed in at ``engine``. '''
 
-        e = engine(**kwargs)
         if kind:
-            return e.channel(kind)
-        return e
+            return engine(**kwargs).channel(kind)
+        return engine(**kwargs)
 
     ## === Public Methods === ##
     def pipeline(self, engine=Datastore.redis, kind='Realtime'):
