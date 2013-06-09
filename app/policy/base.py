@@ -196,11 +196,11 @@ class EventProfile(core.AbstractProfile):
             'source': http.DataSlot.PARAM,
             'name': builtin.TrackerProtocol.ADGROUP,
             'category': parameter.ParameterType.AMPUSH,
-            'attributions': [
-                attribution.Attribution(name='hits-by-browser', interval=_DEFAULT_LOOKBACK, permutations=[
-                    ('by-consumer', 'Consumer.FINGERPRINT')
-                ])
-            ],
+            #'attributions': [
+            #    attribution.Attribution(name='hits-by-browser', interval=_DEFAULT_LOOKBACK, permutations=[
+            #        ('by-consumer', 'Consumer.FINGERPRINT')
+            #    ])
+            #],
             'aggregations': [
                 aggregation.Aggregation(name='hits-by-browser', interval=_DEFAULT_LOOKBACK, permutations=[
                     ('by-consumer', 'Consumer.FINGERPRINT')

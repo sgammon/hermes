@@ -106,9 +106,9 @@ class EventEngine(PlatformBridge):
         ''' Persist an event. '''
 
         ## first, put it
-        event_k = entity.put()
+        entity.put()
 
-        return event_k
+        return entity
 
     def publish(self, channels, value):
 

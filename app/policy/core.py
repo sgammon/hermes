@@ -73,7 +73,7 @@ class Profile(type):
 
             self.__subtype__, self.__profile__ = name, specs
 
-        def _build_paramgroup(self, policy, group, inline=True):
+        def _build_paramgroup(self, policy, group, klass, inline=True):
 
             ''' Build a ``ParameterGroup`` object from a direct
                 subclass, embedded in a :py:class:`EventProfile`
@@ -106,7 +106,7 @@ class Profile(type):
 
                     # update with mainconfig, build and append
                     config.update(mainconfig)
-                    parameters.append(parameter.Parameter(param, basetype, **config))
+                    current_param = parameter.Parameter(param, basetype, **config)
 
                 else:  # we're probably configuring values
 
@@ -114,38 +114,47 @@ class Profile(type):
 
                     # use main config, add sentinel for value
                     config = {'mode': parameter.group.ParameterDeclarationMode.VALUES}
-                    parameters.append(parameter.Parameter(param, basetype=None, value=value, **config))
+                    current_param = parameter.Parameter(param, basetype=None, value=value, **config)
+
+                parameters.append(current_param)
+
+                if config.get('aggregations', None) is not None:
+
+                    # delegate to aggregations
+                    for spec in config.get('aggregations'):
+                        klass['aggregations'].append(self._build_aggregation(policy, spec, klass, True))
+
+                if config.get('attributions', None) is not None:
+
+                    # delegate to attributions
+                    for spec in config.get('attributions'):
+                        klass['attributions'].append(self._build_attribution(policy, spec, klass, True))
 
             return parameter.ParameterGroup(group.__name__, parameters, inline=inline)
 
-        def _build_integration(self, policy, spec, inline=True):
+        def _build_integration(self, policy, spec, klass, inline=True):
 
             ''' Build an ``Integration`` object from a
                 specification encountered in a subclass of
                 :py:class:`EventProfile`.
 
-
                 :param policy: Parent policy class (derivative of
-                               :py:class:`EventProfile`) that we
-                               are processing for, so we can
-                               inform sub-objects.
+                :py:class:`EventProfile`) that we are processing for,
+                so we can inform sub-objects.
 
                 :param spec: Class structure and specification, as
-                             found in the encapsulating
-                             :py:class:`EventProfile`.
+                found in the encapsulating :py:class:`EventProfile`.
 
                 :keyword inline: Indicates that this is a subclass
-                                   defined inline in an encapsulating
-                                   :py:class:`EventProfile`. Defaults
-                                   to ``True``.
+                defined inline in an encapsulating :py:class:`EventProfile`.
+                Defaults to ``True``.
 
                 :returns: An instantiated and properly filled-out
-                          :py:class:`IntegrationGroup` object. '''
+                :py:class:`IntegrationGroup` object. '''
 
-            #return integration.Integration()
-            return spec
+            raise NotImplementedError('`Integration` edges are not yet supported by `EventTracker`.')
 
-        def _build_attribution(self, policy, spec, compound=False):
+        def _build_attribution(self, policy, spec, klass, compound=False):
 
             ''' Build an ``Attribution`` or ``CompoundAttribution``
                 from a specification encountered in a subclass of
@@ -170,10 +179,9 @@ class Profile(type):
                 :returns: An instantiated and properly filled-out
                           :py:class:`AttributionGroup` object. '''
 
-            #return attribution.Attribution
-            return spec
+            raise NotImplementedError('`Attribution` edges are not yet supported by `EventTracker`.')
 
-        def _build_aggregation(self, policy, spec, compound=False):
+        def _build_aggregation(self, policy, spec, klass, compound=False):
 
             ''' Build an ``Aggregation`` or ``CompoundAggregation``
                 from a specification encountered in a subclass of
@@ -198,6 +206,7 @@ class Profile(type):
                           :py:class:`AggregationGroup` object. '''
 
             #return aggregation.Aggregation
+            #import pdb; pdb.set_trace()
             return spec
 
         _builders = {
@@ -227,7 +236,7 @@ class Profile(type):
             for (parent, subspecs) in self.__profile__.iteritems():
                 for spec, spec_klass, flag in subspecs:
                     attr, builder = self._builders[parent]
-                    compound[attr].append(builder(self, spec_klass, spec, flag))
+                    compound[attr].append(builder(self, spec_klass, spec, compound, flag))
                     compound['primitives'].append(spec_klass)
 
             # assign locally

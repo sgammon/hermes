@@ -20,8 +20,8 @@ class DataSlot(meta.ProtocolDefinition):
 
     ''' Maps HTTP data slots to discrete values. '''
 
-    ETAG = 0x1  # etag-based tracking (will automatically activate etags if mapped)
-    PARAM = 0x2  # POST or GET parameters (webapp2 abstracts this for us)
+    PARAM = 0x1  # POST or GET parameters (webapp2 abstracts this for us. MUST BE == 1).
+    ETAG = 0x2  # etag-based tracking (will automatically activate etags if mapped)
     HEADER = 0x3  # request or response headers (mapped to `flags` and `opts` in services)
     COOKIE = 0x4  # HTTP cookie, where key is the name of the cookie
     PATH = 0x5  # HTTP path component (inside the URL)

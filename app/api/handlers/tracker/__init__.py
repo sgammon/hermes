@@ -36,17 +36,12 @@ class TrackerEndpoint(WebHandler):
 
         # publish raw event first, propagating globally
         # collapse policy for this event, enforce, and fail-out from critical errors
-        raw, tracker, event = self.tracker.policy.interpret(*self.tracker.resolve(self.request, policy, legacy), legacy=legacy)
+        raw, tracker, event = self.tracker.policy.enforce(self.request, policy, legacy=legacy)
 
-        # get ready to grab our execution flow
-        attributions, aggregations, integrations = [collections.deque() for x in (1, 2, 3)]
+        # store tracked event, then publish
+        self.tracker.stream.publish(self.tracker.engine.persist(event, pipeline=True), propagate=True)
 
-        # first, store the tracked event (which should start a new pipeline for this request)
-        self.tracker.engine.persist(event, pipeline=True)
-
-        # publish tracked event
-        self.tracker.stream.publish(event, propagate=True)
-
+        # return everything or nothing according to settings
         if explicit:
             return policy, raw, event
         return ''

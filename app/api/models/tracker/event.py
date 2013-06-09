@@ -88,6 +88,7 @@ class TrackedEvent(TrackerModel):
 
     ## == Type/Provider/Tracker == ##  # @TODO: Change string types to enums.
     type = event.EventType, {'indexed': True, 'default': 'CUSTOM'}  # event type: impression, click, etc.
+    error = bool, {'indexed': True}  # error flag: flipped to ``True`` if an error was detected while processing
     tracker = model.Key, {'indexed': True}  # provisioned tracker that this event came through
     provider = event.EventProvider, {'indexed': True, 'default': 'CLIENT'}  # event provider: who dispatched this event
 
@@ -96,7 +97,7 @@ class TrackedEvent(TrackerModel):
     aggregations = aggregation.Aggregation, {'repeated': True, 'indexed': True}  # linked, updated aggregations
     attributions = attribution.Attribution, {'repeated': True, 'indexed': True}  # linked, attributed events/objects
 
-    ## == Processing Messages == ##
+    ## == Messages == ##
     warnings = basestring, {'repeated': True}
     errors = basestring, {'repeated': True}
 

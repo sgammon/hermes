@@ -187,4 +187,5 @@ class EventStream(PlatformBridge):
             :returns: Result of the low-level subscribe operation, and the new ``Greenlet``
                       which will do the listening. '''
 
+        ## @TODO(sgammon): Build subscription functionality into the eventstream core.
         pass

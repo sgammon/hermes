@@ -16,6 +16,9 @@ from api.platform import Platform
 # apptools util
 from apptools.util import decorators
 
+# Tracker Models
+from api.models.tracker import endpoint
+
 # Platform Bridges
 from api.platform.tracker import event
 from api.platform.tracker import stream
@@ -97,20 +100,27 @@ class Tracker(Platform):
         return inject_tracker
 
     ## == Tracker Internals == ##
-    def resolve(self, request, base_policy=None, legacy=False):
+    def resolve(self, raw, base_policy=None, legacy=False):
 
         ''' Resolves a ``model.Tracker`` for a given
             ``webapp2.Request``.
 
-            :param request: Object :py:class:`webapp2.Request` to
-                            resolve a :py:class:`model.Tracker` for.
+            :param raw: Raw event object to resolve a tracker
+            from (:py:class:`api.models.tracker.raw.Event`).
+
             :keyword base_policy: Base policy suite to consider.
+
             :returns: Tuple with inflated ``model.Tracker`` object
-                      and passed-in base policy, to be used down the
-                      policy processing flow at ``tracker.policy.interpret``. '''
+            and passed-in base policy, to be used down the
+            policy processing flow at ``tracker.policy.interpret``. '''
 
         tracker = None
-        return request, tracker, base_policy
+
+        if not legacy:  # only look up/use trackers when not in legacy mode
+
+            raise Exception('Non-legacy tracking not yet supported.')
+
+        return raw, tracker
 
     def provision(self, *args, **kwargs):
 
