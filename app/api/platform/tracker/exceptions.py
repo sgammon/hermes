@@ -54,3 +54,7 @@ class UnexpectedParameter(ParamsetException): pass
 
 # InvalidParameterValue - raised when type conversion fails for a param value.
 class InvalidParameterValue(ParamsetException): pass
+
+
+# DuplicateParameterName - raised when two parameters have the same target name.
+class DuplicateParameterName(InvalidParamName): pass

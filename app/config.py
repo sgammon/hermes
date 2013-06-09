@@ -52,7 +52,7 @@ _config['apptools.project'] = {
         'major': 0,
         'minor': 5,
         'micro': 0,
-        'build': 20130520,
+        'build': 20130610,
         'release': 'ALPHA'
     }
 
@@ -69,6 +69,13 @@ _REDIS_WRITE_POOL = 200  # perform up to X writes to redis concurrently
 _DISCARD_NOSENTINEL = True  # refuse all incoming events missing a sentinel key
 _PREBUFFER_THRESHOLD = 60  # configurable task limit per prebuffer batch
 _PREBUFFER_FREQUENCY = 30  # configurable time threshold for prebuffer flush
+
+
+# Policy Engine
+_config['tracker.policy.PolicyEngine'] = {
+    'strict': False,
+    'debug': True
+}
 
 
 # Redis Adapter

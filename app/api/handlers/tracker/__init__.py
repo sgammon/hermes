@@ -11,17 +11,14 @@ deal with hits to ``Tracker`` classes, and produce/yield
           embedded licenses and other legalese, see `LICENSE.md`.-sam (<sam.gammon@ampush.com>)
 '''
 
-# stdlib
-import collections
+# Root
+import config
+
+# Policy
+from policy import base
 
 # WebHandler
 from api.handlers import WebHandler
-
-# Policy Base
-from policy import base
-from policy import click
-from policy import impression
-from policy import conversion
 
 
 ## TrackerEndpoint - handles tracker hits.
@@ -29,24 +26,36 @@ class TrackerEndpoint(WebHandler):
 
     ''' Handles `EventTracker` hits. '''
 
-    def get(self, explicit=False, legacy=False, policy=base.EventProfile):
+    _config_path = 'handlers.tracker.TrackerEndpoint'
+
+    def entrypoint(self, explicit=False, legacy=False, policy=base.EventProfile):
 
         ''' HTTP GET
             :returns: Response to a tracker hit. '''
 
-        # publish raw event first, propagating globally
-        # collapse policy for this event, enforce, and fail-out from critical errors
-        raw, tracker, event = self.tracker.policy.interpret(*self.tracker.resolve(self.request, policy, legacy), legacy=legacy)
+        try:
+            # publish raw event first, propagating globally
+            # collapse policy for this event, enforce, and fail-out from critical errors
+            raw, tracker, event = self.tracker.policy.enforce(self.request, policy, legacy=legacy)
 
-        # get ready to grab our execution flow
-        attributions, aggregations, integrations = [collections.deque() for x in (1, 2, 3)]
+        except Exception as e:
 
-        # first, store the tracked event (which should start a new pipeline for this request)
-        self.tracker.engine.persist(event, pipeline=True)
+            # thoroughly log error, re-raise in debug mode
+            # exceptions should almost never bubble-up this far
+            context = (self.__class__.__name__, e.__class__.__name__, str(e))
+            self.logging.error('Encountered unhandled exception in `%s` handler class: %s("%s").' % context)
 
-        # publish tracked event
-        self.tracker.stream.publish(event, propagate=True)
+            if config.debug:
+                raise  # re-raise in debug, in production the show must go on
 
-        if explicit:
-            return policy, raw, event
-        return ''
+        else:
+
+            # store tracked event, then publish
+            self.tracker.stream.publish(self.tracker.engine.persist(event, pipeline=True), propagate=True)
+
+            # return everything or nothing according to settings
+            if explicit:
+                return policy, raw, event
+            return ''
+
+    get = post = put = entrypoint

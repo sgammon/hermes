@@ -12,6 +12,9 @@ attribution happens here.
           embedded licenses and other legalese, see `LICENSE.md`.
 '''
 
+# stdlib
+import webob
+import datetime
 
 # apptools model API
 from apptools import model
@@ -27,11 +30,6 @@ from api.models.tracker import event
 from api.platform import PlatformBridge
 from api.platform.tracker import exceptions
 
-try:
-    import redis; _REDIS = True
-except ImportError:
-    _REDIS = False
-
 
 ## PolicyEngine - handles application and enforcement of schema policy.
 class PolicyEngine(PlatformBridge):
@@ -40,7 +38,9 @@ class PolicyEngine(PlatformBridge):
         :py:class:`platform.ampush.tracker.event.EventBuilder`,
         and manages execution flow for applying that policy. '''
 
-    _config_path = 'tracker.policy.PolicyEngine'
+    _config_path = 'tracker.policy.PolicyEngine'  # @TODO(sgammon): document config structure (``strict``/``debug``)
+
+    ### ==== Internal Methods ==== ###
 
     def _strictwarn(self, message, *args, **kwargs):
 
@@ -77,50 +77,143 @@ class PolicyEngine(PlatformBridge):
                 ev.warnings.append(message)
         return self
 
-    def build(self, policies):
+    ### ==== HTTP-related Internals ==== ###
 
-        ''' Compile multiple :py:class:`model.profile.Profile`
-            classes into a single, compound policy class.
+    def _extract_http_etag(self, request, identifier):
 
-            :param policies:
-            :returns: '''
+        ''' Extracts an HTTP Etag. '''
 
-        pass
+        # @TODO(sgammon): etag extractor
+        self.logging.info('Extracting ETAG at identifier "%s".' % identifier)
+        raise NotImplementedError('`EventTracker` does not yet support etag-based extraction.')
 
-    def gather(self):
+    def _extract_http_path(self, request, identifier):
 
-        ''' Walk the class inheritance chain and gather applicable
-            :py:class:`model.profile.Profile` classes, for construction
-            into a compound policy for handling an event.
+        ''' Extracts an HTTP path component. '''
 
-            :param tracker:
-            :param context:
-            :returns: '''
+        # @TODO(sgammon): path extractor
+        self.logging.info('Extracting PATH component at identifier "%s".' % identifier)
+        raise NotImplementedError('`EventTracker` does not yet support path-based extraction.')
 
-        pass
+    def _extract_http_header(self, request, identifier):
 
-    def enforce(self):
+        ''' Extracts an HTTP header. '''
 
-        ''' Given a materialized :py:class:`model.event.TrackedEvent`,
-            enforce policy decisions, potentially raising exceptions
-            encountered along the way.
+        # @TODO(sgammon): header extractor
+        self.logging.info('Extracting HEADER at identifier "%s".' % identifier)
+        return request.headers.get(identifier)
 
-            :param suite:
-            :param strict:
-            :returns: Boolean indicating whether the compound policy
-                      was found to be valid. '''
+    def _extract_http_cookie(self, request, identifier):
 
-        pass
+        ''' Extracts an HTTP cookie. '''
 
-    def interpret(self, request, tracker, base_policy=None, legacy=False):
+        # @TODO(sgammon): cookie extractor
+        self.logging.info('Extracting COOKIE at identifier "%s".' % identifier)
+        return request.cookies.get(identifier)
+
+    _http_extractors = {
+        http.DataSlot.ETAG: _extract_http_etag,
+        http.DataSlot.HEADER: _extract_http_header,
+        http.DataSlot.COOKIE: _extract_http_cookie,
+        http.DataSlot.PATH: _extract_http_path
+    }
+
+
+    ### ==== Public Methods ==== ###
+
+    def match_parameters(self, data, policy, legacy=False):
+
+        ''' Blab '''
+
+        # initialize vars
+        paramset, artifacts, converters = [], {}, {}
+
+        # gather parameter artifacts and long-form identifiers
+        for prm in policy.parameters:
+            prefix = prm.config.get('category', '')  # grab category prefix
+            name = prm.config.get('name', False)
+
+            if name is False:  # default to using parameter full name
+                name = prm.name
+
+            if name in (None, False, '') or not isinstance(name, basestring):
+                raise exceptions.InvalidParamName("Invalid property name for parameter '%s'."
+                                                  " Found name of type '%s'." % (parameter, type(name)))
+
+            # resolve value converter
+            if prm.basetype is not None:
+                if prm.basetype == basestring:
+                    converter = unicode
+                else:
+                    converter = prm.basetype
+            else:
+                converter = lambda x: x
+
+            # http.DataSlot.PARAM == 1 (all special slots are >1)
+            # http.DataSlot.PATH == 0x5 (maximum, anything above this bound is invalid)
+            if isinstance(data, webob.Request) and prm.config.get('source', 0) > 1 < 0x5:
+
+                # it's an HTTP request with a special extractor. extract the value, yield with param and converter.
+                yield prm, converter, self._http_extractors[prm.config['source']](self, data, name)
+                continue  # advance parameter processing loop
+
+            # compute identifier
+            identifier = prm.config.get('separator', '').join([prefix, name]) if prefix else name
+
+            # add to artifacts to look for
+            if name in artifacts:
+                raise exceptions.DuplicateParameterName("Encountered more than one parameter with the name "
+                                                        "'%s' (violating property was '%s'." % (identifier, name))
+
+            artifacts[identifier], converters[identifier] = prm, converter  # add to artifacts, converters
+
+        # special HTTP stuff should be extracted by now, so it's okay to overwrite
+        # the request with params, a ``dict``-like object.
+        if isinstance(data, webob.Request):
+            data = data.params
+
+        expected = frozenset(artifacts.keys())  # properties are gathered, build lookup list
+        parameters = frozenset(data.keys())  # grab and freeze data parameters
+
+        valid = expected & parameters  # match all valid parameters via set intersection
+        no_value = expected - (parameters - valid)  # match spec'd parameters with no present value
+        no_schema = parameters - expected  # match parameters with no presence in the spec
+
+        for i in valid:  # process valid parameters
+            yield artifacts[i], converters[i], data[i]  # grab parameter, converter and value
+
+        if no_value or no_schema:  # process invalid parameters, if any
+
+            for i in no_value:
+                param = artifacts[i]  # grab parameter
+                message = 'Expected property "%s" (at name "%s") was not found.'
+
+                # check if this is an enforced/required property
+                if prm.config.get('policy', parameter.ParameterPolicy.OPTIONAL) in (
+                        parameter.ParameterPolicy.REQUIRED, parameter.ParameterPolicy.ENFORCED):
+                    yield param, exceptions.MissingParameter, (message, param.name, i)
+
+                else:
+                    # if it's not a strict field, don't except
+                    yield param, None, (message, param.name, i)
+
+            for i in no_schema:
+                if i == 'ref' and legacy:
+                    continue  # special case: ``ref`` property
+                message = 'Received unexpected parameter "%s" with value "%s".'
+                yield param, exceptions.UnexpectedParameter, (message, i, data.get(i))
+
+        raise StopIteration()  # we're done here
+
+    def enforce(self, data, base_policy, legacy=False):
 
         ''' Gather, build, enforce and map policy for the
             given :py:class:`model.tracker.Tracker` and
             :py:class:`model.raw.Event`.
 
-            :param request: Current :py:class:`webapp2.Request` object.
-
-            :param tracker: Tracker object attached to this event.
+            :param data: Can either be a ``dict`` of key=>value
+            pairs, or a :py:class:`webapp2.Request`, in the case
+            we're operating in an HTTP context.
 
             :param legacy: Mark this as a legacy hit.
 
@@ -143,96 +236,113 @@ class PolicyEngine(PlatformBridge):
             we're in production or ``strict`` mode is off, we log a warning.
 
             :returns: A newly-inflated and provably-valid
-                      :py:class:`model.event.TrackedEvent`,
-                      assuming related policy applies properly,
-                      and the ``raw`` event and ``tracker``
-                      associated with it, in the form of:
-                      ``tuple(<raw>, <tracker>, <event>)``. '''
+            :py:class:`model.event.TrackedEvent`, assuming related policy
+            applies properly, and the ``raw`` event and ``tracker``
+            associated with it, in the form of: ``tuple(<raw>, <tracker>, <event>)``. '''
 
-        raw = self.bus.event.raw(request, policy=base_policy, legacy=legacy)
+        # resolve tracker, build raw event
+        raw = self.bus.event.raw(data, policy=base_policy, legacy=legacy)
+        tracker = self.bus.resolve(raw, base_policy, legacy)
 
-        # resolve tracker for this request
-        tracker = self.bus.resolve(raw, request)
+        # by this point, raw event has already been ``put`` and ``published``. start building tracked event.
+        ev = event.TrackedEvent(**{
+            'key': model.Key(event.TrackedEvent, raw.key.id),
+            'raw': raw.key,
+            'params': {},
+            'warnings': [],
+            'errors': [],
+            'modified': datetime.datetime.now(),
+            'created': datetime.datetime.now()
+        })
 
-        paramset = []
-        for prm in base_policy.parameters:
-            prefix = prm.config.get('category', '')  # grab category prefix
-            name = prm.config.get('name', False)
+        # first, process parameters
+        data_parameters = {}
 
-            if name is False:  # default to using parameter full name
-                name = prm.name
+        try:
+            for param, followup, data in self.match_parameters(data, base_policy, legacy):
 
-            if name in (None, False, '') or not isinstance(name, basestring):
-                raise exceptions.InvalidParamName("Invalid property name for parameter '%s'."
-                                                  " Found name of type '%s'." % (parameter, type(name)))
+                # check if we're dealing with a warning
+                if followup is None:
+                    self._strictwarn(data[0], *data[1:], exception=None, event=ev)
+                    continue
 
-            # compute identifier
-            identifier = ''.join([prefix, name])
+                # check if we're dealing with an exception
+                if isinstance(followup, type) and issubclass(followup, exceptions.PolicyEngineException):
 
-            if prm.config.get('source', http.DataSlot.PARAM) == http.DataSlot.PARAM:
-                paramset.append((prm, name, request.params.get(identifier)))
+                    # delegate to warning/exception
+                    self._strictwarn(data[0], *data[1:], exception=followup, event=ev)
 
-            elif prm.config.get('source') == http.DataSlot.HEADER:
-                paramset.append((prm, name, request.headers.get(identifier)))
+                else:
+                    try:
 
-            elif prm.config.get('source') == http.DataSlot.COOKIE:
-                paramset.append((prm, name, request.cookies.get(name)))
+                        if data is None:
+                            data_parameters[param.name] = data
+                        else:
+                            # convert types and assign to data properties
+                            data_parameters[param.name] = followup(data)
 
-        # factory a new model class to hold the data, assign to ``Redis``
-        # factory and initialize dynamic trackedevent model
-        #evmodel = model.Model.__metaclass__.__new__(model.Model, "TrackedEvent", (event.TrackedEvent,), {})
+                    except ValueError as e:
+                        message = 'Error converting param "%s" (with value "%s") using `%s`. Exception: "%s".'
+                        self._strictwarn(message, param.name, data, followup, str(e), event=ev)
 
-        accounted_params = []
-        ev = event.TrackedEvent(key=model.Key('TrackedEvent', raw.key.id), raw=raw.key, params={})
-        ev.errors, ev.warnings = [], []
+        except exceptions.PolicyEngineException as e:
 
-        for k, _name, value in paramset:
+            # things that get out to this level should always be re-raised
+            message = 'Encountered unhandled exception "%s": %s' % (e.__class__.__name__, str(e))
+            self.logging.error(message)
 
-            # skip things with empty values and optional flags
-            if value is None and prm.config.get('policy', parameter.ParameterPolicy.OPTIONAL) in (
-                    parameter.ParameterPolicy.REQUIRED,
-                    parameter.ParameterPolicy.ENFORCED):
+            # mark raw and event as errors
+            ev.errors.append(message)
+            ev.error = True
+            raw.error = True
 
-                # @TODO: param policy enforcement here (OPTIONA/REQUIRED/ENFORCED/etc)
-                # @TODO: should have options for explicitly setting a property to ``None``
-                message = 'Expected property "%s" (at name "%s") was not found (got `None` as value) and will not be saved.'
-                self._strictwarn(message, k.name, _name, exception=exceptions.MissingParameter, event=ev)
-                continue
-
-            converter = k.basetype
-            if converter == basestring:  # special case: ``basestring`` cannot be constructed directly
-                converter = unicode
-            if converter is None:
-                converter = lambda x: x  # special case: a ``None`` converter does no conversion
+            # save raw, attempt to save tracked
+            keys = (raw.key.urlsafe(), ev.key.urlsafe())
+            self.logging.error('Marking RAW and FULL events as errors, committing at keys "%s" and "%s".' % keys)
 
             try:
-                ## assign value to property
-                if value is None:
-                    ev.params[k.name] = None
+                raw.put()
+            except:
+                self.logging.critical('Critical persistence failure for raw event at key: "%s"' % raw.key)
+                self.logging.critical('Event<%s>' % str(raw))
+                self.logging.critical('Data<%s>' % str(data))
+            else:
+                self.logging.info('RAW event saved successfully.')
+                self.logging.info('Publishing RAW event as error.')
+
+                # publish RAW event
+                try:
+                    self.bus.stream.publish(raw, error=True, propagate=True)
+                except:
+                    self.logging.critical('Failed to publush RAW error event.')
                 else:
-                    ev.params[k.name] = converter(value)
-                accounted_params.append(_name)
+                    self.logging.info('RAW error event published.')
 
-            except ValueError as e:
-                message = 'Encountered error converting param "%s" (with value "%s", type "%s", name "%s") with converter %s. Exception: "%s".'
-                self._strictwarn(message, k.name, value, type(value), _name, converter, str(e), **{
-                    'exception': exceptions.InvalidParameterValue,
-                    'event': ev
-                })
+                    # if RAW event was saved and published, attempt to save FULL event
+                    try:
+                        ev.put()
+                    except:
+                        self.logging.error('Failed to persist FULL event at key: "%s".' % ev.key)
+                        self.logging.error('TrackedEvent<%s>' % ev)
+                    else:
+                        self.logging.info('FULL event saved successfully.')
 
-        for param in request.params:
+            # if we're in strict mode, re-raise errors
+            if self.config.get('strict', True):
+                raise
 
-            if legacy and param == 'ref':
-                continue  # ref can be skipped in legacy situations (special case)
+        else:
 
-            if param not in accounted_params:
+            # everything worked I guess! copy over parameters.
+            ev.params = data_parameters
 
-                # woops, there are extra params on the request for some reason (that are dropped)
-                message = 'Found unexpected parameter "%s" (got "%s" as value).'
-                self._strictwarn(message, param, request.params.get(param), **{
-                    'exception': exceptions.UnexpectedParameter,
-                    'event': ev
-                })
+            # calculate aggregation specs
+            for spec in base_policy.aggregations:
+                print "Would aggregate: %s" % spec
+
+            # calculate aggregation specs
+            for spec in base_policy.attributions:
+                print "Would aggregate: %s" % spec
 
         # return tupled <raw>, <tracker>, <ev>
         return raw, tracker, ev

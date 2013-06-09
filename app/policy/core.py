@@ -73,7 +73,7 @@ class Profile(type):
 
             self.__subtype__, self.__profile__ = name, specs
 
-        def _build_paramgroup(self, policy, group, inline=True):
+        def _build_paramgroup(self, policy, group, klass, inline=True):
 
             ''' Build a ``ParameterGroup`` object from a direct
                 subclass, embedded in a :py:class:`EventProfile`
@@ -106,7 +106,7 @@ class Profile(type):
 
                     # update with mainconfig, build and append
                     config.update(mainconfig)
-                    parameters.append(parameter.Parameter(param, basetype, **config))
+                    current_param = parameter.Parameter(param, basetype, **config)
 
                 else:  # we're probably configuring values
 
@@ -114,38 +114,49 @@ class Profile(type):
 
                     # use main config, add sentinel for value
                     config = {'mode': parameter.group.ParameterDeclarationMode.VALUES}
-                    parameters.append(parameter.Parameter(param, basetype=None, value=value, **config))
+                    current_param = parameter.Parameter(param, basetype=None, value=value, **config)
+
+                parameters.append(current_param)
+
+                # consider aggregations
+                if config.get('aggregations', None) is not None:
+
+                    # delegate to aggregations
+                    for spec in config.get('aggregations'):
+                        klass['aggregations'].append(self._build_aggregation(policy, spec, klass, True))
+
+                # consider attributions
+                if config.get('attributions', None) is not None:
+
+                    # delegate to attributions
+                    for spec in config.get('attributions'):
+                        klass['attributions'].append(self._build_attribution(policy, spec, klass, True))
 
             return parameter.ParameterGroup(group.__name__, parameters, inline=inline)
 
-        def _build_integration(self, policy, spec, inline=True):
+        def _build_integration(self, policy, spec, klass, inline=True):
 
             ''' Build an ``Integration`` object from a
                 specification encountered in a subclass of
                 :py:class:`EventProfile`.
 
-
                 :param policy: Parent policy class (derivative of
-                               :py:class:`EventProfile`) that we
-                               are processing for, so we can
-                               inform sub-objects.
+                :py:class:`EventProfile`) that we are processing for,
+                so we can inform sub-objects.
 
                 :param spec: Class structure and specification, as
-                             found in the encapsulating
-                             :py:class:`EventProfile`.
+                found in the encapsulating :py:class:`EventProfile`.
 
                 :keyword inline: Indicates that this is a subclass
-                                   defined inline in an encapsulating
-                                   :py:class:`EventProfile`. Defaults
-                                   to ``True``.
+                defined inline in an encapsulating :py:class:`EventProfile`.
+                Defaults to ``True``.
 
                 :returns: An instantiated and properly filled-out
-                          :py:class:`IntegrationGroup` object. '''
+                :py:class:`IntegrationGroup` object. '''
 
-            #return integration.Integration()
-            return spec
+            raise NotImplementedError('`Integration` edges are not yet supported by `EventTracker`.')
 
-        def _build_attribution(self, policy, spec, compound=False):
+        def _build_attribution(self, policy, spec, klass, compound=False):
 
             ''' Build an ``Attribution`` or ``CompoundAttribution``
                 from a specification encountered in a subclass of
@@ -170,10 +181,9 @@ class Profile(type):
                 :returns: An instantiated and properly filled-out
                           :py:class:`AttributionGroup` object. '''
 
-            #return attribution.Attribution
-            return spec
+            raise NotImplementedError('`Attribution` edges are not yet supported by `EventTracker`.')
 
-        def _build_aggregation(self, policy, spec, compound=False):
+        def _build_aggregation(self, policy, spec, klass, compound=False):
 
             ''' Build an ``Aggregation`` or ``CompoundAggregation``
                 from a specification encountered in a subclass of
@@ -208,7 +218,7 @@ class Profile(type):
         }
 
         ## == Public Methods == ##
-        def build(self):
+        def build(self, overlay=None):
 
             ''' Build a :py:class:`EventProfile` descendent
                 into a fully-structured object.
@@ -227,13 +237,15 @@ class Profile(type):
             for (parent, subspecs) in self.__profile__.iteritems():
                 for spec, spec_klass, flag in subspecs:
                     attr, builder = self._builders[parent]
-                    compound[attr].append(builder(self, spec_klass, spec, flag))
+                    compound[attr].append(builder(self, spec_klass, spec, compound, flag))
                     compound['primitives'].append(spec_klass)
 
             # assign locally
             for k, v in compound.items():
                 setattr(self, k, frozenset(v))  # attach at desired mountpoint
 
+            if overlay:
+                return self.overlay(overlay)
             return self
 
         def overlay(self, target, override=False):
@@ -251,6 +263,16 @@ class Profile(type):
 
                 :returns: ``self``, for method chainability. '''
 
+            ## prepend target and build flattened chain
+            chain = []
+
+            for parent in target:
+                if isinstance(parent, type) and issubclass(parent, AbstractProfile):
+                    chain += [parent]
+                    if hasattr(target, '__chain__'):
+                        chain += target.__chain__
+
+            self.__chain__ = tuple(chain)
             return self
 
         __call__ = overlay
@@ -293,9 +315,10 @@ class Profile(type):
 
             ## set up class internals and build
             _klass = {
-                '__interpreter__': cls.Interpreter(name, spec).build(),
+                '__interpreter__': cls.Interpreter(name, spec).build(overlay=bases),
                 '__bases__': bases,
                 '__name__': name,
+                '__chain__': tuple(),
                 '__path__': properties.get('__module__', 'policy.base'),
                 '__definition__': '.'.join(properties.get('__module__', 'policy.base').split('.') + [name])
             }
@@ -371,8 +394,9 @@ class AbstractProfile(object):
             :returns: Yields each configured primitive
             binding, one-at-a-time. '''
 
-        for i in list(cls.__interpreter__.primitives)[:]:
-            yield i
+        for compound in [cls] + list(cls.__interpreter__.__chain__):
+            for primitive in compound.__interpreter__.primitives:
+                yield primitive
 
     @util.classproperty
     def parameters(cls):
@@ -385,9 +409,10 @@ class AbstractProfile(object):
             :returns: Yields each configured :py:class:`Parameter`,
             one-at-a-time. '''
 
-        for group in list(cls.__interpreter__.parameters)[:]:
-            for parameter in group:
-                yield parameter
+        for compound in [cls] + list(cls.__interpreter__.__chain__):
+            for group in compound.__interpreter__.parameters:
+                for parameter in group:
+                    yield parameter
 
     @util.classproperty
     def attributions(cls):
@@ -400,8 +425,9 @@ class AbstractProfile(object):
             :returns: Yields each configured :py:class:`Attribution`,
             one-at-a-time. '''
 
-        for attribution in list(cls.__interpreter__.attributions)[:]:
-            yield attribution
+        for compound in [cls] + list(cls.__interpreter__.__chain__):
+            for attribution in compound.__interpreter__.attributions:
+                yield attribution
 
     @util.classproperty
     def aggregations(cls):
@@ -414,8 +440,9 @@ class AbstractProfile(object):
             :returns: Yields each configured :py:class:`Aggregation`,
             one-at-a-time. '''
 
-        for aggregation in list(cls.__interpreter__.aggregations)[:]:
-            yield aggregation
+        for compound in [cls] + list(cls.__interpreter__.__chain__):
+            for aggregation in compound.__interpreter__.aggregations:
+                yield aggregation
 
     @util.classproperty
     def integrations(cls):
@@ -428,5 +455,6 @@ class AbstractProfile(object):
             :returns: Yields each configured :py:class:`Integration`,
             one-at-a-time. '''
 
-        for integration in list(cls.__interpreter__.integrations)[:]:
-            yield integration
+        for compound in [cls] + list(cls.__interpreter__.__chain__):
+            for integration in compound.__interpreter__.integrations:
+                yield integration

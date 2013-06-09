@@ -34,7 +34,7 @@ class LegacyEndpoint(TrackerEndpoint):
         ''' Delegate to ``TrackedEndpoint``.
             :returns: Response from :py:class:`TrackerEndpoint`. '''
 
-        return super(LegacyEndpoint, self).get(*args, **kwargs)
+        return super(LegacyEndpoint, self).entrypoint(*args, **kwargs)
 
     def resolve(self, ref):
 
@@ -66,7 +66,7 @@ class LegacyEndpoint(TrackerEndpoint):
 
         raise exceptions.UnknownRefcode('Failed to resolve tracker by refcode: "%s".' % ref)
 
-    def get(self, explicit=False):
+    def entrypoint(self, explicit=False):
 
         ''' HTTP GET
             :returns: Response to a legacy tracker hit. '''
@@ -81,3 +81,5 @@ class LegacyEndpoint(TrackerEndpoint):
 
         # publish raw event first, propagating globally
         return self.delegate(explicit=explicit, legacy=True, policy=self.resolve(self.request.params.get('ref')))
+
+    get = post = put = entrypoint
