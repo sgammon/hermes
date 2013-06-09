@@ -133,7 +133,7 @@ class EventStream(PlatformBridge):
 
         pass
 
-    def publish(self, ev, error=False, propagate=True):
+    def publish(self, ev, error=False, execute=True, pipeline=None, propagate=True):
 
         ''' Publish an event to one or more streams. Descendents of
             both :py:class:`models.tracker.event.RawEvent` and
@@ -144,11 +144,14 @@ class EventStream(PlatformBridge):
                           :py:class:`models.tracker.event.TrackedEvent` to
                           publish.
 
-            :param error: Indicates that we're publishing an event describing
+            :keyword error: Indicates that we're publishing an event describing
                           the attached hit as an ``error``. Defaults to ``False``
                           in a humerous attempt at optimism.
 
-            :param propagate: Boolean (defaulting to ``True``) indicating
+            :keyword execute:
+            :keyword pipeline:
+
+            :keyword propagate: Boolean (defaulting to ``True``) indicating
                               whether this publish should propagate globally.
 
             :returns: The ``event`` that was handed in and published. '''
@@ -167,7 +170,7 @@ class EventStream(PlatformBridge):
             context = tuple()
 
         # distribute to appropriate channels
-        self.bus.engine.publish(self._generate_channels(blobbed_event, context, error, propagate), blobbed_event)
+        self.bus.engine.publish(self._generate_channels(blobbed_event, context, error, propagate), blobbed_event, execute, pipeline)
 
         return ev
 

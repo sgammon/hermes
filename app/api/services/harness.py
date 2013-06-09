@@ -10,6 +10,7 @@ Harness API
 '''
 
 # 3rd party
+import config
 import webapp2
 
 # policy libraries
@@ -30,6 +31,9 @@ from api.models.tracker import event
 # tracker endpoints
 from api.handlers.tracker import TrackerEndpoint
 from api.handlers.tracker.legacy import LegacyEndpoint
+
+# tracker platform exceptions
+from api.platform.tracker.exceptions import TrackerPlatformException
 
 
 #### +=+=+ Messages +=+=+ ####
@@ -245,7 +249,22 @@ class HarnessService(rpc.Service):
                 try:
                     profile, result, event = handler.get(explicit=True)
 
+                except TrackerPlatformException as e:
+
+                    # known tracker exceptions can just be errors
+                    test_results.append(URLTestResult.to_message_model()(**{
+                        'url': spec,
+                        'code': e.__class__.__name__,
+                        'message': str(e),
+                        'status': 'error'
+                    }))
+
                 except Exception as e:
+
+                    # re-raise unhandled exceptions in development
+                    if config.debug and not config.production:
+                        raise
+
                     test_results.append(URLTestResult.to_message_model()(**{
                         'url': spec,
                         'code': e.__class__.__name__,

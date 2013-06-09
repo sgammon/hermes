@@ -22,7 +22,7 @@ from apptools.model.adapter import memcache
 from apptools.model.adapter import inmemory
 
 try:
-    import redis; _REDIS = True
+    import redis as _driver; _REDIS = True
 except ImportError:
     _REDIS = False
     logging.warning('Redis not found. Tracker engine falling back to `InMemory` storage - pubsub will be unavailable.')
@@ -105,10 +105,17 @@ class EventEngine(PlatformBridge):
 
         ''' Persist an event. '''
 
-        # save entity
+        # if pipelining is enabled and supported, start a new one...
+        if pipeline and _REDIS and (entity.key.id is not None):
+
+            # and put the entity, using the pipeline... then return it
+            batch = self.pipeline()
+            return entity.key, entity.put(pipeline=batch)
+
+        # otherwise, put the entity normally and return the written key
         return entity.put()
 
-    def publish(self, channels, value):
+    def publish(self, channels, value, execute=True, pipeline=None):
 
         ''' Low-level method to publish a message to
             ``Redis`` pub/sub.
@@ -119,6 +126,14 @@ class EventEngine(PlatformBridge):
 
             :param value: ``protorpc.Message`` class, ``dict``,
             or raw string to publish.
+
+            :keyword execute: Boolean flag indicating whether
+            :py:meth:`publish` should flush the internal
+            pipeline after building, or return it for further
+            operation.
+
+            :keyword pipeline: Replacement, existing pipeline
+            object to use instead of a new one.
 
             :returns: The result of the low-level publish
             operation. '''
@@ -139,13 +154,15 @@ class EventEngine(PlatformBridge):
             if isinstance(channels, (tuple, list)):
 
                 # for multiple channels, start a pipeline
-                with self.pipeline(self.Datastore.redis) as pipeline:
+                with (pipeline if pipeline is not None else self.pipeline(self.Datastore.redis)) as pipe:
                     for channel in channels:
-                        pipeline.publish(channel, encoded)
+                        pipe.publish(channel, encoded)
 
-                    # execute pipeline
-                    result = pipeline.execute()
-                return result
+                    if execute:
+                        # execute pipeline
+                        return pipe.execute()
+
+                return pipeline
 
             else:
                 channel = channels

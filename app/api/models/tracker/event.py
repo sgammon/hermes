@@ -83,7 +83,7 @@ class TrackedEvent(TrackerModel):
         :param created: Timestamp ``datetime`` of when this :py:class:`TrackedEvent` was recorded. '''
 
     ## == Raw Event == ##
-    raw = model.Key, {'required': True, 'indexed': True}  # linked raw event that generated this `TrackedEvent`
+    raw = basestring, {'required': True, 'indexed': True}  # linked raw event that generated this `TrackedEvent`
     params = dict, {'required': True, 'default': {}, 'indexed': False}  # raw paramset that came through with URL
 
     ## == Type/Provider/Tracker == ##  # @TODO: Change string types to enums.

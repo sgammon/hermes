@@ -247,7 +247,7 @@ class PolicyEngine(PlatformBridge):
         # by this point, raw event has already been ``put`` and ``published``. start building tracked event.
         ev = event.TrackedEvent(**{
             'key': model.Key(event.TrackedEvent, raw.key.id),
-            'raw': raw.key,
+            'raw': raw.key.urlsafe(),
             'params': {},
             'warnings': [],
             'errors': [],

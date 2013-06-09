@@ -81,7 +81,7 @@ _config['tracker.policy.PolicyEngine'] = {
 # Redis Adapter
 _config['apptools.model.adapters.redis.Redis'] = {
 
-    'debug': False,  # debug messages
+    'debug': True,  # debug messages
 
     'servers': {
 

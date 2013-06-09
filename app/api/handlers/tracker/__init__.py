@@ -21,6 +21,13 @@ from policy import base
 from api.handlers import WebHandler
 
 
+# detect redis support
+try:
+    from redis import client; _REDIS = True
+except:
+    _REDIS = False
+
+
 ## TrackerEndpoint - handles tracker hits.
 class TrackerEndpoint(WebHandler):
 
@@ -51,7 +58,16 @@ class TrackerEndpoint(WebHandler):
         else:
 
             # store tracked event, then publish
-            self.tracker.stream.publish(self.tracker.engine.persist(event, pipeline=True), propagate=True)
+            result = self.tracker.engine.persist(event, pipeline=True)
+
+            if isinstance(result, tuple):
+                key, pipeline = result
+
+            else:
+                key, pipeline = result, None
+
+            # underlying storage doesn't support pipelining, publish key
+            self.tracker.stream.publish(key, pipeline=pipeline, propagate=True)
 
             # return everything or nothing according to settings
             if explicit:
