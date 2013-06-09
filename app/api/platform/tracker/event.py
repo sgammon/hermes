@@ -54,10 +54,7 @@ class EventBuilder(PlatformBridge):
                       handle the request, like: ``tuple(<event>, <guess>)``. '''
 
         # inflate raw event & publish to pubsub
-        raw = Event.inflate(request, policy, legacy)
-        raw.put()
-
-        return self.bus.stream.publish(raw, propagate=propagate)
+        return self.bus.stream.publish(Event.inflate(request, policy, legacy), propagate=propagate)
 
     def error(self, event, reason="Unknown reason.", propagate=True):
 

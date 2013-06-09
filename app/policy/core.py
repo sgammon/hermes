@@ -118,12 +118,14 @@ class Profile(type):
 
                 parameters.append(current_param)
 
+                # consider aggregations
                 if config.get('aggregations', None) is not None:
 
                     # delegate to aggregations
                     for spec in config.get('aggregations'):
                         klass['aggregations'].append(self._build_aggregation(policy, spec, klass, True))
 
+                # consider attributions
                 if config.get('attributions', None) is not None:
 
                     # delegate to attributions
@@ -206,7 +208,6 @@ class Profile(type):
                           :py:class:`AggregationGroup` object. '''
 
             #return aggregation.Aggregation
-            #import pdb; pdb.set_trace()
             return spec
 
         _builders = {
@@ -217,7 +218,7 @@ class Profile(type):
         }
 
         ## == Public Methods == ##
-        def build(self):
+        def build(self, overlay=None):
 
             ''' Build a :py:class:`EventProfile` descendent
                 into a fully-structured object.
@@ -243,6 +244,8 @@ class Profile(type):
             for k, v in compound.items():
                 setattr(self, k, frozenset(v))  # attach at desired mountpoint
 
+            if overlay:
+                return self.overlay(overlay)
             return self
 
         def overlay(self, target, override=False):
@@ -260,6 +263,16 @@ class Profile(type):
 
                 :returns: ``self``, for method chainability. '''
 
+            ## prepend target and build flattened chain
+            chain = []
+
+            for parent in target:
+                if isinstance(parent, type) and issubclass(parent, AbstractProfile):
+                    chain += [parent]
+                    if hasattr(target, '__chain__'):
+                        chain += target.__chain__
+
+            self.__chain__ = tuple(chain)
             return self
 
         __call__ = overlay
@@ -302,9 +315,10 @@ class Profile(type):
 
             ## set up class internals and build
             _klass = {
-                '__interpreter__': cls.Interpreter(name, spec).build(),
+                '__interpreter__': cls.Interpreter(name, spec).build(overlay=bases),
                 '__bases__': bases,
                 '__name__': name,
+                '__chain__': tuple(),
                 '__path__': properties.get('__module__', 'policy.base'),
                 '__definition__': '.'.join(properties.get('__module__', 'policy.base').split('.') + [name])
             }
@@ -380,8 +394,9 @@ class AbstractProfile(object):
             :returns: Yields each configured primitive
             binding, one-at-a-time. '''
 
-        for i in list(cls.__interpreter__.primitives)[:]:
-            yield i
+        for compound in [cls] + list(cls.__interpreter__.__chain__):
+            for primitive in compound.__interpreter__.primitives:
+                yield primitive
 
     @util.classproperty
     def parameters(cls):
@@ -394,9 +409,10 @@ class AbstractProfile(object):
             :returns: Yields each configured :py:class:`Parameter`,
             one-at-a-time. '''
 
-        for group in list(cls.__interpreter__.parameters)[:]:
-            for parameter in group:
-                yield parameter
+        for compound in [cls] + list(cls.__interpreter__.__chain__):
+            for group in compound.__interpreter__.parameters:
+                for parameter in group:
+                    yield parameter
 
     @util.classproperty
     def attributions(cls):
@@ -409,8 +425,9 @@ class AbstractProfile(object):
             :returns: Yields each configured :py:class:`Attribution`,
             one-at-a-time. '''
 
-        for attribution in list(cls.__interpreter__.attributions)[:]:
-            yield attribution
+        for compound in [cls] + list(cls.__interpreter__.__chain__):
+            for attribution in compound.__interpreter__.attributions:
+                yield attribution
 
     @util.classproperty
     def aggregations(cls):
@@ -423,8 +440,9 @@ class AbstractProfile(object):
             :returns: Yields each configured :py:class:`Aggregation`,
             one-at-a-time. '''
 
-        for aggregation in list(cls.__interpreter__.aggregations)[:]:
-            yield aggregation
+        for compound in [cls] + list(cls.__interpreter__.__chain__):
+            for aggregation in compound.__interpreter__.aggregations:
+                yield aggregation
 
     @util.classproperty
     def integrations(cls):
@@ -437,5 +455,6 @@ class AbstractProfile(object):
             :returns: Yields each configured :py:class:`Integration`,
             one-at-a-time. '''
 
-        for integration in list(cls.__interpreter__.integrations)[:]:
-            yield integration
+        for compound in [cls] + list(cls.__interpreter__.__chain__):
+            for integration in compound.__interpreter__.integrations:
+                yield integration

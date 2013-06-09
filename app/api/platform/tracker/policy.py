@@ -101,7 +101,7 @@ class PolicyEngine(PlatformBridge):
 
         # @TODO(sgammon): header extractor
         self.logging.info('Extracting HEADER at identifier "%s".' % identifier)
-        raise NotImplementedError('`EventTracker` does not yet support header-based extraction.')
+        return request.headers.get(identifier)
 
     def _extract_http_cookie(self, request, identifier):
 
@@ -109,7 +109,7 @@ class PolicyEngine(PlatformBridge):
 
         # @TODO(sgammon): cookie extractor
         self.logging.info('Extracting COOKIE at identifier "%s".' % identifier)
-        raise NotImplementedError('`EventTracker` does not yet support cookie-based extraction.')
+        return request.cookies.get(identifier)
 
     _http_extractors = {
         http.DataSlot.ETAG: _extract_http_etag,
@@ -154,7 +154,7 @@ class PolicyEngine(PlatformBridge):
             if isinstance(data, webob.Request) and prm.config.get('source', 0) > 1 < 0x5:
 
                 # it's an HTTP request with a special extractor. extract the value, yield with param and converter.
-                yield prm, converter, self._http_extractors[prm.config['source']](data, name)
+                yield prm, converter, self._http_extractors[prm.config['source']](self, data, name)
                 continue  # advance parameter processing loop
 
             # compute identifier
@@ -274,8 +274,12 @@ class PolicyEngine(PlatformBridge):
 
                 else:
                     try:
-                        # convert types and assign to data properties
-                        data_parameters[param.name] = followup(data)
+
+                        if data is None:
+                            data_parameters[param.name] = data
+                        else:
+                            # convert types and assign to data properties
+                            data_parameters[param.name] = followup(data)
 
                     except ValueError as e:
                         message = 'Error converting param "%s" (with value "%s") using `%s`. Exception: "%s".'
@@ -304,15 +308,24 @@ class PolicyEngine(PlatformBridge):
                 self.logging.critical('Data<%s>' % str(data))
             else:
                 self.logging.info('RAW event saved successfully.')
+                self.logging.info('Publishing RAW event as error.')
 
-                # if RAW event was saved, attempt to save FULL event
+                # publish RAW event
                 try:
-                    ev.put()
+                    self.bus.stream.publish(raw, error=True, propagate=True)
                 except:
-                    self.logging.error('Failed to persist FULL event at key: "%s".' % ev.key)
-                    self.logging.error('TrackedEvent<%s>' % ev)
+                    self.logging.critical('Failed to publush RAW error event.')
                 else:
-                    self.logging.info('FULL event saved successfully.')
+                    self.logging.info('RAW error event published.')
+
+                    # if RAW event was saved and published, attempt to save FULL event
+                    try:
+                        ev.put()
+                    except:
+                        self.logging.error('Failed to persist FULL event at key: "%s".' % ev.key)
+                        self.logging.error('TrackedEvent<%s>' % ev)
+                    else:
+                        self.logging.info('FULL event saved successfully.')
 
             # if we're in strict mode, re-raise errors
             if self.config.get('strict', True):
@@ -322,9 +335,6 @@ class PolicyEngine(PlatformBridge):
 
             # everything worked I guess! copy over parameters.
             ev.params = data_parameters
-
-
-            import pdb; pdb.set_trace()
 
             # calculate aggregation specs
             for spec in base_policy.aggregations:

@@ -14,6 +14,9 @@ from ``EventTracker``.
 # stdlib
 import hashlib
 
+# apptools
+from apptools import model
+
 # Models
 from api.models.tracker import raw
 from api.models.tracker import event
@@ -154,10 +157,10 @@ class EventStream(PlatformBridge):
         blobbed_event = self._build_envelope(ev.to_message(), error)
 
         # build context
-        if isinstance(ev, raw.Event):
+        if isinstance(ev, raw.Event) or (isinstance(ev, model.Key) and ev.kind == raw.Event.kind()):
             context = ['raw']
 
-        elif isinstance(ev, event.TrackedEvent):
+        elif isinstance(ev, event.TrackedEvent) or (isinstance(ev, model.Key) and ev.kind == event.TrackedEvent.kind()):
             context = [('stream', 'full')]
 
         else:
