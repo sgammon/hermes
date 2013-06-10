@@ -45,5 +45,5 @@ class TimeWindow(meta.ProtocolDefinition):
     SIX_MONTHS = 0xD
 
     # Special Windows
-    YEAR = 0x9
+    YEAR = 0xF
     FOREVER = 0x0

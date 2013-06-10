@@ -12,8 +12,12 @@ Description coming soon.
 
 # stdlib
 import time
+import config
 import hashlib
 import datetime
+
+# apptools
+from apptools import rpc
 
 # Protocol
 from protocol import meta
@@ -23,11 +27,13 @@ from protocol import timedelta
 
 ## Aggregation
 # Specification class for an aggregated property.
-class Aggregation(meta.ProtocolBinding):
+class Aggregation(meta.ProtocolBinding, rpc.ConfiguredClass):
 
     ''' Specifies an aggregation operation to be performed on
         one or more properties upon an event matching a profile
         that provides this ``Aggregation``. '''
+
+    _config_path = 'protocol.aggregation.Aggregation'
 
     ## == State == ##
     name = None  # name of this aggregation
@@ -49,6 +55,15 @@ class Aggregation(meta.ProtocolBinding):
         # set name + interval, default interval is ``FOREVER`` (global count), set empty tuple of perms
         self.name, self.interval = name, config.get('interval', timedelta.TimeWindow.FOREVER)
         self.permutations = config.get('permutations', tuple())
+
+    def _hashhex(self, value):
+
+        ''' Hash the target value according to the current
+            settings for bucket key hashing. '''
+
+        if self.config.get('hasher', {}).get('enabled', False) is True:
+            return self.config.get('hasher', {}).get('algorithm', hashlib.sha1)(value).hexdigest()
+        return value
 
     ## == Timewindow Builders == ##
     def _day_timewindow(self, stamp):
@@ -98,6 +113,11 @@ class Aggregation(meta.ProtocolBinding):
         timedelta.TimeWindow.FIVE_WEEKS: _week_timewindow,
         timedelta.TimeWindow.SIX_WEEKS: _week_timewindow,
         timedelta.TimeWindow.MONTH: _month_timewindow,
+        timedelta.TimeWindow.TWO_MONTHS: _month_timewindow,
+        timedelta.TimeWindow.THREE_MONTHS: _month_timewindow,
+        timedelta.TimeWindow.FOUR_MONTHS: _month_timewindow,
+        timedelta.TimeWindow.FIVE_MONTHS: _month_timewindow,
+        timedelta.TimeWindow.SIX_MONTHS: _month_timewindow,
         timedelta.TimeWindow.YEAR: _year_timewindow,
         timedelta.TimeWindow.FOREVER: _global_timewindow
     }
@@ -114,7 +134,14 @@ class Aggregation(meta.ProtocolBinding):
         ''' Build a timewindow and delta value for a given
             ``interval`` and ``created`` timestamp. '''
 
-        return self._window_builders.get(interval, self._global_timewindow)(interval, created)
+        # calculate timewindow string
+        result = self._window_builders.get(interval, self._global_timewindow)(interval, created)
+
+        # log the result if debug is enabled
+        if config.debug and not config.production:
+            context = (interval, created, result)
+            self.logging.info('Built timewindow for interval `%s` and timestamp `%s`: "%s".' % context)
+        return result
 
     def _build_perms(self, policy, data):
 
