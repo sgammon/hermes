@@ -16,6 +16,9 @@ import logging
 # Platform Parent
 from api.platform import PlatformBridge
 
+# apptools util
+from apptools.util import datastructures
+
 # Model Adapters
 from apptools.model.adapter import redis
 from apptools.model.adapter import memcache
@@ -50,6 +53,13 @@ class EventEngine(PlatformBridge):
         redis = redis.RedisAdapter
         memory = inmemory.InMemoryAdapter
         memcache = memcache.MemcacheAdapter
+
+    redis = datastructures.DictProxy(**{
+
+        'Operations': Datastore.redis.Operations,
+        'EngineConfig': Datastore.redis.EngineConfig
+
+    })
 
     ## === Internal Methods === ##
     def _spawn(self, func, *args, **kwargs):
@@ -88,7 +98,6 @@ class EventEngine(PlatformBridge):
             return engine(**kwargs).channel(kind)
         return engine(**kwargs)
 
-    ## === Public Methods === ##
     def pipeline(self, engine=Datastore.redis, kind='Realtime'):
 
         ''' Begin execution buffering in the context of an existing
@@ -101,6 +110,7 @@ class EventEngine(PlatformBridge):
 
         return self.adapter(engine, kind).pipeline()
 
+    ## === Public Methods === ##
     def persist(self, entity, pipeline=False):
 
         ''' Persist an event. '''
@@ -115,7 +125,7 @@ class EventEngine(PlatformBridge):
             return entity.key, entity.put(pipeline=batch)
 
         # otherwise, put the entity normally and return the written key
-        return entity.put(), None
+        return entity.put()
 
     def publish(self, channels, value, execute=True, pipeline=None):
 
@@ -185,3 +195,57 @@ class EventEngine(PlatformBridge):
             messages. '''
 
         pass
+
+    def increment(self, bucket, delta=1, pipeline=None, force_toplevel=False):
+
+        ''' Increment the value of a counter bucket (located
+            at ``bucket``) by the value at ``delta``. '''
+
+        from protocol.special import Separators
+
+        # check delta type
+        if not isinstance(delta, (float, int)):
+            raise ValueError('`delta` value for counter increment operation on '
+                             'bucket "%s" must be an integer or float, got %s.' % (bucket, type(delta)))
+
+        # check bucket type
+        if not isinstance(bucket, basestring):
+            raise ValueError('`bucket` key for counter increment operation must '
+                             'be a string. Received: "%s" of type "%s".' % (bucket, type(bucket)))
+
+        if _REDIS:
+
+            # resolve whether we're going to be hashing our value
+            use_hash = True
+            if force_toplevel or (self.redis.EngineConfig.mode is redis.RedisMode.toplevel_blob):
+                use_hash = False
+            else:
+                bucket_split = bucket.split(Separators.HASH_CHUNK)
+                key_prefix = Separators.HASH_CHUNK.join(bucket_split[:2])
+                key_postfix = Separators.HASH_CHUNK.join(bucket_split[2:])
+
+            # resolve write method
+            if isinstance(delta, int):
+
+                if use_hash:
+                    handler, opargs = self.redis.Operations.HASH_INCREMENT, (key_prefix, key_postfix, delta)
+                else:
+                    handler, opargs = self.redis.Operations.INCREMENT, (bucket, delta)
+
+            elif isinstance(delta, float):
+
+                if use_hash:
+                    handler, opargs = self.redis.Operations.HASH_INCREMENT_FLOAT, (key_prefix, key_postfix, delta)
+
+                else:
+                    handler, opargs = self.redis.Operations.INCREMENT_BY_FLOAT, (bucket, delta)
+
+            # execute operation, optionally against a pipeline
+            return self.Datastore.redis.execute(handler, None, *opargs, target=pipeline)
+
+    def index_add(self, bucket, key, pipeline=None):
+
+        ''' Add the key at ``key`` to the container index
+            specified at ``bucket``. '''
+
+        raise NotImplementedError('`EventTracker` does not yet support compound key indexes.')

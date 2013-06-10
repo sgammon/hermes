@@ -63,6 +63,7 @@ class TrackerEndpoint(WebHandler):
             # underlying storage doesn't support pipelining, publish key
             pipe = self.tracker.stream.publish(evkey, execute=False, pipeline=pipe, propagate=True)
 
+            x = self.tracker.engine.increment("__aggregation__::blabs", 1, pipe, False)
             import pdb; pdb.set_trace()
 
             # return everything or nothing according to settings
