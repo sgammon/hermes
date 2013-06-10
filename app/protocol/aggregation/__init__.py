@@ -16,18 +16,19 @@ import config
 import hashlib
 import datetime
 
-# apptools
-from apptools import rpc
-
 # Protocol
 from protocol import meta
 from protocol import special
 from protocol import timedelta
 
+# apptools util
+from apptools.util import debug
+from apptools.util import decorators
+
 
 ## Aggregation
 # Specification class for an aggregated property.
-class Aggregation(meta.ProtocolBinding, rpc.ConfiguredClass):
+class Aggregation(meta.ProtocolBinding):
 
     ''' Specifies an aggregation operation to be performed on
         one or more properties upon an event matching a profile
@@ -64,6 +65,29 @@ class Aggregation(meta.ProtocolBinding, rpc.ConfiguredClass):
         if self.config.get('hasher', {}).get('enabled', False) is True:
             return self.config.get('hasher', {}).get('algorithm', hashlib.sha1)(value).hexdigest()
         return value
+
+    @decorators.memoize
+    @decorators.classproperty
+    def config(cls):
+
+        ''' Local config pipe. '''
+
+        return config.config.get(cls._config_path, {'debug': True})
+
+    @decorators.memoize
+    @decorators.classproperty
+    def logging(cls):
+
+        ''' Local logging pipe. '''
+
+        # split config path
+        _split = cls._config_path.split('.')
+
+        # factory logger
+        return debug.AppToolsLogger(**{
+            'path': '.'.join(_split[0:-1]),
+            'name': _split[-1]
+        })._setcondition(self.config.get('debug', True))
 
     ## == Timewindow Builders == ##
     def _day_timewindow(self, stamp):
