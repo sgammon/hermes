@@ -337,12 +337,16 @@ class PolicyEngine(PlatformBridge):
             ev.params = data_parameters
 
             # calculate aggregation specs
-            for spec in base_policy.aggregations:
-                print "Would aggregate: %s" % spec
+            aggregations = []
+            for aggr_policy in base_policy.aggregations:
+                for delta, spec in aggr_policy.build(base_policy, ev):
+                    for subspec in spec:
+                        aggregations.append((spec, delta))
+                        print "Would increment '%s' by '%s'." % (subspec, delta)
 
             # calculate aggregation specs
-            for spec in base_policy.attributions:
-                print "Would aggregate: %s" % spec
+            #for spec in base_policy.attributions:
+            #    print "Would aggregate: %s" % spec
 
         # return tupled <raw>, <tracker>, <ev>
         return raw, tracker, ev

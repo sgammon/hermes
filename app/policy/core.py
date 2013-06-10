@@ -123,14 +123,14 @@ class Profile(type):
 
                     # delegate to aggregations
                     for spec in config.get('aggregations'):
-                        klass['aggregations'].append(self._build_aggregation(policy, spec, klass, True))
+                        klass['aggregations'].append(self._build_aggregation(policy, spec, klass, True, current_param))
 
                 # consider attributions
                 if config.get('attributions', None) is not None:
 
                     # delegate to attributions
                     for spec in config.get('attributions'):
-                        klass['attributions'].append(self._build_attribution(policy, spec, klass, True))
+                        klass['attributions'].append(self._build_attribution(policy, spec, klass, True, current_param))
 
             return parameter.ParameterGroup(group.__name__, parameters, inline=inline)
 
@@ -156,7 +156,7 @@ class Profile(type):
 
             raise NotImplementedError('`Integration` edges are not yet supported by `EventTracker`.')
 
-        def _build_attribution(self, policy, spec, klass, compound=False):
+        def _build_attribution(self, policy, spec, klass, compound=False, owner=None):
 
             ''' Build an ``Attribution`` or ``CompoundAttribution``
                 from a specification encountered in a subclass of
@@ -183,7 +183,7 @@ class Profile(type):
 
             raise NotImplementedError('`Attribution` edges are not yet supported by `EventTracker`.')
 
-        def _build_aggregation(self, policy, spec, klass, compound=False):
+        def _build_aggregation(self, policy, spec, klass, compound=False, owner=None):
 
             ''' Build an ``Aggregation`` or ``CompoundAggregation``
                 from a specification encountered in a subclass of
@@ -207,7 +207,8 @@ class Profile(type):
                 :returns: An instantiated and properly filled-out
                           :py:class:`AggregationGroup` object. '''
 
-            #return aggregation.Aggregation
+            if owner:
+                spec.set_owner(owner)
             return spec
 
         _builders = {

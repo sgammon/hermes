@@ -38,6 +38,7 @@ class Parameter(meta.ProtocolBinding):
     ## == External Properties == ##
     name = None
     config = None
+    literal = False
     basetype = None
     basevalue = None
 
@@ -64,6 +65,7 @@ class Parameter(meta.ProtocolBinding):
 
         print "Parameter(%s, %s, %s)" % (str(subtype), str((basetype or value)), str(config))
         self.name, self.config, self.basetype, self.basevalue = subtype, config, basetype, value
+        self.literal = config.get('literal', False)
 
     def __repr__(self):
 
