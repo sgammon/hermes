@@ -78,6 +78,16 @@ _config['tracker.policy.PolicyEngine'] = {
 }
 
 
+# Aggregations
+_config['protocol.aggregation.Aggregation'] = {
+    'debug': True,
+    'hasher': {
+        'enabled': False,
+        'algorithm': hashlib.sha1
+    }
+}
+
+
 # Redis Adapter
 _config['apptools.model.adapters.redis.Redis'] = {
 
