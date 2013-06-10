@@ -13,8 +13,8 @@ Description coming soon.
 # stdlib
 import time
 import config
+import base64
 import hashlib
-import datetime
 
 # Protocol
 from protocol import meta
@@ -38,7 +38,7 @@ class Aggregation(meta.ProtocolBinding):
 
     ## == State == ##
     name = None  # name of this aggregation
-    prop = None  # owning property of this aggregation
+    prop = None  # target properties of this aggregation
     interval = None  # intervals we wish to aggregate for
     permutations = None  # permutations of this aggregation
 
@@ -87,15 +87,15 @@ class Aggregation(meta.ProtocolBinding):
         return debug.AppToolsLogger(**{
             'path': '.'.join(_split[0:-1]),
             'name': _split[-1]
-        })._setcondition(self.config.get('debug', True))
+        })._setcondition(cls.config.get('debug', True))
 
     ## == Timewindow Builders == ##
-    def _day_timewindow(self, stamp):
+    def _day_timewindow(self, window, stamp):
 
         ''' Build a timewindow for a day. '''
 
         # generates timestamp with day-level granularity
-        return str(int(time.mktime(stamp.date().timetuple())) / 1e2)
+        return str(int(time.mktime(stamp.date().timetuple()) / 1e2))
 
     def _week_timewindow(self, window, stamp):
 
@@ -104,7 +104,7 @@ class Aggregation(meta.ProtocolBinding):
         # like: ``<year>:<week #>``
         calendar = stamp.date().isocalendar()
         if window != timedelta.TimeWindow.ONE_WEEK:
-            return self._WINDOW_SEPARATOR.join(map(unicode, calendar[:-1] + ((window - 1) + calendar[1])))
+            return self._WINDOW_SEPARATOR.join(map(unicode, list(calendar[:-1]) + [(window - 1) + calendar[1]]))
         return self._WINDOW_SEPARATOR.join(map(unicode, calendar[:-1]))
 
     def _month_timewindow(self, window, stamp):
@@ -159,25 +159,62 @@ class Aggregation(meta.ProtocolBinding):
             ``interval`` and ``created`` timestamp. '''
 
         # calculate timewindow string
-        result = self._window_builders.get(interval, self._global_timewindow)(interval, created)
-
-        # log the result if debug is enabled
-        if config.debug and not config.production:
-            context = (interval, created, result)
-            self.logging.info('Built timewindow for interval `%s` and timestamp `%s`: "%s".' % context)
+        result = self._window_builders.get(interval, self._global_timewindow)(self, interval, created)
         return result
 
-    def _build_perms(self, policy, data):
-
-        ''' Build permutations for this ``Aggregation``. '''
-
-        pass
-
-    def _build_spec(self, policy, data):
+    def _build_spec(self, policy, event):
 
         ''' Build bucket specifications for this ``Aggregation``. '''
 
-        import pdb; pdb.set_trace()
+        final = []
+        hashspec = [self._BUCKET_PREFIX, self.name]
+
+        # add prop windows
+        for prop in self.prop:
+
+            if prop.basetype is float or prop.literal is True:
+
+                # direct delta value
+                delta = event.params.get(prop.name)
+
+            else:
+
+                # resolve parameter and value
+                delta, value = 1, event.params.get(prop.name)
+
+                if value is None:
+                    self.logging.warning('Failed to calculate aggregation '
+                                         '%s because property "%s" was found '
+                                         'to have a null value.' % (self, prop))
+                    continue
+
+                b64_value = base64.b64encode(value)
+                self.logging.debug('Encoding value "%s" to b64 "%s".' % (value, b64_value))
+                hashspec.append(b64_value)
+
+            # calculate intervals
+            for interval in self.interval:
+                final.append(self._CHUNK_SEPARATOR.join(hashspec + [self._build_window(interval, event.created)]))
+
+        return delta, tuple(final)
+
+    def _build_perms(self, policy, event):
+
+        ''' Build permutations for this ``Aggregation``. '''
+
+        for perm, props in self.permutations:
+
+            # build owner properties
+            owners = []
+            for prop in props:
+                owners.append(policy.resolve_parameter(prop))
+
+            # build sub-aggregation
+            permutation = Aggregation(self._build_name(perm), interval=self.interval).set_owner(owners)
+
+            # recursively yield specs
+            for aggregation, spec in permutation.build(policy, event):
+                yield spec
 
     ## == Public Methods == ##
     def set_owner(self, property):
@@ -185,20 +222,30 @@ class Aggregation(meta.ProtocolBinding):
         ''' Set the encapsulating property that holds this ``Aggregation``.
             Done at construction time by the :py:attr:`cls.Interpreter`. '''
 
+        # iterable-ify if it's not iterable
+        if not isinstance(property, list):
+            property = [property]
+
         self.prop = property
         return self
 
-    def build(self, policy, data):
+    def build(self, policy, event):
 
         ''' Build this ``Aggregation``, and all attached
             permutations. '''
 
-        return self
+        # build local aggregation
+        yield self._build_spec(policy, event)
 
-    def __call__(self, policy, data):
+        #for perm, spec in self._build_perms(policy, event):
+        #    yield perm, spec
+
+    def __call__(self, policy, event):
 
         ''' Proxy for ``__call__`` to a nested generator
             that will yield all ``Attributions`` for this
             spec. '''
 
-        pass
+        # set owner and build
+        for aggregation, spec in self.build(policy, event):
+            yield spec
