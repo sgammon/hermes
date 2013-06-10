@@ -343,12 +343,13 @@ class PolicyEngine(PlatformBridge):
             ev.params = data_parameters
 
             # calculate aggregation specs
-            aggregations = []
             for aggr_policy in base_policy.aggregations:
                 for delta, spec in aggr_policy.build(base_policy, ev):
                     for subspec in spec:
-                        aggregations.append((spec, delta))
-                        print "Would increment '%s' by '%s'." % (subspec, delta)
+
+                        # write each aggregation increment
+                        pipe = self.bus.engine.increment(subspec, delta, pipe)
+
 
             # calculate aggregation specs
             #for spec in base_policy.attributions:
