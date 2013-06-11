@@ -24,7 +24,7 @@ class RawKeys(rpc.messages.Message):
     ''' Holds a set of raw event keys to be
         retrieved or altered in batch. '''
 
-    keys = rpc.messages.MessageField(1, model.Key.to_message_model(), repeated=True)
+    keys = rpc.messages.MessageField(model.Key.to_message_model(), 1, repeated=True)
 
 
 ## RawEvents
@@ -36,4 +36,4 @@ class RawEvents(rpc.messages.Message):
         raw events by key or range value. '''
 
     count = rpc.messages.IntegerField(1)
-    events = rpc.messages.MessageField(2, raw.Event.to_message_model(), repeated=True)
+    events = rpc.messages.MessageField(raw.Event.to_message_model(), 2, repeated=True)
