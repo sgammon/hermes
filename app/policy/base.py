@@ -54,14 +54,14 @@ class EventProfile(core.AbstractProfile):
         ''' Specifies transport settings for the builtin
             RPC transport context. '''
 
-        response_mode = transport.HTTPTransportMode.EXPLICIT
+        response_mode = transport.HTTPResponseMode.EXPLICIT
 
     class BaseJSConfig(transport.TransportConfig):
 
         ''' Specifies transport settings for the
             JS transport context. '''
 
-        response_mode = transport.HTTPTransportMode.BEACON
+        response_mode = transport.HTTPResponseMode.BEACON
 
     class BaseHTTPConfig(transport.HTTPTransportConfig):
 

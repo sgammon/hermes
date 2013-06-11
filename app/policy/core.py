@@ -14,6 +14,7 @@ Description coming soon.
 from protocol import meta
 
 # protocol extensions
+from protocol import transport
 from protocol import parameter
 from protocol import integration
 from protocol import attribution
@@ -211,11 +212,19 @@ class Profile(type):
                 spec.set_owner(owner)
             return spec
 
+        def _build_configuration(self, policy, spec, klass, inline=False):
+
+            ''' Build a ``Configuration`` object from a specification
+                encountered in a subclass of :py:class:`EventProfile`. '''
+
+            return spec
+
         _builders = {
             integration.Integration: ('integrations', _build_integration),
             attribution.Attribution: ('attributions', _build_attribution),
             aggregation.Aggregation: ('aggregations', _build_aggregation),
-            parameter.ParameterGroup: ('parameters', _build_paramgroup)
+            parameter.ParameterGroup: ('parameters', _build_paramgroup),
+            transport.TransportConfig: ('configuration', _build_configuration)
         }
 
         ## == Public Methods == ##
@@ -232,7 +241,8 @@ class Profile(type):
                 'parameters': [],
                 'aggregations': [],
                 'attributions': [],
-                'integrations': []
+                'integrations': [],
+                'configuration': []
             }
 
             for (parent, subspecs) in self.__profile__.iteritems():

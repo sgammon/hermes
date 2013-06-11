@@ -27,16 +27,16 @@ class Conversion(EventProfile):
     ''' Event Profile describing the basic case for a
         **conversion**. '''
 
-    @param.values
-    class Base(ParameterGroup):
-
-        ''' Parameter group for base tracker parameters. '''
-
-        type = event.EventType.CONVERSION
-
     class BaseHTTPConfig(transport.HTTPTransportConfig):
 
         ''' Specifies transport settings for the builtin
             HTTP transport context. '''
 
         response_mode = transport.HTTPResponseMode.IMG
+
+    @param.values
+    class Base(ParameterGroup):
+
+        ''' Parameter group for base tracker parameters. '''
+
+        type = event.EventType.CONVERSION
