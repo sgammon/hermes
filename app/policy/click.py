@@ -16,10 +16,9 @@ from policy.base import EventProfile
 # protocol suite
 from protocol import http
 from protocol import event
-from protocol import intake
 from protocol import builtin
-from protocol import response
 from protocol import parameter
+from protocol import transport
 from protocol.decorators import param
 from protocol.parameter.group import ParameterGroup
 
@@ -31,6 +30,13 @@ class Click(EventProfile):
     ''' Event Profile describing the basic case for a
         **click**. '''
 
+    class BaseHTTPConfig(transport.HTTPTransportConfig):
+
+        ''' Specifies transport settings for the builtin
+            HTTP transport context. '''
+
+        response_mode = transport.HTTPResponseMode.REDIRECT_TEMP
+
     @param.values
     class Base(ParameterGroup):
 
@@ -38,17 +44,6 @@ class Click(EventProfile):
 
         # Type: should be set to `CLICK` for this and descendents.
         type = event.EventType.CLICK
-
-        # Mode: should almost always be set to a `REDIRECT` type for `CLICK`.
-        mode = response.ResponseMode.REDIRECT_TEMP
-
-    @param.values
-    class System(ParameterGroup):
-
-        ''' Indicate the input channel for 'CLICK'. '''
-
-        # Channel: clicks usually come in through HTTP.
-        channel = intake.InputChannel.HTTP
 
     @param.declaration
     class Destination(ParameterGroup):

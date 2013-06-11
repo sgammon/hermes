@@ -17,9 +17,10 @@ __version__ = (0, 5)
 from . import meta
 from . import http
 from . import event
-from . import intake
 from . import builtin
+from . import special
 from . import timedelta
+from . import transport
 from . import environment
 
 # Sub-protocol extensions
@@ -27,5 +28,12 @@ from . import parameter
 from . import decorators
 from . import attribution
 from . import aggregation
+from . import integration
 
-__extensions__ = __all__ = ['meta', 'http', 'event', 'param', 'intake', 'builtin']
+__extensions__ = __all__ = [
+    'meta', 'http', 'event',
+    'builtin', 'special', 'transport',
+    'timedelta', 'parameter', 'decorators',
+    'environment', 'decorators', 'attribution',
+    'aggregation', 'integration'
+]
