@@ -98,8 +98,8 @@ class TrackedEvent(TrackerModel):
     attributions = basestring, {'repeated': True, 'indexed': True}  # linked, attributed events/objects
 
     ## == Messages == ##
-    warnings = basestring, {'repeated': True}
-    errors = basestring, {'repeated': True}
+    warnings = basestring, {'repeated': True, 'indexed': False}
+    errors = basestring, {'repeated': True, 'indexed': False}
 
     ## == Timestamps == ##
     modified = datetime.datetime, {'auto_now': True, 'indexed': True}  # timestamp for when this was last modified
