@@ -60,6 +60,14 @@ class LegacyEndpoint(TrackerEndpoint):
 
             if hasattr(profile, 'refcode'):
 
+                if isinstance(profile.refcode, (frozenset, set, tuple, list)):
+                    if not isinstance(profile.refcode, basestring):
+
+                        # make absolutely sure basestrings don't make it through...
+                        # because then our `in` check would be a substring search
+                        if ref.lower().strip() in profile.refcode:
+                            return profile
+
                 # if the refcode matches, it's what we wanted
                 if ref.lower().strip() == profile.refcode.lower().strip():
                     return profile
