@@ -25,7 +25,9 @@ from api.models.tracker import endpoint
 @rpc.service
 class TrackerService(rpc.Service):
 
-    ''' Exposes methods for managing the `EventTracker`. '''
+    ''' Exposes methods for configuring the ``EventTracker``, including
+        the creation/management of :py:class:`Tracker` objects, the
+        retrieval of runtime statistics, and other platform-wide utils. '''
 
     _config_path = 'hermes.api.tracker.TrackerAPI'
 
@@ -44,7 +46,7 @@ class TrackerService(rpc.Service):
             :raises TrackerNotFound:
             :returns: '''
 
-        pass
+        raise self.exceptions.generic('Service method `get` is currently stubbed.')
 
     @rpc.method(endpoint.Tracker)
     def put(self, request):
@@ -52,6 +54,20 @@ class TrackerService(rpc.Service):
         ''' Low-level method to persist a :py:class:`Tracker` model.
             Usually used for saving updates to existing ``Tracker``
             entities.
+
+            :param request:
+            :raises:
+            :returns: '''
+
+        raise self.exceptions.generic('Service method `put` is currently stubbed.')
+
+    @rpc.method(messages.Profile)
+    def profile(self, request):
+
+        ''' Retrieves a single :py:class:`Profile` class
+            descendent, via a fully-qualified path,
+            ``refname`` value, :py:class:`raw.Event` key
+            or :py:class:`event.TrackedEvent` key.
 
             :param request:
             :raises:
@@ -70,7 +86,7 @@ class TrackerService(rpc.Service):
             :raises:
             :returns: '''
 
-        pass
+        raise self.exceptions.generic('Service method `profiles` is currently stubbed.')
 
     @rpc.method(messages.ProvisioningRequest, messages.TrackerSet)
     def provision(self, request):
@@ -82,4 +98,4 @@ class TrackerService(rpc.Service):
             :raises:
             :returns: '''
 
-        pass
+        raise self.exceptions.generic('Service method `provision` is currently stubbed.')

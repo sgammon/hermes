@@ -16,7 +16,7 @@ from apptools import rpc
 from api.models.tracker import endpoint
 
 
-## Profile
+## Profile - expresses a single descendent of :py:class:`policy.core.Profile`.
 class Profile(rpc.messages.Message):
 
     ''' Expresses an individual descendent of
@@ -25,7 +25,7 @@ class Profile(rpc.messages.Message):
     pass
 
 
-## Profiles
+## Profiles - expresses a collection of :py:class:`Profile` entities.
 class Profiles(rpc.messages.Message):
 
     ''' Expresses a set of all (or 'matching')
@@ -34,7 +34,7 @@ class Profiles(rpc.messages.Message):
     pass
 
 
-## ProvisioningRequest
+## ProvisioningRequest - expresses a request to provision one or multiple :py:class:`Tracker` entities.
 class ProvisioningRequest(rpc.messages.Message):
 
     ''' Expresses a request to provision (create)
@@ -44,7 +44,7 @@ class ProvisioningRequest(rpc.messages.Message):
     pass
 
 
-## TrackerSet
+## TrackerSet - expresses a collection of :py:class:`Tracker` entities.
 class TrackerSet(rpc.messages.Message):
 
     ''' Expresses a set of :py:class:`endpoint.Tracker`
