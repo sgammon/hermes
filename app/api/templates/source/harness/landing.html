@@ -103,6 +103,7 @@
                     opacity: 1;
                     padding: 10px;
                     margin: 15px;
+                    overflow: hidden;
                     border-radius: 7px;
                     background: #DDD;
                     -webkit-transition-property: opacity, height, background;
@@ -234,9 +235,11 @@
 	                    					successes.textContent = response.successes.toString();
 
                                             // prepare warnings summary
-                                            warnings.id = 'warning_count';
-                                            warnings.classList.add('warning');
-                                            warnings.textContent = response.warnings.toString();
+                                            if (typeof response.warnings != 'undefined') {
+                                                warnings.id = 'warning_count';
+                                                warnings.classList.add('warning');
+                                                warnings.textContent = response.warnings.toString();
+                                            }
 
 	                    					// prepare failure summary
 	                    					failures.id = 'failure_count';
@@ -487,8 +490,11 @@
                                                 }
 
                                                 // remove verbose properties from prettyprint
-                                                delete result.event.errors;
-                                                delete result.event.warnings;
+                                                result.event.errors ? delete result.event.errors : null;
+                                                result.event.warnings ? delete result.event.warnings : null;
+                                                result.event.aggregations ? delete result.event.aggregations : null;
+                                                result.event.attributions ? delete result.event.attributions : null;
+                                                result.event.integrations ? delete result.event.integrations : null;
 
                                                 // set event blob content
                                                 raw_content.textContent = JSON.stringify(result.raw, undefined, 2);
