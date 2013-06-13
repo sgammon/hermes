@@ -34,10 +34,12 @@ from protocol import aggregation
 _DEFAULT_COOKIE_NAME = "_amp"
 
 # Default attribution / aggregation lookback window
-_DEFAULT_LOOKBACK = (timedelta.TimeWindow.ONE_DAY,
+_DEFAULT_LOOKBACK = (timedelta.TimeWindow.ONE_HOUR,
+                     timedelta.TimeWindow.ONE_DAY,
                      timedelta.TimeWindow.ONE_WEEK,
                      timedelta.TimeWindow.TWO_WEEKS,
                      timedelta.TimeWindow.FOUR_WEEKS,
+                     timedelta.TimeWindow.YEAR,
                      timedelta.TimeWindow.FOREVER)
 
 

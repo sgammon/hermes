@@ -4,6 +4,8 @@
 
             <style>
 
+            /* === Main Styles === */
+
                 b, h1, h2, h3, span, div, i, p {
                     font-family: Lato;
                     font-weight: 400;
@@ -27,12 +29,14 @@
                 	height: 150px;
                 }
 
+            /* === Test Summary === */
+
                 #success_count:after {
                 	content: 'successes';
                 	padding-left: 5px;
                 }
 
-                #failure_count:after {
+                #warning_count:after {
                     content: 'warnings';
                     padding-left: 5px;
                 }
@@ -41,6 +45,8 @@
                 	content: 'failures';
                 	padding-left: 5px;
                 }
+
+            /* === Individual Results === */
 
                 .result {
                 	line-height: 30px;
@@ -60,6 +66,10 @@
                     min-height: 60px;
                     -webkit-transition-property: min-height, opacity;
                     -webkit-transition-duration: 0.4s;
+                }
+
+                .extensions {
+                    background: lightblue !important;
                 }
 
                 .collapsed.fullcontent {
@@ -113,6 +123,8 @@
                     font-weight: normal;
                 }
 
+            /* === Successes/Warnings/Errors === */
+
                 .result span {
                 	text-overflow: ellipsis;
                 }
@@ -137,11 +149,15 @@
                 	font-weight: 700;
                 }
 
-                .warning, .warnings {
+                .warnings {
                     color: #111 !important;
                     background: yellow !important;
                     padding: 5px;
                     font-weight: 700 !important;
+                }
+
+                .warning {
+                    color: #D6BF0D !important;
                 }
 
             </style>
@@ -200,6 +216,7 @@
 	                    					h2wrap = header.appendChild(document.createElement('h2')),
 	                    					byline = header.appendChild(document.createElement('span')),
 	                    					successes = byline.appendChild(document.createElement('b')),
+                                            warnings = byline.appendChild(document.createElement('b')),
 	                    					failures = byline.appendChild(document.createElement('b')),
                                             collapse = JSON.parse(window.localStorage.getItem('tracker:collapse') || 'true'),
 	                    					bprefix_wrap, bcontent_wrap, bstatus_wrap, bcontent, fullcontent_wrap,
@@ -215,6 +232,11 @@
 	                    					successes.id = 'success_count';
 	                    					successes.classList.add('success');
 	                    					successes.textContent = response.successes.toString();
+
+                                            // prepare warnings summary
+                                            warnings.id = 'warning_count';
+                                            warnings.classList.add('warning');
+                                            warnings.textContent = response.warnings.toString();
 
 	                    					// prepare failure summary
 	                    					failures.id = 'failure_count';
@@ -384,9 +406,9 @@
                                                     aggregations_wrap = fullcontent_wrap.appendChild(document.createElement('section'));
                                                     collapse ? aggregations_wrap.classList.add('collapsed') : null ;
                                                     aggregations_wrap.classList.add('aggregations');
-                                                    integrations_wrap.classList.add('extensions');
+                                                    aggregations_wrap.classList.add('extensions');
                                                     aggregations_wrap.classList.add('contentbox');
-                                                    aggregations_wrap.setAttribute('data-label', result.aggregations.length.toString() + ' matched aggregations');
+                                                    aggregations_wrap.setAttribute('data-label', result.event.aggregations.length.toString() + ' matched aggregations');
                                                     aggregations_wrap.addEventListener('click', function (event) {
                                                         event.target.classList.toggle('collapsed');
                                                         event.stopPropagation();
@@ -413,9 +435,9 @@
                                                     attributions_wrap = fullcontent_wrap.appendChild(document.createElement('section'));
                                                     collapse ? attributions_wrap.classList.add('collapsed') : null ;
                                                     attributions_wrap.classList.add('attributions');
-                                                    integrations_wrap.classList.add('extensions');
+                                                    attributions_wrap.classList.add('extensions');
                                                     attributions_wrap.classList.add('contentbox');
-                                                    attributions_wrap.setAttribute('data-label', result.attributions.length.toString() + ' matched attributions');
+                                                    attributions_wrap.setAttribute('data-label', result.event.attributions.length.toString() + ' matched attributions');
                                                     attributions_wrap.addEventListener('click', function (event) {
                                                         event.target.classList.toggle('collapsed');
                                                         event.stopPropagation();
@@ -444,7 +466,7 @@
                                                     integrations_wrap.classList.add('integrations');
                                                     integrations_wrap.classList.add('extensions');
                                                     integrations_wrap.classList.add('contentbox');
-                                                    integrations_wrap.setAttribute('data-label', result.integrations.length.toString() + ' matched integrations');
+                                                    integrations_wrap.setAttribute('data-label', result.event.integrations.length.toString() + ' matched integrations');
                                                     integrations_wrap.addEventListener('click', function (event) {
                                                         event.target.classList.toggle('collapsed');
                                                         event.stopPropagation();

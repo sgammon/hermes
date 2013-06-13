@@ -78,7 +78,6 @@ class PolicyEngine(PlatformBridge):
         return self
 
     ### ==== HTTP-related Internals ==== ###
-
     def _extract_http_etag(self, request, identifier):
 
         ''' Extracts an HTTP Etag. '''
@@ -120,7 +119,6 @@ class PolicyEngine(PlatformBridge):
 
 
     ### ==== Public Methods ==== ###
-
     def match_parameters(self, data, policy, legacy=False):
 
         ''' Blab '''
@@ -343,12 +341,14 @@ class PolicyEngine(PlatformBridge):
             ev.params = data_parameters
 
             # calculate aggregation specs
+            ev.aggregations = []
             for aggr_policy in base_policy.aggregations:
                 for delta, spec in aggr_policy.build(base_policy, ev):
                     for subspec in spec:
 
                         # write each aggregation increment
                         pipe = self.bus.engine.increment(subspec, delta, pipe)
+                        ev.aggregations.append(subspec)
 
 
             # calculate aggregation specs
