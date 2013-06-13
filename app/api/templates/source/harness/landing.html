@@ -4,7 +4,7 @@
 
             <style>
 
-                * {
+                b, h1, h2, h3, span, div, i, p {
                     font-family: Lato;
                     font-weight: 400;
                 }
@@ -33,6 +33,11 @@
                 }
 
                 #failure_count:after {
+                    content: 'warnings';
+                    padding-left: 5px;
+                }
+
+                #failure_count:after {
                 	content: 'failures';
                 	padding-left: 5px;
                 }
@@ -41,8 +46,71 @@
                 	line-height: 30px;
                 	padding: 5px;
                 	margin: 10px;
-                	height: 30px;
                 	text-overflow: ellipsis;
+                    cursor: pointer;
+                }
+
+                .fullcontent {
+                    margin-top: 5px;
+                    margin-left: -5px;
+                    margin-right: -5px;
+                    margin-bottom: -5px;
+                    display: block;
+                    background: #DDD;
+                    min-height: 60px;
+                    -webkit-transition-property: min-height, opacity;
+                    -webkit-transition-duration: 0.4s;
+                }
+
+                .collapsed.fullcontent {
+                    max-height: 0;
+                    min-height: 0;
+                }
+
+                .collapsed.fullcontent section.contentbox {
+                    height: 0px;
+                    opacity: 0;
+                    color: #BBB;
+                }
+
+                .fullcontent section.contentbox {
+                    font-size: 10pt;
+                    background: #BBB;
+                    padding-bottom: 5px;
+                    overflow: hidden;
+                    color: #333;
+                    opacity: 1;
+                    -webkit-transition-property: height, opacity, color, min-height;
+                    -webkit-transition-duration: 0.4s;
+                }
+
+                .fullcontent section.collapsed {
+                    height: 30px;
+                    color: #222;
+                }
+
+                .fullcontent section pre {
+                    opacity: 1;
+                    padding: 10px;
+                    margin: 15px;
+                    border-radius: 7px;
+                    background: #DDD;
+                    -webkit-transition-property: opacity, height, background;
+                    -webkit-transition-duration: 0.4s;
+                }
+
+                .fullcontent section.collapsed pre {
+                    opacity: 0;
+                }
+
+                .fullcontent section.contentbox:before {
+                    content: attr(data-label);
+                    margin-left: 15px;
+                    font-weight: bold;
+                }
+
+                .fullcontent section.contentbox.collapsed:before {
+                    font-weight: normal;
                 }
 
                 .result span {
@@ -67,6 +135,13 @@
                 .error, .failure {
                 	color: red;
                 	font-weight: 700;
+                }
+
+                .warning, .warnings {
+                    color: #111 !important;
+                    background: yellow !important;
+                    padding: 5px;
+                    font-weight: 700 !important;
                 }
 
             </style>
@@ -126,7 +201,12 @@
 	                    					byline = header.appendChild(document.createElement('span')),
 	                    					successes = byline.appendChild(document.createElement('b')),
 	                    					failures = byline.appendChild(document.createElement('b')),
-	                    					bprefix_wrap, bcontent_wrap, bstatus_wrap, bcontent;
+                                            collapse = JSON.parse(window.localStorage.getItem('tracker:collapse') || 'true'),
+	                    					bprefix_wrap, bcontent_wrap, bstatus_wrap, bcontent, fullcontent_wrap,
+                                            raw_wrap, event_wrap, aggregations_wrap, warnings_wrap, attributions_wrap,
+                                            integrations_wrap, aggregations, aggregation, attributions, attribution, errors_content,
+                                            integrations, integration, aggregations_content, attributions_content, integrations_content,
+                                            _errors = [], _warnings = [], _aggregations = [], _attributions = [], _integrations = [];
 
 	                    					// increment runcount
 	                    					runcount++;
@@ -152,6 +232,11 @@
 	                    						line_el = document.createElement('div');
 	                    						line_el.classList.add(result.status);
 	                    						line_el.classList.add('result');
+
+                                                line_el.addEventListener('click', function (event) {
+                                                    var content = this.querySelectorAll('.fullcontent');
+                                                        content[0].classList.toggle('collapsed');
+                                                })
 
 	                    						// add-in bolded prefix
 	                    						bprefix_wrap = line_el.appendChild(document.createElement('b'));
@@ -189,6 +274,205 @@
 	                    							bcontent.textContent = 'with exception "' + result.code + '". Message: "' + result.message + '".';
 	                    							console.error('#' + i.toString(), result.code, result.message);
 	                    						}
+
+                                                // fill subcontent
+                                                fullcontent_wrap = line_el.appendChild(document.createElement('div'));
+                                                collapse ? fullcontent_wrap.classList.add('collapsed') : null ;
+                                                fullcontent_wrap.classList.add('fullcontent');
+
+                                                // add raw wrapper
+                                                raw_wrap = fullcontent_wrap.appendChild(document.createElement('section'));
+                                                collapse ? raw_wrap.classList.add('collapsed') : null ;
+                                                raw_wrap.classList.add('rawevent');
+                                                raw_wrap.classList.add('contentbox');
+                                                raw_wrap.setAttribute('data-label', 'Raw Event (ID: "' + result.raw.key.id + '")');
+                                                raw_wrap.addEventListener('click', function (event) {
+                                                    event.target.classList.toggle('collapsed');
+                                                    event.stopPropagation();
+                                                    event.preventDefault();
+                                                }, false);
+
+                                                // add raw content
+                                                raw_content = raw_wrap.appendChild(document.createElement('pre'));
+                                                raw_content.setAttribute('id', result.raw.key.id);
+                                                raw_content.setAttribute('data-key', result.raw.key.encoded);
+                                                raw_content.classList.add('json');
+                                                raw_content.classList.add('rawblob');
+
+
+                                                // add full event wrapper
+                                                event_wrap = fullcontent_wrap.appendChild(document.createElement('section'));
+                                                event_wrap.classList.add('collapsed');
+                                                event_wrap.classList.add('event');
+                                                event_wrap.classList.add('contentbox');
+                                                event_wrap.setAttribute('data-label', 'Full Event (ID: "' + result.event.key.id + '")');
+                                                event_wrap.addEventListener('click', function (event) {
+                                                    event.target.classList.toggle('collapsed');
+                                                    event.stopPropagation();
+                                                    event.preventDefault();
+                                                }, false);
+
+                                                // add full event content
+                                                event_content = event_wrap.appendChild(document.createElement('pre'));
+                                                event_content.setAttribute('id', result.event.key.id);
+                                                event_content.setAttribute('data-key', result.raw.key.encoded);
+                                                event_content.classList.add('json');
+                                                event_content.classList.add('eventblob');
+
+
+                                                // add warnings wrapper
+                                                if (result.event.warnings instanceof Array) {
+
+                                                    // build warnings
+                                                    warnings_wrap = fullcontent_wrap.appendChild(document.createElement('section'));
+                                                    collapse ? warnings_wrap.classList.add('collapsed') : null ;
+                                                    warnings_wrap.classList.add('warnings');
+                                                    warnings_wrap.classList.add('contentbox');
+                                                    warnings_wrap.setAttribute('data-label', result.event.warnings.length.toString() + ' warnings');
+                                                    warnings_wrap.addEventListener('click', function (event) {
+                                                        event.target.classList.toggle('collapsed');
+                                                        event.stopPropagation();
+                                                        event.preventDefault();
+                                                    }, false);
+
+                                                    // build warnings content
+                                                    warnings_content = warnings_wrap.appendChild(document.createElement('pre'));
+
+                                                    // build warnings text
+                                                    for (warning in result.event.warnings) {
+                                                        warning = result.event.warnings[warning];
+                                                        console.warn('#' + i, warning);
+                                                        _warnings.push(warning);
+                                                    }
+
+                                                    warnings_content.textContent = _warnings.join("\n");
+
+                                                }
+
+                                                // add errors wrapper
+                                                if (result.event.errors instanceof Array) {
+
+                                                    // build errors wrap
+                                                    errors_wrap = fullcontent_wrap.appendChild(document.createElement('section'));
+                                                    collapse ? errors_wrap.classList.add('collapsed') : null ;
+                                                    errors_wrap.classList.add('errors');
+                                                    errors_wrap.classList.add('contentbox');
+                                                    errors_wrap.setAttribute('data-label', result.event.errors.length.toString() + ' errors');
+                                                    errors_wrap.addEventListener('click', function (event) {
+                                                        event.target.classList.toggle('collapsed');
+                                                        event.stopPropagation();
+                                                        event.preventDefault();
+                                                    }, false);
+
+                                                    // build errors content
+                                                    errors_content = errors_wrap.appendChild(document.createElement('pre'));
+
+                                                    for (error in result.event.errors) {
+                                                        error = result.event.errors[error];
+                                                        console.error('#' + i, error);
+                                                        _errors.push(error);
+                                                    }
+
+                                                    errors_content.textContent = _errors.join("\n");
+
+                                                }
+
+                                                // add aggregations
+                                                if (result.event.aggregations instanceof Array) {
+
+                                                    // add aggregations wrapper
+                                                    aggregations_wrap = fullcontent_wrap.appendChild(document.createElement('section'));
+                                                    collapse ? aggregations_wrap.classList.add('collapsed') : null ;
+                                                    aggregations_wrap.classList.add('aggregations');
+                                                    integrations_wrap.classList.add('extensions');
+                                                    aggregations_wrap.classList.add('contentbox');
+                                                    aggregations_wrap.setAttribute('data-label', result.aggregations.length.toString() + ' matched aggregations');
+                                                    aggregations_wrap.addEventListener('click', function (event) {
+                                                        event.target.classList.toggle('collapsed');
+                                                        event.stopPropagation();
+                                                        event.preventDefault();
+                                                    }, false);
+
+                                                    // build aggregations content
+                                                    aggregations_content = aggregations_wrap.appendChild(document.createElement('pre'));
+
+                                                    for (aggregation in result.event.aggregations) {
+                                                        aggregation = result.event.aggregations[aggregation];
+                                                        console.log('#' + i, 'Aggregation matched:', aggregation);
+                                                        _aggregations.push(aggregation);
+                                                    }
+
+                                                    aggregations_content.textContent = _aggregations.join("\n");
+
+                                                }
+
+                                                // add attributions
+                                                if (result.event.attributions instanceof Array) {
+
+                                                    // add attributions wrapper
+                                                    attributions_wrap = fullcontent_wrap.appendChild(document.createElement('section'));
+                                                    collapse ? attributions_wrap.classList.add('collapsed') : null ;
+                                                    attributions_wrap.classList.add('attributions');
+                                                    integrations_wrap.classList.add('extensions');
+                                                    attributions_wrap.classList.add('contentbox');
+                                                    attributions_wrap.setAttribute('data-label', result.attributions.length.toString() + ' matched attributions');
+                                                    attributions_wrap.addEventListener('click', function (event) {
+                                                        event.target.classList.toggle('collapsed');
+                                                        event.stopPropagation();
+                                                        event.preventDefault();
+                                                    }, false);
+
+                                                    // build attributions content
+                                                    attributions_content = attributions_wrap.appendChild(document.createElement('pre'));
+
+                                                    for (attribution in result.event.attributions) {
+                                                        attribution = result.event.attributions[attribution];
+                                                        console.log('#' + i, 'Attribution matched:', attribution);
+                                                        _attributions.push(attribution);
+                                                    }
+
+                                                    attributions_content.textContent = _attributions.join("\n");
+
+                                                }
+
+                                                // add integrations
+                                                if (result.event.integrations instanceof Array) {
+
+                                                    // add integrations wrapper
+                                                    integrations_wrap = fullcontent_wrap.appendChild(document.createElement('section'));
+                                                    collapse ? integrations_wrap.classList.add('collapsed') : null ;
+                                                    integrations_wrap.classList.add('integrations');
+                                                    integrations_wrap.classList.add('extensions');
+                                                    integrations_wrap.classList.add('contentbox');
+                                                    integrations_wrap.setAttribute('data-label', result.integrations.length.toString() + ' matched integrations');
+                                                    integrations_wrap.addEventListener('click', function (event) {
+                                                        event.target.classList.toggle('collapsed');
+                                                        event.stopPropagation();
+                                                        event.preventDefault();
+                                                    }, false);
+
+                                                    // build integrations content
+                                                    integrations_content = integrations_wrap.appendChild(document.createElement('pre'));
+
+                                                    for (integration in result.event.integrations) {
+                                                        integration = result.event.integrations[integration];
+                                                        console.log('#' + i, 'Integration matched:', integration);
+                                                        _integrations.push(integration);
+                                                    }
+
+                                                    integrations_content.textContent = _integrations.join("\n");
+
+                                                }
+
+                                                // remove verbose properties from prettyprint
+                                                delete result.event.errors;
+                                                delete result.event.warnings;
+
+                                                // set event blob content
+                                                raw_content.textContent = JSON.stringify(result.raw, undefined, 2);
+                                                event_content.textContent = JSON.stringify(result.event, undefined, 2);
+
+                                                // render-in
 	                    						result_wrap.appendChild(line_el);
 	                    						i++;
 	                    					}
