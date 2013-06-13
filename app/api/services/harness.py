@@ -74,6 +74,7 @@ class URLTestResults(messages.Message):
     count = messages.IntegerField(2, default=0)
     successes = messages.IntegerField(3, default=0)
     failures = messages.IntegerField(4, default=0)
+    warnings = messages.IntegerField(5, default=0)
 
 
 #### +=+=+ Exceptions +=+=+ ####
@@ -81,21 +82,15 @@ class HarnessException(rpc.remote.ApplicationError):
 
     ''' Abstract root for all ``HarnessService``-based exceptions. '''
 
-    pass
-
 
 class NoTestURLs(HarnessException):
 
     ''' Raised when there are no URLs to test. '''
 
-    pass
-
 
 class InvalidURL(HarnessException):
 
     ''' Raised when an invalid URL is encountered for testing. '''
-
-    pass
 
 
 class AmbiguousKey(HarnessException):
@@ -103,15 +98,11 @@ class AmbiguousKey(HarnessException):
     ''' Raised when a key is given both an `ID` and `URLSafe`, or neither,
         when only one should be present. '''
 
-    pass
-
 
 class KeyNotFound(HarnessException):
 
     ''' Raised when retrieval of a :py:class:`Key` fails, due to a record
         not existing at that ``Key``. '''
-
-    pass
 
 
 #### +=+=+ Service +=+=+ ####
@@ -246,6 +237,9 @@ class HarnessService(rpc.Service):
                 handler = LegacyEndpoint(urequest, uresponse) if legacy else TrackerEndpoint(urequest, uresponse)
                 handler.initialize(urequest, uresponse)
 
+                # warnings count
+                _warnings = 0
+
                 try:
                     profile, result, event = handler.get(explicit=True)
 
@@ -274,6 +268,7 @@ class HarnessService(rpc.Service):
 
                 else:
                     urlsafe = event.key.urlsafe()
+                    _warnings += len(event.warnings)
                     test_results.append(URLTestResult.to_message_model()(**{
                         'url': spec,
                         'status': 'success',
@@ -295,6 +290,7 @@ class HarnessService(rpc.Service):
         return URLTestResults(**{
             'count': len(test_results),
             'results': test_results,
+            'warnings': _warnings,
             'failures': len(filter(lambda x: x.status == 'error', test_results)),
             'successes': len(filter(lambda x: x.status != 'error', test_results))
         })
