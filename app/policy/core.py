@@ -68,7 +68,7 @@ class Profile(type):
                 the given ``profile`` for future work.
 
                 :param profile: :py:class:`EventProfile` subclass
-                                to interpret or merge.
+                to interpret or merge.
 
                 :returns: Nothing, this is a constructor. '''
 
@@ -81,12 +81,14 @@ class Profile(type):
                 definition.
 
                 :param policy: Parent policy class (derivative of
-                               :py:class:`EventProfile`) that we
-                               are processing for, so we can
-                               inform sub-objects.
+                :py:class:`EventProfile`) that we are processing
+                for, so we can inform sub-objects.
 
                 :param group: The :py:class:`ParameterGroup`
-                              subclass to compile.
+                subclass to compile.
+
+                :param klass: Encapsulating policy definition
+                class that we're building for.
 
                 :return: An instantiated and properly filled-out
                         :py:class:`ParameterGroup` object. '''
