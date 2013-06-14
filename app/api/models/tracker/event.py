@@ -10,41 +10,14 @@ expressing/persisting individual events.
           embedded licenses and other legalese, see `LICENSE.md`.
 '''
 
-# stdlib
-import datetime
-
 # apptools models
 from apptools import model
-
-# tracker models
-from api.models import TrackerModel
-from api.models.tracker import raw
-from api.models.tracker import endpoint
-from api.models.tracker import integration
-from api.models.tracker import aggregation
-from api.models.tracker import attribution
 
 # protocol descriptors
 from protocol import event
 
-
-## EventAction
-class EventAction(TrackerModel):
-
-    ''' An action performed by the `EventTracker` in response to an occurrence of a `TrackedEvent`.
-
-        :param success: Boolean describing whether the :py:class:`EventAction` in
-                        question was successful or not. Defaults to ``False``.
-
-        :param started: Python ``datetime`` object describing when this
-                        :py:class:`EventAction` began execution.
-
-        :param routine: Key pointer to the owner :py:class:`integration.Routine` object for this
-                        :py:class:`EventAction`. '''
-
-    success = bool, {'default': False, 'indexed': True}  # whether this `EventAction` was successful
-    started = datetime.datetime, {'required': False, 'indexed': True}  # timestamp for when this action started work
-    routine = integration.Routine, {'repeated': True, 'indexed': True}  # linked routine to fulfill this `EventAction`
+# tracker models
+from api.models import TrackerModel
 
 
 ## TrackedEvent
@@ -89,18 +62,13 @@ class TrackedEvent(TrackerModel):
     ## == Type/Provider/Tracker == ##  # @TODO: Change string types to enums.
     type = event.EventType, {'indexed': True, 'default': 'CUSTOM'}  # event type: impression, click, etc.
     error = bool, {'indexed': True}  # error flag: flipped to ``True`` if an error was detected while processing
-    tracker = model.Key, {'indexed': True}  # provisioned tracker that this event came through
-    provider = event.EventProvider, {'indexed': True, 'default': 'CLIENT'}  # event provider: who dispatched this event
-
-    ## == Linked Objects == ##
-    integrations = EventAction, {'repeated': True, 'indexed': True}  # linked, invoked integrations
-    aggregations = basestring, {'repeated': True, 'indexed': True}  # linked, updated aggregations
-    attributions = basestring, {'repeated': True, 'indexed': True}  # linked, attributed events/objects
+    tracker = basestring, {'indexed': True}  # provisioned tracker that this event came through
 
     ## == Messages == ##
-    warnings = basestring, {'repeated': True, 'indexed': False}
-    errors = basestring, {'repeated': True, 'indexed': False}
+    errors = basestring, {'repeated': True, 'indexed': False}  # error messages encountered processing this event
+    warnings = basestring, {'repeated': True, 'indexed': False}  # warning messages encountered processing this event
 
-    ## == Timestamps == ##
-    modified = datetime.datetime, {'auto_now': True, 'indexed': True}  # timestamp for when this was last modified
-    created = datetime.datetime, {'auto_now_add': True, 'indexed': True}  # timestamp for when this was created
+    ## == Linked Objects == ##
+    integrations = basestring, {'repeated': True, 'indexed': True}  # linked, invoked integrations
+    aggregations = basestring, {'repeated': True, 'indexed': True}  # linked, updated aggregations
+    attributions = basestring, {'repeated': True, 'indexed': True}  # linked, attributed events/objects
