@@ -9,5 +9,45 @@ Tracker API: Messages
           embedded licenses and other legalese, see `LICENSE.md`.
 '''
 
-# ProtoRPC
-from protorpc import messages
+# RPC API
+from apptools import rpc
+
+# Endpoint Models
+from api.models.tracker import endpoint
+
+
+## Profile - expresses a single descendent of :py:class:`policy.core.Profile`.
+class Profile(rpc.messages.Message):
+
+    ''' Expresses an individual descendent of
+        :py:class:`policy.core.Profile`. '''
+
+    pass
+
+
+## Profiles - expresses a collection of :py:class:`Profile` entities.
+class Profiles(rpc.messages.Message):
+
+    ''' Expresses a set of all (or 'matching')
+        :py:class:`policy.core.Profile` descendents. '''
+
+    pass
+
+
+## ProvisioningRequest - expresses a request to provision one or multiple :py:class:`Tracker` entities.
+class ProvisioningRequest(rpc.messages.Message):
+
+    ''' Expresses a request to provision (create)
+        one (or multiple) :py:class:`endpoint.Tracker`
+        model(s). '''
+
+    pass
+
+
+## TrackerSet - expresses a collection of :py:class:`Tracker` entities.
+class TrackerSet(rpc.messages.Message):
+
+    ''' Expresses a set of :py:class:`endpoint.Tracker`
+        objects. '''
+
+    pass
