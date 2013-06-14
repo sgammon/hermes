@@ -52,8 +52,14 @@ class PolicyEngine(PlatformBridge):
 
             :param message: String message to issue as the log message.
 
-            :keyword exception: The exception class to throw in the case
-            that we're running in ``strict`` mode.
+            :param *args: Argument rollup to be passed in as
+            positional formatting arguments.
+
+            :param **kwargs: Keyword arguments. Can contain ``event``
+            and ``exception`` properties to attach to ``warn`` call.
+
+            :raises: Exception passed-in via ``exception`` key of
+            ``kwargs``, if ``strict`` mode is active.
 
             :returns: ``self``, for chainability. '''
 
@@ -80,34 +86,93 @@ class PolicyEngine(PlatformBridge):
     ### ==== HTTP-related Internals ==== ###
     def _extract_http_etag(self, request, identifier):
 
-        ''' Extracts an HTTP Etag. '''
+        ''' Extracts an HTTP Etag from ``request``,
+            an :py:class:`webob.Request`, at chunkname
+            ``identifier``.
+
+            :param request: Source :py:class:`webob.Request`
+            to pull *Etag* from.
+
+            :param identifier: Chunkname to pull from *Etag*
+            at ``request``, if any.
+
+            :raises NotImplementedError: Always, as this
+            method is currently stubbed.
+
+            :returns: Decoded value for chunk identified
+            by ``identifier`` embedded in the *Etag*
+            attached to ``request``. '''
 
         # @TODO(sgammon): etag extractor
-        self.logging.info('Extracting ETAG at identifier "%s".' % identifier)
+        if self.config.get('strict', True):
+            self.logging.info('Extracting ETAG at identifier "%s".' % identifier)
         raise NotImplementedError('`EventTracker` does not yet support etag-based extraction.')
 
     def _extract_http_path(self, request, identifier):
 
-        ''' Extracts an HTTP path component. '''
+        ''' Extracts a value from an HTTP path component,
+            (hopefully) to be found in ``request``, a
+            :py:class:`webob.Request`. Extracts value
+            from path component at ``identifier``.
+
+            :param request: Descendent of :py:class:`webob.Request`
+            to pull HTTP path value from.
+
+            :param identifier: Name of path component to retrieve
+            value from.
+
+            :raises NotImplementedError: Always, as this method
+            is currently stubbed.
+
+            :returns: Decoded value for HTTP path component
+            retrieved from ``request`` at ``identifier`` '''
 
         # @TODO(sgammon): path extractor
-        self.logging.info('Extracting PATH component at identifier "%s".' % identifier)
+        if self.config.get('strict', True):
+            self.logging.info('Extracting PATH component at identifier "%s".' % identifier)
         raise NotImplementedError('`EventTracker` does not yet support path-based extraction.')
 
     def _extract_http_header(self, request, identifier):
 
-        ''' Extracts an HTTP header. '''
+        ''' Extracts a value from an HTTP header,
+            (hopefully) to be found in ``request``
+            (a :py:class:`webob.Request` descendent)
+            at the header name ``identifier``.
+
+            :param request: Class descendent of
+            :py:class:`webob.Request` to pull header value
+            from.
+
+            :param identifier: Name of HTTP header to pull
+            value at.
+
+            :returns: Value at ``identifier``, or ``None``
+            if the value could not be found. '''
 
         # @TODO(sgammon): header extractor
-        self.logging.info('Extracting HEADER at identifier "%s".' % identifier)
+        self.logging.debug('Extracting HEADER at identifier "%s".' % identifier)
         return request.headers.get(identifier)
 
     def _extract_http_cookie(self, request, identifier):
 
-        ''' Extracts an HTTP cookie. '''
+        ''' Extracts a value from an HTTP cookie,
+            (hopefully) to be found in ``request``
+            (a :py:class:`webob.Request` descendent)
+            at the cookie name ``identifier``.
+
+            :param request: Class descendent of
+            :py:class:`webob.Request` to pull cookie
+            value from.
+
+            :param identifier: Name of the HTTP cookie
+            to pull value at.
+
+            :returns: Value at cookie ``name``, from
+            ``request``, or ``None`` if no such value
+            could be found. '''
 
         # @TODO(sgammon): cookie extractor
-        self.logging.info('Extracting COOKIE at identifier "%s".' % identifier)
+        self.logging.debug('Extracting COOKIE at identifier "%s".' % identifier)
         return request.cookies.get(identifier)
 
     _http_extractors = {
@@ -121,7 +186,27 @@ class PolicyEngine(PlatformBridge):
     ### ==== Public Methods ==== ###
     def match_parameters(self, data, policy, legacy=False):
 
-        ''' Blab '''
+        ''' Match parameter ``data`` from an active
+            request to ``EventTracker`` to one or
+            multiple :py:class:`Profile` descendents,
+            starting with ``policy``.
+
+            :param data:
+            :param policy:
+            :param legacy:
+
+            :raises InvalidParamName: In the case of
+            an invalid or empty parameter name.
+
+            :raises DuplicateParameterName: In the case
+            of a property name that occurred more than
+            once, which is not allowed.
+
+            :raises StopIteration: When available parameter
+            specs have been completely exhausted.
+
+            :returns: Recursively yields matched parameter
+            classes. '''
 
         # initialize vars
         paramset, artifacts, converters = [], {}, {}
