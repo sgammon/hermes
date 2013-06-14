@@ -83,4 +83,3 @@ class BatchSubscribe(messages.Message):
 
     count = messages.IntegerField(1)
     subscriptions = messages.MessageField(Subscription.to_message_model(), 2, repeated=True)
-
