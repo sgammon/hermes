@@ -118,7 +118,7 @@ class EventEngine(PlatformBridge):
             the case that ``engine`` is ``Datastore.redis`` and
             pipelining is supported. Otherwise returns ``None``. '''
 
-        return self.adapter(engine, kind).pipeline()
+        return self.adapter(engine, kind).channel(kind).pipeline()
 
     ## === Public Methods === ##
     def persist(self, entity, pipeline=None):

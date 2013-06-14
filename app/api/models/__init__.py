@@ -35,5 +35,5 @@ class TrackerModel(model.Model):
     __adapter__ = "RedisAdapter" if _REDIS else "InMemoryAdapter"
 
     # == Timestamps == #
-    modified = datetime.datetime, {'required': True, 'auto_now': True}  # timestamp for when this was last modified
-    created = datetime.datetime, {'required': True, 'auto_now_add': True}  # timestamp for when this was first saved
+    modified = datetime.datetime, {'auto_now': True}  # timestamp for when this was last modified
+    created = datetime.datetime, {'auto_now_add': True}  # timestamp for when this was first saved

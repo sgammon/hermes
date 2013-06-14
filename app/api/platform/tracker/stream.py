@@ -165,7 +165,10 @@ class EventStream(PlatformBridge):
 
         elif isinstance(ev, event.TrackedEvent) or (isinstance(ev, model.Key) and ev.kind == event.TrackedEvent.kind()):
             context = [('stream', 'full')]
-            blobbed_event = self._build_envelope(ev.key.to_message(), error)
+            if isinstance(ev, model.Key):
+                blobbed_event = self._build_envelope(ev.to_message(), error)
+            else:
+                blobbed_event = self._build_envelope(ev.key.to_message(), error)
 
         else:
             context = tuple()

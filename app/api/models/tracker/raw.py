@@ -44,7 +44,7 @@ class Event(TrackerModel):
 
     # == Session Details == #
     session = bool, {'required': False, 'indexed': False}  # hit came in with a session (True) or one was created (False)
-    fingerprint = basestring, {'indexed': True, 'indexed': False}  # plaintext value of the cookie in this event
+    cookie = basestring, {'indexed': True, 'indexed': False}  # plaintext value of the cookie in this event
 
     # == Flags == #
     error = bool, {'indexed': True, 'default': False}  # flag indicating this might be an error
