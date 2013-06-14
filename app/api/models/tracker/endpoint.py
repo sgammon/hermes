@@ -12,7 +12,6 @@ endpoint for tracking events of a certain profile or type.
 '''
 
 # apptools models
-from apptools import model
 from api.models import TrackerModel
 
 

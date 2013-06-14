@@ -23,5 +23,5 @@ class Subscription(TrackerModel):
 
     channel = basestring, {'indexed': True}  # channel / named channel pattern expressed in Redis
     pattern = bool, {'default': False, 'indexed': False}  # whether we want to do a Psubscribe on the given channel
-    expiration = int, {'default': -86400}  # value < 0 indicates relative expiration in seconds, > 0 is absolute
-    endpoint = basestring, {'default': None}  # HTTP endpoint to POST to when events are published
+    expiration = int, {'default': -86400, 'indexed': False}  # value < 0 indicates relative expiration in seconds, > 0 is absolute
+    endpoint = basestring, {'default': None, 'indexed': False}  # HTTP endpoint to POST to when events are published

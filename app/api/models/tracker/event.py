@@ -10,12 +10,6 @@ expressing/persisting individual events.
           embedded licenses and other legalese, see `LICENSE.md`.
 '''
 
-# apptools models
-from apptools import model
-
-# protocol descriptors
-from protocol import event
-
 # tracker models
 from api.models import TrackerModel
 
@@ -56,13 +50,12 @@ class TrackedEvent(TrackerModel):
         :param created: Timestamp ``datetime`` of when this :py:class:`TrackedEvent` was recorded. '''
 
     ## == Raw Event == ##
-    raw = basestring, {'required': True, 'indexed': True}  # linked raw event that generated this `TrackedEvent`
+    raw = basestring, {'required': True, 'indexed': False}  # linked raw event that generated this `TrackedEvent`
     params = dict, {'required': True, 'default': {}, 'indexed': False}  # raw paramset that came through with URL
 
     ## == Type/Provider/Tracker == ##  # @TODO: Change string types to enums.
-    type = event.EventType, {'indexed': True, 'default': 'CUSTOM'}  # event type: impression, click, etc.
-    error = bool, {'indexed': True}  # error flag: flipped to ``True`` if an error was detected while processing
-    tracker = basestring, {'indexed': True}  # provisioned tracker that this event came through
+    error = bool, {'required': False, 'indexed': True}  # error flag: flipped to ``True`` if an error was detected while processing
+    tracker = basestring, {'required': False, 'indexed': True}  # provisioned tracker that this event came through
 
     ## == Messages == ##
     errors = basestring, {'repeated': True, 'indexed': False}  # error messages encountered processing this event

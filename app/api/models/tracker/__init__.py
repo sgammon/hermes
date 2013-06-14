@@ -9,4 +9,4 @@ Contains models used in the `EventTracker` subsystem.
           embedded licenses and other legalese, see `LICENSE.md`.-sam (<sam.gammon@ampush.com>)
 '''
 
-__all__ = ['endpoint', 'event']
+__all__ = ['endpoint', 'event', 'pubsub', 'raw']

@@ -23,6 +23,11 @@ from apptools import model
 from api.models import TrackerModel
 
 
+## Globals / Constants
+_HASH_HEADER = 'XAF-Hash'
+_RQID_HEADER = 'XAF-Request-ID'
+
+
 ## Event
 # Represents a raw hit to a tracker URL.
 class Event(TrackerModel):
@@ -34,21 +39,17 @@ class Event(TrackerModel):
     # == Basic Details == #
     url = basestring, {'required': True, 'indexed': False}  # full text of URL hit (including params + hash, if any)
     method = basestring, {'required': True, 'indexed': False}  # request method used to hit the URL that was invoked
-    policy = basestring, {'indexed': True}  # hit came in and was processed by the specified policy
+    policy = basestring, {'required': False, 'indexed': True}  # hit came in and was processed by the specified policy
+    timestamp = datetime.datetime, {'required': True, 'indexed': True}  # timestamp for when this was received
 
     # == Session Details == #
-    session = bool, {'indexed': False}  # hit came in with a session (True) or one was created (False)
+    session = bool, {'required': False, 'indexed': False}  # hit came in with a session (True) or one was created (False)
     fingerprint = basestring, {'indexed': True, 'indexed': False}  # plaintext value of the cookie in this event
 
     # == Flags == #
     error = bool, {'indexed': True, 'default': False}  # flag indicating this might be an error
     legacy = bool, {'indexed': True, 'default': False}  # flag indicating this is a legacy tracker hit
     processed = bool, {'indexed': False, 'default': False}  # whether this `RawEvent` has been processed yet
-
-    # == Timestamps == #
-    timestamp = datetime.datetime, {'required': True, 'indexed': True}  # timestamp for when this was received
-    modified = datetime.datetime, {'required': True, 'auto_now': True}  # timestamp for when this was last modified
-    created = datetime.datetime, {'required': True, 'auto_now_add': True}  # timestamp for when the raw event was saved
 
     @classmethod
     def inflate(cls, data, policy=None, legacy=False, timestamp=None):
@@ -85,18 +86,13 @@ class Event(TrackerModel):
         if isinstance(data, webob.Request):
 
             # resolve unique event ID
-            eid = data.headers.get('XAF-Hash')
-            if not eid:
-                eid = data.headers.get('XAF-Request-ID')
-                if not eid:
-                    eid = hashlib.sha256(str(uuid.uuid4())).hexdigest()  # bad news: hopefully we're in ``debug``
+            eid = data.headers.get(_HASH_HEADER, data.headers.get(_RQID_HEADER))
+            if not eid: eid = hashlib.sha256(str(uuid.uuid4())).hexdigest()
 
-            url = data.url  # full HTTP request URL
-            method = data.method  # HTTP request method
+            url, method = data.url, data.method  # full HTTP request URL & method
 
             # resolve _AMP cookie, or explicit session
-            if base._DEFAULT_COOKIE_NAME in data.cookies:
-                cookie = data.cookies.get('_amp')
+            cookie = data.cookies.get(base._DEFAULT_COOKIE_NAME)
 
         elif isinstance(data, dict):
 
@@ -116,7 +112,7 @@ class Event(TrackerModel):
             # fail: we require at least a URL if we're using the raw interface
             raise ValueError('Data property `url` of `Event` must not be null.')
 
-        # build raw event
+        # build raw event and return
         return cls(**{
             'key': model.Key(cls, eid),  # key with assigned raw event ID
             'policy': policy.__definition__,  # grab definition path for matched policy
@@ -124,9 +120,7 @@ class Event(TrackerModel):
             'url': url,  # original URL invoking ``inflate``
             'method': method,  # original HTTP method, if any
             'cookie': cookie,  # original HTTP _amp cookie value, if any
-            'modified': timestamp,  # timestamp of when this was last modified
             'timestamp': timestamp,  # timestamp of when this raw event was received
-            'created': timestamp  # timestamp of when this raw event was first persisted
         })
 
     def notify_error(self, exception, message=None, handled=False, processed=False, put=False, pipeline=None):
@@ -173,6 +167,7 @@ class Event(TrackerModel):
             'handled': handled
         })
 
+        # if requested, persist and hand-off pipeline
         if put: error.put(pipeline=pipeline)
 
         # build sub-error and return
