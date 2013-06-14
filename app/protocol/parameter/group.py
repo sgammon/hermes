@@ -33,7 +33,7 @@ class Parameter(meta.ProtocolBinding):
         an ``EventTracker hit. '''
 
     ## == Internal Properties == ##
-    __slots__ = ('name', 'basetype', 'config')
+    __slots__ = ('name', 'basetype', 'config', 'basevalue', 'literal')
 
     ## == External Properties == ##
     name = None
@@ -76,6 +76,20 @@ class Parameter(meta.ProtocolBinding):
 
         return "Property(%s, %s)" % (self.name, self.basetype or self.basevalue)
 
+    def set_default(self, default):
+
+        ''' Set this parameter's default value,
+            to be used (and stored) in place of
+            a full value if none was found.
+
+            :param default: Default value to use
+            in place of a full value.
+
+            :returns: ``self``, for chainability. '''
+
+        self.basevalue = default
+        return self
+
 
 ## ParameterGroup - utility/encapsulation class for extending and defining a parameter group's specs.
 class ParameterGroup(meta.ProtocolBinding):
@@ -116,7 +130,7 @@ class ParameterGroup(meta.ProtocolBinding):
             contains.
 
             :returns: Yields each encapsulated/owned
-                      :py:class:`Property`. '''
+            :py:class:`Property`. '''
 
         for param in self.parameters:
             yield param
