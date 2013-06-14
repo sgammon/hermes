@@ -46,6 +46,15 @@
                 	padding-left: 5px;
                 }
 
+            /* === Controls === */
+                #pin_collapse:after {
+                    content: 'Expand all';
+                    position: relative;
+                    display: block;
+                    width: 60px;
+                    left: 15px;
+                }
+
             /* === Individual Results === */
 
                 .result {
@@ -169,7 +178,7 @@
                 <form id='profile_config'>
                 	<textarea id='url_input' placeholder='Enter URLs here, separated by newlines'></textarea>
                 	<br />
-                	<button id='submit'>Run URLs</button>
+                	<button id='submit'>Run URLs</button><input type='checkbox' name='collapse' id='pin_collapse' />
                 </form><!-- end #profile_config -->
 
                 <br />
@@ -186,18 +195,39 @@
 
                 (function boot_tester(context) {
 
-                    var url_input = document.getElementById('url_input'),
+                    var _DEFAULT_COLLAPSE = false,
+                        url_input = document.getElementById('url_input'),
                     	submit = document.getElementById('submit'),
                     	config = document.getElementById('profile_config'),
                     	deferred = document.getElementById('deferred'),
-                    	runcount = 0,
-                    	existing_urls = window.localStorage.getItem('tracker:urls');
+                    	existing_urls = window.localStorage.getItem('tracker:urls'),
+                        existing_trigger = window.localStorage.getItem('tracker:collapse'),
+                        collapse_trigger = document.getElementById('pin_collapse'),
+                        runcount = 0;
 
                     	// check for existing content for URL input
                     	if (existing_urls !== undefined && existing_urls !== null) {
                     		url_input.value = JSON.parse(existing_urls).join("\n");
                     	}
 
+                        // read existing state of collapse pin, and apply
+                        if (existing_trigger != null) {
+                            collapse_trigger.checked = _DEFAULT_COLLAPSE;
+                        }
+
+                        // collapse/expand all outer and nested foldable sections
+                        function toggleCollapsePin(event) {
+                            var status = (this.value == 'on'), target,
+                                collapseable = document.querySelectorAll('.collapseable');
+
+                                for (wrap in collapseable) {
+                                    target = collapseable[wrap];
+                                    target.classList.toggle('collapsed');
+                                    window.localStorage.setItem('tracker:collapse', JSON.stringify(!status));
+                                }
+                        }
+
+                        // event handler to submit URLs for testing
                     	function submit_urls(event) {
                     		var urlspec = url_input.value.split("\n"),
                     			result_wrap = document.createDocumentFragment();
@@ -303,11 +333,13 @@
                                                 // fill subcontent
                                                 fullcontent_wrap = line_el.appendChild(document.createElement('div'));
                                                 collapse ? fullcontent_wrap.classList.add('collapsed') : null ;
+                                                fullcontent_wrap.classList.add('collapseable');
                                                 fullcontent_wrap.classList.add('fullcontent');
 
                                                 // add raw wrapper
                                                 raw_wrap = fullcontent_wrap.appendChild(document.createElement('section'));
                                                 collapse ? raw_wrap.classList.add('collapsed') : null ;
+                                                raw_wrap.classList.add('collapseable');
                                                 raw_wrap.classList.add('rawevent');
                                                 raw_wrap.classList.add('contentbox');
                                                 raw_wrap.setAttribute('data-label', 'Raw Event (ID: "' + result.raw.key.id + '")');
@@ -324,10 +356,10 @@
                                                 raw_content.classList.add('json');
                                                 raw_content.classList.add('rawblob');
 
-
                                                 // add full event wrapper
                                                 event_wrap = fullcontent_wrap.appendChild(document.createElement('section'));
                                                 event_wrap.classList.add('collapsed');
+                                                event_wrap.classList.add('collapseable');
                                                 event_wrap.classList.add('event');
                                                 event_wrap.classList.add('contentbox');
                                                 event_wrap.setAttribute('data-label', 'Full Event (ID: "' + result.event.key.id + '")');
@@ -351,6 +383,7 @@
                                                     // build warnings
                                                     warnings_wrap = fullcontent_wrap.appendChild(document.createElement('section'));
                                                     collapse ? warnings_wrap.classList.add('collapsed') : null ;
+                                                    warnings_wrap.classList.add('collapseable');
                                                     warnings_wrap.classList.add('warnings');
                                                     warnings_wrap.classList.add('contentbox');
                                                     warnings_wrap.setAttribute('data-label', result.event.warnings.length.toString() + ' warnings');
@@ -380,6 +413,7 @@
                                                     // build errors wrap
                                                     errors_wrap = fullcontent_wrap.appendChild(document.createElement('section'));
                                                     collapse ? errors_wrap.classList.add('collapsed') : null ;
+                                                    errors_wrap.classList.add('collapseable');
                                                     errors_wrap.classList.add('errors');
                                                     errors_wrap.classList.add('contentbox');
                                                     errors_wrap.setAttribute('data-label', result.event.errors.length.toString() + ' errors');
@@ -408,6 +442,7 @@
                                                     // add aggregations wrapper
                                                     aggregations_wrap = fullcontent_wrap.appendChild(document.createElement('section'));
                                                     collapse ? aggregations_wrap.classList.add('collapsed') : null ;
+                                                    aggregations_wrap.classList.add('collapseable');
                                                     aggregations_wrap.classList.add('aggregations');
                                                     aggregations_wrap.classList.add('extensions');
                                                     aggregations_wrap.classList.add('contentbox');
@@ -437,6 +472,7 @@
                                                     // add attributions wrapper
                                                     attributions_wrap = fullcontent_wrap.appendChild(document.createElement('section'));
                                                     collapse ? attributions_wrap.classList.add('collapsed') : null ;
+                                                    attributions_wrap.classList.add('collapseable');
                                                     attributions_wrap.classList.add('attributions');
                                                     attributions_wrap.classList.add('extensions');
                                                     attributions_wrap.classList.add('contentbox');
@@ -466,6 +502,7 @@
                                                     // add integrations wrapper
                                                     integrations_wrap = fullcontent_wrap.appendChild(document.createElement('section'));
                                                     collapse ? integrations_wrap.classList.add('collapsed') : null ;
+                                                    integrations_wrap.classList.add('collapseable');
                                                     integrations_wrap.classList.add('integrations');
                                                     integrations_wrap.classList.add('extensions');
                                                     integrations_wrap.classList.add('contentbox');
@@ -521,6 +558,7 @@
 
                     	config.addEventListener('submit', submit_urls);
                     	submit.addEventListener('click', submit_urls);
+                        collapse_trigger.addEventListener('change', toggleCollapsePin);
 
                 })(this);
 
