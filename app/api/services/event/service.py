@@ -10,6 +10,7 @@ Event Data API: Service
 '''
 
 # stdlib
+import time
 import datetime
 
 # Local Imports
@@ -18,13 +19,16 @@ from . import exceptions
 
 # apptools rpc
 from apptools import rpc
+
+# apptools models
 from apptools import model
+from apptools.model import query
 
 # API messages
 from api.messages import edge
 
 # API Models
-from api.models.tracker import event
+from api.models.tracker.event import TrackedEvent
 
 
 ## Globals
@@ -45,7 +49,7 @@ class EventDataService(rpc.Service):
         'generic': exceptions.Error
     })
 
-    @rpc.method(model.Key, event.TrackedEvent)
+    @rpc.method(model.Key, TrackedEvent)
     def get(self, request):
 
         ''' Retrieve a :py:class:`event.TrackedEvent` model
@@ -77,28 +81,38 @@ class EventDataService(rpc.Service):
             :py:class:`event.TrackedEvent` records,
             returning matching results. '''
 
+        if not request.options:
+            _opts = query.QueryOptions(keys_only=True)  # default to keys-only
+        else:
+            _opts = request.options
+
         # start building a query
-        q = event.TrackedEvent.query(**{
-            'keys_only': request.options.keys_only,
-            'ancestor': request.options.ancestor,
-            'limit': request.options.limit,
-            'offset': request.options.offset,
-            'projection': request.options.projection,
-            'cursor': request.options.cursor
+        q = TrackedEvent.query(**{
+            'keys_only': _opts.keys_only,
+            'ancestor': _opts.ancestor,
+            'limit': _opts.limit,
+            'offset': _opts.offset,
+            'projection': _opts.projection,
+            'cursor': _opts.cursor
         })
 
         # filter by tracker, if specified
         if request.tracker:
-            q.filter(event.TrackedEvent.tracker == request.tracker)
+            q.filter(TrackedEvent.tracker == request.tracker)
 
         # build start and end ranges
         if request.start:
             timestamp_start = int(request.start / 1e3) if len(str(request.start)) > 10 else request.start
-            q.filter(event.TrackedEvent.created > datetime.datetime.fromtimestamp(timestamp_start))
+            q.filter(TrackedEvent.created > datetime.datetime.fromtimestamp(timestamp_start))
+        else:
+            timestamp_start = None
+
 
         if request.end:
             timestamp_end = int(request.end / 1e3) if len(str(request.end)) > 10 else request.end
-            q.filter(event.TrackedEvent.created < datetime.datetime.fromtimestamp(timestamp_end))
+            q.filter(TrackedEvent.created < datetime.datetime.fromtimestamp(timestamp_end))
+        else:
+            timestamp_end = None
 
         # add arbitrary filter directives
         if request.filter:
@@ -106,31 +120,31 @@ class EventDataService(rpc.Service):
 
                 # `==` filter
                 if directive.operator is Operator.EQUALS:
-                    q.filter(event.TrackedEvent[directive.property] == directive.value)
+                    q.filter(TrackedEvent[directive.property] == directive.value)
 
                 # `!=` filter
                 elif directive.operator is Operator.NOT_EQUALS:
-                    q.filter(event.TrackedEvent[directive.property] != directive.value)
+                    q.filter(TrackedEvent[directive.property] != directive.value)
 
                 # `<` filter
                 elif directive.operator is Operator.LESS_THAN:
-                    q.filter(event.TrackedEvent[directive.property] < directive.value)
+                    q.filter(TrackedEvent[directive.property] < directive.value)
 
                 # `<=` filter
                 elif directive.operator is Operator.LESS_THAN_EQUAL_TO:
-                    q.filter(event.TrackedEvent[directive.property] <= directive.value)
+                    q.filter(TrackedEvent[directive.property] <= directive.value)
 
                 # `>` filter
                 elif directive.operator is Operator.GREATER_THAN:
-                    q.filter(event.TrackedEvent[directive.property] > directive.value)
+                    q.filter(TrackedEvent[directive.property] > directive.value)
 
                 # `>=` filter
                 elif directive.operator is Operator.GREATER_THAN_EQUAL_TO:
-                    q.filter(event.TrackedEvent[directive.property] >= directive.value)
+                    q.filter(TrackedEvent[directive.property] >= directive.value)
 
                 # `IN` filter
                 elif directive.operator is Operator.IN:
-                    q.filter(event.TrackedEvent[directive.property] in directive.value)
+                    q.filter(TrackedEvent[directive.property] in directive.value)
 
         # add arbitrary sort directives
         if request.sort:
@@ -138,23 +152,22 @@ class EventDataService(rpc.Service):
 
                 # ascending sort
                 if directive.operator is Direction.ASCENDING:
-                    q.sort(+event.TrackedEvent[directive.property])
+                    q.sort(+TrackedEvent[directive.property])
 
                 # descending sort
                 if directive.operator is Direction.DESCENDING:
-                    q.sort(-event.TrackedEvent[directive.property])
+                    q.sort(-TrackedEvent[directive.property])
 
         results = q.fetch()  # fetch results
-        import pdb; pdb.set_trace()
 
         # initialize results containers
-        _matched_aggregations = set()
-        _matched_attributions = set()
+        _matched_aggregations, _touched_aggregations = set(), set()
+        _matched_attributions, _touched_attributions = set(), set()
 
-        edges, event_data = {
-            'aggregations': [],
-            'attributions': []
-        }, []
+        edges, event_data, _aggr_raw, _attr_raw, _final = {
+            'aggregations': {},
+            'attributions': {}
+        }, [], [], [], {}
 
         for event in results:
 
@@ -178,20 +191,69 @@ class EventDataService(rpc.Service):
                 match_split = matched_aggregation.split(self.tracker.engine._magic_separator)
                 path, window, identifier = match_split[1:-2], match_split[-2], match_split[-1]
 
+                # extract name and data from path
+                if len(path) > 1:
+                    name, data = path[0], path[1:]
+                else:
+                    name, data = path[0], []
+
                 # grab value, calculate window
-                value = self.tracker.engine.read_counter(matched_aggregation)
-                window, trange = self.tracker.engine.resolve_timewindow(window, identifier)
+                wire_window, trange = self.tracker.resolve_timewindow(*(
+                    window,
+                    identifier,
+                    edge.Timewindow.WindowScope
+                ))
 
-                @@@@@@@@@ RESOLVE TIMEWINDOW @@@@@@@@@@
+                window_type, window_delta = wire_window  # extract window values
+                window_begin, window_end = trange  # extract beginning and end of window
 
-                edges['aggregations'].append(edge.Aggregation(**{
-                    'value': value,
-                }))
+                # initialize aggregation in hash, if we haven't seen it yet
+                if name not in _touched_aggregations:
+                    edges['aggregations'][name] = []
+                    _touched_aggregations.add(name)
+
+                # generate aggregation item
+                _directive = edge.Aggregation(**{
+                    'window': edge.Timewindow(**{
+                        'scope': window_type,
+                        'delta': window_delta,
+                        'start': int(time.mktime(window_begin.timetuple())) if window_begin else None,
+                        'end': int(time.mktime(window_end.timetuple())) if window_end else None
+                    })
+                })
+
+                _aggr_raw.append((matched_aggregation, _directive))
+                edges['aggregations'][name].append(_directive)
+
+            # batch-get aggregation values
+            aggregation_values = self.tracker.engine.get_multi((key for key, obj in _aggr_raw))
+
+            # zip objects up with values and fill in results
+            for obj, value in zip((obj for key, obj in _aggr_raw), aggregation_values):
+                try:
+                    obj.value = int(value)
+                except ValueError:
+                    try:
+                        obj.value = float(value)
+                    except ValueError:
+                        obj.value = value
 
         return messages.EventRange(**{
+
             'start': timestamp_start,
             'end': timestamp_end,
+
+            # attach even
             'data': event_data,
-            'aggregations': edges['aggregations'],
-            'attributions': edges['attributions']
+
+            'aggregations': [edge.AggregationGroup(**{
+                'name': k,
+                'dimensions': v
+            }) for k, v in edges['aggregations'].iteritems()],
+
+            'attributions': [edge.AttributionGroup(**{
+                'name': k,
+                'dimensions': v
+            }) for k, v in edges['attributions'].iteritems()]
+
         })

@@ -62,6 +62,6 @@ class TrackedEvent(TrackerModel):
     warnings = basestring, {'repeated': True, 'indexed': False}  # warning messages encountered processing this event
 
     ## == Linked Objects == ##
-    integrations = basestring, {'repeated': True, 'indexed': True}  # linked, invoked integrations
-    aggregations = basestring, {'repeated': True, 'indexed': True}  # linked, updated aggregations
-    attributions = basestring, {'repeated': True, 'indexed': True}  # linked, attributed events/objects
+    integrations = basestring, {'repeated': True, 'indexed': False}  # linked, invoked integrations
+    aggregations = basestring, {'repeated': True, 'indexed': False}  # linked, updated aggregations
+    attributions = basestring, {'repeated': True, 'indexed': False}  # linked, attributed events/objects

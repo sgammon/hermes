@@ -81,8 +81,8 @@ class EventQuery(rpc.messages.Message):
 
     # builtin query parameters
     tracker = rpc.messages.StringField(1)
-    start = rpc.messages.StringField(2)
-    end = rpc.messages.StringField(3)
+    start = rpc.messages.IntegerField(2)
+    end = rpc.messages.IntegerField(3)
 
     # query directives + options
     sort = rpc.messages.MessageField(SortDirective, 4, repeated=True)

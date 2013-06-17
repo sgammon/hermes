@@ -48,6 +48,7 @@ class EventEngine(PlatformBridge):
     _kind_prefix = redis.RedisAdapter._kind_prefix
     _magic_separator = redis.RedisAdapter._magic_separator
     _path_separator = redis.RedisAdapter._path_separator
+    _chunk_separator = redis.RedisAdapter._chunk_separator
 
     ## Datastore - static, encapsulated adapter import.
     class Datastore(object):
@@ -125,6 +126,10 @@ class EventEngine(PlatformBridge):
             the case that ``engine`` is ``Datastore.redis`` and
             pipelining is supported. Otherwise returns ``None``. '''
 
+        if not _REDIS:
+            return None  # return ``None`` if redis support is unavailable
+        if not kind:
+            return self.adapter(engine).channel(kind).pipeline()
         return self.adapter(engine, kind).channel(kind).pipeline()
 
     ## === Public Methods === ##
@@ -320,6 +325,48 @@ class EventEngine(PlatformBridge):
 
             # execute operation, optionally against a pipeline
             return self.Datastore.redis.execute(handler, None, *opargs, target=pipeline)
+
+        else:
+            raise NotImplementedError('Local datastore is not yet supported for raw counters.')
+
+    def get(self, address, pipeline=None):
+
+        ''' Read the entity value, if any, at key
+            ``key``. This is a low-level method.
+
+            :param address: Datastore key (``str``)
+            to read.
+
+            :returns: Value at ``key``, if any. Returns
+            ``None`` if no value could be found. '''
+
+        if _REDIS:
+            return self.Datastore.redis.execute(self.redis.Operations.GET, address, target=pipeline)
+        return self.adapter(self.Datastore.inmemory).get(address)
+
+    def get_multi(self, iterable, pipeline=None):
+
+        ''' Retrieve multiple items from underlying
+            storage mechanisms. This is a low-level
+            method.
+
+            :param iterable: Iterable of ``str`` keys
+            to read from storage.
+
+            :returns: Iterable of results, where each
+            result is the entity corresponding to its
+            key at the same index in the input
+            ``iterable`` (or ``None`` if it could not
+            be found). '''
+
+        if _REDIS:
+            results = []
+            with self.Datastore.redis.channel(None).pipeline() as pipeline:
+                for key in iterable:
+                    self.Datastore.redis.execute(self.redis.Operations.GET, None, key, target=pipeline)
+                results += pipeline.execute()
+            return results
+        return [self.adapter(self.Datastore.inmemory).get(address) for address in iterable]
 
     def index_add(self, bucket, value, pipeline=None):
 

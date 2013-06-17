@@ -36,8 +36,9 @@ class Timewindow(rpc.messages.Message):
         FOREVER = 0x0
 
     scope = rpc.messages.EnumField(WindowScope, 1)
-    start = rpc.messages.IntegerField(2)
-    end = rpc.messags.IntegerField(3)
+    delta = rpc.messages.IntegerField(2)
+    start = rpc.messages.IntegerField(3)
+    end = rpc.messages.IntegerField(4)
 
 
 ## Aggregation
@@ -61,7 +62,7 @@ class AggregationGroup(rpc.messages.Message):
         dimension. '''
 
     name = rpc.messages.StringField(1)
-    values = rpc.messages.MessageField(Aggregation, repeated=True)
+    dimensions = rpc.messages.MessageField(Aggregation, 2, repeated=True)
 
 
 ## Attribution
@@ -77,7 +78,7 @@ class Attribution(rpc.messages.Message):
 
 ## AttributionGroup
 # Expresses a set of individual, time-scoped attributions for a given :py:class:`TrackedEvent`.
-class AttributionGroup(rpc.messages.Messages):
+class AttributionGroup(rpc.messages.Message):
 
     ''' Expresses a group of :py:class:`Attribution` records,
         scoped by a :py:class:`Timewindow`, that share the

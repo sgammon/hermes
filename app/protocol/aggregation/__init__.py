@@ -15,6 +15,7 @@ import time
 import config
 import base64
 import hashlib
+import datetime
 
 # Protocol
 from protocol import meta
@@ -94,14 +95,19 @@ class Aggregation(meta.ProtocolBinding):
 
         ''' Build a timewindow for an hour. '''
 
-        return str(int(time.mktime(stamp.date().timetuple())))
+        return str(int(time.mktime(datetime.datetime(**{
+            'year': stamp.year,
+            'month': stamp.month,
+            'day': stamp.day,
+            'hour': stamp.hour
+        }).timetuple()) / 1e2))
 
     def _day_timewindow(self, window, stamp):
 
         ''' Build a timewindow for a day. '''
 
         # generates timestamp with day-level granularity
-        return str(int(time.mktime(stamp.date().timetuple()) / 1e2))
+        return str(int(time.mktime(stamp.date().timetuple()) / 1e3))
 
     def _week_timewindow(self, window, stamp):
 
@@ -110,7 +116,7 @@ class Aggregation(meta.ProtocolBinding):
         # like: ``<year>:<week #>``
         calendar = stamp.date().isocalendar()
         if window != timedelta.TimeWindow.ONE_WEEK:
-            return self._WINDOW_SEPARATOR.join(map(unicode, list(calendar[:-1]) + [(window - 7) + calendar[1]]))
+            return self._WINDOW_SEPARATOR.join(map(unicode, list(calendar[:-1])))
         return self._WINDOW_SEPARATOR.join(map(unicode, calendar[:-1]))
 
     def _month_timewindow(self, window, stamp):
@@ -119,7 +125,7 @@ class Aggregation(meta.ProtocolBinding):
 
         # like: ``<year>:<month>``
         if window != timedelta.TimeWindow.ONE_MONTH:
-            return self._WINDOW_SEPARATOR.join(map(unicode, (stamp.year, stamp.month, (stamp.month + (window - 13)))))
+            return self._WINDOW_SEPARATOR.join(map(unicode, (stamp.year, stamp.month)))
         return self._WINDOW_SEPARATOR.join(map(unicode, (stamp.year, stamp.month)))
 
     def _year_timewindow(self, window, stamp):
@@ -206,7 +212,7 @@ class Aggregation(meta.ProtocolBinding):
 
             # calculate intervals
             for interval in self.interval:
-                final.append(self._CHUNK_SEPARATOR.join(hashspec + [self._build_window(interval, event.created)]))
+                final.append(self._CHUNK_SEPARATOR.join(hashspec + [str(interval), self._build_window(interval, event.created)]))
 
         return delta, tuple(final)
 

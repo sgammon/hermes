@@ -10,6 +10,9 @@ is the primary location for app-wide business logic.
           embedded licenses and other legalese, see `LICENSE.md`.
 """
 
+# stdlib
+import datetime
+
 # Platform Parent
 from api.platform import Platform
 
@@ -18,6 +21,9 @@ from apptools.util import decorators
 
 # Tracker Models
 from api.models.tracker import endpoint
+
+# Protocol Suite
+from protocol import timedelta
 
 # Platform Bridges
 from api.platform.tracker import event
@@ -100,11 +106,87 @@ class Tracker(Platform):
         return inject_tracker
 
     ## == Utilities == ##
-    def resolve_timewindow(self, window, delta):
+    def resolve_timewindow(self, window, delta, scope=None):
 
         ''' Resolves a timewindow. '''
 
-        pass
+        if not isinstance(window, int):
+            window = int(window)
+
+        # decode window: special cases first
+
+        # day-level window
+        if window is timedelta.TimeWindow.ONE_DAY:
+            _day_ts = int(int(delta) * 1e2)
+            delta_begin = datetime.datetime.fromtimestamp(_day_ts)
+            delta_end = delta_begin + datetime.timedelta(days=1)
+
+            if scope:
+                identifier = (scope.DAY, 1)
+
+        # year-level window
+        elif window is timedelta.TimeWindow.YEAR:
+            _year_ts = int(delta)
+            delta_begin = datetime.datetime(year=_year_ts, month=1, day=1)
+            delta_end = delta_begin + datetime.timedelta(days=365)
+
+            if scope:
+                identifier = (scope.YEAR, 1)
+
+        # global window
+        elif window is timedelta.TimeWindow.FOREVER:
+            delta_begin, delta_end = None, None
+
+            if scope:
+                identifier = (scope.FOREVER, 1)
+
+        # hour-level window
+        elif timedelta.TimeWindow.ONE_DAY < window < timedelta.TimeWindow.ONE_WEEK:
+
+            _hour_ts = (window - (timedelta.TimeWindow.ONE_HOUR - 1))
+            delta_begin = datetime.datetime.fromtimestamp(int(int(delta) * 1e2))
+            delta_end = delta_begin + datetime.timedelta(hours=_hour_ts)
+
+            if scope:
+                identifier = (scope.HOUR, _hour_ts)
+
+        # week-level window
+        elif timedelta.TimeWindow.SIX_HOURS < window < timedelta.TimeWindow.MONTH:
+
+            _week_ts = window - (timedelta.TimeWindow.ONE_WEEK - 1)
+            split = delta.split(self.engine._chunk_separator)
+            year, week = int(split[0]), int(split[1])
+
+            delta_begin = datetime.datetime.strptime("%04d-%02d-1" % (year, week), "%Y-%W-%w")
+            delta_end = delta_begin + (datetime.timedelta(days=(7 * _week_ts)))
+
+            if scope:
+                identifier = (scope.WEEK, _week_ts)
+
+        # month-level window
+        elif timedelta.TimeWindow.SIX_WEEKS < window < timedelta.TimeWindow.YEAR:
+
+            split = delta.split(self.engine._chunk_separator)
+            year, month = int(split[0]), int(split[1])
+
+            delta_begin = datetime.datetime(year=year, month=month, day=1)
+
+            month_delta = (window - (timedelta.TimeWindow.MONTH - 1))
+            if month + month_delta > 12:
+                delta_end = datetime.datetime(year=(year + 1), month=((month + month_delta) - 12))
+            else:
+                delta_end = datetime.datetime(year=year, month=(month + month_delta))
+
+            if scope:
+                identifier = (scope.MONTH, month_delta)
+
+        else:
+            raise ValueError('Invalid window `%s` provided to `resolve_timewindow`.' % window)
+
+        if not scope:
+            identifier = window
+
+        return identifier, (delta_begin, delta_end)
 
     ## == Tracker Internals == ##
     def resolve(self, raw, base_policy=None, legacy=False):
@@ -144,7 +226,7 @@ class Tracker(Platform):
 
             :returns: The newly-created :py:class:`endpoint.Tracker`. '''
 
-        pass
+        raise NotImplementedError('Tracker platform method `provision` is currently stubbed.')
 
     ## == Dispatch Hooks == ##
     def pre_dispatch(self, handler):
