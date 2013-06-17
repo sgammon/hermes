@@ -219,7 +219,7 @@ class PolicyEngine(PlatformBridge):
             if name is False:  # default to using parameter full name
                 name = prm.name
 
-            if name in (None, False, '', [], set()) or not isinstance(name, basestring):
+            if name in (None, False, '', [], set()) or not isinstance(name, (basestring, list, set, tuple, frozenset)):
                 raise exceptions.InvalidParamName("Invalid property name for parameter '%s'."
                                                   " Found name of type '%s'." % (parameter, type(name)))
 
@@ -336,6 +336,8 @@ class PolicyEngine(PlatformBridge):
             :py:class:`model.event.TrackedEvent`, assuming related policy
             applies properly, and the ``raw`` event and ``tracker``
             associated with it, in the form of: ``tuple(<raw>, <tracker>, <event>)``. '''
+
+        import pdb; pdb.set_trace()
 
         # resolve tracker, build raw event
         raw, pipe = self.bus.event.raw(data, policy=base_policy, legacy=legacy)
