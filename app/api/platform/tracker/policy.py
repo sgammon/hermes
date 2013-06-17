@@ -271,24 +271,37 @@ class PolicyEngine(PlatformBridge):
             yield artifacts[i], converters[i], data[i]  # grab parameter, converter and value
 
         # check for iterable names
-        for param in artifacts.values():
-            if isinstance(param.name, (set, tuple, list, frozenset)):
-                for n in param.name:
-                    if n in _done:
+        for _id, param in artifacts.iteritems():
+            if isinstance(param.config.get('name', name), (set, tuple, list, frozenset)):
+                for next in param.config.get('name', name):
+                    if next in _done:
                         continue
-                    if n in parameters:
-                        yield artifacts[param], converters[param], data[param]
+                    if next in parameters:
+                        _done.add(_id)
+                        valid.add(_id)
+                        if _id in no_value: no_value.remove(_id)
+                        if _id in no_schema: no_value.remove(_id)
+                        yield artifacts[_id], converters[_id], data[next]
 
         if no_value or no_schema:  # process invalid parameters, if any
 
             for i in no_value:
+
                 param = artifacts[i]  # grab parameter
-                message = 'Expected property "%s" (at name "%s") was not found.'
+
+                if isinstance(prm.config.get('name'), (list, set, frozenset, tuple)):
+                    prm_n = prm.config.get('name')
+                    context = [param.name, i, ', '.join(map(lambda s: '"%s"' % s, prm_n))]
+                    message = 'Expected property "%s" (at name options %s) was not found.'
+
+                else:
+                    context = [param.name, i]
+                    message = 'Expected property "%s" (at name "%s") was not found.'
 
                 # check if this is an enforced/required property
                 if prm.config.get('policy', parameter.ParameterPolicy.OPTIONAL) in (
                         parameter.ParameterPolicy.REQUIRED, parameter.ParameterPolicy.ENFORCED):
-                    yield param, exceptions.MissingParameter, (message, param.name, i)
+                    yield param, exceptions.MissingParameter, [message] + context
 
                 else:
                     # if it's not a strict field, don't except
@@ -336,8 +349,6 @@ class PolicyEngine(PlatformBridge):
             :py:class:`model.event.TrackedEvent`, assuming related policy
             applies properly, and the ``raw`` event and ``tracker``
             associated with it, in the form of: ``tuple(<raw>, <tracker>, <event>)``. '''
-
-        import pdb; pdb.set_trace()
 
         # resolve tracker, build raw event
         raw, pipe = self.bus.event.raw(data, policy=base_policy, legacy=legacy)
