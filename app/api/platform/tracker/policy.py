@@ -262,7 +262,7 @@ class PolicyEngine(PlatformBridge):
         parameters = frozenset(data.keys())  # grab and freeze data parameters
 
         valid = expected & parameters  # match all valid parameters via set intersection
-        no_value = expected - (parameters - valid)  # match spec'd parameters with no present value
+        no_value = expected - valid  # match spec'd parameters with no present value
         no_schema = parameters - expected  # match parameters with no presence in the spec
 
         _done = set()
