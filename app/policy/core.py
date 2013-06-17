@@ -14,6 +14,7 @@ Description coming soon.
 from protocol import meta
 
 # protocol extensions
+from protocol import transport
 from protocol import parameter
 from protocol import integration
 from protocol import attribution
@@ -67,7 +68,7 @@ class Profile(type):
                 the given ``profile`` for future work.
 
                 :param profile: :py:class:`EventProfile` subclass
-                                to interpret or merge.
+                to interpret or merge.
 
                 :returns: Nothing, this is a constructor. '''
 
@@ -80,12 +81,14 @@ class Profile(type):
                 definition.
 
                 :param policy: Parent policy class (derivative of
-                               :py:class:`EventProfile`) that we
-                               are processing for, so we can
-                               inform sub-objects.
+                :py:class:`EventProfile`) that we are processing
+                for, so we can inform sub-objects.
 
                 :param group: The :py:class:`ParameterGroup`
-                              subclass to compile.
+                subclass to compile.
+
+                :param klass: Encapsulating policy definition
+                class that we're building for.
 
                 :return: An instantiated and properly filled-out
                         :py:class:`ParameterGroup` object. '''
@@ -211,11 +214,19 @@ class Profile(type):
                 spec.set_owner(owner)
             return spec
 
+        def _build_configuration(self, policy, spec, klass, inline=False):
+
+            ''' Build a ``Configuration`` object from a specification
+                encountered in a subclass of :py:class:`EventProfile`. '''
+
+            return spec
+
         _builders = {
             integration.Integration: ('integrations', _build_integration),
             attribution.Attribution: ('attributions', _build_attribution),
             aggregation.Aggregation: ('aggregations', _build_aggregation),
-            parameter.ParameterGroup: ('parameters', _build_paramgroup)
+            parameter.ParameterGroup: ('parameters', _build_paramgroup),
+            transport.TransportConfig: ('configuration', _build_configuration)
         }
 
         ## == Public Methods == ##
@@ -232,7 +243,8 @@ class Profile(type):
                 'parameters': [],
                 'aggregations': [],
                 'attributions': [],
-                'integrations': []
+                'integrations': [],
+                'configuration': []
             }
 
             for (parent, subspecs) in self.__profile__.iteritems():

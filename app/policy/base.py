@@ -16,9 +16,9 @@ from policy import core
 # protocol bindings
 from protocol import http
 from protocol import event
-from protocol import intake
 from protocol import builtin
 from protocol import timedelta
+from protocol import transport
 from protocol import environment
 
 # protocol extensions
@@ -34,10 +34,12 @@ from protocol import aggregation
 _DEFAULT_COOKIE_NAME = "_amp"
 
 # Default attribution / aggregation lookback window
-_DEFAULT_LOOKBACK = (timedelta.TimeWindow.ONE_DAY,
+_DEFAULT_LOOKBACK = (timedelta.TimeWindow.ONE_HOUR,
+                     timedelta.TimeWindow.ONE_DAY,
                      timedelta.TimeWindow.ONE_WEEK,
                      timedelta.TimeWindow.TWO_WEEKS,
                      timedelta.TimeWindow.FOUR_WEEKS,
+                     timedelta.TimeWindow.YEAR,
                      timedelta.TimeWindow.FOREVER)
 
 
@@ -48,6 +50,27 @@ class EventProfile(core.AbstractProfile):
     ''' Root concrete :py:class:`EventProfile` class. This is
         the eventual inheritance target for all ``EventProfile``
         classes. '''
+
+    class BaseRPCConfig(transport.TransportConfig):
+
+        ''' Specifies transport settings for the builtin
+            RPC transport context. '''
+
+        response_mode = transport.HTTPResponseMode.EXPLICIT
+
+    class BaseJSConfig(transport.TransportConfig):
+
+        ''' Specifies transport settings for the
+            JS transport context. '''
+
+        response_mode = transport.HTTPResponseMode.BEACON
+
+    class BaseHTTPConfig(transport.HTTPTransportConfig):
+
+        ''' Specifies transport settings for the builtin
+            HTTP transport context. '''
+
+        response_mode = transport.HTTPResponseMode.BEACON
 
     class Base(parameter.ParameterGroup):
 
@@ -73,15 +96,6 @@ class EventProfile(core.AbstractProfile):
             ]
         }
 
-        # Mode: describes how to respond to base hits.
-        mode = int, {
-            'policy': parameter.ParameterPolicy.OPTIONAL,
-            'source': http.DataSlot.HEADER,
-            'binding': response.ResponseMode,
-            'name': builtin.TrackerHeaders.RESPONSE_MODE,
-            'category': parameter.ParameterType.INTERNAL
-        }
-
         # Provider: represents the ID string of the provider of this hit.
         provider = basestring, {
             'policy': parameter.ParameterPolicy.OPTIONAL,
@@ -102,12 +116,11 @@ class EventProfile(core.AbstractProfile):
             'category': parameter.ParameterType.AMPUSH,
             'aggregations': [
                 aggregation.Aggregation('events-by-tracker',
-                    interval=(timedelta.TimeWindow.TWO_WEEKS, timedelta.TimeWindow.FOUR_WEEKS),
-                    permutations=[
-                        ('by-type', 'Base.TYPE'),
-                        ('by-provider', 'Base.PROVIDER')
-                    ]
-                )
+                                        interval=(timedelta.TimeWindow.TWO_WEEKS, timedelta.TimeWindow.FOUR_WEEKS),
+                                        permutations=[
+                                            ('by-type', 'Base.TYPE'),
+                                            ('by-provider', 'Base.PROVIDER')
+                                        ])
             ]
         }
 
@@ -172,18 +185,6 @@ class EventProfile(core.AbstractProfile):
                     ('by-provider-by-type', ('Base.PROVIDER', 'Base.TYPE'))
                 ])
             ]
-        }
-
-    class System(parameter.ParameterGroup):
-
-        ''' Parameter group for system state/configuration. '''
-
-        channel = int, {
-            'policy': parameter.ParameterPolicy.SPECIAL,
-            'source': http.DataSlot.HEADER,
-            'name': 'XAF-Channel',
-            'category': parameter.ParameterType.INTERNAL,
-            'binding': intake.InputChannel
         }
 
     class Funnel(parameter.ParameterGroup):

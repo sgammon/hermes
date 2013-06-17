@@ -15,7 +15,7 @@ from policy.base import EventProfile
 
 # protocol suite
 from protocol import event
-from protocol import intake
+from protocol import transport
 from protocol.decorators import param
 from protocol.parameter.group import ParameterGroup
 
@@ -27,17 +27,16 @@ class Conversion(EventProfile):
     ''' Event Profile describing the basic case for a
         **conversion**. '''
 
+    class BaseHTTPConfig(transport.HTTPTransportConfig):
+
+        ''' Specifies transport settings for the builtin
+            HTTP transport context. '''
+
+        response_mode = transport.HTTPResponseMode.IMG
+
     @param.values
     class Base(ParameterGroup):
 
         ''' Parameter group for base tracker parameters. '''
 
         type = event.EventType.CONVERSION
-
-    @param.values
-    class System(ParameterGroup):
-
-        ''' Indicate the input channel for 'CONVERSION'. '''
-
-        # Channel: conversions usually come in through HTTP.
-        channel = intake.InputChannel.HTTP

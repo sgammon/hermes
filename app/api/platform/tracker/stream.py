@@ -37,13 +37,13 @@ class EventStream(PlatformBridge):
             such that it is suitable for publishing via pub/sub.
 
             :param message: ``protorpc.Message``, due to be
-                            published via pub/sub.
+            published via pub/sub.
 
             :keyword error: Flag indicating this message is
-                            an error. Defaults to ``False``.
+            an error. Defaults to ``False``.
 
             :returns: A ``dict`` representing the wrapped,
-                      serialized ``protorpc.Message``. '''
+            serialized ``protorpc.Message``. '''
 
         if hasattr(message, 'id') and message.id is not None:
             eid = message.id
@@ -65,24 +65,20 @@ class EventStream(PlatformBridge):
             a blobbed blob to publish.
 
             :param blob: ``dict``, due to be published
-                         via pub/sub.
+            via pub/sub.
 
             :param context: Iterable containing key=>value pairs
-                            for other channel permutations to
-                            publish on.
+            for other channel permutations to publish on.
 
             :keyword error: Flag ``bool`` that indicates whether
-                            we are generating error channels.
-                            Defaults to ``False``.
+            we are generating error channels. Defaults to ``False``.
 
             :keyword propagate: Flag ``bool`` that indicates
-                                whether we should propagate
-                                this event to higher-order
-                                eventstreams. Defaults to
-                                ``True``.
+            whether we should propagate this event to higher-order
+            eventstreams. Defaults to ``True``.
 
             :returns: A list of channels to publish the given
-                      ``blob`` to. '''
+            ``blob`` to. '''
 
         channels = []
         channel_template = ['__channel__']
@@ -122,16 +118,19 @@ class EventStream(PlatformBridge):
             message counter, last message timestamp and client list.
 
             :param channel: String channel name to retrieve stats for.
-                            Passing ``None`` indicates a desire for
-                            global *Event Stream* statistics.
+            Passing ``None`` indicates a desire for global
+            *Event Stream* statistics.
 
             :raises ValueError: In the case of an invalid or unknown
-                                channel.
+            channel.
+
+            :raises NotImplementedError: Always, as this method is
+            currently stubbed.
 
             :returns: Record ``dict`` describing the requested statistics,
-                      like: ``{'rate': 50, 'count': 100, 'clients': {'count': 2, 'list': ['one', 'two']}}`` '''
+            like: ``{'rate': 50, 'count': 100, 'clients': {'count': 2, 'list': ['one', 'two']}}`` '''
 
-        pass
+        raise NotImplementedError('EventStream method `stats` is currently stubbed.')
 
     def publish(self, ev, error=False, execute=True, pipeline=None, propagate=True):
 
@@ -140,34 +139,40 @@ class EventStream(PlatformBridge):
             :py:class:`models.tracker.event.TrackedEvent` are supported
             for publishing.
 
-            :param event: :py:class:`models.tracker.event.RawEvent` or
-                          :py:class:`models.tracker.event.TrackedEvent` to
-                          publish.
+            :param ev: :py:class:`models.tracker.event.RawEvent` or
+            :py:class:`models.tracker.event.TrackedEvent` to publish.
 
             :keyword error: Indicates that we're publishing an event describing
-                          the attached hit as an ``error``. Defaults to ``False``
-                          in a humerous attempt at optimism.
+            the attached hit as an ``error``. Defaults to ``False`` in a
+            humerous attempt at optimism.
 
-            :keyword execute:
-            :keyword pipeline:
+            :param execute: Flag (``bool``) indicating whether we wish the
+            passed-in/constructed ``pipeline`` to be flushed after the
+            end of the ``publish`` cycle.
 
-            :keyword propagate: Boolean (defaulting to ``True``) indicating
-                              whether this publish should propagate globally.
+            :param pipeline: Pipeline to execute the write against, in place
+            of the mainline driver. Defailts to ``None``.
+
+            :param propagate: Boolean (defaulting to ``True``) indicating
+            whether this publish should propagate globally.
 
             :returns: The ``event`` that was handed in and published. '''
-
-        # convert event to a message
-        blobbed_event = self._build_envelope(ev.to_message(), error)
 
         # build context
         if isinstance(ev, raw.Event) or (isinstance(ev, model.Key) and ev.kind == raw.Event.kind()):
             context = ['raw']
+            blobbed_event = self._build_envelope(ev.to_message(), error)
 
         elif isinstance(ev, event.TrackedEvent) or (isinstance(ev, model.Key) and ev.kind == event.TrackedEvent.kind()):
             context = [('stream', 'full')]
+            if isinstance(ev, model.Key):
+                blobbed_event = self._build_envelope(ev.to_message(), error)
+            else:
+                blobbed_event = self._build_envelope(ev.key.to_message(), error)
 
         else:
             context = tuple()
+            blobbed_event = self._build_envelope(ev.to_message(), error)
 
         # distribute to appropriate channels
         result = self.bus.engine.publish(self._generate_channels(blobbed_event, context, error, propagate), blobbed_event, execute, pipeline)
@@ -185,14 +190,14 @@ class EventStream(PlatformBridge):
             to the global *Event Stream*.
 
             :param stream: String channel name (``"coolchannel"``), regex channel name
-                           (``r"coolch*"``) or iterable of those. Defaults to ``None``,
-                           indicating a global ``EventTracker`` subscription is desired.
+            (``r"coolch*"``) or iterable of those. Defaults to ``None``, indicating a
+            global ``EventTracker`` subscription is desired.
 
-            :keyword _start: Immediately schedule the subscription ``Greenlet`` for
-                             execution, before returning. Defaults to ``True``.
+            :param _start: Immediately schedule the subscription ``Greenlet`` for
+            execution, before returning. Defaults to ``True``.
 
             :returns: Result of the low-level subscribe operation, and the new ``Greenlet``
-                      which will do the listening. '''
+            which will do the listening. '''
 
         ## @TODO(sgammon): Build subscription functionality into the eventstream core.
-        pass
+        raise NotImplementedError('Internal method `subscribe` is currently stubbed.')

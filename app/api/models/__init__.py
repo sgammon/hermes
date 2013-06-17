@@ -12,13 +12,17 @@ converted to ProtoRPC messages, JSON structures, dictionaries, and more.
           embedded licenses and other legalese, see `LICENSE.md`.
 '''
 
+# stdlib
+import datetime
+
 # apptools model
 from apptools import model
 
 
+## Test for Redis support
 try:
     import redis; _REDIS = True
-except ImportError:
+except ImportError:  # pragma: no cover
     _REDIS = False
 
 
@@ -30,4 +34,6 @@ class TrackerModel(model.Model):
 
     __adapter__ = "RedisAdapter" if _REDIS else "InMemoryAdapter"
 
-    pass
+    # == Timestamps == #
+    modified = datetime.datetime, {'auto_now': True}  # timestamp for when this was last modified
+    created = datetime.datetime, {'auto_now_add': True}  # timestamp for when this was first saved

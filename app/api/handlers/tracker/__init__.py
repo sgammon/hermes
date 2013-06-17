@@ -63,6 +63,10 @@ class TrackerEndpoint(WebHandler):
             # underlying storage doesn't support pipelining, publish key
             pipe = self.tracker.stream.publish(evkey, execute=False, pipeline=pipe, propagate=True)
 
+            # if we have an active pipeline, it's time to flush...
+            if pipe:
+                pipe.execute()
+
             # return everything or nothing according to settings
             if explicit:
                 return policy, raw, event

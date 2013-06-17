@@ -11,23 +11,18 @@ endpoint for tracking events of a certain profile or type.
 
 '''
 
-# stdlib
-import time
-import datetime
-
 # apptools models
-from apptools import model
 from api.models import TrackerModel
 
-# hermes models
-from api.models.tracker import profile
 
-
-## Tracker
+## Tracker - discrete endpoint for recording :py:class:`event.TrackedEvent`s against a given :py:class:`Profile`.
 class Tracker(TrackerModel):
 
-    ''' A discrete endpoint for `EventTracker`. '''
+    ''' A discrete endpoint for `EventTracker`. Referenced from
+        :py:class:`event.TrackedEvent` via a key ID reference
+        at :py:attr:`TrackedEvent.tracker`. '''
 
-    scope = model.Key, {'indexed': True}  # scoped owner of this tracker: can be a client, contract, ad, etc.
-    templates = dict, {'indexed': False}  # templates for each event type: CUSTOM _or_ IMPRESSION/CLICK/CONVERSION
-    profiles = profile.Profile, {'repeated': True, 'indexed': True}  # profiles linked to this tracker
+    scope = basestring, {'indexed': True, 'default': None}  # scoped owner of this tracker
+    profile = basestring, {'indexed': True, 'default': None}  # profile for processing events
+    account = basestring, {'indexed': True, 'default': None}  # account ID, if any, attached to this tracker
+    adgroup = basestring, {'indexed': True, 'default': None}  # adgroup ID, if any, attached to this tracker

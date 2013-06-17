@@ -90,6 +90,12 @@ class Aggregation(meta.ProtocolBinding):
         })._setcondition(cls.config.get('debug', True))
 
     ## == Timewindow Builders == ##
+    def _hour_timewindow(self, window, stamp):
+
+        ''' Build a timewindow for an hour. '''
+
+        return str(int(time.mktime(stamp.date().timetuple())))
+
     def _day_timewindow(self, window, stamp):
 
         ''' Build a timewindow for a day. '''
@@ -104,7 +110,7 @@ class Aggregation(meta.ProtocolBinding):
         # like: ``<year>:<week #>``
         calendar = stamp.date().isocalendar()
         if window != timedelta.TimeWindow.ONE_WEEK:
-            return self._WINDOW_SEPARATOR.join(map(unicode, list(calendar[:-1]) + [(window - 1) + calendar[1]]))
+            return self._WINDOW_SEPARATOR.join(map(unicode, list(calendar[:-1]) + [(window - 7) + calendar[1]]))
         return self._WINDOW_SEPARATOR.join(map(unicode, calendar[:-1]))
 
     def _month_timewindow(self, window, stamp):
@@ -113,7 +119,7 @@ class Aggregation(meta.ProtocolBinding):
 
         # like: ``<year>:<month>``
         if window != timedelta.TimeWindow.ONE_MONTH:
-            return self._WINDOW_SEPARATOR.join(map(unicode, (stamp.year, stamp.month, (stamp.month + (window - 7)))))
+            return self._WINDOW_SEPARATOR.join(map(unicode, (stamp.year, stamp.month, (stamp.month + (window - 13)))))
         return self._WINDOW_SEPARATOR.join(map(unicode, (stamp.year, stamp.month)))
 
     def _year_timewindow(self, window, stamp):
@@ -130,6 +136,12 @@ class Aggregation(meta.ProtocolBinding):
 
     _window_builders = {
         timedelta.TimeWindow.ONE_DAY: _day_timewindow,
+        timedelta.TimeWindow.ONE_HOUR: _hour_timewindow,
+        timedelta.TimeWindow.TWO_HOURS: _hour_timewindow,
+        timedelta.TimeWindow.THREE_HOURS: _hour_timewindow,
+        timedelta.TimeWindow.FOUR_HOURS: _hour_timewindow,
+        timedelta.TimeWindow.FIVE_MONTHS: _hour_timewindow,
+        timedelta.TimeWindow.SIX_MONTHS: _hour_timewindow,
         timedelta.TimeWindow.ONE_WEEK: _week_timewindow,
         timedelta.TimeWindow.TWO_WEEKS: _week_timewindow,
         timedelta.TimeWindow.THREE_WEEKS: _week_timewindow,
