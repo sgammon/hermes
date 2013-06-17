@@ -43,6 +43,13 @@ class EventEngine(PlatformBridge):
         propagation of data to underlying
         storage mechanisms. '''
 
+    # magic string identifiers
+    _id_prefix = redis.RedisAdapter._id_prefix
+    _meta_prefix = redis.RedisAdapter._meta_prefix
+    _kind_prefix = redis.RedisAdapter._kind_prefix
+    _magic_separator = redis.RedisAdapter._magic_separator
+    _path_separator = redis.RedisAdapter._path_separator
+
     ## Datastore - static, encapsulated adapter import.
     class Datastore(object):
 

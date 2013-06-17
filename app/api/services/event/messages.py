@@ -13,6 +13,82 @@ Event Data API: Messages
 from apptools import rpc
 from apptools import model
 
+# messages
+from api.messages import edge
+
+# event models
+from api.models.tracker import event
+
+
+## EventQuery
+# Holds query parameters for an :py:class:`EventRange` query.
+class EventQuery(rpc.messages.Message):
+
+    ''' Query events by properties like start/end range,
+        and tracker ID. Allows arbitrary filters. '''
+
+    class QueryOptions(rpc.messages.Message):
+
+        ''' Enumerates options that can be added to a
+            :py:class:`EventQuery`. '''
+
+        keys_only = rpc.messages.BooleanField(1, default=False)
+        ancestor = rpc.messages.MessageField(model.Key.to_message_model(), 2)
+        limit = rpc.messages.IntegerField(3, default=0)
+        offset = rpc.messages.IntegerField(4, default=0)
+        projection = rpc.messages.StringField(5, repeated=True)
+        cursor = rpc.messages.StringField(6)
+
+    class SortDirective(rpc.messages.Message):
+
+        ''' Directs the query engine to sort results
+            according to an arbitrary tuple of
+            ``(property, direction)``. '''
+
+        class SortOperator(rpc.messages.Enum):
+
+            ''' Enumerates direction options (``ASC`` and ``DSC``)
+                for sort directives part of an :py:class:`EventQuery`. '''
+
+            ASCENDING = 0
+            DESCENDING = 1
+
+        property = rpc.messages.StringField(1, required=True)
+        operator = rpc.messages.EnumField(SortOperator, 2, default=SortOperator.ASCENDING)
+
+    class FilterDirective(rpc.messages.Message):
+
+        ''' Directs the query engine to filter results with
+            an arbitrary tuple of ``(property, operator, value)``. '''
+
+        class FilterOperator(rpc.messages.Enum):
+
+            ''' Enumerates operators allowed in a filter statement,
+                as part of a :py:class:`FilterDirective` embedded
+                in a :py:class:`EventQuery`. '''
+
+            EQUALS = 0
+            NOT_EQUALS = 1
+            GREATER_THAN = 2
+            GREATER_THAN_EQUAL_TO = 3
+            LESS_THAN = 4
+            LESS_THAN_EQUAL_TO = 5
+            IN = 6
+
+        property = rpc.messages.StringField(1, required=True)
+        operator = rpc.messages.EnumField(FilterOperator, 2, default=FilterOperator.EQUALS)
+        value = rpc.messages.VariantField(3, required=True)
+
+    # builtin query parameters
+    tracker = rpc.messages.StringField(1)
+    start = rpc.messages.StringField(2)
+    end = rpc.messages.StringField(3)
+
+    # query directives + options
+    sort = rpc.messages.MessageField(SortDirective, 4, repeated=True)
+    filter = rpc.messages.MessageField(FilterDirective, 5, repeated=True)
+    options = rpc.messages.MessageField(QueryOptions, 6)
+
 
 ## EventKeys
 # Holds multiple keys for :py:class:`event.TrackedEvent` models.
@@ -23,6 +99,7 @@ class EventKeys(rpc.messages.Message):
 
     count = rpc.messages.IntegerField(1)
     keys = rpc.messages.MessageField(model.Key.to_message_model(), 2, repeated=True)
+    range = rpc.messages.IntegerField(3, repeated=True)  # 2-member array of timestamp ints, like: ``[start, end]``
 
 
 ## EventRange
@@ -32,7 +109,14 @@ class EventRange(rpc.messages.Message):
     ''' Expresses a range of requested :py:class:`event.TrackedEvent`
         models, either as a request or a response. '''
 
-    pass
+    # range data
+    start = rpc.messages.IntegerField(1)
+    end = rpc.messages.IntegerField(2)
+    data = rpc.messages.MessageField(event.TrackedEvent.to_message_model(), 3, repeated=True)
+
+    # edges
+    aggregations = rpc.messages.MessageField(edge.AggregationGroup, 4, repeated=True)
+    attributions = rpc.messages.MessageField(edge.AttributionGroup, 5, repeated=True)
 
 
 ## Events

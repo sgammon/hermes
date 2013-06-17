@@ -99,6 +99,13 @@ class Tracker(Platform):
 
         return inject_tracker
 
+    ## == Utilities == ##
+    def resolve_timewindow(self, window, delta):
+
+        ''' Resolves a timewindow. '''
+
+        pass
+
     ## == Tracker Internals == ##
     def resolve(self, raw, base_policy=None, legacy=False):
 

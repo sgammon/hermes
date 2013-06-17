@@ -11,5 +11,5 @@ serialization of responses via ProtoRPC.
           embedded licenses and other legalese, see `LICENSE.md`.
 '''
 
-# protorpc
-from protorpc import messages
+# apptools rpc
+from apptools import rpc
