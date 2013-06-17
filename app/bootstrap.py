@@ -146,12 +146,14 @@ class AppBootstrapper(object):
 
         # ==== API Models ==== #
         from api import models
-        from api.models import harness
 
         try:
             # Tracker Models
             from api.models import tracker
-            from api.models import harness
+            from api.models.tracker import raw
+            from api.models.tracker import event
+            from api.models.tracker import pubsub
+            from api.models.tracker import endpoint
         except:
             if _DEBUG:
                 raise

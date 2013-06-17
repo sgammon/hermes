@@ -55,8 +55,6 @@ class RawDataService(rpc.Service):
                 raise self.exceptions.invalid_key('Must provide either a URLsafe-encoded '
                                                   '`model.Key` or valid `model.Key` ID.')
 
-            import pdb; pdb.set_trace()
-
             # pull event
             raw_ev = raw.Event.get(key)
 
