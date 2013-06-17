@@ -49,7 +49,7 @@ class StateFarm(base.EventProfile):
         level1 = bool, {
             'policy': parameter.ParameterPolicy.OPTIONAL,
             'source': http.DataSlot.PARAM,
-            'name': 'conv1'
+            'name': ('conv1', 'c1')
         }
 
         level2 = bool, {

@@ -219,9 +219,12 @@ class PolicyEngine(PlatformBridge):
             if name is False:  # default to using parameter full name
                 name = prm.name
 
-            if name in (None, False, '') or not isinstance(name, basestring):
+            if name in (None, False, '', [], set()) or not isinstance(name, basestring):
                 raise exceptions.InvalidParamName("Invalid property name for parameter '%s'."
                                                   " Found name of type '%s'." % (parameter, type(name)))
+
+            if isinstance(name, (set, tuple, list, frozenset)):
+                name = name[0]  # start with first available name
 
             # resolve value converter
             if prm.basetype is not None:
@@ -262,8 +265,19 @@ class PolicyEngine(PlatformBridge):
         no_value = expected - (parameters - valid)  # match spec'd parameters with no present value
         no_schema = parameters - expected  # match parameters with no presence in the spec
 
+        _done = set()
         for i in valid:  # process valid parameters
+            _done.add(i)
             yield artifacts[i], converters[i], data[i]  # grab parameter, converter and value
+
+        # check for iterable names
+        for param in artifacts.values():
+            if isinstance(param.name, (set, tuple, list, frozenset)):
+                for n in param.name:
+                    if n in _done:
+                        continue
+                    if n in parameters:
+                        yield artifacts[param], converters[param], data[param]
 
         if no_value or no_schema:  # process invalid parameters, if any
 
