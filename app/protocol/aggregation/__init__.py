@@ -224,6 +224,9 @@ class Aggregation(meta.ProtocolBinding):
 
             # build owner properties
             owners = []
+            if not isinstance(props, (list, set, frozenset, tuple)):
+                props = (props,)
+
             for prop in props:
                 owners.append(policy.resolve_parameter(prop))
 
@@ -255,8 +258,8 @@ class Aggregation(meta.ProtocolBinding):
         # build local aggregation
         yield self._build_spec(policy, event)
 
-        #for perm, spec in self._build_perms(policy, event):
-        #    yield perm, spec
+        for perm, spec in self._build_perms(policy, event):
+            yield perm, spec
 
     def __call__(self, policy, event):
 

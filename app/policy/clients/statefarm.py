@@ -41,6 +41,7 @@ class StateFarm(base.EventProfile):
     ''' Models StateFarm stuff. '''
 
     refcode = 'statefarmrec'
+    account_id = 'act_123456'
 
     class ConversionLevel(parameter.ParameterGroup):
 
@@ -85,12 +86,6 @@ class StateFarm(base.EventProfile):
             'policy': parameter.ParameterPolicy.OPTIONAL,
             'source': http.DataSlot.PARAM,
             'name': 'ref'
-        }
-
-        adgroup = basestring, {
-            'policy': parameter.ParameterPolicy.REQUIRED,
-            'source': http.DataSlot.PARAM,
-            'name': 'asid'
         }
 
 

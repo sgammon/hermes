@@ -29,11 +29,13 @@ class TrackerService(rpc.Service):
         the creation/management of :py:class:`Tracker` objects, the
         retrieval of runtime statistics, and other platform-wide utils. '''
 
+    name = 'tracker'
     _config_path = 'hermes.api.tracker.TrackerAPI'
 
     exceptions = rpc.Exceptions(**{
         'generic': exceptions.Error,
-        'tracker_not_found': exceptions.TrackerNotFound
+        'tracker_not_found': exceptions.TrackerNotFound,
+        'association_failed': exceptions.AssociationFailed
     })
 
     @rpc.method(model.Key, endpoint.Tracker)
@@ -73,7 +75,7 @@ class TrackerService(rpc.Service):
             :raises:
             :returns: '''
 
-        pass
+        raise self.exceptions.generic('Service method `profile` is currently stubbed.')
 
     @rpc.method(messages.Profiles)
     def profiles(self, request):
@@ -88,7 +90,7 @@ class TrackerService(rpc.Service):
 
         raise self.exceptions.generic('Service method `profiles` is currently stubbed.')
 
-    @rpc.method(messages.ProvisioningRequest, messages.TrackerSet)
+    @rpc.method(messages.ProvisioningRequest, endpoint.Tracker)
     def provision(self, request):
 
         ''' Provision a single :py:class:`Tracker`, according
@@ -98,4 +100,33 @@ class TrackerService(rpc.Service):
             :raises:
             :returns: '''
 
-        raise self.exceptions.generic('Service method `provision` is currently stubbed.')
+        return self.tracker.provision(profile=request.profile, account=request.account)
+
+    @rpc.method(messages.Association)
+    def associate(self, request):
+
+        ''' Associate a :py:class:`Tracker` with a given
+            ``adgroup_id``, or add an ``ASID``-type legacy
+            association to an ``adgroup_id``, via the special
+            adgroup/tracker mappings.
+
+            :param request:
+            :raises:
+            :returns: '''
+
+        try:
+
+            # call low-level association method
+            self.tracker.associate(request.adgroup, request.tracker, request.asid)
+
+        except Exception as e:
+
+            # raise client-valid exception
+            context = (e.__class__.__name__, str(e))
+            raise self.exceptions.association_failed('Association failed with exception "%s": %s.' % context)
+
+        return messages.Association(**{
+            'adgroup': request.adgroup,
+            'asid': request.asid,
+            'tracker': request.tracker
+        })

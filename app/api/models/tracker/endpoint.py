@@ -22,7 +22,5 @@ class Tracker(TrackerModel):
         :py:class:`event.TrackedEvent` via a key ID reference
         at :py:attr:`TrackedEvent.tracker`. '''
 
-    scope = basestring, {'indexed': True, 'default': None}  # scoped owner of this tracker
     profile = basestring, {'indexed': True, 'default': None}  # profile for processing events
     account = basestring, {'indexed': True, 'default': None}  # account ID, if any, attached to this tracker
-    adgroup = basestring, {'indexed': True, 'default': None}  # adgroup ID, if any, attached to this tracker

@@ -191,20 +191,16 @@ class EventProfile(core.AbstractProfile):
 
         ''' Models the ad/marketing funnel. '''
 
-        # Adgroup: The Ampush adgroup ID that generated this ``Event``, if any.
-        adgroup = basestring, {
-            'policy': parameter.ParameterPolicy.REQUIRED,
+        # ASID: Legacy tracking adgroup ID.
+        asid = basestring, {
+            'policy': parameter.ParameterPolicy.OPTIONAL,
             'source': http.DataSlot.PARAM,
-            'name': builtin.TrackerProtocol.ADGROUP,
-            'category': parameter.ParameterType.AMPUSH,
-            #'attributions': [
-            #    attribution.Attribution(name='hits-by-browser', interval=_DEFAULT_LOOKBACK, permutations=[
-            #        ('by-consumer', 'Consumer.FINGERPRINT')
-            #    ])
-            #],
+            'name': 'asid',
             'aggregations': [
-                aggregation.Aggregation(name='hits-by-browser', interval=_DEFAULT_LOOKBACK, permutations=[
-                    ('by-consumer', 'Consumer.FINGERPRINT')
+                aggregation.Aggregation('hits-by-adgroup', interval=_DEFAULT_LOOKBACK, permutations=[
+                    ('by-type', 'Base.TYPE'),
+                    ('by-provider', 'Base.PROVIDER'),
+                    ('by-provider-by-type', ('Base.PROVIDER', 'Base.TYPE'))
                 ])
             ]
         }

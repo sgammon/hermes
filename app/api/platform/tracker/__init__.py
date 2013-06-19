@@ -226,7 +226,36 @@ class Tracker(Platform):
 
             :returns: The newly-created :py:class:`endpoint.Tracker`. '''
 
-        raise NotImplementedError('Tracker platform method `provision` is currently stubbed.')
+        t = endpoint.Tracker(**kwargs)
+        t.put()
+        return t
+
+    def associate(self, adgroup, tracker=None, asid=None):
+
+        ''' Associate a :py:class:`Tracker` or a legacy
+            tracking ``ASID`` value with a given ``adgroup``
+            ID, making use of low-level storage mechanisms
+            to map the two values.
+
+            :param adgroup:
+            :param tracker:
+            :param asid:
+            :raises TypeError:
+            :returns: '''
+
+        if tracker and asid:
+            raise TypeError('Must provide either a `tracker` or `asid` to core '
+                            'platform method `associate`, but not both.')
+
+        if not tracker and not asid:
+            raise TypeError('Must provide either a `tracker` or `asid` to core '
+                            'platform method `associate`.')
+
+        if tracker:
+            return self.engine.set_item(self.engine._adgroup_map_key, adgroup, tracker)
+
+        if asid:
+            return self.engine.set_item(self.engine._asid_map_key, adgroup, asid)
 
     ## == Dispatch Hooks == ##
     def pre_dispatch(self, handler):

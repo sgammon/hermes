@@ -53,9 +53,10 @@ class TrackedEvent(TrackerModel):
     raw = basestring, {'required': True, 'indexed': False}  # linked raw event that generated this `TrackedEvent`
     params = dict, {'required': True, 'default': {}, 'indexed': False}  # raw paramset that came through with URL
 
-    ## == Type/Provider/Tracker == ##  # @TODO: Change string types to enums.
-    error = bool, {'required': False, 'indexed': True}  # error flag: flipped to ``True`` if an error was detected while processing
+    ## == Tracker/Policy == ##  # @TODO: Change string types to enums.
+    error = bool, {'required': False, 'indexed': True}  # error flag: flipped to ``True`` if an error was detected
     tracker = basestring, {'required': False, 'indexed': True}  # provisioned tracker that this event came through
+    profile = basestring, {'required': True, 'indexed': True}  # policy used to process this event
 
     ## == Messages == ##
     errors = basestring, {'repeated': True, 'indexed': False}  # error messages encountered processing this event

@@ -10,6 +10,9 @@ Description coming soon.
 
 '''
 
+# stdlib
+import os
+
 # protocol bindings
 from protocol import meta
 
@@ -338,6 +341,7 @@ class Profile(type):
 
             if 'refcode' in properties:
                 _klass['refcode'] = properties['refcode']
+                _klass['account_id'] = properties.get('account_id', _klass['refcode'])
 
             ## substitute our class definition
             properties = _klass
@@ -471,3 +475,32 @@ class AbstractProfile(object):
         for compound in [cls] + list(cls.__interpreter__.__chain__):
             for integration in compound.__interpreter__.integrations:
                 yield integration
+
+    @classmethod
+    def resolve_parameter(cls, qualified_path):
+
+        ''' Resolve a parameter object by its qualified
+            definition path. '''
+
+        import pdb; pdb.set_trace()
+
+        definition = None
+        split = qualified_path.split('.')
+
+        for compound in [cls] + list(cls.__interpreter__.__chain__):
+            for block in compound.__interpreter__.parameters:
+                if block.__definition__ == split[0]:
+                    definition = block
+                    break
+                continue
+            continue
+
+        if definition:
+            subj = split[1].lower()
+            for parameter in definition:
+                if isinstance(parameter, type(os)):
+                    continue  # skip modules (WHY?)
+                if parameter.name == subj:
+                    return parameter
+        return
+

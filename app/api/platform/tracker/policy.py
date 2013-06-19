@@ -364,6 +364,7 @@ class PolicyEngine(PlatformBridge):
             'params': {},
             'warnings': [],
             'errors': [],
+            'profile': base_policy.__definition__,
             'modified': datetime.datetime.now(),
             'created': datetime.datetime.now()
         })
@@ -461,7 +462,6 @@ class PolicyEngine(PlatformBridge):
                         # write each aggregation increment
                         pipe = self.bus.engine.increment(subspec, delta, pipe)
                         ev.aggregations.append(subspec)
-
 
             # calculate aggregation specs
             #for spec in base_policy.attributions:

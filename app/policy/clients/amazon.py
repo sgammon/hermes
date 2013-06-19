@@ -21,6 +21,7 @@ class Amazon(base.EventProfile):
     ''' Base profile for Amazon. '''
 
     refcode = 'amazon'
+    account_id = 'act_67890'
 
     class WhateverName(parameter.ParameterGroup):
 
