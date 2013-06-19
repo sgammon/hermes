@@ -12,6 +12,9 @@ Tracker API: Messages
 # RPC API
 from apptools import rpc
 
+# Endpoint Models
+from api.models.tracker import endpoint
+
 
 ## Profile - expresses a single descendent of :py:class:`policy.core.Profile`.
 class Profile(rpc.messages.Message):
@@ -38,8 +41,9 @@ class ProvisioningRequest(rpc.messages.Message):
         one (or multiple) :py:class:`endpoint.Tracker`
         model(s). '''
 
-    account = rpc.messages.StringField(1)
-    profile = rpc.messages.StringField(2)
+    owner = rpc.messages.StringField(1, required=True)
+    spec = rpc.messages.MessageField(endpoint.Tracker.to_message_model(), 2)
+    specs = rpc.messages.MessageField(endpoint.Tracker.to_message_model(), 3, repeated=True)
 
 
 ## TrackerSet - expresses a collection of :py:class:`Tracker` entities.
@@ -48,4 +52,5 @@ class TrackerSet(rpc.messages.Message):
     ''' Expresses a set of :py:class:`endpoint.Tracker`
         objects. '''
 
-    pass
+    count = rpc.messages.IntegerField(1, default=0)
+    trackers = rpc.messages.MessageField(endpoint.Tracker.to_message_model(), 3, repeated=True)

@@ -13,17 +13,21 @@ is the primary location for app-wide business logic.
 # stdlib
 import datetime
 
+# 3rd party
+from protorpc import messages
+
+# Protocol Suite
+from protocol import timedelta
+
 # Platform Parent
 from api.platform import Platform
 
-# apptools util
+# apptools
+from apptools import model
 from apptools.util import decorators
 
 # Tracker Models
 from api.models.tracker import endpoint
-
-# Protocol Suite
-from protocol import timedelta
 
 # Platform Bridges
 from api.platform.tracker import event
@@ -211,51 +215,83 @@ class Tracker(Platform):
 
         return raw, tracker
 
-    def provision(self, *args, **kwargs):
+    def provision(self, owner, specs, spec=None):
 
-        ''' Entrypoint for provisioning/creating a new
-            :py:class:`api.models.tracker.endpoint.Tracker`.
+        ''' Entrypoint for provisioning/creating new
+            :py:class:`api.models.tracker.endpoint.Tracker` objects.
 
-            :param *args: Positional arguments to pass to
-                          the :py:class:`endpoint.Tracker`
-                          construction routine.
+            :param owner: Parent owner of the :py:class:`endpoint.Tracker`
+            to be constructed. Must be of type ``basestring``. Raises
+            :py:exc:`ValueError` if another type of value is provided.
+            How it is used depends on the underlying driver.
 
-            :param **kwargs: Keyword arguments to pass to
-                             the :py:class:`endpoint.Tracker`
-                             construction routine.
+            :param specs: Iterable of ``object`` or ``dict``-like items
+            that should be expanded, ``**kwargs``-style, into trackers.
+            Generates/allocates one :py:class:`endpoint.Tracker` per spec.
 
-            :returns: The newly-created :py:class:`endpoint.Tracker`. '''
+            :param spec: Syntactic sugar for passing in a single spec. Using
+            this parameter is guaranteed to return only a single
+            :py:class:`endpoint.Tracker` - not an iterable.
 
-        t = endpoint.Tracker(**kwargs)
-        t.put()
-        return t
+            :raises TypeError: If ``owner`` is not of type
+            ``int`` or ``long``.
 
-    def associate(self, adgroup, tracker=None, asid=None):
+            :raises ValueError: If ``specs`` or ``spec`` receives an invalid
+            :py:class:`endpoint.Tracker` specification. Allowed types are
+            ``dict`` or ``message.Message``.
 
-        ''' Associate a :py:class:`Tracker` or a legacy
-            tracking ``ASID`` value with a given ``adgroup``
-            ID, making use of low-level storage mechanisms
-            to map the two values.
+            :returns: The newly-created :py:class:`endpoint.Tracker` objects,
+            in a ``list``. If one :py:class:`endpoint.Tracker` is requested, it is
+            returned directly - not in a one-item iterable. '''
 
-            :param adgroup:
-            :param tracker:
-            :param asid:
-            :raises TypeError:
-            :returns: '''
+        if not isinstance(owner, basestring):
+            raise TypeError('Argument `owner` to platform method `provision` must be of type `int` or `long`. '
+                            'Got: "%s".' % str(owner))
 
-        if tracker and asid:
-            raise TypeError('Must provide either a `tracker` or `asid` to core '
-                            'platform method `associate`, but not both.')
+        # provision tracker IDs
+        datastore = self.engine.Datastore.redis if self.engine._REDIS_ENABLED else self.engine.Datastore.inmemory
 
-        if not tracker and not asid:
-            raise TypeError('Must provide either a `tracker` or `asid` to core '
-                            'platform method `associate`.')
+        # make sure we have a clean iterable
+        if spec:
+            specs = [spec]
+        elif isinstance(specs, (dict, messages.Message)):
+            specs = [specs]
 
-        if tracker:
-            return self.engine.set_item(self.engine._adgroup_map_key, adgroup, tracker)
+        # synchronously provision IDs
+        ids = self.engine.adapter(datastore, endpoint.Tracker.kind()).allocate_ids(*(
+            owner,
+            endpoint.Tracker.kind(),
+            len(specs)
+        ))
 
-        if asid:
-            return self.engine.set_item(self.engine._asid_map_key, adgroup, asid)
+        _trackers, pipeline = [], self.engine.pipeline() if len(specs) > 1 else None
+        for spec, id in zip(specs, ids):
+
+            ## expand dictionary spec
+            if isinstance(spec, dict):
+                spec['key'], spec['owner'] = model.Key(endpoint.Tracker, id), id
+                t = endpoint.tracker(**spec)
+
+            ## expand message spec
+            elif isinstance(spec, messages.Message):
+                t = endpoint.Tracker(**{
+                    'key': model.Key(endpoint.Tracker, id),
+                    'owner': id,
+                    'profile': spec.profile
+                })
+
+            else:
+                raise ValueError('Argument `specs` or `spec` got an invalid spec for '
+                                 'provisioning a Tracker. Expected `dict` or `message.Message`. Got "%s".' % str(spec))
+
+            t.put(pipeline=pipeline)
+            _trackers.append(t)
+
+        if pipeline:  # execute pipeline and return
+            pipeline.execute()
+        if len(specs) is 1:  # return directly if only one was requested
+            return specs[0]
+        return _trackers
 
     ## == Dispatch Hooks == ##
     def pre_dispatch(self, handler):

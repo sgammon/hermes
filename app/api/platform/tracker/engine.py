@@ -42,6 +42,9 @@ class EventEngine(PlatformBridge):
         propagation of data to underlying
         storage mechanisms. '''
 
+    # flags
+    _REDIS_ENABLED = _REDIS
+
     # magic string identifiers
     _id_prefix = redis.RedisAdapter._id_prefix
     _meta_prefix = redis.RedisAdapter._meta_prefix

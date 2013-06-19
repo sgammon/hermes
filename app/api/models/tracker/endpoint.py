@@ -22,5 +22,5 @@ class Tracker(TrackerModel):
         :py:class:`event.TrackedEvent` via a key ID reference
         at :py:attr:`TrackedEvent.tracker`. '''
 
+    owner = basestring, {'indexed': True, 'required': True}  # account ID, if any, attached to this tracker
     profile = basestring, {'indexed': True, 'default': None}  # profile for processing events
-    account = basestring, {'indexed': True, 'default': None}  # account ID, if any, attached to this tracker

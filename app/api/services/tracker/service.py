@@ -34,7 +34,8 @@ class TrackerService(rpc.Service):
 
     exceptions = rpc.Exceptions(**{
         'generic': exceptions.Error,
-        'tracker_not_found': exceptions.TrackerNotFound
+        'tracker_not_found': exceptions.TrackerNotFound,
+        'provision_failed': exceptions.ProvisionFailed
     })
 
     @rpc.method(model.Key, endpoint.Tracker)
@@ -89,7 +90,7 @@ class TrackerService(rpc.Service):
 
         raise self.exceptions.generic('Service method `profiles` is currently stubbed.')
 
-    @rpc.method(messages.ProvisioningRequest, endpoint.Tracker)
+    @rpc.method(messages.ProvisioningRequest, messages.TrackerSet)
     def provision(self, request):
 
         ''' Provision a single :py:class:`Tracker`, according
@@ -99,4 +100,36 @@ class TrackerService(rpc.Service):
             :raises:
             :returns: '''
 
-        return self.tracker.provision(profile=request.profile, account=request.account)
+        import pdb; pdb.set_trace()
+
+        try:
+
+            # build a single tracker
+            if request.spec:
+
+                return messages.TrackerSet(**{
+                    'count': 1,
+                    'trackers': [
+                        self.tracker.provision(request.owner, spec=request.spec)
+                    ]
+                })
+
+            # build multiple trackers
+            if request.specs:
+
+                # build trackers
+                trackers = self.tracker.provision(request.owner, specs=request.specs)
+
+                # provision trackers
+                return messages.TrackerSet(**{
+                    'count': len(trackers),
+                    'trackers': trackers
+                })
+
+            else:
+                raise self.exceptions.provision_failed('Must provide parameter `spec` or `specs`.')
+
+        except Exception as e:
+            context = (e.__class__.__name__, str(e))
+            raise self.exceptions.provision_failed('Request to provision failed with '
+                                                   'exception: "%s". Message: "%s".' % context)
