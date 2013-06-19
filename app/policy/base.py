@@ -195,7 +195,7 @@ class EventProfile(core.AbstractProfile):
         asid = basestring, {
             'policy': parameter.ParameterPolicy.OPTIONAL,
             'source': http.DataSlot.PARAM,
-            'name': 'asid',
+            'name': ['asid', 'adid'],
             'aggregations': [
                 aggregation.Aggregation('hits-by-adgroup', interval=_DEFAULT_LOOKBACK, permutations=[
                     ('by-type', 'Base.TYPE'),

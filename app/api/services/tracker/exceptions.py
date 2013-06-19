@@ -23,7 +23,3 @@ class TrackerException(Error): pass
 
 ## TrackerNotFound - raised when an attempt to retrieve a :py:class:`Tracker` fails because it does not exist.
 class TrackerNotFound(TrackerException): ''' Raised when an expected :py:class:`Tracker` does not exist. '''
-
-
-## AssociationFailed - raised when an attempt to associate a :py:class:`Tracker` or ``ASID`` with an ``adgroup`` fails.
-class AssociationFailed(TrackerException): ''' Raised when an `associate` call fails. '''

@@ -49,14 +49,3 @@ class TrackerSet(rpc.messages.Message):
         objects. '''
 
     pass
-
-
-## Association - expresses an association between an ``adgroup`` and :py:class:`Tracker` or ``ASID``.
-class Association(rpc.messages.Message):
-
-    ''' Expresses an association between an ``adgroup``
-        and either a :py:class:`Tracker` or ``ASID``. '''
-
-    adgroup = rpc.messages.StringField(1)
-    asid = rpc.messages.StringField(2)
-    tracker = rpc.messages.StringField(3)

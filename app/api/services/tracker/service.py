@@ -101,32 +101,3 @@ class TrackerService(rpc.Service):
             :returns: '''
 
         return self.tracker.provision(profile=request.profile, account=request.account)
-
-    @rpc.method(messages.Association)
-    def associate(self, request):
-
-        ''' Associate a :py:class:`Tracker` with a given
-            ``adgroup_id``, or add an ``ASID``-type legacy
-            association to an ``adgroup_id``, via the special
-            adgroup/tracker mappings.
-
-            :param request:
-            :raises:
-            :returns: '''
-
-        try:
-
-            # call low-level association method
-            self.tracker.associate(request.adgroup, request.tracker, request.asid)
-
-        except Exception as e:
-
-            # raise client-valid exception
-            context = (e.__class__.__name__, str(e))
-            raise self.exceptions.association_failed('Association failed with exception "%s": %s.' % context)
-
-        return messages.Association(**{
-            'adgroup': request.adgroup,
-            'asid': request.asid,
-            'tracker': request.tracker
-        })
