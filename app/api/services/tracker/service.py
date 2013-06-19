@@ -34,8 +34,7 @@ class TrackerService(rpc.Service):
 
     exceptions = rpc.Exceptions(**{
         'generic': exceptions.Error,
-        'tracker_not_found': exceptions.TrackerNotFound,
-        'association_failed': exceptions.AssociationFailed
+        'tracker_not_found': exceptions.TrackerNotFound
     })
 
     @rpc.method(model.Key, endpoint.Tracker)
