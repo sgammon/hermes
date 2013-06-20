@@ -209,7 +209,7 @@ class PolicyEngine(PlatformBridge):
             classes. '''
 
         # initialize vars
-        paramset, artifacts, converters = [], {}, {}
+        paramset, artifacts, converters, _mappers = [], {}, {}, set()
 
         # gather parameter artifacts and long-form identifiers
         for prm in policy.parameters:
@@ -238,6 +238,7 @@ class PolicyEngine(PlatformBridge):
                     converter = prm.basetype
             else:
                 converter = lambda x: x
+
             if prm.mapper:
                 converter = (prm.mapper, converter)
 
@@ -265,8 +266,8 @@ class PolicyEngine(PlatformBridge):
         if isinstance(data, webob.Request):
             data = data.params
 
-        expected = frozenset(artifacts.keys())  # properties are gathered, build lookup list
-        parameters = frozenset(data.keys())  # grab and freeze data parameters
+        expected = set(artifacts.keys())  # properties are gathered, build lookup list
+        parameters = set(data.keys())  # grab and freeze data parameters
 
         valid = expected & parameters  # match all valid parameters via set intersection
         no_value = expected - valid  # match spec'd parameters with no present value
@@ -420,7 +421,7 @@ class PolicyEngine(PlatformBridge):
             for prm_name, followup, converter, data in _deferred_mappers:
 
                 try:
-                    data_parameters[prm_name] = followup(data_parameters, converter(data))
+                    data_parameters[prm_name] = followup(ev, data_parameters, converter(data))
 
                 except ValueError as e:
                     message = 'Error converting param "%s" (with mapper, and value "%s"). Exception: "%s".'

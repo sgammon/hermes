@@ -80,7 +80,7 @@ class EventQuery(rpc.messages.Message):
         value = rpc.messages.VariantField(3, required=True)
 
     # builtin query parameters
-    account = rpc.messages.StringField(1)
+    owner = rpc.messages.StringField(1)
     start = rpc.messages.IntegerField(2)
     end = rpc.messages.IntegerField(3)
 

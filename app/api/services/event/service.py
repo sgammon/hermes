@@ -25,12 +25,6 @@ from apptools import rpc
 from apptools import model
 from apptools.model import query
 
-# policy suite
-from policy import core
-from policy import base
-from policy import clients
-from policy.clients import statefarm, amazon
-
 # API messages
 from api.messages import edge
 
@@ -145,7 +139,7 @@ class EventDataService(rpc.Service):
 
         # add arbitrary filter directives
         if request.filter:
-            for directive in request.filters:
+            for directive in request.filter:
 
                 # `==` filter
                 if directive.operator is Operator.EQUALS:
@@ -222,10 +216,10 @@ class EventDataService(rpc.Service):
 
                 # extract name and data from path
                 if len(path) > 1:
-                    name, data = path[0], path[1:]
-                    main_value, auxilliary = (name, data[0]), dict(zip(data[1::2], data[2::2])) if len(data) > 1 else {}
+                    nm, data = path[0], path[1:]
+                    main_value, auxilliary = (nm, data[0]), dict(zip(data[1::2], data[2::2])) if len(data) > 1 else {}
                 else:
-                    name, data = path[0], []
+                    nm, data = path[0], []
                     main_value, auxilliary = None, {}
 
                 aux = tuple(auxilliary.items())  # make lookup list of all pairs
@@ -241,9 +235,9 @@ class EventDataService(rpc.Service):
                 window_begin, window_end = trange  # extract beginning and end of window
 
                 # initialize aggregation in hash, if we haven't seen it yet
-                if (name, (main_value, aux)) not in _touched_aggregations:
-                    edges['aggregations'][(name, (main_value, aux))] = []
-                    _touched_aggregations.add((name, (main_value, aux)))
+                if (nm, (main_value, aux)) not in _touched_aggregations:
+                    edges['aggregations'][(nm, (main_value, aux))] = []
+                    _touched_aggregations.add((nm, (main_value, aux)))
 
                 # generate aggregation item
                 _directive = edge.Aggregation(**{
@@ -256,7 +250,7 @@ class EventDataService(rpc.Service):
                 })
 
                 _aggr_raw.append((matched_aggregation, _directive))
-                edges['aggregations'][(name, (main_value, aux))].append(_directive)
+                edges['aggregations'][(nm, (main_value, aux))].append(_directive)
 
             # batch-get aggregation values
             aggregation_values = self.tracker.engine.get_multi((key for key, obj in _aggr_raw))
@@ -264,40 +258,63 @@ class EventDataService(rpc.Service):
             # zip objects up with values and fill in results
             for obj, value in zip((obj for key, obj in _aggr_raw), aggregation_values):
                 try:
-                    obj.value = int(value)
+                    if isinstance(value, basestring):
+                        if '.' in value:
+                            obj.value = float(value)
+                        else:
+                            obj.value = int(value)
+                    else:
+                        obj.value = value
                 except ValueError:
                     try:
-                        obj.value = float(value)
+                        obj.value = int(value)
                     except ValueError:
                         obj.value = value
 
-        return messages.EventRange(**{
-
+        # build eventrange result
+        event_range = messages.EventRange(**{
             'start': timestamp_start,
             'end': timestamp_end,
-
-            # attach even
             'data': event_data,
+            'aggregations': [],
+            'attributions': []
+        })
 
-            'aggregations': [edge.AggregationGroup(**{
-                'name': k[0],
+        for k, v in edges['aggregations'].iteritems():
+
+            # extract everything
+            name, path = k
+            origin, auxilliary = path
+            origin_name, origin_value = origin
+
+            # build property values
+            origin_prop = edge.PropertyValue(**{
+                'property': origin_name,
+                'value': base64.b64decode(origin_value)
+            })
+
+            # build auxilliary props
+            aux_prop = []
+            for aux in auxilliary:
+                aux_name, aux_value = aux
+                aux_prop.append(edge.PropertyValue(**{
+                    'property': aux_name,
+                    'value': base64.b64decode(aux_value)
+                }))
+
+            # build aggregation group
+            event_range.aggregations.append(edge.AggregationGroup(**{
+                'name': name,
                 'dimensions': v,
                 'value': edge.AggregationValue(**{
-                    'origin': edge.PropertyValue(**{
-                        'property': k[0],
-                        'value': base64.b64decode(k[1][0][1])
-                    }),
-                    'auxilliary': [
-                        edge.PropertyValue(**{
-                            'property': sk,
-                            'value': base64.b64decode(sv[1])
-                        }) for sk, sv in k[1][1]]
+                    'origin': origin_prop,
+                    'auxilliary': aux_prop
                 })
-            }) for k, v in edges['aggregations'].iteritems()],
+            }))
 
-            'attributions': [edge.AttributionGroup(**{
-                'name': k,
-                'dimensions': v
-            }) for k, v in edges['attributions'].iteritems()]
+        # stub-out attributions for now
+        for k, v in edges['attributions'].iteritems():
+            raise RuntimeError('Attribution is not yet supported. '
+                               'Found %s matching hit attributions - failing.' % len(edges['attributions']))
 
-        })
+        return event_range

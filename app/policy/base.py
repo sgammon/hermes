@@ -92,7 +92,7 @@ class EventProfile(core.AbstractProfile):
             'binding': event.EventType,
             'category': parameter.ParameterType.INTERNAL,
             'aggregations': [
-                aggregation.Aggregation('events-by-type', interval=_DEFAULT_LOOKBACK)
+                aggregation.Aggregation(interval=_DEFAULT_LOOKBACK)
             ]
         }
 
@@ -104,7 +104,7 @@ class EventProfile(core.AbstractProfile):
             'binding': event.EventProvider,
             'category': parameter.ParameterType.INTERNAL,
             'aggregations': [
-                aggregation.Aggregation('events-by-provider', interval=_DEFAULT_LOOKBACK)
+                aggregation.Aggregation(interval=_DEFAULT_LOOKBACK)
             ]
         }
 
@@ -115,11 +115,10 @@ class EventProfile(core.AbstractProfile):
             'name': builtin.TrackerProtocol.TRACKER,
             'category': parameter.ParameterType.AMPUSH,
             'aggregations': [
-                aggregation.Aggregation('events-by-tracker',
-                                        interval=_DEFAULT_LOOKBACK,
+                aggregation.Aggregation(interval=_DEFAULT_LOOKBACK,
                                         permutations=[
-                                            ('by-type', 'Base.TYPE'),
-                                            ('by-provider', 'Base.PROVIDER')
+                                            'Base.TYPE',
+                                            'Base.PROVIDER'
                                         ])
             ]
         }
@@ -185,9 +184,74 @@ class LegacyProfile(EventProfile):
         ''' Models the ad/marketing funnel. '''
 
         # ASID: Legacy tracking adgroup ID.
-        @decorators.parameter(name=frozenset(('asid', 'adid')), category=None)
-        def tracker(data, value):
+        @decorators.parameter(name=frozenset(('asid', 'adid', 'ad_id')), category=None)
+        def tracker(event, data, value):
 
             ''' Tracker callable. '''
 
-            return 'blab'
+            # also store as tracker if it's there
+            event.tracker = value
+            return value
+
+
+    class ConversionLevel(parameter.ParameterGroup):
+
+        conversion = bool, {
+            'policy': parameter.ParameterPolicy.OPTIONAL,
+            'name': ('conv', 'conv1'),
+            'source': http.DataSlot.PARAM
+        }
+
+        conversion2 = bool, {
+            'policy': parameter.ParameterPolicy.OPTIONAL,
+            'name': 'conv2',
+            'source': http.DataSlot.PARAM
+        }
+
+        conversion3 = bool, {
+            'policy': parameter.ParameterPolicy.OPTIONAL,
+            'name': 'conv3',
+            'source': http.DataSlot.PARAM
+        }
+
+        conversion4 = bool, {
+            'policy': parameter.ParameterPolicy.OPTIONAL,
+            'name': 'conv4',
+            'source': http.DataSlot.PARAM
+        }
+
+        conversion5 = bool, {
+            'policy': parameter.ParameterPolicy.OPTIONAL,
+            'name': 'conv5',
+            'source': http.DataSlot.PARAM
+        }
+
+        conversion6 = bool, {
+            'policy': parameter.ParameterPolicy.OPTIONAL,
+            'name': 'conv6',
+            'source': http.DataSlot.PARAM
+        }
+
+        conversion7 = bool, {
+            'policy': parameter.ParameterPolicy.OPTIONAL,
+            'name': 'conv7',
+            'source': http.DataSlot.PARAM
+        }
+
+        conversion8 = bool, {
+            'policy': parameter.ParameterPolicy.OPTIONAL,
+            'name': 'conv8',
+            'source': http.DataSlot.PARAM
+        }
+
+        conversion9 = bool, {
+            'policy': parameter.ParameterPolicy.OPTIONAL,
+            'name': 'conv9',
+            'source': http.DataSlot.PARAM
+        }
+
+        conversion10 = bool, {
+            'policy': parameter.ParameterPolicy.OPTIONAL,
+            'name': 'conv10',
+            'source': http.DataSlot.PARAM
+        }

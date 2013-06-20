@@ -37,6 +37,7 @@ class Separators(meta.ProtocolDefinition):
     ''' Enumerates special string separators that
         are used in underlying data machinery. '''
 
+    PATH = '.'  # separator for property / definition paths
     HASH_CHUNK = '::'  # separator for hash chunks
     HASH_KEY_NAME = '-'  # separator for hash bucket names
     HASH_KEY_VALUE = ':'  # separator for bucket value items

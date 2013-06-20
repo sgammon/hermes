@@ -38,24 +38,24 @@ class Aggregation(meta.ProtocolBinding):
     _config_path = 'protocol.aggregation.Aggregation'
 
     ## == State == ##
-    name = None  # name of this aggregation
     prop = None  # target properties of this aggregation
     interval = None  # intervals we wish to aggregate for
     permutations = None  # permutations of this aggregation
 
     ## == Internals == ##
     _BUCKET_PREFIX = special.Prefixes.AGGREGATION  # prefix for bucket name (usually `__aggregation__`)
-    _GLOBAL_WINDOW = timedelta._GLOBAL_WINDOW_POSTFIX  # special postfix window indicating a global aggregation interval
+    _GLOBAL_WINDOW = timedelta._GLOBAL_WINDOW_POSTFIX  # special postfix indicating a global aggregation interval
+    _PATH_SEPARATOR = special.Separators.PATH  # special path separator for property paths (usually set to '.')
     _NAME_SEPARATOR = special.Separators.HASH_KEY_NAME  # char for bucket name items (ie. `my-index` would be `-`)
     _CHUNK_SEPARATOR = special.Separators.HASH_CHUNK  # char for chunks of key=>value pairs (ie. `__index__::blab`)
     _WINDOW_SEPARATOR = special.Separators.HASH_KEY_VALUE  # char for bucket value items (ie. `2013:01` would be `:`)
 
-    def __init__(self, name, **config):
+    def __init__(self, **config):
 
         ''' Initialize this ``Aggregation``. '''
 
         # set name + interval, default interval is ``FOREVER`` (global count), set empty tuple of perms
-        self.name, self.interval = name, config.get('interval', timedelta.TimeWindow.FOREVER)
+        self.interval = config.get('interval', timedelta.TimeWindow.FOREVER)
         self.permutations = config.get('permutations', tuple())
 
     def _hashhex(self, value):
@@ -165,12 +165,6 @@ class Aggregation(meta.ProtocolBinding):
     }
 
     ## == Component Builders == ##
-    def _build_name(self, permutation):
-
-        ''' Build a name for a permutation of this ``Aggregation``. '''
-
-        return self._NAME_SEPARATOR.join((self.name, permutation))
-
     def _build_window(self, interval, created):
 
         ''' Build a timewindow and delta value for a given
@@ -185,10 +179,12 @@ class Aggregation(meta.ProtocolBinding):
         ''' Build bucket specifications for this ``Aggregation``. '''
 
         final = []
-        hashspec = [self._BUCKET_PREFIX, self.name]
+        hashspec = [self._BUCKET_PREFIX]
 
         # add prop windows
         for i, prop in enumerate(self.prop):
+
+            hashspec.append(self._PATH_SEPARATOR.join((prop.group.name, prop.name)))
 
             if prop.basetype is float or prop.literal is True:
 
@@ -213,7 +209,10 @@ class Aggregation(meta.ProtocolBinding):
             # calculate intervals only on last iteration or if we have 1 origin
             if len(self.prop) < 2 or (i is len(self.prop) - 1):
                 for interval in self.interval:
-                    final.append(self._CHUNK_SEPARATOR.join(hashspec + [str(interval), self._build_window(interval, event.created)]))
+                    final.append(self._CHUNK_SEPARATOR.join(hashspec + [
+                        str(interval),
+                        self._build_window(interval, event.created)
+                    ]))
 
         return delta, tuple(final)
 
@@ -221,7 +220,7 @@ class Aggregation(meta.ProtocolBinding):
 
         ''' Build permutations for this ``Aggregation``. '''
 
-        for perm, props in self.permutations:
+        for props in self.permutations:
 
             # build owner properties
             owners = self.prop[:]
@@ -232,7 +231,7 @@ class Aggregation(meta.ProtocolBinding):
                 owners.append(policy.resolve_parameter(prop))
 
             # build sub-aggregation
-            permutation = Aggregation(self._build_name(perm), interval=self.interval).set_owner(owners)
+            permutation = Aggregation(interval=self.interval).set_owner(owners)
 
             # recursively yield specs
             for aggregation, spec in permutation.build(policy, event):
