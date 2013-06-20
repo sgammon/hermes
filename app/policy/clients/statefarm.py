@@ -10,7 +10,6 @@ from policy import base
 # protocol imports
 from protocol import http
 from protocol import parameter
-from protocol.decorators import param
 
 
 ## StateFarm
@@ -53,21 +52,4 @@ class StateFarm(base.LegacyProfile):
             'policy': parameter.ParameterPolicy.OPTIONAL,
             'source': http.DataSlot.PARAM,
             'name': 'revenue'
-        }
-
-    @param.override
-    class Funnel(parameter.ParameterGroup):
-
-        ''' Override adgroup name to ``asid``. '''
-
-        ref = basestring, {
-            'policy': parameter.ParameterPolicy.OPTIONAL,
-            'source': http.DataSlot.PARAM,
-            'name': 'ref'
-        }
-
-        adgroup = basestring, {
-            'policy': parameter.ParameterPolicy.REQUIRED,
-            'source': http.DataSlot.PARAM,
-            'name': 'asid'
         }

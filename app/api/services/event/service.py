@@ -11,6 +11,7 @@ Event Data API: Service
 
 # stdlib
 import time
+import base64
 import datetime
 
 # Local Imports
@@ -24,10 +25,17 @@ from apptools import rpc
 from apptools import model
 from apptools.model import query
 
+# policy suite
+from policy import core
+from policy import base
+from policy import clients
+from policy.clients import statefarm, amazon
+
 # API messages
 from api.messages import edge
 
 # API Models
+from api.models.tracker import endpoint
 from api.models.tracker.event import TrackedEvent
 
 
@@ -48,6 +56,25 @@ class EventDataService(rpc.Service):
     exceptions = rpc.Exceptions(**{
         'generic': exceptions.Error
     })
+
+    @staticmethod
+    def _build_query(_opts, _queries):
+
+        ''' Build a new query object, given a set of ``_opts``
+            specified by a query submitted to the Event Data
+            API. '''
+
+        q = TrackedEvent.query(**{
+            'keys_only': _opts.keys_only,
+            'ancestor': _opts.ancestor,
+            'limit': _opts.limit,
+            'offset': _opts.offset,
+            'projection': _opts.projection,
+            'cursor': _opts.cursor
+        })
+
+        _queries.append(q)
+        return q
 
     @rpc.method(model.Key, TrackedEvent)
     def get(self, request):
@@ -86,28 +113,30 @@ class EventDataService(rpc.Service):
         else:
             _opts = request.options
 
-        # start building a query
-        q = TrackedEvent.query(**{
-            'keys_only': _opts.keys_only,
-            'ancestor': _opts.ancestor,
-            'limit': _opts.limit,
-            'offset': _opts.offset,
-            'projection': _opts.projection,
-            'cursor': _opts.cursor
-        })
+        # build initial results window and query
+        _queries, _event_keys, _tracker_keys = [], [], []
+        q = self._build_query(_opts, _queries)
 
         # filter by tracker, if specified
-        if request.tracker:
-            q.filter(TrackedEvent.tracker == request.tracker)
+        if request.owner:
 
-        # build start and end ranges
+            ## try to pull trackers for this owner
+            t = endpoint.Tracker.query(keys_only=True).filter(endpoint.Tracker.owner == request.owner)
+            trackers = t.fetch()
+
+            ## does this account have modern trackers provisioned?
+            if trackers:
+                ## @TODO(sgammon): implement support for modern trackers
+                raise NotImplementedError('`EventService` method `query` does not yet support modern tracking.')
+
+        # build start range
         if request.start:
             timestamp_start = int(request.start / 1e3) if len(str(request.start)) > 10 else request.start
             q.filter(TrackedEvent.created > datetime.datetime.fromtimestamp(timestamp_start))
         else:
             timestamp_start = None
 
-
+        # build end range
         if request.end:
             timestamp_end = int(request.end / 1e3) if len(str(request.end)) > 10 else request.end
             q.filter(TrackedEvent.created < datetime.datetime.fromtimestamp(timestamp_end))
@@ -194,8 +223,12 @@ class EventDataService(rpc.Service):
                 # extract name and data from path
                 if len(path) > 1:
                     name, data = path[0], path[1:]
+                    main_value, auxilliary = (name, data[0]), dict(zip(data[1::2], data[2::2])) if len(data) > 1 else {}
                 else:
                     name, data = path[0], []
+                    main_value, auxilliary = None, {}
+
+                aux = tuple(auxilliary.items())  # make lookup list of all pairs
 
                 # grab value, calculate window
                 wire_window, trange = self.tracker.resolve_timewindow(*(
@@ -208,9 +241,9 @@ class EventDataService(rpc.Service):
                 window_begin, window_end = trange  # extract beginning and end of window
 
                 # initialize aggregation in hash, if we haven't seen it yet
-                if name not in _touched_aggregations:
-                    edges['aggregations'][name] = []
-                    _touched_aggregations.add(name)
+                if (name, (main_value, aux)) not in _touched_aggregations:
+                    edges['aggregations'][(name, (main_value, aux))] = []
+                    _touched_aggregations.add((name, (main_value, aux)))
 
                 # generate aggregation item
                 _directive = edge.Aggregation(**{
@@ -223,7 +256,7 @@ class EventDataService(rpc.Service):
                 })
 
                 _aggr_raw.append((matched_aggregation, _directive))
-                edges['aggregations'][name].append(_directive)
+                edges['aggregations'][(name, (main_value, aux))].append(_directive)
 
             # batch-get aggregation values
             aggregation_values = self.tracker.engine.get_multi((key for key, obj in _aggr_raw))
@@ -247,8 +280,19 @@ class EventDataService(rpc.Service):
             'data': event_data,
 
             'aggregations': [edge.AggregationGroup(**{
-                'name': k,
-                'dimensions': v
+                'name': k[0],
+                'dimensions': v,
+                'value': edge.AggregationValue(**{
+                    'origin': edge.PropertyValue(**{
+                        'property': k[0],
+                        'value': base64.b64decode(k[1][0][1])
+                    }),
+                    'auxilliary': [
+                        edge.PropertyValue(**{
+                            'property': sk,
+                            'value': base64.b64decode(sv[1])
+                        }) for sk, sv in k[1][1]]
+                })
             }) for k, v in edges['aggregations'].iteritems()],
 
             'attributions': [edge.AttributionGroup(**{

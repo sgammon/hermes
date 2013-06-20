@@ -41,6 +41,7 @@ class TrackerEndpoint(WebHandler):
             :returns: Response to a tracker hit. '''
 
         try:
+
             # publish raw event first, propagating globally
             # collapse policy for this event, enforce, and fail-out from critical errors
             raw, tracker, event, pipe = self.tracker.policy.enforce(self.request, policy, legacy=legacy)

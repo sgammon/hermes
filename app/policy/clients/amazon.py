@@ -23,6 +23,7 @@ class Amazon(base.LegacyProfile):
     class Order(parameter.ParameterGroup):
 
         ''' More params. '''
+
         user_id = basestring, {
             'policy': parameter.ParameterPolicy.OPTIONAL,
             'name': 'uid',

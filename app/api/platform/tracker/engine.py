@@ -42,6 +42,9 @@ class EventEngine(PlatformBridge):
         propagation of data to underlying
         storage mechanisms. '''
 
+    # flags
+    _REDIS_ENABLED = _REDIS
+
     # magic string identifiers
     _id_prefix = redis.RedisAdapter._id_prefix
     _meta_prefix = redis.RedisAdapter._meta_prefix
@@ -49,6 +52,10 @@ class EventEngine(PlatformBridge):
     _magic_separator = redis.RedisAdapter._magic_separator
     _path_separator = redis.RedisAdapter._path_separator
     _chunk_separator = redis.RedisAdapter._chunk_separator
+
+    # magic keys
+    _asid_map_key = '__asid:map__'  # associates ASID's with tracker IDs
+    _adgroup_map_key = '__adgroup:map__'  # associates adgroup ID's with tracker IDs
 
     ## Datastore - static, encapsulated adapter import.
     class Datastore(object):
@@ -367,6 +374,49 @@ class EventEngine(PlatformBridge):
                 results += pipeline.execute()
             return results
         return [self.adapter(self.Datastore.inmemory).get(address) for address in iterable]
+
+    def set_item(self, hash, key, value, pipeline=None):
+
+        ''' Set a ``key`` in a ``hash`` to a certain
+            ``value``, optionally using ``pipeline``
+            to execute the request.
+
+            :param hash:
+            :param key:
+            :param value:
+            :param pipeline:
+
+            :returns: '''
+
+        if _REDIS:
+            return self.Datastore.redis.execute(*(
+                self.redis.Operations.HASH_SET,
+                None,
+                hash,
+                key,
+                value,
+            ), target=pipeline)
+        raise NotImplementedError('`InMemoryAdapter` does not yet support hash structures.')
+
+    def get_item(self, hash, key, pipeline=None):
+
+        ''' Get a value, if any, at ``key`` inside
+            ``hash``, optionally using ``pipeline``
+            to execute the low-level call against.
+
+            :param hash:
+            :param key:
+            :param pipeline:
+            :returns: '''
+
+        if _REDIS:
+            return self.Datastore.redis.execute(*(
+                self.redis.Operations.HASH_GET,
+                None,
+                hash,
+                key
+            ), target=pipeline)
+        raise NotImplementedError('`InMemoryAdapter` does not yet support hash structures.')
 
     def index_add(self, bucket, value, pipeline=None):
 

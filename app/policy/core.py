@@ -10,6 +10,9 @@ Description coming soon.
 
 '''
 
+# stdlib
+import os
+
 # protocol bindings
 from protocol import meta
 
@@ -47,22 +50,22 @@ class Profile(type):
             break each discrete component down into an
             element in a virtual ``AST``-like structure. '''
 
-        ## == Public Members == ##
-        primitives = None
-        parameters = None
-        aggregations = None
-        attributions = None
-        integrations = None
+        ## == Data Members == ##
+        primitives = tuple()
+        parameters = tuple()
+        aggregations = tuple()
+        attributions = tuple()
+        integrations = tuple()
+        configuration = tuple()
 
         ## == Internal Members == ##
-        __tree__ = None
+        __tree__ = tuple()
+        __chain__ = tuple()
         __subtype__ = None
         __profile__ = None
-        __compound__ = None
-        __interpreted__ = None
 
         ## == Internals == ##
-        def __init__(self, name, specs):
+        def __init__(self, name, specs=tuple()):
 
             ''' Instantiate a new ``Interpreter``, and attach
                 the given ``profile`` for future work.
@@ -101,25 +104,102 @@ class Profile(type):
                 }
             }
 
+            _parent_policy = policy.__bases__[0]
+
+            # do we need a pool of parent properties?
+            param_pool, local_pool, parent_pool = (
+                {},
+                {i: group.__dict__[i] for i in group.__forward__},
+                {param.name: param for param in _parent_policy.parameters}
+            )
+
             # build and initialize parameters
-            for param, config in dict(((i, group.__dict__[i]) for i in group.__forward__)).iteritems():
+            for param, config in local_pool.iteritems():
 
-                if isinstance(config, tuple):  # we're configuring schema
-                    basetype, config = config
+                # resolve parent parameter
+                current_param = None
+                parent_path = '.'.join((mainconfig['definition']['name'], param.upper()))  # like `Base.PROVIDER`
+                parent_param = None
+                if policy.__bases__[0].__name__ != 'AbstractProfile':
+                    parent_param = policy.__bases__[0].resolve_parameter(parent_path)
 
-                    # update with mainconfig, build and append
-                    config.update(mainconfig)
-                    current_param = parameter.Parameter(param, basetype, **config)
 
-                else:  # we're probably configuring values
+                # `OVERRIDE` mode - fully replace any parent declaration by the same name
+                # `DECLARATION` mode - differential parameter-level mode - merge params by group
+                if group.__mode__ in (parameter.ParamDeclarationMode.OVERRIDE,
+                                      parameter.ParamDeclarationMode.DECLARATION):
 
-                    value = basetype  # for clarity's sake
+                    if isinstance(config, tuple):  # we're configuring schema
+                        basetype, config = config
 
-                    # use main config, add sentinel for value
-                    config = {'mode': parameter.group.ParameterDeclarationMode.VALUES}
-                    current_param = parameter.Parameter(param, basetype=None, value=value, **config)
+                        if group.__mode__ is parameter.ParamDeclarationMode.OVERRIDE:
+                            basevalue = None
+                        else:
+                            basevalue = parent_param.basevalue if parent_param else None
 
-                parameters.append(current_param)
+                        # update with mainconfig, build and append
+                        config.update(mainconfig)
+
+                    else:  # simple basetype mapping
+                        basetype, config, basevalue = config, {}, None
+
+                        # update with mainconfig, build and append
+                        config.update(mainconfig)
+
+                    # construct our new parameter and add to the parameter pool
+                    param_pool[param] = current_param = parameter.Parameter(*(
+                        policy,
+                        parent_param,
+                        mainconfig['definition']['name'],
+                        param,
+                        basetype,
+                        basevalue),
+                        **config)
+
+
+                # `VALUES` mode - should simply fill in values for each listed parameter
+                elif group.__mode__ is parameter.ParamDeclarationMode.VALUES:
+
+                    if isinstance(config, tuple):  # this is an error
+                        raise TypeError('Cannot provide schema with @param.values decorator. Got: "%s".' % config)
+
+                    param_pool[param] = current_param = parameter.Parameter(*(
+                        policy,
+                        parent_param,
+                        mainconfig['definition']['name'],
+                        param,
+                        parent_param.basetype,
+                        config),
+                        **parent_param.config)
+
+
+                # `DIFFERENTIAL` mode - apply changes in this class to the parent and take the result
+                elif group.__mode__ is parameter.ParamDeclarationMode.DIFFERENTIAL:
+
+                    if isinstance(config, tuple):  # we're configuring schema
+                        basetype, config = config
+                        basevalue = parent_param.basevalue if parent_param else None
+
+                    else:  # simple basetype mapping
+                        basetype, config, basevalue = config, {}, None
+
+                    _cfg = {}  # build config
+                    if parent_param:
+                        _cfg.update(parent_param.config)  # merge-in parent config
+                    _cfg.update(mainconfig)  # merge-in group config
+                    _cfg.update(config)  # merge-in local config
+
+                    param_pool[param] = current_param = parameter.Parameter(*(
+                        policy,
+                        parent_param,
+                        mainconfig['definition']['name'],
+                        param,
+                        parent_param.basetype if parent_param else basetype,
+                        config),
+                        **_cfg)
+
+                else:
+                    raise RuntimeError('Invalid `ParameterGroup` specification mode. Got: "%s".' % group.__mode__)
 
                 # consider aggregations
                 if config.get('aggregations', None) is not None:
@@ -135,7 +215,10 @@ class Profile(type):
                     for spec in config.get('attributions'):
                         klass['attributions'].append(self._build_attribution(policy, spec, klass, True, current_param))
 
-            return parameter.ParameterGroup(group.__name__, parameters, inline=inline)
+            group = parameter.ParameterGroup(group.__name__, param_pool.values(), inline=inline)
+            for param in group:
+                param.set_group(group)
+            return group
 
         def _build_integration(self, policy, spec, klass, inline=True):
 
@@ -230,37 +313,6 @@ class Profile(type):
         }
 
         ## == Public Methods == ##
-        def build(self, overlay=None):
-
-            ''' Build a :py:class:`EventProfile` descendent
-                into a fully-structured object.
-
-                :returns: ``self``, for method chainability. '''
-
-            # initialize compound structure
-            compound = {
-                'primitives': [],
-                'parameters': [],
-                'aggregations': [],
-                'attributions': [],
-                'integrations': [],
-                'configuration': []
-            }
-
-            for (parent, subspecs) in self.__profile__.iteritems():
-                for spec, spec_klass, flag in subspecs:
-                    attr, builder = self._builders[parent]
-                    compound[attr].append(builder(self, spec_klass, spec, compound, flag))
-                    compound['primitives'].append(spec_klass)
-
-            # assign locally
-            for k, v in compound.items():
-                setattr(self, k, frozenset(v))  # attach at desired mountpoint
-
-            if overlay:
-                return self.overlay(overlay)
-            return self
-
         def overlay(self, target, override=False):
 
             ''' Build or update this :py:class:`Interpreter`'s
@@ -281,11 +333,43 @@ class Profile(type):
 
             for parent in target:
                 if isinstance(parent, type) and issubclass(parent, AbstractProfile):
-                    chain += [parent]
-                    if hasattr(target, '__chain__'):
-                        chain += target.__chain__
+                    chain += ([parent] + list(parent.__interpreter__.__chain__))
 
             self.__chain__ = tuple(chain)
+            return self
+
+        def build(self, base_policy, overlay=None):
+
+            ''' Build a :py:class:`EventProfile` descendent
+                into a fully-structured object.
+
+                :param base_policy:
+                :param overlay:
+
+                :returns: ``self``, for method chainability. '''
+
+            # initialize compound structure
+            compound = {
+                'primitives': [],
+                'parameters': [],
+                'aggregations': [],
+                'attributions': [],
+                'integrations': [],
+                'configuration': []
+            }
+
+            for (parent, subspecs) in self.__profile__.iteritems():
+                for spec, flag in subspecs:
+                    attr, builder = self._builders[parent]
+                    compound[attr].append(builder(self, base_policy, spec, compound, flag))
+                    compound['primitives'].append(spec)
+
+            # assign locally
+            for k, v in compound.iteritems():
+                setattr(self, k, v)
+
+            if overlay:
+                return self.overlay(overlay)
             return self
 
         __call__ = overlay
@@ -324,11 +408,11 @@ class Profile(type):
                     if parent not in spec:
                         spec[parent] = []
 
-                    spec[parent].append((subspec, spec_klass, True))
+                    spec[parent].append((spec_klass, True))
 
             ## set up class internals and build
             _klass = {
-                '__interpreter__': cls.Interpreter(name, spec).build(overlay=bases),
+                '__interpreter__': cls.Interpreter(name, spec),
                 '__bases__': bases,
                 '__name__': name,
                 '__chain__': tuple(),
@@ -342,18 +426,22 @@ class Profile(type):
             ## substitute our class definition
             properties = _klass
 
-        dynklass = super(cls, cls).__new__(cls, name, bases, properties)
+            # build class and compile profile
+            dynklass = super(cls, cls).__new__(cls, name, bases, properties)
+            dynklass.__interpreter__.build(dynklass, overlay=bases)
+
+        else:
+            properties.update({
+                '__interpreter__': cls.Interpreter(name),
+                '__chain__': tuple(),
+                '__path__': properties.get('__module__', 'policy.core'),
+                '__definition__': '.'.join(properties.get('__module__', 'policy.base').split('.') + [name]),
+                '__bases__': bases,
+                '__name__': name
+            })
+            dynklass = super(cls, cls).__new__(cls, name, bases, properties)
+
         return cls.register(dynklass)
-
-    def _mro(cls):
-
-        ''' Calculate method resolution order for a
-            :py:class:`Profile` descendent.
-
-            :returns: Calculated MRO path for a non-meta
-                      :py:class:`Profile` descendent. '''
-
-        return tuple([cls] + [i for i in cls.__bases__])
 
     @classmethod
     def register(cls, dynamic_klass):
@@ -396,19 +484,34 @@ class AbstractProfile(object):
         raise NotImplementedError('Cannot instantiate abstract'
                                   'class `%s`.' % cls.__name__)
 
+    ## == Public Properties == ##
+    @util.classproperty
+    def chain(cls):
+
+        ''' Walk the :py:class:`Profile` inheritance
+            chain of the locally-interpreted profile.
+
+            :yields: Each ``link`` in the profile
+            inheritance :py:attr:`self.__chain__`. '''
+
+        for link in (cls.__interpreter__.__chain__ + cls.__bases__):
+            if hasattr(link, '__interpreter__'):
+                yield link
+
     @util.classproperty
     def primitives(cls):
 
-        ''' For each configured primitive extension
-            binding, delegate to the embedded local
-            :py:class:`Interpreter`, and yield each,
-            one-at-a-time.
+        ''' Yield each primitive class attached to
+            the locally-interpreted :py:class:`Profile`.
 
-            :returns: Yields each configured primitive
-            binding, one-at-a-time. '''
+            :yields: Each class ``primitive``. '''
 
-        for compound in [cls] + list(cls.__interpreter__.__chain__):
-            for primitive in compound.__interpreter__.primitives:
+        for generator in (cls.parameters,
+                          cls.aggregations,
+                          cls.attributions,
+                          cls.integrations):
+
+            for primitive in generator:
                 yield primitive
 
     @util.classproperty
@@ -422,7 +525,7 @@ class AbstractProfile(object):
             :returns: Yields each configured :py:class:`Parameter`,
             one-at-a-time. '''
 
-        for compound in [cls] + list(cls.__interpreter__.__chain__):
+        for compound in [cls] + list(cls.chain):
             for group in compound.__interpreter__.parameters:
                 for parameter in group:
                     yield parameter
@@ -438,7 +541,7 @@ class AbstractProfile(object):
             :returns: Yields each configured :py:class:`Attribution`,
             one-at-a-time. '''
 
-        for compound in [cls] + list(cls.__interpreter__.__chain__):
+        for compound in [cls] + list(cls.chain):
             for attribution in compound.__interpreter__.attributions:
                 yield attribution
 
@@ -453,7 +556,7 @@ class AbstractProfile(object):
             :returns: Yields each configured :py:class:`Aggregation`,
             one-at-a-time. '''
 
-        for compound in [cls] + list(cls.__interpreter__.__chain__):
+        for compound in [cls] + list(cls.chain):
             for aggregation in compound.__interpreter__.aggregations:
                 yield aggregation
 
@@ -468,6 +571,22 @@ class AbstractProfile(object):
             :returns: Yields each configured :py:class:`Integration`,
             one-at-a-time. '''
 
-        for compound in [cls] + list(cls.__interpreter__.__chain__):
+        for compound in [cls] + list(cls.chain):
             for integration in compound.__interpreter__.integrations:
                 yield integration
+
+    @classmethod
+    def resolve_parameter(cls, qualified_path):
+
+        ''' Resolve a parameter object by its qualified
+            definition path. '''
+
+        split = qualified_path.lower().split('.')
+        split[0] = split[0].capitalize()
+
+        for block in cls.parameters:
+            if block.group.name == split[0]:
+                if block.name == split[1]:
+                    return block
+            continue
+        return None  # explicit ``None`` if it couldn't be found

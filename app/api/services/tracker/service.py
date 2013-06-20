@@ -29,11 +29,13 @@ class TrackerService(rpc.Service):
         the creation/management of :py:class:`Tracker` objects, the
         retrieval of runtime statistics, and other platform-wide utils. '''
 
+    name = 'tracker'
     _config_path = 'hermes.api.tracker.TrackerAPI'
 
     exceptions = rpc.Exceptions(**{
         'generic': exceptions.Error,
-        'tracker_not_found': exceptions.TrackerNotFound
+        'tracker_not_found': exceptions.TrackerNotFound,
+        'provision_failed': exceptions.ProvisionFailed
     })
 
     @rpc.method(model.Key, endpoint.Tracker)
@@ -73,7 +75,7 @@ class TrackerService(rpc.Service):
             :raises:
             :returns: '''
 
-        pass
+        raise self.exceptions.generic('Service method `profile` is currently stubbed.')
 
     @rpc.method(messages.Profiles)
     def profiles(self, request):
@@ -98,4 +100,34 @@ class TrackerService(rpc.Service):
             :raises:
             :returns: '''
 
-        raise self.exceptions.generic('Service method `provision` is currently stubbed.')
+        try:
+
+            # build a single tracker
+            if request.spec:
+
+                return messages.TrackerSet(**{
+                    'count': 1,
+                    'trackers': [
+                        self.tracker.provision(request.owner, spec=request.spec).to_message()
+                    ]
+                })
+
+            # build multiple trackers
+            if request.specs:
+
+                # build trackers
+                trackers = self.tracker.provision(request.owner, specs=request.specs)
+
+                # provision trackers
+                return messages.TrackerSet(**{
+                    'count': len(trackers),
+                    'trackers': map(lambda x: x.to_message(), trackers)
+                })
+
+            else:
+                raise self.exceptions.provision_failed('Must provide parameter `spec` or `specs`.')
+
+        except Exception as e:
+            context = (e.__class__.__name__, str(e))
+            raise self.exceptions.provision_failed('Request to provision failed with '
+                                                   'exception: "%s". Message: "%s".' % context)
