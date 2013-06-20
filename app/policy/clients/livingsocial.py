@@ -1,7 +1,7 @@
 # -*- coding: utf -8 -*-
 
 '''
-Policy: Amazon
+Policy: LivingSocial
 '''
 
 # policy imports
@@ -16,39 +16,40 @@ from protocol import aggregation
 from protocol.decorators import param
 
 
-class Amazon(base_clients.BaseClients):
+class LivingSocial(base_clients.BaseClients):
 
-    ''' Base profile for Amazon. '''
-
-    refcode = frozenset(['amazon'])
+    ''' Base profile for LivingSocial. '''
+    refcode = frozenset(['livingsocialUS',
+                         'livingsocialUSstory'])
 
     class Order(parameter.ParameterGroup):
 
-        ''' More params. '''
         user_id = basestring, {
             'policy': parameter.ParameterPolicy.OPTIONAL,
             'name': 'uid',
             'source': http.DataSlot.PARAM
         }
 
-        event_name = basestring, {
+        order = basestring, {
             'policy': parameter.ParameterPolicy.OPTIONAL,
-            'name': 'event',
+            'name': 'unique',
             'source': http.DataSlot.PARAM
         }
 
-        conversion_type = basestring, {
+        deal = basestring, {
             'policy': parameter.ParameterPolicy.OPTIONAL,
-            'name': 'convtype',
+            'name': 'deal_id',
             'source': http.DataSlot.PARAM
         }
 
-    class SignatureVerification(parameter.ParameterGroup):
-
-        ''' More params. '''
-
-        signature = basestring, {
+        reference_code = basestring, {
             'policy': parameter.ParameterPolicy.OPTIONAL,
-            'name': 'signature',
+            'name': 'ref_code',
+            'source': http.DataSlot.PARAM
+        }
+
+        revenue = float, {
+            'policy': parameter.ParameterPolicy.OPTIONAL,
+            'name': 'spent',
             'source': http.DataSlot.PARAM
         }
