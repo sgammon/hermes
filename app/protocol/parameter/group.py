@@ -33,21 +33,44 @@ class Parameter(meta.ProtocolBinding):
         an ``EventTracker hit. '''
 
     ## == Internal Properties == ##
-    __slots__ = ('name', 'basetype', 'config', 'basevalue', 'literal')
+    __slots__ = ('name',
+                 'group',
+                 'policy',
+                 'parent',
+                 'config',
+                 'literal',
+                 'basetype',
+                 'basevalue')
 
     ## == External Properties == ##
     name = None
+    group = None
+    policy = None
+    parent = None
     config = None
     literal = False
     basetype = None
     basevalue = None
 
     ## == Internal Methods == ##
-    def __init__(self, subtype, basetype=None, value=None, **config):
+    def __init__(self, _policy, parent, group, subtype, basetype=None, value=None, **config):
 
         ''' Initialize this ``Parameter``.
 
-            :param name: External (bound) name of this
+            :param _policy: Eventual ancestor policy class
+            (:py:class:`Profile` descendant) that we're
+            attaching this :py:class:`ParameterGroup` to.
+            Prefixed with underscore to prevent collision
+            with ``kwargs``.
+
+            :param parent: Parent property (property of the
+            same name defined on a parent policy definition),
+            if any.
+
+            :param group: Parameter group name (``str``)
+            encapsulating this :py:class:`Parameter`.
+
+            :param subtype: External (bound) name of this
             parameter, on the encapsulating
             :py:class:`EventProfile`.
 
@@ -63,9 +86,23 @@ class Parameter(meta.ProtocolBinding):
 
             :returns: Nothing, as this is a constructor. '''
 
-        print "Parameter(%s, %s, %s)" % (str(subtype), str((basetype or value)), str(config))
-        self.name, self.config, self.basetype, self.basevalue = subtype, config, basetype, value
-        self.literal = config.get('literal', False)
+        # adopt parent param's basetype, if any
+        if not basetype and parent is not None:
+            basetype = parent.basetype
+
+        # adopt parent param's value, if any
+        if not value and parent is not None:
+            value = parent.basevalue
+
+        # attach parent definitions
+        self.policy, self.parent = _policy, parent
+
+        # factory parameter
+        self.name, self.config, self.basetype, self.basevalue, self.literal = (subtype,
+                                                                               config,
+                                                                               basetype,
+                                                                               value,
+                                                                               config.get('literal', False))
 
     def __repr__(self):
 
@@ -88,6 +125,18 @@ class Parameter(meta.ProtocolBinding):
             :returns: ``self``, for chainability. '''
 
         self.basevalue = default
+        return self
+
+    def set_group(self, group):
+
+        ''' Set this parameter's :py:attr:`self.group`.
+            Called by the encapsulating group on construction to
+            replace the string added during initialization.
+
+            :param group:
+            :returns: ``self``, for chainability. '''
+
+        self.group = group
         return self
 
 

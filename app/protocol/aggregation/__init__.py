@@ -188,7 +188,7 @@ class Aggregation(meta.ProtocolBinding):
         hashspec = [self._BUCKET_PREFIX, self.name]
 
         # add prop windows
-        for prop in self.prop:
+        for i, prop in enumerate(self.prop):
 
             if prop.basetype is float or prop.literal is True:
 
@@ -210,9 +210,10 @@ class Aggregation(meta.ProtocolBinding):
                 self.logging.debug('Encoding value "%s" to b64 "%s".' % (value, b64_value))
                 hashspec.append(b64_value)
 
-            # calculate intervals
-            for interval in self.interval:
-                final.append(self._CHUNK_SEPARATOR.join(hashspec + [str(interval), self._build_window(interval, event.created)]))
+            # calculate intervals only on last iteration or if we have 1 origin
+            if len(self.prop) < 2 or (i is len(self.prop) - 1):
+                for interval in self.interval:
+                    final.append(self._CHUNK_SEPARATOR.join(hashspec + [str(interval), self._build_window(interval, event.created)]))
 
         return delta, tuple(final)
 
@@ -223,7 +224,7 @@ class Aggregation(meta.ProtocolBinding):
         for perm, props in self.permutations:
 
             # build owner properties
-            owners = []
+            owners = self.prop[:]
             if not isinstance(props, (list, set, frozenset, tuple)):
                 props = (props,)
 
@@ -235,7 +236,7 @@ class Aggregation(meta.ProtocolBinding):
 
             # recursively yield specs
             for aggregation, spec in permutation.build(policy, event):
-                yield spec
+                yield aggregation, spec
 
     ## == Public Methods == ##
     def set_owner(self, property):

@@ -118,45 +118,25 @@ class EventDataService(rpc.Service):
         q = self._build_query(_opts, _queries)
 
         # filter by tracker, if specified
-        if request.account:
+        if request.owner:
 
-            ## does this account have a legacy profile mapping?
-            legacy_profile = None
-            for _path, _profile in core.Profile.registry.iteritems():
-                if hasattr(_profile, 'refcode'):
-                    # this is a legacy profile - does it match?
-                    if hasattr(_profile, 'account_id'):
-                        if request.account == _profile.account_id:
-                            legacy_profile = _profile
-                            break
-                    else:
-                        self.logging.critical('Encountered profile with `refcode` but no `account_id`. '
-                                              'Data logged against this tracker will permenently be dropped!')
+            ## try to pull trackers for this owner
+            t = endpoint.Tracker.query(keys_only=True).filter(endpoint.Tracker.owner == request.owner)
+            trackers = t.fetch()
 
-            if legacy_profile:
+            ## does this account have modern trackers provisioned?
+            if trackers:
+                ## @TODO(sgammon): implement support for modern trackers
+                raise NotImplementedError('`EventService` method `query` does not yet support modern tracking.')
 
-                # resolve tracker keys via profile mapping
-                q.filter(TrackedEvent.profile == legacy_profile.__definition__)
-
-            else:
-
-                ## try to pull trackers for this account
-                t = endpoint.Tracker.query(keys_only=True).filter(endpoint.Tracker.account == request.account)
-                trackers = t.fetch()
-
-                ## does this account have modern trackers provisioned?
-                if trackers:
-                    ## @TODO(sgammon): implement support for modern trackers
-                    raise NotImplementedError('`EventService` method `query` does not yet support modern tracking.')
-
-        # build start and end ranges
+        # build start range
         if request.start:
             timestamp_start = int(request.start / 1e3) if len(str(request.start)) > 10 else request.start
             q.filter(TrackedEvent.created > datetime.datetime.fromtimestamp(timestamp_start))
         else:
             timestamp_start = None
 
-
+        # build end range
         if request.end:
             timestamp_end = int(request.end / 1e3) if len(str(request.end)) > 10 else request.end
             q.filter(TrackedEvent.created < datetime.datetime.fromtimestamp(timestamp_end))

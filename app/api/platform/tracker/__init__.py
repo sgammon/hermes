@@ -215,7 +215,7 @@ class Tracker(Platform):
 
         return raw, tracker
 
-    def provision(self, owner, specs, spec=None):
+    def provision(self, owner, specs=None, spec=None):
 
         ''' Entrypoint for provisioning/creating new
             :py:class:`api.models.tracker.endpoint.Tracker` objects.
@@ -258,11 +258,14 @@ class Tracker(Platform):
             specs = [specs]
 
         # synchronously provision IDs
-        ids = self.engine.adapter(datastore, endpoint.Tracker.kind()).allocate_ids(*(
-            owner,
+        ids = self.engine.adapter(datastore).allocate_ids(*(
+            endpoint.Tracker().key.__class__,
             endpoint.Tracker.kind(),
             len(specs)
         ))
+
+        if not isinstance(ids, (tuple, list)):
+            ids = [ids]
 
         _trackers, pipeline = [], self.engine.pipeline() if len(specs) > 1 else None
         for spec, id in zip(specs, ids):
@@ -276,7 +279,7 @@ class Tracker(Platform):
             elif isinstance(spec, messages.Message):
                 t = endpoint.Tracker(**{
                     'key': model.Key(endpoint.Tracker, id),
-                    'owner': id,
+                    'owner': owner,
                     'profile': spec.profile
                 })
 
@@ -289,8 +292,9 @@ class Tracker(Platform):
 
         if pipeline:  # execute pipeline and return
             pipeline.execute()
+
         if len(specs) is 1:  # return directly if only one was requested
-            return specs[0]
+            return _trackers[0]
         return _trackers
 
     ## == Dispatch Hooks == ##

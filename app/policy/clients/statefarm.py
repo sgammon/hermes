@@ -41,7 +41,6 @@ class StateFarm(base.EventProfile):
     ''' Models StateFarm stuff. '''
 
     refcode = 'statefarmrec'
-    account_id = 'act_123456'
 
     class ConversionLevel(parameter.ParameterGroup):
 

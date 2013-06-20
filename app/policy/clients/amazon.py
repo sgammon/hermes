@@ -21,9 +21,8 @@ class Amazon(base.EventProfile):
     ''' Base profile for Amazon. '''
 
     refcode = 'amazon'
-    account_id = 'act_67890'
 
-    class WhateverName(parameter.ParameterGroup):
+    class ConversionInfo(parameter.ParameterGroup):
 
         ''' Params or something. '''
 
@@ -45,7 +44,7 @@ class Amazon(base.EventProfile):
             'source': http.DataSlot.PARAM
         }
 
-    class SecondGroupOverHere(parameter.ParameterGroup):
+    class AdFunnel(parameter.ParameterGroup):
 
         ''' More params. '''
 

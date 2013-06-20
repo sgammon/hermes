@@ -116,27 +116,11 @@ class EventProfile(core.AbstractProfile):
             'category': parameter.ParameterType.AMPUSH,
             'aggregations': [
                 aggregation.Aggregation('events-by-tracker',
-                                        interval=(timedelta.TimeWindow.TWO_WEEKS, timedelta.TimeWindow.FOUR_WEEKS),
+                                        interval=_DEFAULT_LOOKBACK,
                                         permutations=[
                                             ('by-type', 'Base.TYPE'),
                                             ('by-provider', 'Base.PROVIDER')
                                         ])
-            ]
-        }
-
-        # Contract: represents the contract scope which this hit should be recorded for.
-        contract = basestring, {
-            'policy': parameter.ParameterPolicy.OPTIONAL,
-            'source': http.DataSlot.PARAM,
-            'name': builtin.TrackerProtocol.CONTRACT,
-            'category': parameter.ParameterType.AMPUSH,
-            'aggregations': [
-                aggregation.Aggregation('events-by-contract', interval=_DEFAULT_LOOKBACK, permutations=[
-                    ('by-type', 'Base.TYPE'),
-                    ('by-tracker', 'Base.TRACKER'),
-                    ('by-provider', 'Base.PROVIDER'),
-                    ('by-type-by-provider', ('Base.TYPE', 'Base.PROVIDER'))
-                ])
             ]
         }
 
@@ -149,10 +133,7 @@ class EventProfile(core.AbstractProfile):
             'policy': parameter.ParameterPolicy.PREFERRED,
             'source': http.DataSlot.PARAM,
             'name': environment.BrowserEnvironment.OS,
-            'category': parameter.ParameterType.DATA,
-            'aggregations': [
-                aggregation.Aggregation('hits-by-os', interval=_DEFAULT_LOOKBACK)
-            ]
+            'category': parameter.ParameterType.DATA
         }
 
         # Arch: The underlying architecture of the host operating system (i.e. "x86-64").
@@ -160,7 +141,7 @@ class EventProfile(core.AbstractProfile):
             'policy': parameter.ParameterPolicy.OPTIONAL,
             'source': http.DataSlot.PARAM,
             'name': environment.BrowserEnvironment.ARCH,
-            'category': parameter.ParameterType.DATA,
+            'category': parameter.ParameterType.DATA
         }
 
         # Vendor: The author of the browser being used (i.e. "Google" for Chrome).
@@ -176,33 +157,7 @@ class EventProfile(core.AbstractProfile):
             'policy': parameter.ParameterPolicy.PREFERRED,
             'source': http.DataSlot.PARAM,
             'name': environment.BrowserEnvironment.BROWSER,
-            'category': parameter.ParameterType.DATA,
-            'aggregations': [
-                aggregation.Aggregation('hits-by-browser', interval=_DEFAULT_LOOKBACK, permutations=[
-                    ('by-os', 'Environment.OS'),
-                    ('by-type', 'Base.TYPE'),
-                    ('by-provider', 'Base.PROVIDER'),
-                    ('by-provider-by-type', ('Base.PROVIDER', 'Base.TYPE'))
-                ])
-            ]
-        }
-
-    class Funnel(parameter.ParameterGroup):
-
-        ''' Models the ad/marketing funnel. '''
-
-        # ASID: Legacy tracking adgroup ID.
-        asid = basestring, {
-            'policy': parameter.ParameterPolicy.OPTIONAL,
-            'source': http.DataSlot.PARAM,
-            'name': ['asid', 'adid'],
-            'aggregations': [
-                aggregation.Aggregation('hits-by-adgroup', interval=_DEFAULT_LOOKBACK, permutations=[
-                    ('by-type', 'Base.TYPE'),
-                    ('by-provider', 'Base.PROVIDER'),
-                    ('by-provider-by-type', ('Base.PROVIDER', 'Base.TYPE'))
-                ])
-            ]
+            'category': parameter.ParameterType.DATA
         }
 
     class Consumer(parameter.ParameterGroup):
@@ -215,4 +170,21 @@ class EventProfile(core.AbstractProfile):
             'source': http.DataSlot.COOKIE,
             'name': _DEFAULT_COOKIE_NAME,
             'category': parameter.ParameterType.INTERNAL
+        }
+
+
+## LegacyProfile
+# Abstract parent for legacy event profiles.
+class LegacyProfile(EventProfile):
+
+    ''' Abstract parent for legacy event profiles. '''
+
+    @decorators.differential
+    class Base(parameter.ParameterGroup):
+
+        ''' Models the ad/marketing funnel. '''
+
+        # ASID: Legacy tracking adgroup ID.
+        tracker = basestring, {
+            'name': frozenset(('asid', 'adid'))
         }

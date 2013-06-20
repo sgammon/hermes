@@ -100,8 +100,6 @@ class TrackerService(rpc.Service):
             :raises:
             :returns: '''
 
-        import pdb; pdb.set_trace()
-
         try:
 
             # build a single tracker
@@ -110,7 +108,7 @@ class TrackerService(rpc.Service):
                 return messages.TrackerSet(**{
                     'count': 1,
                     'trackers': [
-                        self.tracker.provision(request.owner, spec=request.spec)
+                        self.tracker.provision(request.owner, spec=request.spec).to_message()
                     ]
                 })
 
@@ -123,7 +121,7 @@ class TrackerService(rpc.Service):
                 # provision trackers
                 return messages.TrackerSet(**{
                     'count': len(trackers),
-                    'trackers': trackers
+                    'trackers': map(lambda x: x.to_message(), trackers)
                 })
 
             else:

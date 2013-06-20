@@ -17,6 +17,7 @@ from protocol import meta
 from protocol.parameter import group
 from protocol.parameter.group import Parameter
 from protocol.parameter.group import ParameterGroup
+from protocol.parameter.group import ParamDeclarationMode
 
 
 ## ParameterBasetype - maps basetypes available for parameters.
