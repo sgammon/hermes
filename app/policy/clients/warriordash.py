@@ -5,17 +5,13 @@ Policy: Warrior Dash
 '''
 
 # base clients
-from policy.clients import base_clients
-
-# protocol imports
-from protocol import meta
-from protocol import http
-from protocol import parameter
-from protocol import timedelta
-from protocol import aggregation
-from protocol.decorators import paramm
+from policy import base
 
 
-class WarriorDash(base_clients.BaseClients):
+## WarriorDash
+# Legacy event tracking profile for Warrior Dash-owned trackers.
+class WarriorDash(base.LegacyProfile):
 
-    refcode = frozenset(['warriordash'])
+    ''' Legacy tracking profile for Warrior Dash trackers. '''
+
+    refcode = 'warriordash'

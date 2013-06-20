@@ -5,20 +5,20 @@ Policy: Illuminite Run
 '''
 
 # base clients
-from policy.clients import base_clients
+from policy import base
 
 # protocol imports
-from protocol import meta
 from protocol import http
 from protocol import parameter
-from protocol import timedelta
-from protocol import aggregation
-from protocol.decorators import paramm
 
 
-class IlluminiteRun(base_clients.BaseClients):
+## IlluminiteRun
+# Legacy event policy for trackers owned by Illuminite Run.
+class IlluminiteRun(base.LegacyPolicy):
 
-    refcode = frozenset(['illuminite'])
+    ''' Legacy policy for events owned by Illuminite Run. '''
+
+    refcode = 'illuminite'
 
     class Event(parameter.ParameterGroup):
 

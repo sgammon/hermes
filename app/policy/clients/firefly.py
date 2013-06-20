@@ -5,17 +5,13 @@ Policy: Firefly
 '''
 
 # base clients
-from policy.clients import base_clients
-
-# protocol imports
-from protocol import meta
-from protocol import http
-from protocol import parameter
-from protocol import timedelta
-from protocol import aggregation
-from protocol.decorators import paramm
+from policy import base
 
 
-class Firefly(base_clients.BaseClients):
+## Firefly
+# Legacy event profile for trackers owned by Firefly.
+class Firefly(base.LegacyProfile):
 
-    refcode = frozenset(['firefly'])
+    ''' Tracking policy for legacy hits owned by Firefly. '''
+
+    refcode = 'firefly'

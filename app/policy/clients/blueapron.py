@@ -5,20 +5,21 @@ Policy: Blue Apron
 '''
 
 # policy imports
-from policy.clients import base_clients
+from policy import base
 
 # protocol imports
-from protocol import meta
 from protocol import http
 from protocol import parameter
-from protocol import timedelta
-from protocol import aggregation
-from protocol.decorators import param
 
 
-class BlueApron(base_clients.BaseClients):
+## BlueApron
+# Policy class for trackers owned by Blue Apron.
+class BlueApron(base.LegacyProfile):
 
-    refcode = frozenset(['blueapron'])
+    ''' Legacy event policy class for trackers owned
+        by Blue Apron. '''
+
+    refcode = 'blueapron'
 
     class Event(parameter.ParameterGroup):
 

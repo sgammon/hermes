@@ -5,20 +5,20 @@ Policy: myVEGAS
 '''
 
 # base clients
-from policy.clients import base_clients
+from policy import base
 
 # protocol imports
-from protocol import meta
 from protocol import http
 from protocol import parameter
-from protocol import timedelta
-from protocol import aggregation
-from protocol.decorators import param
 
 
-class myVegas(base_clients.BaseClients):
+## MyVegas
+# Legacy event profile for trackers owned by MyVegas.
+class MyVegas(base.LegacyProfile):
 
-    refcode = frozenset(['myvegas'])
+    ''' Legacy event profile for trackers owned by MyVegas. '''
+
+    refcode = 'myvegas'
 
     class Event(parameter.ParameterGroup):
 
@@ -27,4 +27,3 @@ class myVegas(base_clients.BaseClients):
             'name': 'event',
             'source': http.DataSlot.PARAM
         }
-        

@@ -5,20 +5,20 @@ Policy: 1800-PetMeds
 '''
 
 # base clients
-from policy.clients import base_clients
+from policy import base
 
 # protocol imports
-from protocol import meta
 from protocol import http
 from protocol import parameter
-from protocol import timedelta
-from protocol import aggregation
-from protocol.decorators import paramm
 
 
-class PetMeds(base_clients.BaseClients):
+## PetMeds
+# Legacy event policy class for trackers owned by 1800-Pet-Meds.
+class PetMeds(base.LegacyProfile):
 
-    refcode = frozenset(['800petmeds'])
+    ''' Legacy event profile for 1800 Pet Meds. '''
+
+    refcode = '800petmeds'
 
     class Order(parameter.ParameterGroup):
 

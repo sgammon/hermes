@@ -5,17 +5,13 @@ Policy: Snorg Tees
 '''
 
 # base clients
-from policy.clients import base_clients
-
-# protocol imports
-from protocol import meta
-from protocol import http
-from protocol import parameter
-from protocol import timedelta
-from protocol import aggregation
-from protocol.decorators import paramm
+from policy import base
 
 
-class SnorgTees(base_clients.BaseClients):
+## SnorgTees
+# Legacy event profile for trackers owned by SnorgTees.
+class SnorgTees(base.LegacyProfile):
 
-    refcode = frozenset(['snorgtees'])
+    ''' Legacy tracking profile for trackers owned by SnorgTees. '''
+
+    refcode = 'snorgtees'

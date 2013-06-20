@@ -5,22 +5,20 @@ Policy: Amazon
 '''
 
 # policy imports
-from policy.clients import base_clients
+from policy import base
 
 # protocol imports
-from protocol import meta
 from protocol import http
 from protocol import parameter
-from protocol import timedelta
-from protocol import aggregation
-from protocol.decorators import param
 
 
-class Amazon(base_clients.BaseClients):
+## Amazon
+# Legacy event profile for trackers owned by Amazon.
+class Amazon(base.LegacyProfile):
 
     ''' Base profile for Amazon. '''
 
-    refcode = frozenset(['amazon'])
+    refcode = 'amazon'
 
     class Order(parameter.ParameterGroup):
 

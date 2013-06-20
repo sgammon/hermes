@@ -5,20 +5,19 @@ Policy: LivingSocial
 '''
 
 # policy imports
-from policy.clients import base_clients
+from policy import base
 
 # protocol imports
-from protocol import meta
 from protocol import http
 from protocol import parameter
-from protocol import timedelta
-from protocol import aggregation
-from protocol.decorators import param
 
 
-class LivingSocial(base_clients.BaseClients):
+## LivingSocial
+# Legacy event profile for LivingSocial-owned trackers.
+class LivingSocial(base.LegacyProfile):
 
     ''' Base profile for LivingSocial. '''
+
     refcode = frozenset(['livingsocialUS',
                          'livingsocialUSstory'])
 

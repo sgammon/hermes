@@ -5,17 +5,14 @@ Policy: Rdio
 '''
 
 # base clients
-from policy.clients import base_clients
-
-# protocol imports
-from protocol import meta
-from protocol import http
-from protocol import parameter
-from protocol import timedelta
-from protocol import aggregation
-from protocol.decorators import paramm
+from policy import base
 
 
-class Rdio(base_clients.BaseClients):
+## Rdio
+# Legacy event profile for Rdio-owned trackers.
+class Rdio(base.LegacyProfile):
 
-    refcode = frozenset(['rdio'])
+    ''' Legacy event tracking profile for trackers
+        owned by Rdio. '''
+
+    refcode = 'rdio'
