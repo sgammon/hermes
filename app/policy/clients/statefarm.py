@@ -40,7 +40,7 @@ class StateFarm(base.EventProfile):
 
     ''' Models StateFarm stuff. '''
 
-    refcode = 'statefarmrec'
+    refcode = frozenset(['statefarmrec', 'statefarmauto'])
 
     class ConversionLevel(parameter.ParameterGroup):
 
