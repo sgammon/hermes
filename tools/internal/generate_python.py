@@ -74,7 +74,7 @@ def _write_fields(field_descriptors, out):
       module = 'message_types'
       field_type = message_field
     else:
-      module = 'services'
+      module = 'rpc.messages'
       field_type = messages.Field.lookup_field_type_by_variant(field.variant)
 
     if field_type in (messages.EnumField, messages.MessageField):
@@ -153,7 +153,7 @@ def _write_methods(method_descriptors, out):
   """
   for method in method_descriptors:
     out << ''
-    out << "@remote.method('%s', '%s')" % (method.request_type,
+    out << "@rpc.method('%s', '%s')" % (method.request_type,
                                            method.response_type)
     out << 'def %s(self, request):' % (method.name,)
     with out.indent():
@@ -172,7 +172,7 @@ def _write_services(service_descriptors, out):
   for service in service_descriptors or []:
     out << ''
     out << ''
-    out << 'class %s(remote.Service):' % service.name
+    out << 'class %s(rpc.Service):' % service.name
 
     with out.indent():
       if service.methods:
@@ -206,7 +206,7 @@ def format_python_file(file_descriptor, output, indent_space=2):
   out = generate.IndentWriter(output, indent_space=indent_space)
 
   out << 'from protorpc import message_types'
-  out << 'from apptools import services'
+  out << 'from apptools import rpc'
   out << 'from protorpc import messages'
   if file_descriptor.service_types:
     out << 'from protorpc import remote'
