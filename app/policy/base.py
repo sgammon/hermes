@@ -186,7 +186,7 @@ class LegacyProfile(EventProfile):
 
         # ASID: Legacy tracking adgroup ID.
         @decorators.parameter(name=frozenset(('asid', 'adid')), category=None)
-        def tracker(*args, **kwargs):
+        def tracker(data, value):
 
             ''' Tracker callable. '''
 

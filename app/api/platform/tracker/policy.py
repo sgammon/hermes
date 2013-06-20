@@ -219,7 +219,9 @@ class PolicyEngine(PlatformBridge):
             if name is False:  # default to using parameter full name
                 name = prm.name
 
-            if name in (None, False, '', [], set()) or not isinstance(name, (basestring, list, set, tuple, frozenset)):
+            if name in (None, False, '', [], set(), tuple(), frozenset()) or not isinstance(name, (
+                    basestring, list, set, tuple, frozenset)):
+
                 raise exceptions.InvalidParamName("Invalid property name for parameter '%s'."
                                                   " Found name of type '%s'." % (parameter, type(name)))
 
@@ -229,16 +231,15 @@ class PolicyEngine(PlatformBridge):
                 name = name[0]  # start with first available name
 
             # resolve value converter
-            if not prm.mapper:
-                if prm.basetype is not None:
-                    if prm.basetype == basestring:
-                        converter = unicode
-                    else:
-                        converter = prm.basetype
+            if prm.basetype is not None:
+                if prm.basetype == basestring:
+                    converter = unicode
                 else:
-                    converter = lambda x: x
+                    converter = prm.basetype
             else:
-                converter = prm.mapper
+                converter = lambda x: x
+            if prm.mapper:
+                converter = (prm.mapper, converter)
 
             # http.DataSlot.PARAM == 1 (all special slots are >1)
             # http.DataSlot.PATH == 0x5 (maximum, anything above this bound is invalid)
@@ -253,8 +254,9 @@ class PolicyEngine(PlatformBridge):
 
             # add to artifacts to look for
             if name in artifacts:
-                raise exceptions.DuplicateParameterName("Encountered more than one parameter with the name "
-                                                        "'%s' (violating property was '%s'." % (identifier, name))
+                if artifacts[name] is not prm:
+                    raise exceptions.DuplicateParameterName("Encountered more than one parameter with the name "
+                                                            "'%s' (violating property was '%s'." % (identifier, name))
 
             artifacts[identifier], converters[identifier] = prm, converter  # add to artifacts, converters
 
@@ -276,9 +278,9 @@ class PolicyEngine(PlatformBridge):
             yield artifacts[i], converters[i], data[i]  # grab parameter, converter and value
 
         # check for iterable names
-        for _id, param in artifacts.iteritems():
-            if isinstance(param.config.get('name', name), (set, tuple, list, frozenset)):
-                for next in param.config.get('name', name):
+        for _id, prm_permutation in artifacts.iteritems():
+            if isinstance(prm_permutation.config.get('name', name), (set, tuple, list, frozenset)):
+                for next in prm_permutation.config.get('name', name):
                     if next in _done:
                         continue
                     if next in parameters:
@@ -294,23 +296,26 @@ class PolicyEngine(PlatformBridge):
 
                 param = artifacts[i]  # grab parameter
 
-                if isinstance(prm.config.get('name'), (list, set, frozenset, tuple)):
-                    prm_n = prm.config.get('name')
-                    context = [param.name, i, ', '.join(map(lambda s: '"%s"' % s, prm_n))]
-                    message = 'Expected property "%s" with primary name "%s" (and name options %s) was not found.'
+                if isinstance(param.config.get('name'), (list, set, frozenset, tuple)):
+                    prm_n = param.config.get('name')
+                    context = [
+                        "Expected property \"%s\" with primary name \"%s\" (and name options %s) was not found.",
+                        param.name,
+                        i,
+                        ', '.join(map(lambda s: '"%s"' % s, prm_n))
+                    ]
 
                 else:
-                    context = [param.name, i]
-                    message = 'Expected property "%s" (at name "%s") was not found.'
+                    context = ["Expected property \"%s\" (at name \"%s\") was not found.", param.name, i]
 
                 # check if this is an enforced/required property
-                if prm.config.get('policy', parameter.ParameterPolicy.OPTIONAL) in (
+                if param.config.get('policy', parameter.ParameterPolicy.OPTIONAL) in (
                         parameter.ParameterPolicy.REQUIRED, parameter.ParameterPolicy.ENFORCED):
-                    yield param, exceptions.MissingParameter, [message] + context
+                    yield param, exceptions.MissingParameter, context
 
                 else:
                     # if it's not a strict field, don't except
-                    yield param, None, (message, param.name, i)
+                    yield param, None, context
 
             for i in no_schema:
                 if i == 'ref' and legacy:
@@ -378,6 +383,7 @@ class PolicyEngine(PlatformBridge):
         data_parameters = {}
 
         try:
+            _deferred_mappers = []
             for param, followup, data in self.match_parameters(data, base_policy, legacy):
 
                 # check if we're dealing with a warning
@@ -397,12 +403,29 @@ class PolicyEngine(PlatformBridge):
                         if data is None:
                             data_parameters[param.name] = data
                         else:
-                            # convert types/call mappers and assign to data properties
-                            data_parameters[param.name] = followup(data)
+                            if isinstance(followup, tuple):  # it's a mapper, defer it until later
+                                followup, converter = followup
+                                _deferred_mappers.append((param.name, followup, converter, data))
+
+                            else:  # it's a basetype
+                                # convert types/call mappers and assign to data properties
+                                data_parameters[param.name] = followup(data)
 
                     except ValueError as e:
                         message = 'Error converting param "%s" (with value "%s") using `%s`. Exception: "%s".'
                         self._strictwarn(message, param.name, data, followup, str(e), event=ev)
+                        continue
+
+            # run deferred mappers
+            for prm_name, followup, converter, data in _deferred_mappers:
+
+                try:
+                    data_parameters[prm_name] = followup(data_parameters, converter(data))
+
+                except ValueError as e:
+                    message = 'Error converting param "%s" (with mapper, and value "%s"). Exception: "%s".'
+                    self._strictwarn(message, param.name, str(e))
+                    continue
 
         except exceptions.PolicyEngineException as e:
 
@@ -449,9 +472,11 @@ class PolicyEngine(PlatformBridge):
                     else:
                         self.logging.info('FULL event saved successfully.')
 
+                raise  # re-raise
+
             # if we're in strict mode, re-raise errors
             if self.config.get('strict', True):
-                raise
+                raise  # re-raise
 
         else:
 

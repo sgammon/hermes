@@ -48,12 +48,6 @@ class Amazon(base.EventProfile):
 
         ''' More params. '''
 
-        ad_id = basestring, {
-            'policy': parameter.ParameterPolicy.OPTIONAL,
-            'name': 'adid',
-            'source': http.DataSlot.PARAM
-        }
-
         user_id = basestring, {
             'policy': parameter.ParameterPolicy.OPTIONAL,
             'name': 'uid',

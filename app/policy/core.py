@@ -113,11 +113,6 @@ class Profile(type):
                 {param.name: param for param in _parent_policy.parameters}
             )
 
-            if group.__mode__ in (parameter.ParamDeclarationMode.DECLARATION,
-                                  parameter.ParamDeclarationMode.VALUES):
-                #param_pool.update(parent_pool)
-                pass
-
             # build and initialize parameters
             for param, config in local_pool.iteritems():
 
@@ -338,9 +333,7 @@ class Profile(type):
 
             for parent in target:
                 if isinstance(parent, type) and issubclass(parent, AbstractProfile):
-                    chain += [parent]
-                    if hasattr(target, '__chain__'):
-                        chain += target.__chain__
+                    chain += ([parent] + list(parent.__interpreter__.__chain__))
 
             self.__chain__ = tuple(chain)
             return self
@@ -501,8 +494,9 @@ class AbstractProfile(object):
             :yields: Each ``link`` in the profile
             inheritance :py:attr:`self.__chain__`. '''
 
-        for link in cls.__interpreter__.__chain__:
-            yield link
+        for link in (cls.__interpreter__.__chain__ + cls.__bases__):
+            if hasattr(link, '__interpreter__'):
+                yield link
 
     @util.classproperty
     def primitives(cls):
