@@ -224,16 +224,21 @@ class PolicyEngine(PlatformBridge):
                                                   " Found name of type '%s'." % (parameter, type(name)))
 
             if isinstance(name, (set, tuple, list, frozenset)):
+                if isinstance(name, (set, frozenset)):
+                    name = tuple(name)
                 name = name[0]  # start with first available name
 
             # resolve value converter
-            if prm.basetype is not None:
-                if prm.basetype == basestring:
-                    converter = unicode
+            if not prm.mapper:
+                if prm.basetype is not None:
+                    if prm.basetype == basestring:
+                        converter = unicode
+                    else:
+                        converter = prm.basetype
                 else:
-                    converter = prm.basetype
+                    converter = lambda x: x
             else:
-                converter = lambda x: x
+                converter = prm.mapper
 
             # http.DataSlot.PARAM == 1 (all special slots are >1)
             # http.DataSlot.PATH == 0x5 (maximum, anything above this bound is invalid)
@@ -292,7 +297,7 @@ class PolicyEngine(PlatformBridge):
                 if isinstance(prm.config.get('name'), (list, set, frozenset, tuple)):
                     prm_n = prm.config.get('name')
                     context = [param.name, i, ', '.join(map(lambda s: '"%s"' % s, prm_n))]
-                    message = 'Expected property "%s" (at name options %s) was not found.'
+                    message = 'Expected property "%s" with primary name "%s" (and name options %s) was not found.'
 
                 else:
                     context = [param.name, i]
@@ -392,7 +397,7 @@ class PolicyEngine(PlatformBridge):
                         if data is None:
                             data_parameters[param.name] = data
                         else:
-                            # convert types and assign to data properties
+                            # convert types/call mappers and assign to data properties
                             data_parameters[param.name] = followup(data)
 
                     except ValueError as e:
@@ -463,9 +468,9 @@ class PolicyEngine(PlatformBridge):
                         pipe = self.bus.engine.increment(subspec, delta, pipe)
                         ev.aggregations.append(subspec)
 
-            # calculate aggregation specs
+            # calculate attribution specs
             #for spec in base_policy.attributions:
-            #    print "Would aggregate: %s" % spec
+            #    print "Would attribute: %s" % spec
 
             # return tupled <raw>, <tracker>, <ev>
             return raw, tracker, ev, pipe

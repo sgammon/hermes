@@ -35,6 +35,7 @@ class Parameter(meta.ProtocolBinding):
     ## == Internal Properties == ##
     __slots__ = ('name',
                  'group',
+                 'mapper',
                  'policy',
                  'parent',
                  'config',
@@ -45,6 +46,7 @@ class Parameter(meta.ProtocolBinding):
     ## == External Properties == ##
     name = None
     group = None
+    mapper = None
     policy = None
     parent = None
     config = None
@@ -93,6 +95,11 @@ class Parameter(meta.ProtocolBinding):
         # adopt parent param's value, if any
         if not value and parent is not None:
             value = parent.basevalue
+
+        # pluck and attach mapper, if found
+        if 'mapper' in config:
+            self.mapper = config.get('mapper')
+            del config['mapper']
 
         # attach parent definitions
         self.policy, self.parent = _policy, parent

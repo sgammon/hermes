@@ -2,7 +2,8 @@
 
 from protocol.parameter.group import ParamDeclarationMode
 
-# Parameter decorators
+
+# ParameterGroup decorators
 
 
 def declaration(group):
@@ -60,3 +61,47 @@ def values(group):
     ## mark group as a values block
     group.__mode__ = ParamDeclarationMode.VALUES
     return group
+
+
+# Parameter decorators
+
+def parameter(basetype=basestring, config=None, **kwconfig):
+
+    ''' Wrap a callable and make it a parameter,
+        assigning any config passed-in and attaching
+        the decorated callable as the constructed
+        :py:class:`Parameter` mapper.
+
+        :param basetype: Type constructor for the
+        target parameter. Defaults to ``basestring``,
+        which is fine for most applications.
+
+        :param config: Positional ``dict`` config to
+        pass in to constructed :py:class:`Parameter`.
+
+        :param **config: Kwarg-style ``dict`` config
+        to pass in to constructed :py:class:`Parameter`.
+        Overrides entries in positional ``config``.
+
+        :returns: Factoried parameter spec - ``basetype``,
+        ``config`` tuple for use in :py:class:`Profile`
+        descendants. '''
+
+    # resolve and merge config
+    if not config: config = {}
+    config.update(kwconfig)
+
+    def wrap_parameter(mapper_fn):
+
+        ''' Nested closure wrapper for decorating
+            inline :py:class:`Parameter` mappers.
+
+            :param callable: Mapper to be decorated.
+
+            :returns: Wrapped mapper and generated
+            :py:class:`Parameter` spec. '''
+
+        config['mapper'] = mapper_fn
+        return basetype, config
+
+    return wrap_parameter

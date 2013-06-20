@@ -185,6 +185,9 @@ class LegacyProfile(EventProfile):
         ''' Models the ad/marketing funnel. '''
 
         # ASID: Legacy tracking adgroup ID.
-        tracker = basestring, {
-            'name': frozenset(('asid', 'adid'))
-        }
+        @decorators.parameter(name=frozenset(('asid', 'adid')), category=None)
+        def tracker(*args, **kwargs):
+
+            ''' Tracker callable. '''
+
+            return 'blab'

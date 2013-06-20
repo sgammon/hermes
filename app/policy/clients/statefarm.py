@@ -36,7 +36,7 @@ class StateFarmConversionLevels(meta.ProtocolDefinition):
     THREE = 0x3
 
 
-class StateFarm(base.EventProfile):
+class StateFarm(base.LegacyProfile):
 
     ''' Models StateFarm stuff. '''
 
