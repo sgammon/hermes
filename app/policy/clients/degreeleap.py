@@ -5,7 +5,7 @@ Policy: DegreeLeap
 '''
 
 # base clients
-from policy.clients import base_clients
+from policy import base
 
 # protocol imports
 from protocol import http
@@ -14,7 +14,7 @@ from protocol import parameter
 
 ## DegreeLeap
 # Legacy profile class for trackers owned by Degree Leap.
-class DegreeLeap(base_clients.BaseClients):
+class DegreeLeap(base.LegacyProfile):
 
     ''' Legacy event policy for trackers owned by Degree Leap. '''
 

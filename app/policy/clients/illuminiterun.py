@@ -14,7 +14,7 @@ from protocol import parameter
 
 ## IlluminiteRun
 # Legacy event policy for trackers owned by Illuminite Run.
-class IlluminiteRun(base.LegacyPolicy):
+class IlluminiteRun(base.LegacyProfile):
 
     ''' Legacy policy for events owned by Illuminite Run. '''
 
