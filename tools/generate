@@ -3,8 +3,8 @@
 ## Generates autobuilt-files for Hermes.
 
 VERSION="0.5"
-TRACK="dev"
-BUILD="00"
+TRACK="RC1"
+BUILD="20130620"
 
 RELEASE="$VERSION-$BUILD-$TRACK"
 

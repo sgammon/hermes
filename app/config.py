@@ -53,7 +53,7 @@ _config['apptools.project'] = {
         'minor': 5,
         'micro': 0,
         'build': 20130620,
-        'release': 'ALPHA'
+        'release': 'RC1'
     }
 
 }
