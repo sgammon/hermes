@@ -52,7 +52,7 @@ _config['apptools.project'] = {
         'major': 0,
         'minor': 5,
         'micro': 0,
-        'build': 20130610,
+        'build': 20130620,
         'release': 'ALPHA'
     }
 
@@ -91,15 +91,15 @@ _config['protocol.aggregation.Aggregation'] = {
 # Redis Adapter
 _config['apptools.model.adapters.redis.Redis'] = {
 
-    'debug': True,  # debug messages
+    'debug': False,  # debug messages
 
     'servers': {
 
         'default': 'tracker',
 
         # Redis Instances
-        'hermes': {'unix_socket_path': '/ns/runtime/sock/redis.sock', 'db': 0},
-        'tracker': {'unix_socket_path': '/ns/runtime/sock/redis.sock', 'db': 1}
+        'hermes': {'unix_socket_path': '/ns/runtime/sock/redis.sock'},
+        'tracker': {'unix_socket_path': '/ns/runtime/sock/redis.sock'}
 
     }
 
@@ -157,22 +157,16 @@ _config['apptools.project.output'] = {
     },
 
     'headers': {  # Default Headers (only supported headers are shown)
-        'Vary': 'Content-Encoding',
-        'Content-Language': 'en-US,en',
-        'Cache-Control': 'private,max-age=3600',  # default to not caching dynamic content
+        'Cache-Control': 'no-cache,no-store',  # default to not caching dynamic content
         'X-Powered-By': 'Tracker/v1',
-        'X-UA-Compatible': 'IE=edge,chrome=1',  # http://code.google.com/chrome/chromeframe/
         'XAF-Origin': 'AppHosting/Hermes/1.0',
 
         ## /*****/ CORS /*****/ ##
         'Access-Control-Allow-Origin': None,
-
         'Access-Control-Allow-Methods': 'GET, POST',
-
         'Access-Control-Allow-Headers': ','.join([
             'Content-Type', 'Content-Length', 'XAF-Session', 'XAF-Token', 'XAF-Channel',
             'XAF-Socket', 'X-ServiceTransport', 'X-ServiceClient']),
-
         'Access-Control-Expose-Headers': ','.join([
             'Content-Type', 'Content-Length', 'XAF-Session', 'XAF-Token', 'XAF-Channel',
             'XAF-Socket', 'X-ServiceTransport', 'X-ServiceClient'])

@@ -162,6 +162,7 @@ class Profile(type):
 
                     if isinstance(config, tuple):  # this is an error
                         raise TypeError('Cannot provide schema with @param.values decorator. Got: "%s".' % config)
+                    basevalue, config = config, parent_param.config
 
                     param_pool[param] = current_param = parameter.Parameter(*(
                         policy,
@@ -169,8 +170,8 @@ class Profile(type):
                         mainconfig['definition']['name'],
                         param,
                         parent_param.basetype,
-                        config),
-                        **parent_param.config)
+                        basevalue),
+                        **config)
 
 
                 # `DIFFERENTIAL` mode - apply changes in this class to the parent and take the result
@@ -180,8 +181,12 @@ class Profile(type):
                         basetype, config = config
                         basevalue = parent_param.basevalue if parent_param else None
 
-                    else:  # simple basetype mapping
-                        basetype, config, basevalue = config, {}, None
+                    else:
+                        if isinstance(config, type):  # simple basetype mapping
+                            basetype, config, basevalue = config, {}, None
+
+                        else:  # simple basevalue mapping
+                            basetype, config, basevalue = parent_param.basetype, {}, config
 
                     _cfg = {}  # build config
                     if parent_param:
@@ -195,7 +200,7 @@ class Profile(type):
                         mainconfig['definition']['name'],
                         param,
                         parent_param.basetype if parent_param else basetype,
-                        config),
+                        basevalue),
                         **_cfg)
 
                 else:

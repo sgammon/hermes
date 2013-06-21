@@ -56,6 +56,11 @@ class Definition(object):
                         _prop_lookup.add(k)  # add key to property lookup
                         _prop_data.append(k)  # add key (positional)
                         _value_data.append(v)  # add value (positional)
+                    else:
+                        # config-less binding
+                        _prop_lookup.add(k)
+                        _prop_data.append(k)
+                        _value_data.append(v)
 
             else:
                 # resolve, hash, and enforce uniqueness for mappings

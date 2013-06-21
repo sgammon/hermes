@@ -297,26 +297,30 @@ class PolicyEngine(PlatformBridge):
 
                 param = artifacts[i]  # grab parameter
 
-                if isinstance(param.config.get('name'), (list, set, frozenset, tuple)):
-                    prm_n = param.config.get('name')
-                    context = [
-                        "Expected property \"%s\" with primary name \"%s\" (and name options %s) was not found.",
-                        param.name,
-                        i,
-                        ', '.join(map(lambda s: '"%s"' % s, prm_n))
-                    ]
-
+                if param.basevalue is not None:
+                    yield param, param.basetype, param.basevalue
                 else:
-                    context = ["Expected property \"%s\" (at name \"%s\") was not found.", param.name, i]
 
-                # check if this is an enforced/required property
-                if param.config.get('policy', parameter.ParameterPolicy.OPTIONAL) in (
-                        parameter.ParameterPolicy.REQUIRED, parameter.ParameterPolicy.ENFORCED):
-                    yield param, exceptions.MissingParameter, context
+                    if isinstance(param.config.get('name'), (list, set, frozenset, tuple)):
+                        prm_n = param.config.get('name')
+                        context = [
+                            "Expected property \"%s\" with primary name \"%s\" (and name options %s) was not found.",
+                            param.name,
+                            i,
+                            ', '.join(map(lambda s: '"%s"' % s, prm_n))
+                        ]
 
-                else:
-                    # if it's not a strict field, don't except
-                    yield param, None, context
+                    else:
+                        context = ["Expected property \"%s\" (at name \"%s\") was not found.", param.name, i]
+
+                    # check if this is an enforced/required property
+                    if param.config.get('policy', parameter.ParameterPolicy.OPTIONAL) in (
+                            parameter.ParameterPolicy.REQUIRED, parameter.ParameterPolicy.ENFORCED):
+                        yield param, exceptions.MissingParameter, context
+
+                    else:
+                        # if it's not a strict field, don't except
+                        yield param, None, context
 
             for i in no_schema:
                 if i == 'ref' and legacy:
@@ -409,6 +413,9 @@ class PolicyEngine(PlatformBridge):
                                 _deferred_mappers.append((param.name, followup, converter, data))
 
                             else:  # it's a basetype
+                                if followup is basestring:
+                                    followup = unicode
+
                                 # convert types/call mappers and assign to data properties
                                 data_parameters[param.name] = followup(data)
 
@@ -421,6 +428,8 @@ class PolicyEngine(PlatformBridge):
             for prm_name, followup, converter, data in _deferred_mappers:
 
                 try:
+                    if converter is basestring:
+                        converter = unicode
                     data_parameters[prm_name] = followup(ev, data_parameters, converter(data))
 
                 except ValueError as e:

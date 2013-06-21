@@ -183,6 +183,9 @@ class LegacyProfile(EventProfile):
 
         ''' Models the ad/marketing funnel. '''
 
+        # Type: always `CONVERSION` when we're running legacy.
+        type = event.EventType.CONVERSION
+
         # ASID: Legacy tracking adgroup ID.
         @decorators.parameter(name=frozenset(('asid', 'adid', 'ad_id')), category=None)
         def tracker(event, data, value):
@@ -192,7 +195,6 @@ class LegacyProfile(EventProfile):
             # also store as tracker if it's there
             event.tracker = value
             return value
-
 
     class ConversionLevel(parameter.ParameterGroup):
 
