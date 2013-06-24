@@ -5,4 +5,4 @@ __all__ = ['statefarm', 'amazon', 'livingsocial',
            'degreeleap', 'blueapron', '1800petmeds',
            'blueapron', 'degreeleap', 'firefly',
            'illuminiterun', 'kaplan', 'myvegas',
-           'rdio', 'snorgtees', 'warriordash']
+           'rdio', 'snorgtees', 'warriordash', 'julep']
