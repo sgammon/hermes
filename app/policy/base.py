@@ -201,59 +201,69 @@ class LegacyProfile(EventProfile):
         conversion = bool, {
             'policy': parameter.ParameterPolicy.OPTIONAL,
             'name': ('conv', 'conv1'),
-            'source': http.DataSlot.PARAM
+            'source': http.DataSlot.PARAM,
+            'aggregations': [aggregation.Aggregation(interval=_DEFAULT_LOOKBACK)]
         }
 
         conversion2 = bool, {
             'policy': parameter.ParameterPolicy.OPTIONAL,
             'name': 'conv2',
-            'source': http.DataSlot.PARAM
+            'source': http.DataSlot.PARAM,
+            'aggregations': [aggregation.Aggregation(interval=_DEFAULT_LOOKBACK)]
         }
 
         conversion3 = bool, {
             'policy': parameter.ParameterPolicy.OPTIONAL,
             'name': 'conv3',
-            'source': http.DataSlot.PARAM
+            'source': http.DataSlot.PARAM,
+            'aggregations': [aggregation.Aggregation(interval=_DEFAULT_LOOKBACK)]
         }
 
         conversion4 = bool, {
             'policy': parameter.ParameterPolicy.OPTIONAL,
             'name': 'conv4',
-            'source': http.DataSlot.PARAM
+            'source': http.DataSlot.PARAM,
+            'aggregations': [aggregation.Aggregation(interval=_DEFAULT_LOOKBACK)]
         }
 
         conversion5 = bool, {
             'policy': parameter.ParameterPolicy.OPTIONAL,
             'name': 'conv5',
-            'source': http.DataSlot.PARAM
+            'source': http.DataSlot.PARAM,
+            'aggregations': [aggregation.Aggregation(interval=_DEFAULT_LOOKBACK)]
         }
 
         conversion6 = bool, {
             'policy': parameter.ParameterPolicy.OPTIONAL,
             'name': 'conv6',
-            'source': http.DataSlot.PARAM
+            'source': http.DataSlot.PARAM,
+            'aggregations': [aggregation.Aggregation(interval=_DEFAULT_LOOKBACK)]
         }
 
         conversion7 = bool, {
             'policy': parameter.ParameterPolicy.OPTIONAL,
             'name': 'conv7',
-            'source': http.DataSlot.PARAM
+            'source': http.DataSlot.PARAM,
+            'aggregations': [aggregation.Aggregation(interval=_DEFAULT_LOOKBACK)]
         }
 
         conversion8 = bool, {
             'policy': parameter.ParameterPolicy.OPTIONAL,
             'name': 'conv8',
-            'source': http.DataSlot.PARAM
+            'source': http.DataSlot.PARAM,
+            'aggregations': [aggregation.Aggregation(interval=_DEFAULT_LOOKBACK)]
         }
 
         conversion9 = bool, {
             'policy': parameter.ParameterPolicy.OPTIONAL,
             'name': 'conv9',
-            'source': http.DataSlot.PARAM
+            'source': http.DataSlot.PARAM,
+            'aggregations': [aggregation.Aggregation(interval=_DEFAULT_LOOKBACK)]
         }
 
         conversion10 = bool, {
             'policy': parameter.ParameterPolicy.OPTIONAL,
             'name': 'conv10',
-            'source': http.DataSlot.PARAM
+            'source': http.DataSlot.PARAM,
+            'aggregations': [aggregation.Aggregation(interval=_DEFAULT_LOOKBACK)]
         }
