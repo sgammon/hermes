@@ -40,6 +40,7 @@ class Aggregation(meta.ProtocolBinding):
     ## == State == ##
     prop = None  # target properties of this aggregation
     interval = None  # intervals we wish to aggregate for
+    toplevel = True  # whether to yield a top-level aggregation or just perms
     permutations = None  # permutations of this aggregation
 
     ## == Internals == ##
@@ -55,6 +56,7 @@ class Aggregation(meta.ProtocolBinding):
         ''' Initialize this ``Aggregation``. '''
 
         # set name + interval, default interval is ``FOREVER`` (global count), set empty tuple of perms
+        self.toplevel = config.get('toplevel', True)
         self.interval = config.get('interval', timedelta.TimeWindow.FOREVER)
         self.permutations = config.get('permutations', tuple())
 
@@ -202,6 +204,10 @@ class Aggregation(meta.ProtocolBinding):
                                          'to have a null value.' % (self, prop))
                     continue
 
+                # stringify numeric values
+                if isinstance(value, (int, long, float, bool)):
+                    value = str(value)
+
                 b64_value = base64.b64encode(value)
                 self.logging.debug('Encoding value "%s" to b64 "%s".' % (value, b64_value))
                 hashspec.append(b64_value)
@@ -255,11 +261,13 @@ class Aggregation(meta.ProtocolBinding):
         ''' Build this ``Aggregation``, and all attached
             permutations. '''
 
-        # build local aggregation
-        yield self._build_spec(policy, event)
+        if self.toplevel:
+            # build local aggregation
+            yield self._build_spec(policy, event)
 
-        for perm, spec in self._build_perms(policy, event):
-            yield perm, spec
+        if self.permutations:
+            for perm, spec in self._build_perms(policy, event):
+                yield perm, spec
 
     def __call__(self, policy, event):
 

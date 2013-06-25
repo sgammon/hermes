@@ -294,7 +294,7 @@ class PolicyEngine(PlatformBridge):
                         valid.add(_id)
                         if _id in no_value: no_value.remove(_id)
                         if _id in no_schema: no_value.remove(_id)
-                        yield artifacts[_id], _id, converters[_id], data[next]
+                        yield artifacts[_id], next, converters[_id], data[next]
 
         if no_value or no_schema:  # process invalid parameters, if any
 

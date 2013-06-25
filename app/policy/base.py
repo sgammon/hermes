@@ -215,7 +215,12 @@ class LegacyProfile(EventProfile):
             'source': http.DataSlot.PARAM,
             'policy': parameter.ParameterPolicy.OPTIONAL,
             'name': frozenset(['conv', 'conversion'] + reduce(lambda x, y: x + y,
-                             (['conv%s' % i, 'conversion%s' % i] for i in xrange(1, 25))))
+                             (['conv%s' % i, 'conversion%s' % i] for i in xrange(1, 25)))),
+            'aggregations': [aggregation.Aggregation(**{
+                'toplevel': False,
+                'interval': _DEFAULT_LOOKBACK,
+                'permutations': ['Base.TRACKER']
+            })],
         })
         def conversion(event, data, key, value):
 
@@ -239,5 +244,5 @@ class LegacyProfile(EventProfile):
 
                     level = int(level)  # int-ify our conversion level
                 event.level = level
-
-            return value
+                return level  # level decoded OK
+            return value  # return directly - something is wrong
