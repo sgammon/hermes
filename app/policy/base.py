@@ -196,74 +196,48 @@ class LegacyProfile(EventProfile):
             event.tracker = value
             return value
 
-    class ConversionLevel(parameter.ParameterGroup):
+        # Ref: Map refcode onto matching event property, if provided.
+        @decorators.parameter(name=frozenset(('ref', 'refcode')), category=None)
+        def ref(event, data, value):
 
-        conversion = bool, {
-            'policy': parameter.ParameterPolicy.OPTIONAL,
-            'name': ('conv', 'conv1'),
-            'source': http.DataSlot.PARAM,
-            'aggregations': [aggregation.Aggregation(interval=_DEFAULT_LOOKBACK)]
-        }
+            ''' Ref callable. '''
 
-        conversion2 = bool, {
-            'policy': parameter.ParameterPolicy.OPTIONAL,
-            'name': 'conv2',
-            'source': http.DataSlot.PARAM,
-            'aggregations': [aggregation.Aggregation(interval=_DEFAULT_LOOKBACK)]
-        }
+            # store as property
+            if value:
+                event.refcode = value
+            return value
 
-        conversion3 = bool, {
-            'policy': parameter.ParameterPolicy.OPTIONAL,
-            'name': 'conv3',
-            'source': http.DataSlot.PARAM,
-            'aggregations': [aggregation.Aggregation(interval=_DEFAULT_LOOKBACK)]
-        }
+    class ConversionFunnel(parameter.ParameterGroup):
 
-        conversion4 = bool, {
-            'policy': parameter.ParameterPolicy.OPTIONAL,
-            'name': 'conv4',
+        @decorators.parameter(int, **{
+            'keyed': True,
+            'category': None,
             'source': http.DataSlot.PARAM,
-            'aggregations': [aggregation.Aggregation(interval=_DEFAULT_LOOKBACK)]
-        }
+            'policy': parameter.ParameterPolicy.OPTIONAL,
+            'name': frozenset(['conv', 'conversion'] + reduce(lambda x, y: x + y,
+                             (['conv%s' % i, 'conversion%s' % i] for i in xrange(1, 25))))
+        })
+        def conversion(event, data, key, value):
 
-        conversion5 = bool, {
-            'policy': parameter.ParameterPolicy.OPTIONAL,
-            'name': 'conv5',
-            'source': http.DataSlot.PARAM,
-            'aggregations': [aggregation.Aggregation(interval=_DEFAULT_LOOKBACK)]
-        }
+            ''' Conversion level callable. '''
 
-        conversion6 = bool, {
-            'policy': parameter.ParameterPolicy.OPTIONAL,
-            'name': 'conv6',
-            'source': http.DataSlot.PARAM,
-            'aggregations': [aggregation.Aggregation(interval=_DEFAULT_LOOKBACK)]
-        }
+            if value:
 
-        conversion7 = bool, {
-            'policy': parameter.ParameterPolicy.OPTIONAL,
-            'name': 'conv7',
-            'source': http.DataSlot.PARAM,
-            'aggregations': [aggregation.Aggregation(interval=_DEFAULT_LOOKBACK)]
-        }
+                # check for top-level conversions
+                if key in frozenset(('conv', 'conversion')):
+                    level = 1
+                else:
 
-        conversion8 = bool, {
-            'policy': parameter.ParameterPolicy.OPTIONAL,
-            'name': 'conv8',
-            'source': http.DataSlot.PARAM,
-            'aggregations': [aggregation.Aggregation(interval=_DEFAULT_LOOKBACK)]
-        }
+                    # long-form parameter names
+                    if 'conversion' in key:
+                        splitkey = 'conversion'
 
-        conversion9 = bool, {
-            'policy': parameter.ParameterPolicy.OPTIONAL,
-            'name': 'conv9',
-            'source': http.DataSlot.PARAM,
-            'aggregations': [aggregation.Aggregation(interval=_DEFAULT_LOOKBACK)]
-        }
+                    # short-form parameter names
+                    else:
+                        splitkey = 'conv'
+                    _, level = tuple(key.split(splitkey))
 
-        conversion10 = bool, {
-            'policy': parameter.ParameterPolicy.OPTIONAL,
-            'name': 'conv10',
-            'source': http.DataSlot.PARAM,
-            'aggregations': [aggregation.Aggregation(interval=_DEFAULT_LOOKBACK)]
-        }
+                    level = int(level)  # int-ify our conversion level
+                event.level = level
+
+            return value

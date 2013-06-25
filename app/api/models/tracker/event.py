@@ -58,6 +58,10 @@ class TrackedEvent(TrackerModel):
     tracker = basestring, {'required': False, 'indexed': True}  # provisioned tracker that this event came through
     profile = basestring, {'required': True, 'indexed': True}  # policy used to process this event
 
+    ## == Event Context == ##
+    level = int, {'required': False, 'indexed': True}  # conversion funnel depth, if any
+    refcode = basestring, {'required': False, 'indexed': True}  # matched `refcode`, if any
+
     ## == Messages == ##
     errors = basestring, {'repeated': True, 'indexed': False}  # error messages encountered processing this event
     warnings = basestring, {'repeated': True, 'indexed': False}  # warning messages encountered processing this event

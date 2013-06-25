@@ -17,7 +17,11 @@ import webob
 import datetime
 
 # apptools model API
+from apptools import util
 from apptools import model
+
+# apptools utils
+from apptools.util import datastructures
 
 # Protocol Suite
 from protocol import http
@@ -240,14 +244,15 @@ class PolicyEngine(PlatformBridge):
                 converter = lambda x: x
 
             if prm.mapper:
-                converter = (prm.mapper, converter)
+                # does the callable request access to the param key?
+                converter = ((prm.mapper, prm.config.get('keyed', False)), converter)
 
             # http.DataSlot.PARAM == 1 (all special slots are >1)
             # http.DataSlot.PATH == 0x5 (maximum, anything above this bound is invalid)
             if isinstance(data, webob.Request) and prm.config.get('source', 0) > 1 < 0x5:
 
                 # it's an HTTP request with a special extractor. extract the value, yield with param and converter.
-                yield prm, converter, self._http_extractors[prm.config['source']](self, data, name)
+                yield prm, name, converter, self._http_extractors[prm.config['source']](self, data, name)
                 continue  # advance parameter processing loop
 
             # compute identifier
@@ -276,7 +281,7 @@ class PolicyEngine(PlatformBridge):
         _done = set()
         for i in valid:  # process valid parameters
             _done.add(i)
-            yield artifacts[i], converters[i], data[i]  # grab parameter, converter and value
+            yield artifacts[i], i, converters[i], data[i]  # grab parameter, converter and value
 
         # check for iterable names
         for _id, prm_permutation in artifacts.iteritems():
@@ -289,7 +294,7 @@ class PolicyEngine(PlatformBridge):
                         valid.add(_id)
                         if _id in no_value: no_value.remove(_id)
                         if _id in no_schema: no_value.remove(_id)
-                        yield artifacts[_id], converters[_id], data[next]
+                        yield artifacts[_id], _id, converters[_id], data[next]
 
         if no_value or no_schema:  # process invalid parameters, if any
 
@@ -298,7 +303,7 @@ class PolicyEngine(PlatformBridge):
                 param = artifacts[i]  # grab parameter
 
                 if param.basevalue is not None:
-                    yield param, param.basetype, param.basevalue
+                    yield param, i, param.basetype, param.basevalue
                 else:
 
                     if isinstance(param.config.get('name'), (list, set, frozenset, tuple)):
@@ -316,17 +321,17 @@ class PolicyEngine(PlatformBridge):
                     # check if this is an enforced/required property
                     if param.config.get('policy', parameter.ParameterPolicy.OPTIONAL) in (
                             parameter.ParameterPolicy.REQUIRED, parameter.ParameterPolicy.ENFORCED):
-                        yield param, exceptions.MissingParameter, context
+                        yield param, i, exceptions.MissingParameter, context
 
                     else:
                         # if it's not a strict field, don't except
-                        yield param, None, context
+                        yield param, i, None, context
 
             for i in no_schema:
                 if i == 'ref' and legacy:
                     continue  # special case: ``ref`` property
                 message = 'Received unexpected parameter "%s" with value "%s".'
-                yield param, exceptions.UnexpectedParameter, (message, i, data.get(i))
+                yield param, i, exceptions.UnexpectedParameter, (message, i, data.get(i))
 
         raise StopIteration()  # we're done here
 
@@ -389,7 +394,7 @@ class PolicyEngine(PlatformBridge):
 
         try:
             _deferred_mappers = []
-            for param, followup, data in self.match_parameters(data, base_policy, legacy):
+            for param, pkey, followup, data in self.match_parameters(data, base_policy, legacy):
 
                 # check if we're dealing with a warning
                 if followup is None:
@@ -410,7 +415,7 @@ class PolicyEngine(PlatformBridge):
                         else:
                             if isinstance(followup, tuple):  # it's a mapper, defer it until later
                                 followup, converter = followup
-                                _deferred_mappers.append((param.name, followup, converter, data))
+                                _deferred_mappers.append((param, pkey, followup, converter, data))
 
                             else:  # it's a basetype
                                 if followup is basestring:
@@ -425,12 +430,22 @@ class PolicyEngine(PlatformBridge):
                         continue
 
             # run deferred mappers
-            for prm_name, followup, converter, data in _deferred_mappers:
+            for deferred_param, pkey, followup, converter, data in _deferred_mappers:
+
+                # extract `keyed`-ness, if any (sometimes callable requests access to the key a value was found at)
+                followup, keyed = followup
 
                 try:
                     if converter is basestring:
                         converter = unicode
-                    data_parameters[prm_name] = followup(ev, data_parameters, converter(data))
+
+                    # dispatch deferred followup
+                    result = followup(*(
+                        ev, data_parameters, pkey, converter(data)) if keyed else (
+                            ev, data_parameters, converter(data)))
+
+                    if result is not datastructures._EMPTY:
+                        data_parameters[deferred_param.name] = result
 
                 except ValueError as e:
                     message = 'Error converting param "%s" (with mapper, and value "%s"). Exception: "%s".'
