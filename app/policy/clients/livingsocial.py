@@ -25,6 +25,22 @@ class LivingSocial(base.LegacyProfile):
     ''' Base profile for LivingSocial. '''
 
     @decorators.differential
+    class Base(parameter.ParameterGroup):
+
+        ''' Overridden base parameters. '''
+
+        # ASID: Legacy tracking adgroup ID.
+        @decorators.parameter(name='adid', category=None)
+        def tracker(event, data, value):
+
+            ''' Tracker callable. '''
+
+            if 'tracker' in data:
+                event.tracker = data['tracker']
+                return data['tracker']
+            return value
+
+    @decorators.differential
     class Order(parameter.ParameterGroup):
 
         ''' Custom `Order` group, encapsulating client-specific
@@ -58,6 +74,7 @@ class LivingSocial(base.LegacyProfile):
 
             if refcode and asid:  # properly decoded (set `ASID` and `ref_code`)
                 event.refcode = asid
+                data['tracker'] = asid
                 return refcode
 
             return refcode  # did not decode (just set `ref_code`)

@@ -36,10 +36,6 @@ _DEFAULT_COOKIE_NAME = "_amp"
 # Default attribution / aggregation lookback window
 _DEFAULT_LOOKBACK = (timedelta.TimeWindow.ONE_HOUR,
                      timedelta.TimeWindow.ONE_DAY,
-                     timedelta.TimeWindow.ONE_WEEK,
-                     timedelta.TimeWindow.TWO_WEEKS,
-                     timedelta.TimeWindow.FOUR_WEEKS,
-                     timedelta.TimeWindow.YEAR,
                      timedelta.TimeWindow.FOREVER)
 
 
@@ -190,7 +186,7 @@ class LegacyProfile(EventProfile):
     @decorators.differential
     class Base(parameter.ParameterGroup):
 
-        ''' Models the ad/marketing funnel. '''
+        ''' Models base legacy parameters. '''
 
         # Type: always `CONVERSION` when we're running legacy.
         type = event.EventType.CONVERSION
@@ -201,8 +197,9 @@ class LegacyProfile(EventProfile):
 
             ''' Tracker callable. '''
 
-            # also store as tracker if it's there
-            event.tracker = value
+            if not event.tracker:  # only add if it's not already there
+                # also store as tracker if it's there
+                event.tracker = value
             return value
 
         # Ref: Map refcode onto matching event property, if provided.
