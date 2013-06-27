@@ -10,7 +10,7 @@ API Services: Exceptions
 '''
 
 # Hermes Exceptions
-from rpc import remote
+from apptools.rpc import remote
 
 
 ## Error - generic top-level exception for all `APIService` errors.
