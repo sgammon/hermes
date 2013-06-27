@@ -22,14 +22,13 @@ from api.models.tracker import endpoint
 
 
 ## TrackerService - exposes methods for managing config for `EventTracker`.
-@rpc.service
+@rpc.service(name='tracker')
 class TrackerService(rpc.Service):
 
     ''' Exposes methods for configuring the ``EventTracker``, including
         the creation/management of :py:class:`Tracker` objects, the
         retrieval of runtime statistics, and other platform-wide utils. '''
 
-    name = 'tracker'
     _config_path = 'hermes.api.tracker.TrackerAPI'
 
     exceptions = rpc.Exceptions(**{

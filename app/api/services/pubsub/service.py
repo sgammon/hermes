@@ -18,7 +18,7 @@ from apptools import rpc
 
 
 ## PubSubService - exposes methods for publishing and subscribing to `TrackedEvent`(s).
-@rpc.service
+@rpc.service(name='pubsub')
 class PubSubService(rpc.Service):
 
     ''' Exposes methods for publishing and subscribing to the `TrackedEvent` stream. '''
@@ -34,18 +34,18 @@ class PubSubService(rpc.Service):
 
         ''' Publish a message to the global eventstream. '''
 
-        pass
+        raise self.exceptions.generic('PubSub API method `publish` is not yet implemented.')
 
     @rpc.method(messages.BatchSubscribe, messages.BatchSubscribe)
     def subscribe(self, request):
 
         ''' Establish a new subscription to a channel. '''
 
-        pass
+        raise self.exceptions.generic('PubSub API method `subscribe` is not yet implemented.')
 
     @rpc.method(messages.Subscription, rpc.messages.VoidMessage)
     def unsubscribe(self, request):
 
         ''' Close and destroy an existing subscription. '''
 
-        pass
+        raise self.exceptions.generic('PubSub API method `unsubscribe` is not yet implemented.')

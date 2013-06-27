@@ -39,16 +39,17 @@ Operator = messages.EventQuery.FilterDirective.FilterOperator
 
 
 ## EventDataService - exposes methods for extracting data from `EventTracker`.
-@rpc.service
+@rpc.service(name='event')
 class EventDataService(rpc.Service):
 
     ''' Exposes methods for interacting with & extracting data from `EventTracker`. '''
 
-    name = 'event'
     _config_path = 'hermes.api.tracker.EventDataAPI'
 
     exceptions = rpc.Exceptions(**{
-        'generic': exceptions.Error
+        'generic': exceptions.Error,
+        'invalid_owner': exceptions.InvalidOwner,
+        'unknown_owner': exceptions.UnknownOwner
     })
 
     @staticmethod
@@ -76,7 +77,7 @@ class EventDataService(rpc.Service):
         ''' Retrieve a :py:class:`event.TrackedEvent` model
             by its associated :py:class:`model.Key`. '''
 
-        pass
+        raise self.exceptions.generic('Event Data API method `get` is not yet implemented.')
 
     @rpc.method(messages.EventKeys, messages.Events)
     def get_multi(self, request):
@@ -85,7 +86,7 @@ class EventDataService(rpc.Service):
             models by their associated :py:class:`model.Key`
             objects. '''
 
-        pass
+        raise self.exceptions.generic('Event Data API method `get_multi` is not yet implemented.')
 
     @rpc.method(messages.EventRange, messages.Events)
     def get_range(self, request):
@@ -93,7 +94,7 @@ class EventDataService(rpc.Service):
         ''' Retrieve a range of :py:class:`event.TrackedEvent`
             models by special values attached to them. '''
 
-        pass
+        raise self.exceptions.generic('Event Data API method `get_range` is not yet implemented.')
 
     @rpc.method(messages.EventQuery, messages.EventRange)
     def query(self, request):
@@ -121,7 +122,9 @@ class EventDataService(rpc.Service):
             ## does this account have modern trackers provisioned?
             if trackers:
                 ## @TODO(sgammon): implement support for modern trackers
-                raise NotImplementedError('`EventService` method `query` does not yet support modern tracking.')
+                raise self.exceptions.invalid_owner('`EventService` method `query` does not yet support modern tracking.')
+            else:
+                raise self.exceptions.unknown_owner('Owner `%s` failed to resolve to a valid Tracker.' % request.owner)
 
         # build start range
         if request.start:

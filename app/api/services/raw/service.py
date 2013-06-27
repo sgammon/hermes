@@ -22,12 +22,11 @@ from api.models.tracker import raw
 
 
 ## RawDataService - exposes methods for retrieving raw data from `EventTracker`.
-@rpc.service
+@rpc.service(name='raw')
 class RawDataService(rpc.Service):
 
     ''' Exposes methods for retrieving raw data from `EventTracker`. '''
 
-    name = 'raw'
     _config_path = 'hermes.api.tracker.RawDataAPI'
 
     exceptions = rpc.Exceptions(**{
@@ -133,4 +132,4 @@ class RawDataService(rpc.Service):
 
         ''' Retrieve all known :py:class:`raw.Event` entities. '''
 
-        raise NotImplementedError('`EventTracker` Raw API does not yet support `get_all`.')
+        raise self.exceptions.generic('`EventTracker` Raw API does not yet support the method `get_all`.')

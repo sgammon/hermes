@@ -108,16 +108,12 @@ class Parameter(meta.ProtocolBinding):
         # attach parent definitions
         self.policy, self.parent = _policy, parent
 
-        # merge and attach config
-        self.config = {
-            'source': 
-        }
-
         # factory parameter
-        self.name, self.basetype, self.basevalue, self.literal = (subtype,
-                                                                  basetype,
-                                                                  value,
-                                                                  config.get('literal', False))
+        self.name, self.config, self.basetype, self.basevalue, self.literal = (subtype,
+                                                                               config,
+                                                                               basetype,
+                                                                               value,
+                                                                               config.get('literal', False))
 
     def __repr__(self):
 
