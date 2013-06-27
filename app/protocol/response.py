@@ -10,10 +10,11 @@ Protocol: Response Bindings
 """
 
 # meta protocol
-from protocol import meta
+from . import meta
 
 
-## ResponseMode - enumerates options for how the EventTracker can respond to an event.
+## ResponseMode
+# Enumerates options for how the EventTracker can respond to an event.
 class ResponseMode(meta.ProtocolDefinition):
 
     ''' Enumerates ways a request can be responded to. '''

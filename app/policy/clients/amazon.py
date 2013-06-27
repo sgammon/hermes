@@ -2,52 +2,48 @@
 
 '''
 Policy: Amazon
+
+Event policy suite for Amazon.
+
+:author: Leo Celis (leo.celis@ampush.com)
+:author: Sam Gammon (sam.gammon@ampush.com)
+:copyright: (c) 2013 Ampush.
+:license: This is private source code - all rights are reserved. For details about
+          embedded licenses and other legalese, see `LICENSE.md`.
 '''
 
 # policy imports
 from policy import base
-
-# protocol imports
-from protocol import http
-from protocol import parameter
+from protocol import parameter, decorators
 
 
 ## Amazon
 # Legacy event profile for trackers owned by Amazon.
+@decorators.legacy(ref='amazon')
 class Amazon(base.LegacyProfile):
 
     ''' Base profile for Amazon. '''
 
-    refcode = 'amazon'
-
+    @decorators.override
     class Order(parameter.ParameterGroup):
 
-        ''' More params. '''
+        ''' Encapsulates order details like
+            `user_id` and `event_name`. '''
 
-        user_id = basestring, {
-            'policy': parameter.ParameterPolicy.OPTIONAL,
-            'name': 'uid',
-            'source': http.DataSlot.PARAM
-        }
+        user_id = basestring, {'name': 'uid'}
+        event_name = basestring, {'name': 'event'}
+        conversion_type = basestring, {'name': 'convtype'}
 
-        event_name = basestring, {
-            'policy': parameter.ParameterPolicy.OPTIONAL,
-            'name': 'event',
-            'source': http.DataSlot.PARAM
-        }
+    class Signature(parameter.ParameterGroup):
 
-        conversion_type = basestring, {
-            'policy': parameter.ParameterPolicy.OPTIONAL,
-            'name': 'convtype',
-            'source': http.DataSlot.PARAM
-        }
+        ''' Parameter group supporting event
+            signing and signature verification. '''
 
-    class SignatureVerification(parameter.ParameterGroup):
+        @decorators.parameter(basestring, name='signature')
+        def valid(event, data, value):
 
-        ''' More params. '''
+            ''' Verify event signature present
+                in the URL with a configured
+                static secret. '''
 
-        signature = basestring, {
-            'policy': parameter.ParameterPolicy.OPTIONAL,
-            'name': 'signature',
-            'source': http.DataSlot.PARAM
-        }
+            return value  # @TODO(sgammon): verify signature

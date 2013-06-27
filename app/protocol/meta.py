@@ -22,6 +22,8 @@ from apptools.util import decorators
 from apptools.util import datastructures
 
 
+## Definition
+# Top-level parent class for all protocol definitions/bindings.
 class Definition(object):
 
     ''' Definition. '''
@@ -167,14 +169,19 @@ class Definition(object):
             'name': _psplit[-1]})._setcondition(cls._config.get('debug', True))
 
 
+## ProtocolBinding
+# Top-level class for all binding (dynamic) protocol definitions.
 class ProtocolBinding(Definition):
 
-    ''' ProtocolBinding. '''
+    ''' Describes a non-static protocol definition, usually
+        used for dynamic enumeration mappings or more
+        advanced edges like :py:class:`Attribution` and
+        :py:class:`Aggregation` specs. '''
 
     # == Object Members == #
-    __config__ = None
-    __frozen__ = False
-    __subtype__ = None
+    __config__ = None  # arbitrary binding configuration
+    __frozen__ = False  # whether this binding can be mutated
+    __subtype__ = None  # linked sub-binding (in policy tree)
 
     # == Internals == #
     def __init__(self, subtype=None, **kwargs):
@@ -191,15 +198,18 @@ class ProtocolBinding(Definition):
 
             :returns: Nothing, as this is a constructor. '''
 
-        print "%s(%s, %s)" % (self.__class__.__name__, subtype, kwargs)
         self.__subtype__, self.__config__ = subtype, kwargs
 
 
+## ProtocolDefinition
+# Top-level class for all static (mapping) protocol definitions.
 class ProtocolDefinition(Definition):
 
-    ''' ProtocolDefinition. '''
+    ''' Describes a static (frozen) protocol definition,
+        usually used for mapping small string/int values
+        to larger special symbols. '''
 
-    __frozen__ = True
+    __frozen__ = True  # cannot be mutated or instantiated
 
     @classmethod
     def reverse_resolve(cls, value):

@@ -1,20 +1,22 @@
 # -*- coding: utf-8 -*-
 
-'''
+"""
+Protocol: Event Bindings
 
-Components: Event Protocol
+Defines bindings related to structuring tracked events.
 
-Description coming soon.
+:author: Sam Gammon (sam.gammon@ampush.com)
+:copyright: (c) 2013 Ampush.
+:license: This is private source code - all rights are reserved. For details about
+          embedded licenses and other legalese, see `LICENSE.md`.
+"""
 
--sam (<sam.gammon@ampush.com>)
-
-'''
-
-# Protocol
+# meta protocol
 from . import meta
 
 
-## EventType - keeps track of defined event types
+## EventType
+# Keeps track of defined event types
 class EventType(meta.ProtocolDefinition):
 
     ''' Keeps track of event types that we track. '''
@@ -25,7 +27,8 @@ class EventType(meta.ProtocolDefinition):
     CUSTOM = 'x'  # custom - record a custom-defined event type.
 
 
-## EventProvider - keeps track of event sources
+## EventProvider
+# Keeps track of event sources
 class EventProvider(meta.ProtocolDefinition):
 
     ''' Keeps track of sources of events we track. '''
@@ -37,7 +40,8 @@ class EventProvider(meta.ProtocolDefinition):
     AD_X = 'adx'  # ad-X - server-sent event triggered/provided by AD-X integration
 
 
-## EventProperty - keeps track of properties on which events may occur
+## EventProperty
+# Keeps track of properties on which events may occur
 class EventProperty(meta.ProtocolDefinition):
 
     ''' Keeps track of web properties on which events may occur. '''
@@ -49,7 +53,8 @@ class EventProperty(meta.ProtocolDefinition):
     FACEBOOK_MOBILE = 'fbm'  # facebook mobile events - events that occur on facebook for mobile
 
 
-## EventTypePriority - keeps track of priority multipliers for event types
+## EventTypePriority
+# Keeps track of priority multipliers for event types
 class EventTypePriority(meta.ProtocolDefinition):
 
     ''' Keeps track of mapped priorities for event types. '''

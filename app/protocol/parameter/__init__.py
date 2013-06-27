@@ -1,26 +1,30 @@
 # -*- coding: utf-8 -*-
 
-'''
+"""
+Protocol: Parameter Bindings
 
-Components: Parameter Protocol
+Defines bindings and ancillary structure for creating
+defined :py:class:`Parameter` and :py:class:`ParameterGroup`
+objects, to be attached to a :py:class:`Policy`.
 
-Description coming soon.
-
--sam (<sam.gammon@ampush.com>)
-
-'''
+:author: Sam Gammon (sam.gammon@ampush.com)
+:copyright: (c) 2013 Ampush.
+:license: This is private source code - all rights are reserved. For details about
+          embedded licenses and other legalese, see `LICENSE.md`.
+"""
 
 # Protocol
-from protocol import meta
+from .. import meta
 
 # Parameter
-from protocol.parameter import group
-from protocol.parameter.group import Parameter
-from protocol.parameter.group import ParameterGroup
-from protocol.parameter.group import ParamDeclarationMode
+from . import group
+from .group import Parameter
+from .group import ParameterGroup
+from .group import ParamDeclarationMode
 
 
-## ParameterBasetype - maps basetypes available for parameters.
+## ParameterBasetype
+# Maps basetypes available for parameters.
 class ParameterBasetype(meta.ProtocolDefinition):
 
     ''' Binds available parameter bastypes to type classes and IDs. '''
@@ -32,7 +36,8 @@ class ParameterBasetype(meta.ProtocolDefinition):
     BOOLEAN = bool  # boolean type (under HTTP: accepts 'on'/'off', '1'/'0', 'true'/'false' and is case-insensitive)
 
 
-## ParameterPolicy - specifies ways the presence of an individual param may be handled.
+## ParameterPolicy
+# Specifies ways the presence of an individual param may be handled.
 class ParameterPolicy(meta.ProtocolDefinition):
 
     ''' Maps policy options for a parameter to named items. '''
@@ -45,7 +50,8 @@ class ParameterPolicy(meta.ProtocolDefinition):
     SPECIAL = 0x4  # this parameter is special and has builtin or extended-in code to handle it.
 
 
-## ParameterType - keeps track of param group prefixes
+## ParameterType
+# Keeps track of param group prefixes
 class ParameterType(meta.ProtocolDefinition):
 
     ''' Maps groups of params to custom prefixes. '''
@@ -55,3 +61,6 @@ class ParameterType(meta.ProtocolDefinition):
     AMPUSH = 'a'  # indicates that this is a builtin, ampush-specific property (_not_ system internal, though).
     CUSTOM = 'c'  # indicates a property custom-made for a client or use case, with special code attached
     INTERNAL = 'i'  # indicates a property that is internal to the ``EventTracker`` system
+
+
+__all__ = ['group', 'Parameter', 'ParameterGroup', 'ParamDeclarationMode']

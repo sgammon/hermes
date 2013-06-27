@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 
-'''
+"""
+Protocol: Transport Bindings
 
-Transport Protocol
+Contains static and dynamic bindings for different
+transport layers supported by ``Hermes``.
 
-Description coming soon.
+:author: Sam Gammon (sam.gammon@ampush.com)
+:copyright: (c) 2013 Ampush.
+:license: This is private source code - all rights are reserved. For details about
+          embedded licenses and other legalese, see `LICENSE.md`.
+"""
 
--sam (<sam.gammon@ampush.com>)
-
-'''
-
-# Protocol
+# meta protocol
 from . import meta
 
 

@@ -2,28 +2,26 @@
 
 '''
 Policy: DegreeLeap
+
+Event policy suite for DegreeLeap.
+
+:author: Leo Celis (leo.celis@ampush.com)
+:author: Sam Gammon (sam.gammon@ampush.com)
+:copyright: (c) 2013 Ampush.
+:license: This is private source code - all rights are reserved. For details about
+          embedded licenses and other legalese, see `LICENSE.md`.
 '''
 
-# base clients
+# policy imports
 from policy import base
-
-# protocol imports
-from protocol import http
-from protocol import parameter
+from protocol import decorators
 
 
 ## DegreeLeap
 # Legacy profile class for trackers owned by Degree Leap.
+@decorators.legacy(ref='degreeleap')
 class DegreeLeap(base.LegacyProfile):
 
     ''' Legacy event policy for trackers owned by Degree Leap. '''
 
-    refcode = frozenset(['degreeleap'])
-
-    class Order(parameter.ParameterGroup):
-
-        revenue = float, {
-            'policy': parameter.ParameterPolicy.OPTIONAL,
-            'name': 'spent',
-            'source': http.DataSlot.PARAM
-        }
+    pass

@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 
-'''
+"""
+Protocol: HTTP Bindings
 
-Components: HTTP Protocol
+Defines HTTP-specific protocol bindings
+and ancillary support bindings.
 
-Description coming soon.
+:author: Sam Gammon (sam.gammon@ampush.com)
+:copyright: (c) 2013 Ampush.
+:license: This is private source code - all rights are reserved. For details about
+          embedded licenses and other legalese, see `LICENSE.md`.
+"""
 
--sam (<sam.gammon@ampush.com>)
-
-'''
-
-# Protocol
+# meta protocol
 from . import meta
 
 
@@ -27,7 +29,8 @@ class DataSlot(meta.ProtocolDefinition):
     PATH = 0x5  # HTTP path component (inside the URL)
 
 
-## RequestMethod - indicates the HTTP method of a tracker request.
+## RequestMethod
+# Indicates the HTTP method of a tracker request.
 class RequestMethod(meta.ProtocolDefinition):
 
     ''' Maps HTTP verbs to discrete values. '''

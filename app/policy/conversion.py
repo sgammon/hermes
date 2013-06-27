@@ -11,13 +11,7 @@ Description coming soon.
 '''
 
 # event profiles
-from policy.base import EventProfile
-
-# protocol suite
-from protocol import event
-from protocol import transport
-from protocol.decorators import param
-from protocol.parameter.group import ParameterGroup
+from .base import event, transport, parameter, decorators, EventProfile
 
 
 ## Conversion
@@ -34,8 +28,8 @@ class Conversion(EventProfile):
 
         response_mode = transport.HTTPResponseMode.IMG
 
-    @param.values
-    class Base(ParameterGroup):
+    @decorators.values
+    class Base(parameter.ParameterGroup):
 
         ''' Parameter group for base tracker parameters. '''
 

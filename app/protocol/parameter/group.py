@@ -1,20 +1,23 @@
 # -*- coding: utf-8 -*-
 
-'''
+"""
+Parameter Protocol: Group Bindings
 
-Parameter Protocol: Group
+Defines and structures bindings for creating parameter
+groups.
 
-Description coming soon.
+:author: Sam Gammon (sam.gammon@ampush.com)
+:copyright: (c) 2013 Ampush.
+:license: This is private source code - all rights are reserved. For details about
+          embedded licenses and other legalese, see `LICENSE.md`.
+"""
 
--sam (<sam.gammon@ampush.com>)
-
-'''
-
-# Protocol
-from protocol import meta
+# meta protocol
+from .. import meta
 
 
-# ParamDeclarationMode - enumerates possible mode options for a ``ParameterGroup``.
+# ParamDeclarationMode
+# Enumerates possible mode options for a ``ParameterGroup``.
 class ParamDeclarationMode(meta.ProtocolDefinition):
 
     ''' Specifies the declaration mode for a
@@ -26,7 +29,8 @@ class ParamDeclarationMode(meta.ProtocolDefinition):
     DIFFERENTIAL = 0x4  # ``differential`` state - indicates a delta property override state (``override`` for schema)
 
 
-## Parameter - specifies an individual parameter. Always part of a ``ParameterGroup``.
+## Parameter
+# Specifies an individual parameter. Always part of a ``ParameterGroup``.
 class Parameter(meta.ProtocolBinding):
 
     ''' Individual binding for a ``parameter`` on
@@ -44,15 +48,15 @@ class Parameter(meta.ProtocolBinding):
                  'basevalue')
 
     ## == External Properties == ##
-    name = None
-    group = None
-    mapper = None
-    policy = None
-    parent = None
-    config = None
-    literal = False
-    basetype = None
-    basevalue = None
+    name = None  # external property name of the :py:class:`Parameter`
+    group = None  # reference to the encapsulating/owning :py:class:`ParameterGroup`
+    mapper = None  # mapper function defined to handle the property, if any
+    policy = None  # reference to the encapsulating/owning :py:class:`Policy`
+    parent = None  # reference to immediate parent/inherited :py:class:`Parameter` (if any)
+    config = None  # ``dict`` of arbitrary config items that the :py:class:`Interpreter` should understand
+    literal = False  # flag indicating that this parameter was defined with a literal call to :py:class:`Parameter`
+    basetype = None  # base type constructor to validate and convert values of this :py:class:`Parameter`
+    basevalue = None  # base value to use in place of a missing value in a :py:class:`TrackedEvent` (basically default)
 
     ## == Internal Methods == ##
     def __init__(self, _policy, parent, group, subtype, basetype=None, value=None, **config):
@@ -104,12 +108,16 @@ class Parameter(meta.ProtocolBinding):
         # attach parent definitions
         self.policy, self.parent = _policy, parent
 
+        # merge and attach config
+        self.config = {
+            'source': 
+        }
+
         # factory parameter
-        self.name, self.config, self.basetype, self.basevalue, self.literal = (subtype,
-                                                                               config,
-                                                                               basetype,
-                                                                               value,
-                                                                               config.get('literal', False))
+        self.name, self.basetype, self.basevalue, self.literal = (subtype,
+                                                                  basetype,
+                                                                  value,
+                                                                  config.get('literal', False))
 
     def __repr__(self):
 
@@ -147,18 +155,19 @@ class Parameter(meta.ProtocolBinding):
         return self
 
 
-## ParameterGroup - utility/encapsulation class for extending and defining a parameter group's specs.
+## ParameterGroup
+# Utility/encapsulation class for extending and defining a parameter group's specs.
 class ParameterGroup(meta.ProtocolBinding):
 
     ''' Abstract base for a group of params. '''
 
     # == Public Members == #
-    name = None
-    parameters = None
+    name = None  # external name of this :py:class:`ParameterGroup`
+    parameters = None  # :py:class:`Parameter` objects defined in this group
 
     # == Internal Members == #
     __mode__ = ParamDeclarationMode.DECLARATION  # default mode - ``declaration``
-    __inline__ = None
+    __inline__ = None  # ``inline`` flag - whether this was defined with an explicit constructor call
 
     def __init__(self, name, spec, inline=False):
 

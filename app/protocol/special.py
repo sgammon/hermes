@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
 
-'''
+"""
+Protocol: Special Bindings
 
-Special Protocol
+Defines special enumerations of reserved/magic characters
+and phrases.
 
-Description coming soon.
+:author: Sam Gammon (sam.gammon@ampush.com)
+:copyright: (c) 2013 Ampush.
+:license: This is private source code - all rights are reserved. For details about
+          embedded licenses and other legalese, see `LICENSE.md`.
+"""
 
--sam (<sam.gammon@ampush.com>)
-
-'''
-
-# Protocol
-from protocol import meta
+# meta protocol
+from . import meta
 
 
 ## Prefixes

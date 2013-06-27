@@ -1,69 +1,18 @@
 # -*- coding: utf-8 -*-
 
-from protocol.parameter.group import ParamDeclarationMode
+"""
+Protocol: Parameter Decorators
 
+Defines utility decorators that aid in the definition
+and creation of :py:class:`Parameter` objects being
+linked to :py:class:`Profile` classes.
 
-# ParameterGroup decorators
+:author: Sam Gammon (sam.gammon@ampush.com)
+:copyright: (c) 2013 Ampush.
+:license: This is private source code - all rights are reserved. For details about
+          embedded licenses and other legalese, see `LICENSE.md`.
+"""
 
-
-def declaration(group):
-
-    ''' Mark a parameter group declaration as a
-        "binding block", indicating a set of
-        schema-mapped structure items instead
-        of values.
-
-        :param group:
-        :returns: '''
-
-    ## mark group as a binding block
-    group.__mode__ = ParamDeclarationMode.DECLARATION
-    return group
-
-
-def override(group):
-
-    ''' Mark a parameter group declaration as a
-        "override block", indicating that it
-        should replace blocks of the same name
-        _completely_.
-
-        :param group:
-        :returns: '''
-
-    ## mark group as an override block
-    group.__mode__ = ParamDeclarationMode.OVERRIDE
-    return group
-
-
-def differential(group):
-
-    ''' Coming soon.
-
-        :param group:
-        :returns: '''
-
-    ## mark group as a binding block
-    group.__mode__ = ParamDeclarationMode.DIFFERENTIAL
-    return group
-
-
-def values(group):
-
-    ''' Mark a parameter group declaration as a
-        "values block", indicating a set of
-        mapped default values instead of
-        ``tuple(basetype, options)``.
-
-        :param group:
-        :returns: '''
-
-    ## mark group as a values block
-    group.__mode__ = ParamDeclarationMode.VALUES
-    return group
-
-
-# Parameter decorators
 
 def parameter(basetype=basestring, config=None, **kwconfig):
 

@@ -11,16 +11,7 @@ Description coming soon.
 '''
 
 # event profiles
-from policy.base import EventProfile
-
-# protocol suite
-from protocol import http
-from protocol import event
-from protocol import builtin
-from protocol import parameter
-from protocol import transport
-from protocol.decorators import param
-from protocol.parameter.group import ParameterGroup
+from .base import http, event, builtin, parameter, transport, decorators, EventProfile
 
 
 ## Click
@@ -37,24 +28,23 @@ class Click(EventProfile):
 
         response_mode = transport.HTTPResponseMode.REDIRECT_TEMP
 
-    @param.values
-    class Base(ParameterGroup):
+    @decorators.values
+    class Base(parameter.ParameterGroup):
 
         ''' Parameter group for base tracker parameters. '''
 
         # Type: should be set to `CLICK` for this and descendents.
         type = event.EventType.CLICK
 
-    @param.declaration
-    class Destination(ParameterGroup):
+    @decorators.declaration
+    class Destination(parameter.ParameterGroup):
 
         ''' Details and config for this click's redirect. '''
 
-        url = basestring, {
-            'policy': parameter.ParameterPolicy.OPTIONAL,
-            'source': (http.DataSlot.PARAM, http.DataSlot.HEADER),
-            'name': (builtin.TrackerProtocol.DESTINATION, 'Destination')
-        }
-
-        params = dict, {}
+        params = dict
         redirect = bool, {'default': True}
+
+        url = basestring, {
+            'source': (http.DataSlot.PARAM, http.DataSlot.HEADER),
+            'name': (builtin.TrackerProtocol.DESTINATION, 'destination')
+        }
