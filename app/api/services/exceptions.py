@@ -10,8 +10,8 @@ API Services: Exceptions
 '''
 
 # Hermes Exceptions
-from api import exceptions
+from rpc import remote
 
 
 ## Error - generic top-level exception for all `APIService` errors.
-class Error(exceptions.Error): ''' Root, abstract `APIService` error class. '''
+class Error(remote.ApplicationError): ''' Root, abstract `APIService` error class. '''
