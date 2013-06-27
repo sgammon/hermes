@@ -426,7 +426,23 @@ class Profile(type):
             }
 
             if 'refcode' in properties:
-                _klass['refcode'] = properties['refcode']
+
+                if isinstance(properties['refcode'], basestring):
+                    _ref_code = properties['refcode'].lower().strip()
+
+                elif isinstance(properties['refcode'], (frozenset, set, list, tuple)):
+                    _multiref = []
+                    for i in _ref_code:
+
+                        if not isinstance(i, basestring):
+                            raise TypeError('Cannot provide non-string `ref` for legacy tracking profile.'
+                                            ' Got: "%s".' % str(i))
+
+                        _multiref.append(i.lower().strip())
+
+                    _ref_code = frozenset(_multiref)
+
+                _klass['refcode'] = _ref_code
 
             ## substitute our class definition
             properties = _klass

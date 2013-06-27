@@ -30,12 +30,25 @@ def legacy(ref=None):
         :returns: Decorated :py:class:`Profile`, with
         activated support for legacy tracking. '''
 
+    if ref is None:
+        raise ValueError('Must provide `ref` to enable target `Profile` for legacy tracking.')
+
     def decorate(klass):
 
         ''' Decorate the target class with the encapsulated
             ``ref`` value. '''
 
-        klass.refcode = ref
-        return klass
+        if isinstance(ref, basestring):
+            klass.refcode = ref.lower().strip()
 
+        elif isinstance(ref, (frozenset, set, list, tuple)):
+            _multiref = []
+            for i in ref:
+                if not isinstance(i, basestring):
+                    raise TypeError('Cannot provide non-string `ref` for legacy tracking'
+                                    'profile %s. Got: "%s".' % (str(klass), str(i)))
+
+                _multiref.append(i.lower().strip())
+            klass.refcode = frozenset(_multiref)
+        return klass
     return decorate  # return internal closure

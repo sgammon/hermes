@@ -186,7 +186,6 @@ class PolicyEngine(PlatformBridge):
         http.DataSlot.PATH: _extract_http_path
     }
 
-
     ### ==== Public Methods ==== ###
     def match_parameters(self, data, policy, legacy=False):
 
