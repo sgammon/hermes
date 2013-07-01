@@ -50,7 +50,7 @@ class EventDataService(rpc.Service):
         'generic': exceptions.Error,
         'invalid_query': exceptions.InvalidQuery,
         'invalid_owner': exceptions.InvalidOwner,
-        'unknown_owner': exceptions.UnknownOwner
+        'unknown_owner': exceptions.UnknownOwner,
         'invalid_timerange': exceptions.InvalidTimerange,
         'invalid_timewindow': exceptions.InvalidTimewindow
     })
