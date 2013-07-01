@@ -104,6 +104,8 @@ class Parameter(meta.ProtocolBinding):
         if 'mapper' in config:
             self.mapper = config.get('mapper')
             del config['mapper']
+        if not self.mapper and parent is not None:
+            self.mapper = parent.mapper
 
         # attach parent definitions
         self.policy, self.parent = _policy, parent
@@ -123,6 +125,37 @@ class Parameter(meta.ProtocolBinding):
             :returns: Clean string repr. '''
 
         return "Property(%s, %s)" % (self.name, self.basetype or self.basevalue)
+
+    def _ancestry(self, reverse=False):
+
+        ''' Walk the ancestry tree for this :py:class:`Property`.
+            Yields the current property, and then each parent
+            property that can be found by recursively walking
+            `property.parent`.
+
+            :param reversed: Flag ``bool`` that reverses the
+            ancestry order (``root``-> ``n`` -> ``target``),
+            instead of the default (``target`` -> ``n`` -> ``root``).
+            Defaults to ``False``.
+
+            :returns: A generator that ``yields`` each ancestor. '''
+
+        ancestry = []
+        if prop.parent:  # are we at the root?
+            parent = prop.parent
+            while parent:
+                ancestry.append(parent)
+                parent = prop.parent
+
+        if reverse:
+            for i in reversed(ancestry):
+                yield i
+            yield self
+        else:
+            yield self
+            for i in ancestry:
+                yield i
+        raise StopIteration()
 
     def set_default(self, default):
 

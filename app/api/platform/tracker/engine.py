@@ -211,7 +211,7 @@ class EventEngine(PlatformBridge):
             if isinstance(channels, (tuple, list)):
 
                 # for multiple channels, start a pipeline
-                pipe = pipeline if pipeline is not None else self.pipeline(self.Datastore.redis)
+                pipe = pipeline if pipeline not in (None, False) else self.pipeline(self.Datastore.redis)
                 for channel in channels:
                     pipe.publish(channel, encoded)
 

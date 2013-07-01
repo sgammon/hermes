@@ -259,9 +259,25 @@ class PolicyEngine(PlatformBridge):
 
             # add to artifacts to look for
             if name in artifacts:
-                if artifacts[name] is not prm:
-                    raise exceptions.DuplicateParameterName("Encountered more than one parameter with the name "
-                                                            "'%s' (violating property was '%s'." % (identifier, name))
+
+                if (prm is artifacts[name].parent):
+                    # it's an ancestor
+
+                    # adopt parent mapper
+                    if prm.mapper and not artifacts[name].mapper:
+                        artifacts[name].mapper = prm.mapper
+                        converter = ((prm.mapper, prm.config.get('keyed', False)), converter)
+
+                    continue  # we already have an up-to-date parameter
+
+                elif (prm.parent is artifacts[name]):
+                    # it's a descendent
+                    pass  # continue to overwrite
+
+                else:
+                    if (artifacts[name] is not prm):
+                        raise exceptions.DuplicateParameterName("Encountered more than one parameter with the name "
+                                                                "'%s' (violating property was '%s'." % (identifier, name))
 
             artifacts[identifier], converters[identifier] = prm, converter  # add to artifacts, converters
 
@@ -302,7 +318,7 @@ class PolicyEngine(PlatformBridge):
                 param = artifacts[i]  # grab parameter
 
                 if param.basevalue is not None:
-                    yield param, i, param.basetype, param.basevalue
+                    yield param, i, converters[i], param.basevalue
                 else:
 
                     if isinstance(param.config.get('name'), (list, set, frozenset, tuple)):

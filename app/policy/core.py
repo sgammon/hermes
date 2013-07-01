@@ -162,7 +162,11 @@ class Profile(type):
 
                     if isinstance(config, tuple):  # this is an error
                         raise TypeError('Cannot provide schema with @param.values decorator. Got: "%s".' % config)
-                    basevalue, config = config, parent_param.config
+
+                    if parent_param is not None:
+                        basevalue, config = config, parent_param.config
+                    else:
+                        basevalue, config = config, {}
 
                     param_pool[param] = current_param = parameter.Parameter(*(
                         policy,

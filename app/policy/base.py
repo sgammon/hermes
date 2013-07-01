@@ -35,7 +35,6 @@ _DEFAULT_COOKIE_NAME = "_amp"
 
 # Default attribution / aggregation lookback window
 _DEFAULT_LOOKBACK = (timedelta.TimeWindow.ONE_HOUR,
-                     timedelta.TimeWindow.ONE_DAY,
                      timedelta.TimeWindow.FOREVER)
 
 
@@ -68,6 +67,7 @@ class EventProfile(core.AbstractProfile):
 
         response_mode = transport.HTTPResponseMode.BEACON
 
+    @decorators.declaration
     class Base(parameter.ParameterGroup):
 
         ''' Parameter group for base tracker parameters. '''
@@ -114,6 +114,21 @@ class EventProfile(core.AbstractProfile):
             ]
         }
 
+    @decorators.declaration
+    class Event(parameter.ParameterGroup):
+
+        ''' Custom parameter group describing basic
+            event details. '''
+
+        # Event Name + Code
+        name = basestring, {'name': 'event'}
+        code = basestring, {'name': 'evcode'}
+
+        # Injected Timezone + Timestamp
+        timezone = int, {'name': 'tz'}
+        timestamp = int, {'name': 'ts'}
+
+    @decorators.declaration
     class Environment(parameter.ParameterGroup):
 
         ''' Parameter group for client browser environment. '''
@@ -121,15 +136,12 @@ class EventProfile(core.AbstractProfile):
         # OS: The operating system the browser is running in.
         os = basestring, {
             'policy': parameter.ParameterPolicy.PREFERRED,
-            'source': http.DataSlot.PARAM,
             'name': environment.BrowserEnvironment.OS,
             'category': parameter.ParameterType.DATA
         }
 
         # Arch: The underlying architecture of the host operating system (i.e. "x86-64").
         arch = basestring, {
-            'policy': parameter.ParameterPolicy.OPTIONAL,
-            'source': http.DataSlot.PARAM,
             'name': environment.BrowserEnvironment.ARCH,
             'category': parameter.ParameterType.DATA
         }
@@ -137,7 +149,6 @@ class EventProfile(core.AbstractProfile):
         # Vendor: The author of the browser being used (i.e. "Google" for Chrome).
         vendor = basestring, {
             'policy': parameter.ParameterPolicy.PREFERRED,
-            'source': http.DataSlot.PARAM,
             'name': environment.BrowserEnvironment.VENDOR,
             'category': parameter.ParameterType.DATA
         }
@@ -145,11 +156,11 @@ class EventProfile(core.AbstractProfile):
         # Browser: The software-name of the browser being used (i.e. "Safari" for Safari).
         browser = basestring, {
             'policy': parameter.ParameterPolicy.PREFERRED,
-            'source': http.DataSlot.PARAM,
             'name': environment.BrowserEnvironment.BROWSER,
             'category': parameter.ParameterType.DATA
         }
 
+    @decorators.declaration
     class Consumer(parameter.ParameterGroup):
 
         ''' Models the end-consumer. '''
@@ -162,6 +173,7 @@ class EventProfile(core.AbstractProfile):
             'category': parameter.ParameterType.INTERNAL
         }
 
+    @decorators.declaration
     class Order(parameter.ParameterGroup):
 
         ''' Encapsulates order details, like
@@ -169,12 +181,58 @@ class EventProfile(core.AbstractProfile):
 
         revenue = float, {'name': 'spent'}
 
-    class Event(parameter.ParameterGroup):
+    @decorators.declaration
+    class Funnel(parameter.ParameterGroup):
 
-        ''' Custom parameter group describing basic
-            event details. '''
+        ''' Defines parameters related to the marketing &
+            conversion funnel. '''
 
-        name = basestring, {'name': 'event'}
+        @decorators.parameter(int, **{
+            'keyed': True,
+            'category': None,
+            'source': http.DataSlot.PARAM,
+            'policy': parameter.ParameterPolicy.OPTIONAL,
+            'name': frozenset(['conv', 'conversion'] + reduce(lambda x, y: x + y,
+                             (['conv%s' % i, 'conversion%s' % i] for i in xrange(1, 25)))),
+            'aggregations': [aggregation.Aggregation(**{
+                'toplevel': False,
+                'interval': _DEFAULT_LOOKBACK,
+                'permutations': ['Base.TRACKER']
+            })],
+        })
+        def level(event, data, key, value):
+
+            ''' Conversion level callable. '''
+
+            if value:
+
+                # check for top-level conversions
+                if key in frozenset(('conv', 'conversion')):
+
+                    if not isinstance(value, int):
+
+                        try:
+                            value = int(value)
+                        except ValueError:
+                            value = 1  # defaults to conversion level 1 without a value and a key of `conv` or `conversion`
+
+                else:
+
+                    # long-form parameter names
+                    if 'conversion' in key:
+                        splitkey = 'conversion'
+
+                    # short-form parameter names
+                    else:
+                        splitkey = 'conv'
+                    _, level = tuple(key.split(splitkey))
+                    value = int(level)  # int-ify our conversion level
+
+                # assign to event and return
+                event.level = value
+                return value  # level decoded OK
+
+            return 1  # return directly - something is wrong
 
 
 ## LegacyProfile
@@ -213,46 +271,9 @@ class LegacyProfile(EventProfile):
                 event.refcode = value
             return value
 
-    @decorators.declaration
-    class Funnnel(parameter.ParameterGroup):
+    @decorators.values
+    class Funnel(parameter.ParameterGroup):
 
-        ''' Defines parameters related to the marketing &
-            conversion funnel. '''
+        ''' All legacy events should use a default conversion level of 1. '''
 
-        @decorators.parameter(int, **{
-            'keyed': True,
-            'category': None,
-            'source': http.DataSlot.PARAM,
-            'policy': parameter.ParameterPolicy.OPTIONAL,
-            'name': frozenset(['conv', 'conversion'] + reduce(lambda x, y: x + y,
-                             (['conv%s' % i, 'conversion%s' % i] for i in xrange(1, 25)))),
-            'aggregations': [aggregation.Aggregation(**{
-                'toplevel': False,
-                'interval': _DEFAULT_LOOKBACK,
-                'permutations': ['Base.TRACKER']
-            })],
-        })
-        def level(event, data, key, value):
-
-            ''' Conversion level callable. '''
-
-            if value:
-
-                # check for top-level conversions
-                if key in frozenset(('conv', 'conversion')):
-                    level = 1
-                else:
-
-                    # long-form parameter names
-                    if 'conversion' in key:
-                        splitkey = 'conversion'
-
-                    # short-form parameter names
-                    else:
-                        splitkey = 'conv'
-                    _, level = tuple(key.split(splitkey))
-
-                    level = int(level)  # int-ify our conversion level
-                event.level = level
-                return level  # level decoded OK
-            return value  # return directly - something is wrong
+        level = 1  # default conversion level to 1

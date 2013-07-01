@@ -31,7 +31,6 @@ class Amazon(base.LegacyProfile):
             `user_id` and `event_name`. '''
 
         user_id = basestring, {'name': 'uid'}
-        event_name = basestring, {'name': 'event'}
         conversion_type = basestring, {'name': 'convtype'}
 
     class Signature(parameter.ParameterGroup):
