@@ -48,8 +48,11 @@ class EventDataService(rpc.Service):
 
     exceptions = rpc.Exceptions(**{
         'generic': exceptions.Error,
+        'invalid_query': exceptions.InvalidQuery,
         'invalid_owner': exceptions.InvalidOwner,
         'unknown_owner': exceptions.UnknownOwner
+        'invalid_timerange': exceptions.InvalidTimerange,
+        'invalid_timewindow': exceptions.InvalidTimewindow
     })
 
     @staticmethod
@@ -139,6 +142,10 @@ class EventDataService(rpc.Service):
             q.filter(TrackedEvent.created < datetime.datetime.fromtimestamp(timestamp_end))
         else:
             timestamp_end = None
+
+        # filter out invalid time ranges
+        if timestamp_start > timestamp_end:
+            raise self.exceptions.invalid_timerange('Invalid timerange: end time ("%s") cannot be less than the start time ("%s").' % (request.start, request.end))
 
         # add arbitrary filter directives
         if request.filter:
@@ -317,7 +324,7 @@ class EventDataService(rpc.Service):
 
         # stub-out attributions for now
         for k, v in edges['attributions'].iteritems():
-            raise RuntimeError('Attribution is not yet supported. '
-                               'Found %s matching hit attributions - failing.' % len(edges['attributions']))
+            raise self.exceptions.invalid_query('Attribution is not yet supported. '
+                                                'Found %s matching hit attributions - failing.' % len(edges['attributions']))
 
         return event_range

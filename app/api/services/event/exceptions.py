@@ -21,9 +21,21 @@ class Error(exceptions.Error): ''' Root, abstract `EventDataService` error class
 class TrackerError(Error): ''' Root, abstract :py:class:`Tracker` exception. '''
 
 
+## InvalidQuery
+class InvalidQuery(Error): pass
+
+
 ## InvalidOwner - raised when an owner string for a :py:class:`Tracker` is invalid.
 class InvalidOwner(TrackerError): ''' Raised when an owner string is invalid for some reason. '''
 
 
 ## UnknownOwner - raised when an owner string for a :py:class:`Tracker` is unknown to Hermes.
 class UnknownOwner(InvalidOwner): ''' Raised when an owner string is unknown to Hermes. '''
+
+
+## InvalidTimerange
+class InvalidTimerange(InvalidQuery): pass
+
+
+## InvalidTimewindow
+class InvalidTimewindow(InvalidQuery): pass
