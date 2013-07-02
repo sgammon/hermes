@@ -81,7 +81,7 @@ class Event(TrackerModel):
         from policy import base
 
         # build timestamp if we're not handed one.
-        timestamp = timestamp or datetime.datetime.now()
+        timestamp = timestamp or datetime.datetime.utcnow()
 
         if isinstance(data, webob.Request):
 

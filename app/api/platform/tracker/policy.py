@@ -391,6 +391,7 @@ class PolicyEngine(PlatformBridge):
 
         # persist raw entity
         rkey, pipe = self.bus.engine.persist(raw, pipeline=pipe)
+        _utcnow = datetime.datetime.utcnow()
 
         # by this point, raw event has already been ``put`` and ``published``. start building tracked event.
         ev = event.TrackedEvent(**{
@@ -400,8 +401,8 @@ class PolicyEngine(PlatformBridge):
             'warnings': [],
             'errors': [],
             'profile': base_policy.__definition__,
-            'modified': datetime.datetime.now(),
-            'created': datetime.datetime.now()
+            'modified': _utcnow,
+            'created': _utcnow
         })
 
         # first, process parameters
