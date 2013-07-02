@@ -50,7 +50,6 @@ class Aggregation(rpc.messages.Message):
 
     value = rpc.messages.VariantField(1)
     window = rpc.messages.MessageField(Timewindow, 2)
-    multiplier = rpc.messages.IntegerField(3, default=1)
 
 
 ## PropertyValue

@@ -13,15 +13,8 @@ class Aggregation(messages.Message):
 
 class AggregationGroup(messages.Message):
 
-  name = rpc.messages.VariantField(1)
-  dimensions = rpc.messages.VariantField(2, repeated=True, variant=messages.Variant.MESSAGE)
-  value = rpc.messages.VariantField(3, variant=messages.Variant.MESSAGE)
-
-
-class AggregationValue(messages.Message):
-
-  origin = rpc.messages.VariantField(1, variant=messages.Variant.MESSAGE)
-  auxilliary = rpc.messages.VariantField(2, repeated=True, variant=messages.Variant.MESSAGE)
+  data = rpc.messages.VariantField(1, repeated=True, variant=messages.Variant.MESSAGE)
+  spec = rpc.messages.VariantField(2, variant=messages.Variant.MESSAGE, repeated=True)
 
 
 class Attribution(messages.Message):

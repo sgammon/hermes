@@ -144,8 +144,18 @@ class EventDataService(rpc.Service):
             timestamp_end = None
 
         # filter out invalid time ranges
-        if timestamp_start > timestamp_end:
+        if (request.start and request.end) and timestamp_start > timestamp_end:
             raise self.exceptions.invalid_timerange('Invalid timerange: end time ("%s") cannot be less than the start time ("%s").' % (request.start, request.end))
+        elif request.start and not request.end:
+            raise self.exceptions.invalid_timerange('Cannot submit timerange with valid start ("%s") and no end.' % request.start)
+        elif request.end and not request.start:
+            raise self.exceptions.invalid_timerange('Cannot submit timerange with valid end ("%s") and no start.' % request.end)
+
+        # build `ref`/`level` filters
+        if request.ref:
+            q.filter(TrackedEvent.refcode == request.ref)
+        if request.level:
+            q.filter(TrackedEvent.level == request.level)
 
         # add arbitrary filter directives
         if request.filter:
@@ -253,6 +263,11 @@ class EventDataService(rpc.Service):
                 window_type, window_delta = wire_window  # extract window values
                 window_begin, window_end = trange  # extract beginning and end of window
 
+                if request.scope and (window_type != request.scope):
+                    context = (matched_aggregation, window_type, request.scope)
+                    self.logging.info('Filtering aggregation %s from view because window %s is filtered by request scope %s.' % context)
+                    continue
+
                 # filter out invalid data
                 if (request.start and (window_begin < request.start)) or (request.end and (window_end > request.end)):
                     # skip, it's outside our timewindow
@@ -268,8 +283,8 @@ class EventDataService(rpc.Service):
                 # generate aggregation item
                 _directive = edge.Aggregation(**{
                     'window': edge.Timewindow(**{
-                        'scope': window_type,
-                        'delta': window_delta,
+                        'scope': window_type if not request.scope else None,
+                        'delta': window_delta if not request.scope else None,
                         'start': int(time.mktime(window_begin.timetuple())) if window_begin else None,
                         'end': int(time.mktime(window_end.timetuple())) if window_end else None
                     })

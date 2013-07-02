@@ -46,13 +46,16 @@ class EventQuery(rpc.messages.Message):
 
     # builtin query parameters
     owner = rpc.messages.StringField(1)
-    start = rpc.messages.IntegerField(2)
-    end = rpc.messages.IntegerField(3)
+    ref = rpc.messages.StringField(2)
+    level = rpc.messages.IntegerField(3)
+    start = rpc.messages.IntegerField(4)
+    end = rpc.messages.IntegerField(5)
+    scope = rpc.messages.EnumField(edge.Timewindow.WindowScope, 6, default=edge.Timewindow.WindowScope.HOUR)
 
     # query directives + options
-    sort = rpc.messages.MessageField(SortDirective, 4, repeated=True)
-    filter = rpc.messages.MessageField(FilterDirective, 5, repeated=True)
-    options = rpc.messages.MessageField(QueryOptions, 6)
+    sort = rpc.messages.MessageField(SortDirective, 7, repeated=True)
+    filter = rpc.messages.MessageField(FilterDirective, 8, repeated=True)
+    options = rpc.messages.MessageField(QueryOptions, 9)
 
 
 class EventKeys(rpc.messages.Message):
