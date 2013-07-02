@@ -21,7 +21,9 @@ It's dead simple to use::
 """
 
 # stdlib
+import os
 import sys
+import time
 
 # Globals
 _bootstrapped = False
@@ -248,6 +250,17 @@ class AppBootstrapper(object):
         import tools
         from tools import actor
 
+        return cls
+
+    @classmethod
+    def setUTC(cls):
+
+        ''' Set Python's default timezone to UTC.
+
+            :returns: ``cls``, for chainability. '''
+
+        os.environ['TZ'] = 'UTC'
+        time.tzset()
         return cls
 
     @classmethod

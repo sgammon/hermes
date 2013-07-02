@@ -27,14 +27,6 @@ class EventQuery(rpc.messages.Message):
     ''' Query events by properties like start/end range,
         and tracker ID. Allows arbitrary filters. '''
 
-    class TimewindowFilter(rpc.messages.Enum):
-
-        ''' Enumerates available timewindows to filter
-            on. '''
-
-        HOURLY = 0x0  # return data by hour, clipped to start/end times
-        FOREVER = 0x1  # return data for alltime, ignoring time filtering
-
     class QueryOptions(rpc.messages.Message):
 
         ''' Enumerates options that can be added to a
@@ -95,7 +87,7 @@ class EventQuery(rpc.messages.Message):
     # timewindow filtering
     start = rpc.messages.IntegerField(4)
     end = rpc.messages.IntegerField(5)
-    scope = rpc.messages.EnumField(TimewindowFilter, 6, default=TimewindowFilter.HOURLY)
+    scope = rpc.messages.EnumField(edge.Timewindow.WindowScope, 6, default=edge.Timewindow.WindowScope.HOUR)
 
     # query directives + options
     sort = rpc.messages.MessageField(SortDirective, 7, repeated=True)

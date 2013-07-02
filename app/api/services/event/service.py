@@ -151,6 +151,15 @@ class EventDataService(rpc.Service):
         if request.filter:
             for directive in request.filter:
 
+                # convert value to basetype if neccessary
+                if not isinstance(directive.value, TrackedEvent[directive.property].basetype):
+                    try:
+                        value = TrackedEvent[directive.property].basetype(directive.value)
+                    except ValueError as e:
+                        context = (directive.value, TrackedEvent[directive.property].basetype, e.__class__.__name__, str(e))
+                        raise self.exceptions.generic('Failed to convert `FilterDirective` value "%s" '
+                                                      'to basetype "%s". Got exception: %s("%s").' % context)
+
                 # `==` filter
                 if directive.operator is Operator.EQUALS:
                     q.filter(TrackedEvent[directive.property] == directive.value)
@@ -244,6 +253,13 @@ class EventDataService(rpc.Service):
                 window_type, window_delta = wire_window  # extract window values
                 window_begin, window_end = trange  # extract beginning and end of window
 
+                # filter out invalid data
+                if (request.start and (window_begin < request.start)) or (request.end and (window_end > request.end)):
+                    # skip, it's outside our timewindow
+                    context = (str(matched_aggregation), (request.start, request.end))
+                    self.logging.info('Skipped aggregation %s because it falls outside our timewindow filter of (%s, %s).' % context)
+                    continue
+
                 # initialize aggregation in hash, if we haven't seen it yet
                 if (nm, (main_value, aux)) not in _touched_aggregations:
                     edges['aggregations'][(nm, (main_value, aux))] = []
@@ -314,12 +330,8 @@ class EventDataService(rpc.Service):
 
             # build aggregation group
             event_range.aggregations.append(edge.AggregationGroup(**{
-                'name': name,
-                'dimensions': v,
-                'value': edge.AggregationValue(**{
-                    'origin': origin_prop,
-                    'auxilliary': aux_prop
-                })
+                'data': v,
+                'spec': [origin_prop] + [i for i in aux_prop]
             }))
 
         # stub-out attributions for now

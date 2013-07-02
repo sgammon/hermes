@@ -64,17 +64,6 @@ class PropertyValue(rpc.messages.Message):
     value = rpc.messages.VariantField(2, required=True)
 
 
-## AggregationValue
-# Expresses the value of a property, being aggregated.
-class AggregationValue(rpc.messages.Message):
-
-    ''' Expresses the value of a property, being used
-        as a dimension for aggregation. '''
-
-    origin = rpc.messages.MessageField(PropertyValue, 1)
-    auxilliary = rpc.messages.MessageField(PropertyValue, 2, repeated=True)
-
-
 ## AggregationGroup
 # Expresses a group of timewindow-scoped values that share an aggregation dimension.
 class AggregationGroup(rpc.messages.Message):
@@ -83,9 +72,8 @@ class AggregationGroup(rpc.messages.Message):
         aggregated values that share the same aggregation
         dimension. '''
 
-    name = rpc.messages.StringField(1)
-    dimensions = rpc.messages.MessageField(Aggregation, 2, repeated=True)
-    value = rpc.messages.MessageField(AggregationValue, 3)
+    data = rpc.messages.MessageField(Aggregation, 1, repeated=True)
+    spec = rpc.messages.MessageField(PropertyValue, 2, repeated=True)
 
 
 ## Attribution
