@@ -278,6 +278,9 @@ class AppBootstrapper(object):
                      :py:meth:`cls.preloadApptools`).
         '''
 
+        ## prepare
+        cls.setUTC()
+
         for name, routine in (('apptools', cls.preloadApptools), ('tracker', cls.preloadTracker), ('hermes', cls.preloadHermes)):
             try:
                 routine(_DEBUG)  # preload modules

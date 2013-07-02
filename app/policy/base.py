@@ -84,10 +84,7 @@ class EventProfile(core.AbstractProfile):
             'name': builtin.TrackerProtocol.TYPE,
             'binding': event.EventType,
             'category': parameter.ParameterType.INTERNAL,
-            'policy': parameter.ParameterPolicy.REQUIRED,
-            'aggregations': [
-                aggregation.Aggregation(interval=_DEFAULT_LOOKBACK)
-            ]
+            'policy': parameter.ParameterPolicy.REQUIRED
         }
 
         # Provider: represents the ID string of the provider of this hit.
@@ -109,7 +106,9 @@ class EventProfile(core.AbstractProfile):
                 aggregation.Aggregation(interval=_DEFAULT_LOOKBACK,
                                         permutations=[
                                             'Base.TYPE',
-                                            'Base.PROVIDER'
+                                            'Base.PROVIDER',
+                                            'Funnel.LEVEL',
+                                            'Event.NAME'
                                         ])
             ]
         }
@@ -193,12 +192,7 @@ class EventProfile(core.AbstractProfile):
             'source': http.DataSlot.PARAM,
             'policy': parameter.ParameterPolicy.OPTIONAL,
             'name': frozenset(['conv', 'conversion'] + reduce(lambda x, y: x + y,
-                             (['conv%s' % i, 'conversion%s' % i] for i in xrange(1, 25)))),
-            'aggregations': [aggregation.Aggregation(**{
-                'toplevel': False,
-                'interval': _DEFAULT_LOOKBACK,
-                'permutations': ['Base.TRACKER']
-            })],
+                             (['conv%s' % i, 'conversion%s' % i] for i in xrange(1, 25))))
         })
         def level(event, data, key, value):
 
@@ -247,10 +241,13 @@ class LegacyProfile(EventProfile):
         ''' Models base legacy parameters. '''
 
         # Type: always `CONVERSION` when we're running legacy.
-        type = event.EventType.CONVERSION
+        type = event.EventType.CONVERSION, {'aggregations': None}
 
         # ASID: Legacy tracking adgroup ID.
-        @decorators.parameter(name=frozenset(('asid', 'adid', 'ad_id')), category=None)
+        @decorators.parameter(**{
+            'name': frozenset(('asid', 'adid', 'ad_id')),
+            'category': None
+        })
         def tracker(event, data, value):
 
             ''' Tracker callable. '''

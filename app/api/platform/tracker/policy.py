@@ -524,14 +524,21 @@ class PolicyEngine(PlatformBridge):
             ev.params = data_parameters
 
             # calculate aggregation specs
-            ev.aggregations = []
+            _aggregations = set()
             for aggr_policy in base_policy.aggregations:
                 for delta, spec in aggr_policy.build(base_policy, ev):
                     for subspec in spec:
 
+                        # skip dupes - only count once
+                        if subspec in _aggregations:
+                            continue
+
+                        _aggregations.add(subspec)
+
                         # write each aggregation increment
                         pipe = self.bus.engine.increment(subspec, delta, pipe)
-                        ev.aggregations.append(subspec)
+
+            ev.aggregations = list(i for i in _aggregations)
 
             # calculate attribution specs
             #for spec in base_policy.attributions:
